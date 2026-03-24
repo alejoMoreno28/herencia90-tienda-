@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herencia 90 | Admin V2 Segregado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --gold: #D9C391;
+            --header-bg: #111;
+            --danger: #dc3545;
+        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        header { background-color: var(--header-bg); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-save { background-color: var(--gold); color: #111; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .btn-add { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 25px; font-weight: bold; }
+        .btn-danger { background-color: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: 'Montserrat', sans-serif;}
+        
+        .container { max-width: 1400px; margin: 30px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .category-section { margin-bottom: 50px; overflow-x: auto;}
+        h3 { border-bottom: 2px solid var(--gold); padding-bottom: 10px; color: var(--header-bg); text-transform: uppercase;}
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; min-width: 1000px;}
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
+        th { background-color: #eee; font-size: 13px; }
+        
+        input[type="number"], input[type="text"], select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Montserrat', sans-serif; }
+        .stock-input { width: 50px !important; text-align: center; }
+        
+        .toast { position: fixed; bottom: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-weight: bold; z-index: 9999;}
+        
+        /* Fotos optimizadas */
+        .photo-list { list-style: none; padding: 0; margin: 0 0 10px 0; font-size: 12px;}
+        .photo-list li { background: #f9f9f9; padding: 3px 6px; margin-bottom: 3px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd;}
+        .remove-img { color: red; font-weight: bold; cursor: pointer; padding: 0 5px;}
+        .file-upload-lbl { display: inline-block; background: #eee; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; border: 1px solid #ccc;}
+        .file-upload-lbl:hover { background: #ddd; }
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Panel de Inventario - Herencia 90</h2>
+        <button class="btn-save" onclick="saveData()">Guardar Cambios</button>
+    </header>
+
+    <div class="container">
+        <button class="btn-add" onclick="addProduct()">+ Añadir Nuevo Producto</button>
+        <div id="tablesContainer">
+            <!-- Tablas inyectadas por JS agrupadas por categoría -->
+        </div>
+    </div>
+
+    <div id="toast" class="toast">¡Cambios guardados exitosamente!</div>
+
+    <script>
+        let productData = [];
+        const CATEGORIAS = ["Equipos Actuales", "Equipos Nacionales", "Retros", "Mujer"];
+
+        fetch('/productos.json?v=' + Date.now())
+            .then(res => res.json())
+            .then(data => {
+                productData = data;
+                renderTables();
+            })
+            .catch(err => alert("Error cargando inventario."));
+
+        function renderTables() {
+            const container = document.getElementById('tablesContainer');
+            container.innerHTML = '';
+            
+            // Agrupar
+            const grouped = {};
+            CATEGORIAS.forEach(cat => grouped[cat] = []);
+            
+            productData.forEach((product, idx) => {
+                const cat = product.categoria || "Equipos Actuales";
+                if(!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push({ product, globalIndex: idx });
+            });
+            
+            CATEGORIAS.forEach(cat => {
+                const items = grouped[cat];
+                if(items.length === 0) return;
+                
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.innerHTML = `<h3>${cat} (${items.length})</h3>`;
+                
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">ID</th>
+                            <th style="width:120px;">Categoría</th>
+                            <th>Equipo / Referencia</th>
+                            <th style="width:100px;">Precio (COP)</th>
+                            <th>Stock S</th>
+                            <th>Stock M</th>
+                            <th>Stock L</th>
+                            <th>Stock XL</th>
+                            <th style="width:200px;">Fotos</th>
+                            <th style="width:80px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                
+                const tbody = table.querySelector('tbody');
+                
+                items.forEach(({product, globalIndex}) => {
+                    if(!product.tallas) product.tallas = {S:0, M:0, L:0, XL:0};
+                    if(!product.imagenes && product.imagen) product.imagenes = [product.imagen];
+                    if(!product.imagenes) product.imagenes = [];
+                    
+                    const tr = document.createElement('tr');
+                    
+                    let photosHtml = '<ul class="photo-list">';
+                    product.imagenes.forEach((img, imgIdx) => {
+                        const shortName = img.split('/').pop();
+                        photosHtml += `
+                            <li>
+                                <a href="/${img}" target="_blank" title="Ver imagen">📷 ${shortName}</a>
+                                <span class="remove-img" onclick="removeImage(${globalIndex}, ${imgIdx})" title="Quitar foto">✕</span>
+                            </li>
+                        `;
+                    });
+                    photosHtml += '</ul>';
+                    photosHtml += `
+                        <label class="file-upload-lbl">
+                            📄 Subir Foto
+                            <input type="file" accept="image/png, image/jpeg" onchange="uploadImage(event, ${globalIndex})">
+                        </label>
+                    `;
+
+                    let catSelect = '<select onchange="updateData(' + globalIndex + ', \'categoria\', this.value); setTimeout(renderTables, 100);">';
+                    CATEGORIAS.forEach(c => {
+                        catSelect += `<option value="${c}" ${product.categoria === c ? 'selected' : ''}>${c}</option>`;
+                    });
+                    catSelect += '</select>';
+
+                    tr.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${catSelect}</td>
+                        <td><input type="text" value="${product.equipo}" onchange="updateData(${globalIndex}, 'equipo', this.value)"></td>
+                        <td><input type="number" value="${product.precio}" onchange="updateData(${globalIndex}, 'precio', this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${product.tallas.S || 0}" onchange="updateStock(${globalIndex}, 'S', this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${product.tallas.M || 0}" onchange="updateStock(${globalIndex}, 'M', this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${product.tallas.L || 0}" onchange="updateStock(${globalIndex}, 'L', this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${product.tallas.XL || 0}" onchange="updateStock(${globalIndex}, 'XL', this.value)"></td>
+                        <td>${photosHtml}</td>
+                        <td><button class="btn-danger" type="button" onclick="deleteProduct(${globalIndex})">Eliminar</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                section.appendChild(table);
+                container.appendChild(section);
+            });
+            
+            if(productData.length === 0) {
+                container.innerHTML = '<p>No hay productos en el inventario.</p>';
+            }
+        }
+
+        function updateData(index, field, value) {
+            if(field === 'precio') value = parseInt(value, 10) || 0;
+            productData[index][field] = value;
+        }
+
+        function updateStock(index, size, value) {
+            productData[index].tallas[size] = parseInt(value, 10) || 0;
+        }
+
+        function addProduct() {
+            const nextId = productData.length > 0 ? Math.max(...productData.map(p => p.id)) + 1 : 1;
+            productData.unshift({
+                id: nextId,
+                categoria: "Equipos Actuales",
+                equipo: "Nueva Referencia",
+                precio: 120000,
+                tallas: {S:0, M:0, L:0, XL:0},
+                imagenes: []
+            });
+            renderTables();
+            saveData(true);
+        }
+
+        function deleteProduct(index) {
+            console.log("Eliminando indice", index);
+            productData.splice(index, 1);
+            renderTables();
+            saveData(true);
+        }
+
+        function removeImage(prodIndex, imgIndex) {
+            productData[prodIndex].imagenes.splice(imgIndex, 1);
+            renderTables();
+            saveData(true);
+        }
+
+        function uploadImage(event, prodIndex) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const label = event.target.parentElement;
+            label.innerText = "⏳ Subiendo...";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                const cleanName = file.name.replace(/\s+/g, '_').toLowerCase();
+                
+                fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: cleanName, data: base64Data })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        if(!productData[prodIndex].imagenes) productData[prodIndex].imagenes = [];
+                        productData[prodIndex].imagenes.push(data.filepath);
+                        renderTables();
+                        saveData(true);
+                    } else {
+                        alert('Error: ' + data.message);
+                        label.innerText = "📄 Subir Foto";
+                    }
+                })
+                .catch(err => {
+                    alert('Error subiendo imagen.');
+                    label.innerText = "📄 Subir Foto";
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveData(silent = false) {
+            const btn = document.querySelector('.btn-save');
+            if(!silent) btn.innerText = "Guardando...";
+            fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(!silent) btn.innerText = "Guardar Cambios";
+                if(data.status === 'success') {
+                    if(!silent) showToast();
+                } else {
+                    alert('Error guardando los datos.');
+                }
+            })
+            .catch(err => {
+                if(!silent) btn.innerText = "Guardar Cambios";
+                alert('Error enviando la petición.');
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

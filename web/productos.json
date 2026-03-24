@@ -1,0 +1,375 @@
+[
+    {
+        "id": 23,
+        "categoria": "Equipos Actuales",
+        "equipo": "Real madrid edicion especial",
+        "precio": 110000,
+        "tallas": {
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/4.png",
+            "img/5.png",
+            "img/6.png"
+        ]
+    },
+    {
+        "id": 22,
+        "categoria": "Mujer",
+        "equipo": "Seleccion Colombia 2026 FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 2,
+            "M": 2,
+            "L": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/7.png",
+            "img/8.png",
+            "img/9.png"
+        ]
+    },
+    {
+        "id": 1,
+        "equipo": "ALEMANIA 2026 VERSION FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/alemania_2026_version_fan_1.png",
+            "img/alemania_2026_version_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol ALEMANIA 2026 VERSION FAN. Calidad premium.",
+        "categoria": "Equipos Nacionales"
+    },
+    {
+        "id": 2,
+        "equipo": "argnetina 2026 home fan",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/argnetina_2026_home_fan_1.png",
+            "img/argnetina_2026_home_fan_2.png"
+        ],
+        "descripcion": "Camiseta de fútbol argnetina 2026 home fan. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 3,
+        "equipo": "ARSENAL 25-25 BLANCA FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/arsenal_25-25_blanca_fan_1.png",
+            "img/arsenal_25-25_blanca_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol ARSENAL 25-25 BLANCA FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 4,
+        "equipo": "ARSENAL 25-26 HOME FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/arsenal_25-26_home_fan_1.png",
+            "img/arsenal_25-26_home_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol ARSENAL 25-26 HOME FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 5,
+        "equipo": "BARCELONA 25-26 HOME FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/barcelona_25-26_home_fan_1.png"
+        ],
+        "descripcion": "Camiseta de fútbol BARCELONA 25-26 HOME FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 6,
+        "equipo": "BARCLONA 25-26 AWAY WHITE",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/barclona_25-26_away_white_1.png",
+            "img/barclona_25-26_away_white_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol BARCLONA 25-26 AWAY WHITE. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 7,
+        "equipo": "BAYERN MUNICH 25-26 HOME FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 1
+        },
+        "imagenes": [
+            "img/bayern_munich_25-26_home_fan_1.png",
+            "img/bayern_munich_25-26_home_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol BAYERN MUNICH 25-26 HOME FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 8,
+        "equipo": "BAYERN MUNICH 25-26 tercera negra FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 1
+        },
+        "imagenes": [
+            "img/bayern_munich_25-26_tercera_negra_fan_1.png",
+            "img/bayern_munich_25-26_tercera_negra_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol BAYERN MUNICH 25-26 tercera negra FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 9,
+        "equipo": "BRASIL 2026 VERSION FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/brasil_2026_version_fan_1.png",
+            "img/brasil_2026_version_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol BRASIL 2026 VERSION FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 10,
+        "equipo": "COLOMBIA 2026",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 4,
+            "L": 4,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/colombia_2026_1.png",
+            "img/colombia_2026_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol COLOMBIA 2026. Calidad premium.",
+        "categoria": "Equipos Nacionales"
+    },
+    {
+        "id": 11,
+        "equipo": "liverpool 25-26 home red fan",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/liverpool_25-26_home_red_fan_1.png",
+            "img/liverpool_25-26_home_red_fan_2.png"
+        ],
+        "descripcion": "Camiseta de fútbol liverpool 25-26 home red fan. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 12,
+        "equipo": "LIVERPOOL 25-26 WHITE FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/liverpool_25-26_white_fan_1.png",
+            "img/liverpool_25-26_white_fan_2.png"
+        ],
+        "descripcion": "Camiseta de fútbol LIVERPOOL 25-26 WHITE FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 13,
+        "equipo": "man city 25-26 black fan",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_city_25-26_black_fan_1.png",
+            "img/man_city_25-26_black_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol man city 25-26 black fan. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 14,
+        "equipo": "MAN CITY 25-26 FAN HOME",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_city_25-26_fan_home_1.png",
+            "img/man_city_25-26_fan_home_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol MAN CITY 25-26 FAN HOME. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 15,
+        "equipo": "man ud retro 98 home",
+        "precio": 120000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_ud_retro_98_home_1.png"
+        ],
+        "descripcion": "Camiseta de fútbol man ud retro 98 home. Calidad premium.",
+        "categoria": "Retros"
+    },
+    {
+        "id": 16,
+        "equipo": "Manchester United 25-26 home FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/manchester_united_25-26_home_fan_1.png",
+            "img/manchester_united_25-26_home_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol Manchester United 25-26 home FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 17,
+        "equipo": "portugal 2026 especial 26-27 fan",
+        "precio": 110000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/portugal_2026_especial_26-27_fan_1.png",
+            "img/portugal_2026_especial_26-27_fan_2.png"
+        ],
+        "descripcion": "Camiseta de fútbol portugal 2026 especial 26-27 fan. Calidad premium.",
+        "categoria": "Equipos Nacionales"
+    },
+    {
+        "id": 18,
+        "equipo": "PSG 25-26 HOME FAN",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/psg_25-26_home_fan_1.png",
+            "img/psg_25-26_home_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol PSG 25-26 HOME FAN. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 19,
+        "equipo": "real madrid 25-26 azul fan",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/real_madrid_25-26_azul_fan_1.png",
+            "img/real_madrid_25-26_azul_fan_2.png"
+        ],
+        "descripcion": "Camiseta de fútbol real madrid 25-26 azul fan. Calidad premium.",
+        "categoria": "Equipos Actuales"
+    },
+    {
+        "id": 20,
+        "equipo": "real majdrid retro 1999-00 home fan",
+        "precio": 100000,
+        "tallas": {
+            "S": 0,
+            "M": 1,
+            "L": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/real_majdrid_retro_1999-00_home_fan_1.png",
+            "img/real_majdrid_retro_1999-00_home_fan_2.png",
+            "img/real_majdrid_retro_1999-00_home_fan_3.png"
+        ],
+        "descripcion": "Camiseta de fútbol real majdrid retro 1999-00 home fan. Calidad premium.",
+        "categoria": "Retros"
+    }
+]
