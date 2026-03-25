@@ -208,7 +208,7 @@ h1, h2, h3, .product-price, .hero-title {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: url('img/logo.png') center/contain no-repeat;
+    background: url('img/logo.webp') center/contain no-repeat;
     opacity: 0.05;
     filter: blur(5px);
     transform: scale(1.5);
@@ -287,16 +287,22 @@ h1, h2, h3, .product-price, .hero-title {
 }
 
 .product-grid {
+    display: block;
+}
+
+/* Grid interno por categoría */
+.product-grid-inner {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 30px;
+    margin-bottom: 20px;
 }
 
 @media (min-width: 768px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .product-grid-inner { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 1024px) {
-    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .product-grid-inner { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* PRODUCT CARDS (Glassmorphism) */
@@ -349,7 +355,29 @@ h1, h2, h3, .product-price, .hero-title {
     max-height: 100%;
     object-fit: contain;
     filter: drop-shadow(0 15px 25px rgba(0,0,0,0.7));
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+.product-image-wrapper img.loaded {
+    opacity: 1;
+}
+
+/* ── Skeleton shimmer loader ────────────────────────────────── */
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+
+.img-loading {
+    background: linear-gradient(
+        90deg,
+        rgba(30, 30, 30, 0.8) 25%,
+        rgba(60, 55, 45, 0.6) 50%,
+        rgba(30, 30, 30, 0.8) 75%
+    );
+    background-size: 600px 100%;
+    animation: shimmer 1.6s infinite linear;
 }
 
 .product-card:hover .product-image-wrapper img {
