@@ -40,11 +40,8 @@
             </div>
         </div>
         <nav class="category-nav">
-            <ul>
-                <li><a href="#clubes_25_26">Clubes 25/26</a></li>
-                <li><a href="#selecciones">Selecciones</a></li>
-                <li><a href="#retros">Retros</a></li>
-                <li><a href="#femenino">Femenino</a></li>
+            <ul id="desktopCatNav">
+                <!-- Se llenará dinámicamente desde app.js -->
             </ul>
         </nav>
     </header>
@@ -86,11 +83,11 @@
                 <div class="modal-info">
                     <h2 id="modalTitle"></h2>
                     <div id="modalPrice" class="product-price"></div>
-                    <div id="modalDescription" class="modal-description"></div>
                     <div class="size-selector">
                         <p>Elige tu talla:</p>
                         <div id="sizeButtons" class="size-buttons"></div>
                     </div>
+                    <div id="modalDescription" class="modal-description"></div>
                     <a href="#" id="modalWsBtn" target="_blank" class="btn-whatsapp disabled" style="pointer-events:none;opacity:0.5;">
                         <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
                         Selecciona una talla
@@ -139,23 +136,8 @@
             <img src="img/logo.webp" alt="Herencia 90" class="drawer-logo">
             <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
         </div>
-        <nav class="category-drawer-nav">
-            <a href="#clubes_25_26" class="category-drawer-link">
-                <span class="drawer-link-icon">⚽</span>
-                <span>Clubes 25/26</span>
-            </a>
-            <a href="#selecciones" class="category-drawer-link">
-                <span class="drawer-link-icon">🌍</span>
-                <span>Selecciones</span>
-            </a>
-            <a href="#retros" class="category-drawer-link">
-                <span class="drawer-link-icon">🏆</span>
-                <span>Retros</span>
-            </a>
-            <a href="#femenino" class="category-drawer-link">
-                <span class="drawer-link-icon">⭐</span>
-                <span>Femenino</span>
-            </a>
+        <nav class="category-drawer-nav" id="mobileCatNav">
+            <!-- Se llenará dinámicamente desde app.js -->
         </nav>
         <div class="category-drawer-footer">
             <p>Herencia 90 &copy; 2026</p>

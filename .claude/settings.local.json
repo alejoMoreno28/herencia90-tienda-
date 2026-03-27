@@ -8,7 +8,13 @@
       "Bash(pip show:*)",
       "Bash(ls /c/Users/PC/Desktop/HERENCIA90/*LOGO*)",
       "Bash(find /c/Users/PC/Desktop/HERENCIA90/ -maxdepth 1 -name *LOGO* -o -name *logo* -o -name *Logo*)",
-      "Bash(py scripts/process_images.py)"
+      "Bash(py scripts/process_images.py)",
+      "Bash(python -c \"import json; data=json.load\\(open\\(''web/productos.json''\\)\\); cats={}; [cats.update\\({p[''category'']:cats.get\\(p[''category''],0\\)+1}\\) for p in data[''products'']]; print\\(''Total productos:'', len\\(data[''products'']\\)\\); [print\\(f''  {k}: {v}''\\) for k,v in sorted\\(cats.items\\(\\)\\)]\")",
+      "Bash(python -c \":*)",
+      "Bash(curl -s http://localhost:5000/)",
+      "Bash(node -e \":*)",
+      "Bash(python scripts/server.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000/)"
     ]
   }
 }

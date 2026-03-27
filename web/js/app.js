@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(r => r.json())
         .then(data => {
             allProducts = data;
+            renderNavigation(allProducts);
             renderProducts(allProducts);
         })
         .catch(err => console.error('Error loading products:', err));
@@ -270,6 +271,30 @@ function makeCategoryId(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+$/, '');
 }
 
+function renderNavigation(products) {
+    const cats = [...new Set(products.map(p => p.categoria || 'Sin Categoría'))];
+    const desktopNav = document.getElementById('desktopCatNav');
+    const mobileNav = document.getElementById('mobileCatNav');
+    
+    if(desktopNav) {
+        desktopNav.innerHTML = cats.map(c => `<li><a href="#${makeCategoryId(c)}">${c}</a></li>`).join('');
+    }
+    
+    const icons = ['⚽', '🌍', '🏆', '⭐', '🔥', '💎', '🚀'];
+    if(mobileNav) {
+        mobileNav.innerHTML = cats.map((c, i) => `
+            <a href="#${makeCategoryId(c)}" class="category-drawer-link">
+                <span class="drawer-link-icon">${icons[i % icons.length]}</span>
+                <span>${c}</span>
+            </a>
+        `).join('');
+        
+        mobileNav.querySelectorAll('.category-drawer-link').forEach(link => {
+            link.addEventListener('click', () => closeDrawer());
+        });
+    }
+}
+
 // ── Render Products ───────────────────────────────────────────────────────────
 function renderProducts(products) {
     const container = document.getElementById('productGrid');
@@ -280,9 +305,9 @@ function renderProducts(products) {
         return;
     }
 
-    const ORDER = ['Clubes 25/26', 'Selecciones', 'Retros', 'Femenino'];
+    const uniqueCats = [...new Set(products.map(p => p.categoria || 'Sin Categoría'))];
     const categories = {};
-    ORDER.forEach(cat => categories[cat] = []);
+    uniqueCats.forEach(cat => categories[cat] = []);
 
     products.forEach(p => {
         const cat = p.categoria || 'Clubes 25/26';

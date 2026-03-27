@@ -48,7 +48,15 @@
     </header>
 
     <div class="container">
-        <button class="btn-add" onclick="addProduct()">+ Añadir Nuevo Producto</button>
+        <div class="admin-controls" style="margin-bottom: 25px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+            <button class="btn-add" style="margin-bottom:0;" onclick="addProduct()">+ Añadir Nuevo Producto</button>
+            <div style="background: #fdfdfd; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; display: flex; gap: 10px; align-items: center;">
+                <strong style="font-size: 13px;">Renombrar Categoría:</strong>
+                <select id="renameCatSelect" style="width: auto;"></select>
+                <input type="text" id="renameCatInput" placeholder="Nuevo nombre" style="width: 150px;">
+                <button class="btn-save" style="padding: 6px 12px; font-size: 12px;" onclick="renameCategory()">Renombrar</button>
+            </div>
+        </div>
         <div id="tablesContainer"></div>
     </div>
 
@@ -56,11 +64,16 @@
 
     <script>
         let productData = [];
-        const CATEGORIAS = ['Clubes 25/26', 'Selecciones', 'Retros', 'Femenino'];
+        let CATEGORIAS = [];
 
         fetch('/productos.json?v=' + Date.now())
             .then(r => r.json())
-            .then(data => { productData = data; renderTables(); })
+            .then(data => { 
+                productData = data; 
+                CATEGORIAS = [...new Set(productData.map(p => p.categoria || 'Sin Categoría'))];
+                if(CATEGORIAS.length === 0) CATEGORIAS = ['Nueva Categoría'];
+                renderTables(); 
+            })
             .catch(() => alert('Error cargando inventario.'));
 
         function renderTables() {
@@ -70,7 +83,7 @@
             const grouped = {};
             CATEGORIAS.forEach(cat => grouped[cat] = []);
             productData.forEach((p, idx) => {
-                const cat = p.categoria || 'Clubes 25/26';
+                const cat = p.categoria || 'Sin Categoría';
                 if (!grouped[cat]) grouped[cat] = [];
                 grouped[cat].push({ product: p, globalIndex: idx });
             });
@@ -154,6 +167,27 @@
             if (productData.length === 0) {
                 container.innerHTML = '<p>No hay productos en el inventario.</p>';
             }
+
+            const renameSelect = document.getElementById('renameCatSelect');
+            if(renameSelect) {
+                renameSelect.innerHTML = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+        }
+
+        function renameCategory() {
+            const oldName = document.getElementById('renameCatSelect').value;
+            const newName = document.getElementById('renameCatInput').value.trim();
+            if(!newName || oldName === newName) return;
+            
+            productData.forEach(p => {
+                if(p.categoria === oldName) p.categoria = newName;
+            });
+            
+            CATEGORIAS = [...new Set(productData.map(p => p.categoria || 'Sin Categoría'))];
+            renderTables();
+            saveData(true);
+            document.getElementById('renameCatInput').value = '';
+            alert(`Categoría "${oldName}" renombrada a "${newName}"`);
         }
 
         function updateData(index, field, value) {
@@ -167,9 +201,10 @@
 
         function addProduct() {
             const nextId = productData.length > 0 ? Math.max(...productData.map(p => p.id)) + 1 : 1;
+            const currentCat = CATEGORIAS.length > 0 ? CATEGORIAS[0] : 'Nueva Categoría';
             productData.unshift({
                 id: nextId,
-                categoria: 'Clubes 25/26',
+                categoria: currentCat,
                 equipo: 'Nueva Referencia',
                 descripcion: '',
                 precio: 99000,
