@@ -24,7 +24,7 @@ from PIL import Image, ImageOps
 
 try:
     from rembg import remove as rembg_remove
-    REMBG_AVAILABLE = True
+    REMBG_AVAILABLE = False # Desactivado a petición del usuario para usar fotos manuales
 except ImportError:
     REMBG_AVAILABLE = False
     print("[WARN] rembg no instalado. Instala con: pip install rembg")
