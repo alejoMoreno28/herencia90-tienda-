@@ -38,62 +38,57 @@ WEBP_QUALITY = 82
 IMG_EXTS     = {".jpg", ".jpeg", ".png"}
 
 # ── Umbrales de detección de fondo ────────────────────────────────────────────
-# Una sábana blanca/crema típica tiene:
-#   - Brillo promedio en las esquinas > 130  (escala 0-255)
-#   - Desviación estándar < 85              (fondo uniforme o arrugas leves)
-BRIGHTNESS_THRESHOLD = 130
-STD_THRESHOLD        = 85
-CORNER_RATIO         = 0.10   # muestrea el 10% de la dimensión menor en cada esquina
-
+# Usamos rembg en todas las imágenes y medimos cuánto se conservó.
+# - > 90% conservado = Acercamiento/Zoom de la tela (no quitamos fondo)
+# - < 15% conservado = Error al detectar objeto (no quitamos fondo)
+# - 15% - 90% = Borrado exitoso del fondo.
+MIN_KEPT_RATIO = 0.15
+MAX_KEPT_RATIO = 0.90
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def needs_background_removal(img_path: Path) -> bool:
+def process_single_image(img_path: Path) -> tuple[Image.Image, bool]:
     """
-    Analiza las 4 esquinas de la imagen.
-    Retorna True si parecen ser un fondo plano claro (sábana).
+    Carga, aplica rembg y decide si quedarse con el resultado o no.
+    Retorna (imagen_final, fue_fondo_removido)
     """
-    try:
-        with Image.open(img_path) as img:
-            img   = ImageOps.exif_transpose(img)
-            rgb   = img.convert("RGB")
-            w, h  = rgb.size
-            m     = max(1, int(min(w, h) * CORNER_RATIO))
-
-            corners = [
-                rgb.crop((0,     0,     m,   m)),
-                rgb.crop((w - m, 0,     w,   m)),
-                rgb.crop((0,     h - m, m,   h)),
-                rgb.crop((w - m, h - m, w,   h)),
-            ]
-            pixels = np.concatenate([np.array(c).reshape(-1, 3) for c in corners])
-            return float(pixels.mean()) > BRIGHTNESS_THRESHOLD and float(pixels.std()) < STD_THRESHOLD
-    except Exception as e:
-        print(f"      [WARN] No se pudo analizar {img_path.name}: {e}")
-        return False
-
-
-def remove_bg(img_path: Path) -> Image.Image:
-    """Quita el fondo con rembg y retorna imagen RGBA."""
-    img = Image.open(img_path)
-    img = ImageOps.exif_transpose(img)
+    # 1. Cargar imagen original
+    img_orig = Image.open(img_path)
+    img_orig = ImageOps.exif_transpose(img_orig)
+    if img_orig.mode in ("P", "LA"):
+        img_orig = img_orig.convert("RGBA")
+    elif img_orig.mode not in ("RGB", "RGBA"):
+        img_orig = img_orig.convert("RGB")
+        
+    if not REMBG_AVAILABLE:
+        return img_orig, False
+        
+    # 2. Convertir a raw png en memoria para rembg
     out_buffer = io.BytesIO()
-    img.save(out_buffer, format="PNG")
+    img_orig.save(out_buffer, format="PNG")
     raw = out_buffer.getvalue()
     
-    out_raw  = rembg_remove(raw)
-    return Image.open(io.BytesIO(out_raw)).convert("RGBA")
-
-
-def load_direct(img_path: Path) -> Image.Image:
-    """Carga imagen sin quitar fondo y normaliza el modo y rotación."""
-    img = Image.open(img_path)
-    img = ImageOps.exif_transpose(img)
-    if img.mode in ("P", "LA"):
-        img = img.convert("RGBA")
-    elif img.mode not in ("RGB", "RGBA"):
-        img = img.convert("RGB")
-    return img
+    # 3. Aplicar rembg
+    try:
+        out_raw = rembg_remove(raw)
+        img_rm = Image.open(io.BytesIO(out_raw)).convert("RGBA")
+    except Exception as e:
+        print(f"      [WARN] rembg falló en {img_path.name}: {e}")
+        return img_orig, False
+        
+    # 4. Analizar cuánto borró
+    arr = np.array(img_rm)
+    alpha = arr[:, :, 3]
+    non_transparent = np.count_nonzero(alpha > 10)
+    total_pixels = alpha.size
+    kept_ratio = non_transparent / total_pixels
+    
+    # 5. Decidir
+    if MIN_KEPT_RATIO <= kept_ratio <= MAX_KEPT_RATIO:
+        return img_rm, True
+    else:
+        # Es un zoom (>90) o un error (<15)
+        return img_orig, False
 
 
 def save_webp(img: Image.Image, out_path: Path):
@@ -150,16 +145,14 @@ def process_all():
         for i, img_path in enumerate(images, start=1):
             out_path = IMG_DIR / f"{team_clean}_{i}.webp"
             try:
-                should_remove = needs_background_removal(img_path) and REMBG_AVAILABLE
-                label         = "[R] fondo quitado" if should_remove else "[OK]  sin cambio   "
-
-                if should_remove:
-                    img = remove_bg(img_path)
+                img, was_removed = process_single_image(img_path)
+                
+                label = "[R] fondo quitado" if was_removed else "[OK]  sin cambio   "
+                if was_removed:
                     total_removed += 1
                 else:
-                    img = load_direct(img_path)
                     total_direct += 1
-
+                    
                 save_webp(img, out_path)
                 print(f"    {i:2d}. {img_path.name:<35}  [{label}]  ->  {out_path.name}")
 
