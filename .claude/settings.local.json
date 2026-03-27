@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f''''Productos: {len\\(d\\)}''''\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\(''''/c/Users/PC/Desktop/HERENCIA90/web/productos.json'''', encoding=''''utf-8''''\\)\\); print\\(f''''Productos: {len\\(d\\)}''''\\)\")",
+      "Bash(py --version)",
+      "Bash(git commit:*)",
+      "Bash(pip show:*)",
+      "Bash(ls /c/Users/PC/Desktop/HERENCIA90/*LOGO*)",
+      "Bash(find /c/Users/PC/Desktop/HERENCIA90/ -maxdepth 1 -name *LOGO* -o -name *logo* -o -name *Logo*)",
+      "Bash(py scripts/process_images.py)"
+    ]
+  }
+}
