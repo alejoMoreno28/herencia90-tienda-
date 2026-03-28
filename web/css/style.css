@@ -702,6 +702,7 @@ body.grid-single .product-grid-inner {
 }
 #modalWsBtn.green { animation: pulse 2s infinite; }
 
+
 /* ─── FOOTER ─────────────────────────────────────────────── */
 .footer {
     text-align: center;
@@ -1222,25 +1223,53 @@ body.grid-single .product-grid-inner {
         width: 100%;
         max-width: 100%;
         border-radius: 20px 20px 0 0;
-        padding: 24px 16px 90px;
+        padding: 45px 16px 90px;
         position: fixed;
         bottom: 0; left: 0; right: 0;
         top: auto;
-        max-height: 92vh;
+        min-height: 90vh;
+        max-height: 95vh;
         overflow-y: auto;
         animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(10, 10, 10, 0.98);
+    }
+    .close-btn {
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
     @keyframes slideUp {
         from { transform: translateY(100%); }
         to   { transform: translateY(0); }
     }
-    /* modal usa position:fixed en modal-content, no necesita flex */
     .main-image-container {
-        max-height: 45vw;
-        padding: 16px;
+        max-height: none;
+        aspect-ratio: 1/1;
+        padding: 5px;
+        background: radial-gradient(circle, rgba(40,40,40,0.3) 0%, transparent 80%);
+        border-radius: 12px;
+        margin-bottom: 10px;
     }
-    .thumbnails img { width: 55px; height: 55px; }
-    .modal-description { font-size: 0.82rem; }
+    .thumbnails {
+        justify-content: center;
+        gap: 8px;
+    }
+    .thumbnails img { width: 65px; height: 65px; }
+    .modal-body {
+        gap: 15px;
+        margin-top: 5px;
+    }
+    .modal-info h2 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    .product-price {
+        text-align: center;
+        font-size: 1.4rem;
+    }
+    .modal-description { font-size: 0.85rem; }
 
     /* Footer en móvil */
     .footer { margin-top: 20px; }
