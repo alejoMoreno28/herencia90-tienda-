@@ -19,7 +19,8 @@
             "img/alemania_2026_version_fan_5.webp",
             "img/alemania_2026_version_fan_6.webp",
             "img/alemania_2026_version_fan_7.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 2,
@@ -37,7 +38,8 @@
             "img/argnetina_2026_home_fan_1.webp",
             "img/argnetina_2026_home_fan_2.webp",
             "img/argnetina_2026_home_fan_3.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 3,
@@ -60,7 +62,8 @@
             "img/arsenal_25-25_blanca_fan_6.webp",
             "img/arsenal_25-25_blanca_fan_7.webp",
             "img/arsenal_25-25_blanca_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 4,
@@ -84,7 +87,8 @@
             "img/arsenal_25-26_home_fan_7.webp",
             "img/arsenal_25-26_home_fan_8.webp",
             "img/arsenal_25-26_home_fan_9.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 5,
@@ -107,7 +111,8 @@
             "img/barcelona_25-26_home_fan_6.webp",
             "img/barcelona_25-26_home_fan_7.webp",
             "img/barcelona_25-26_home_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 6,
@@ -129,7 +134,8 @@
             "img/barclona_25-26_away_white_5.webp",
             "img/barclona_25-26_away_white_6.webp",
             "img/barclona_25-26_away_white_7.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 7,
@@ -152,7 +158,8 @@
             "img/bayern_munich_25-26_home_fan_6.webp",
             "img/bayern_munich_25-26_home_fan_7.webp",
             "img/bayern_munich_25-26_home_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 8,
@@ -173,7 +180,8 @@
             "img/bayern_munich_25-26_tercera_negra_fan_4.webp",
             "img/bayern_munich_25-26_tercera_negra_fan_5.webp",
             "img/bayern_munich_25-26_tercera_negra_fan_6.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 9,
@@ -195,7 +203,8 @@
             "img/brasil_2026_version_fan_5.webp",
             "img/brasil_2026_version_fan_6.webp",
             "img/brasil_2026_version_fan_7.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 10,
@@ -216,7 +225,8 @@
             "img/colombia_2026_4.webp",
             "img/colombia_2026_5.webp",
             "img/colombia_2026_6.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 24,
@@ -225,10 +235,10 @@
         "descripcion": "Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.",
         "precio": 99000,
         "tallas": {
-            "S": 5,
-            "M": 5,
-            "L": 5,
-            "XL": 5
+            "S": 2,
+            "M": 2,
+            "L": 0,
+            "XL": 0
         },
         "imagenes": [
             "img/colombia_2026_mujer_fan_1.webp",
@@ -236,7 +246,8 @@
             "img/colombia_2026_mujer_fan_3.webp",
             "img/colombia_2026_mujer_fan_4.webp",
             "img/colombia_2026_mujer_fan_5.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 11,
@@ -259,7 +270,8 @@
             "img/liverpool_25-26_home_red_fan_6.webp",
             "img/liverpool_25-26_home_red_fan_7.webp",
             "img/liverpool_25-26_home_red_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 12,
@@ -283,7 +295,8 @@
             "img/liverpool_25-26_white_fan_7.webp",
             "img/liverpool_25-26_white_fan_8.webp",
             "img/liverpool_25-26_white_fan_9.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 13,
@@ -306,7 +319,8 @@
             "img/man_city_25-26_black_fan_6.webp",
             "img/man_city_25-26_black_fan_7.webp",
             "img/man_city_25-26_black_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 14,
@@ -327,7 +341,8 @@
             "img/man_city_25-26_fan_home_4.webp",
             "img/man_city_25-26_fan_home_5.webp",
             "img/man_city_25-26_fan_home_6.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 15,
@@ -350,7 +365,8 @@
             "img/man_ud_retro_98_home_6.webp",
             "img/man_ud_retro_98_home_7.webp",
             "img/man_ud_retro_98_home_8.webp"
-        ]
+        ],
+        "costo_usd": 18.44
     },
     {
         "id": 16,
@@ -374,7 +390,8 @@
             "img/manchester_united_25-26_home_fan_7.webp",
             "img/manchester_united_25-26_home_fan_8.webp",
             "img/manchester_united_25-26_home_fan_9.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 17,
@@ -394,7 +411,8 @@
             "img/portugal_2026_especial_26-27_fan_3.webp",
             "img/portugal_2026_especial_26-27_fan_4.webp",
             "img/portugal_2026_especial_26-27_fan_5.webp"
-        ]
+        ],
+        "costo_usd": 13.44
     },
     {
         "id": 18,
@@ -417,7 +435,8 @@
             "img/psg_25-26_home_fan_6.webp",
             "img/psg_25-26_home_fan_7.webp",
             "img/psg_25-26_home_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 19,
@@ -437,7 +456,8 @@
             "img/real_madrid_25-26_azul_fan_3.webp",
             "img/real_madrid_25-26_azul_fan_4.webp",
             "img/real_madrid_25-26_azul_fan_5.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 25,
@@ -446,10 +466,10 @@
         "descripcion": "La camiseta local del Real Madrid 2026 en el eterno blanco merengue. Diseño moderno que honra la tradición del club más laureado del mundo. Versión Fan premium del campeón de Champions. Disponible en todas las tallas.",
         "precio": 99000,
         "tallas": {
-            "S": 5,
-            "M": 5,
-            "L": 5,
-            "XL": 5
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
         },
         "imagenes": [
             "img/real_madrid_home_white_fan_2026_1.webp",
@@ -459,7 +479,8 @@
             "img/real_madrid_home_white_fan_2026_5.webp",
             "img/real_madrid_home_white_fan_2026_6.webp",
             "img/real_madrid_home_white_fan_2026_7.webp"
-        ]
+        ],
+        "costo_usd": 10.44
     },
     {
         "id": 26,
@@ -468,10 +489,10 @@
         "descripcion": "Edición especial del Real Madrid en negro absoluto. Una camiseta única del equipo merengue que combina el poder del negro con los escudos dorados. Versión Fan de colección para los madridistas más atrevidos.",
         "precio": 110000,
         "tallas": {
-            "S": 5,
-            "M": 5,
-            "L": 5,
-            "XL": 5
+            "S": 0,
+            "M": 2,
+            "L": 1,
+            "XL": 0
         },
         "imagenes": [
             "img/real_madrid_special_stly_black_fan_1.webp",
@@ -480,7 +501,8 @@
             "img/real_madrid_special_stly_black_fan_4.webp",
             "img/real_madrid_special_stly_black_fan_5.webp",
             "img/real_madrid_special_stly_black_fan_6.webp"
-        ]
+        ],
+        "costo_usd": 13.44
     },
     {
         "id": 20,
@@ -503,6 +525,7 @@
             "img/real_majdrid_retro_1999-00_home_fan_6.webp",
             "img/real_majdrid_retro_1999-00_home_fan_7.webp",
             "img/real_majdrid_retro_1999-00_home_fan_8.webp"
-        ]
+        ],
+        "costo_usd": 15.44
     }
 ]

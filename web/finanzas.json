@@ -1,3 +1,22 @@
 {
-    "transacciones": []
+    "transacciones": [
+        {
+            "id": 1774968510952,
+            "tipo": "ingreso",
+            "categoria": "Inversión Inicial de Socios",
+            "fecha": "2026-03-31",
+            "monto": 2197201,
+            "descripcion": "Fondo común base para arrancar la marca."
+        },
+        {
+            "id": 1774968510953,
+            "tipo": "gasto",
+            "categoria": "Compra Inventario (Camisetas)",
+            "fecha": "2026-03-31",
+            "monto": 2197201,
+            "descripcion": "Factura Inicial Proveedor (USD $591.6 a TRM exacto de 3714.0 COP).",
+            "usd_amount": 591.6,
+            "trm": 3714.0
+        }
+    ]
 }
