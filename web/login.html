@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Especial - Herencia 90</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --gold: #D9C391;
+            --gold-hover: #f0d9a0;
+            --text-light: #f4f4f4;
+            --border-color: #333;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 10%, rgba(217, 195, 145, 0.15), transparent 40%);
+        }
+        .login-container {
+            background: #111;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 1px 1px rgba(217,195,145,0.2);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .login-container h1 {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .login-container h1 span {
+            color: var(--gold);
+        }
+        .login-container p {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .input-group input[type="text"],
+        .input-group input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            text-align: left;
+            font-size: 13px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .checkbox-group input {
+            cursor: pointer;
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #111;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-login:hover {
+            background: var(--gold-hover);
+        }
+        #error-msg {
+            color: #ff4d4d;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>Herencia <span>90</span></h1>
+        <p>Panel de Administración y Finanzas</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" required autocomplete="username">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" required autocomplete="current-password">
+            </div>
+
+            <label class="checkbox-group">
+                <input type="checkbox" id="remember" checked>
+                Mantener sesión activa
+            </label>
+
+            <button type="submit" class="btn-login" id="submitBtn">Ingresar al Panel</button>
+            <div id="error-msg">Credenciales incorrectas.</div>
+        </form>
+    </div>
+
+    <script>
+        // Si ya hay token (y no expiró), redirigir de una
+        if (localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken')) {
+            window.location.href = '/admin.html';
+        }
+
+        const form = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('error-msg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            submitBtn.innerText = 'Verificando...';
+
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    // Guardar Token
+                    if (remember) {
+                        localStorage.setItem('adminToken', data.token);
+                    } else {
+                        sessionStorage.setItem('adminToken', data.token);
+                    }
+                    window.location.href = '/admin.html';
+                } else {
+                    errorMsg.innerText = data.message || 'Credenciales incorrectas.';
+                    errorMsg.style.display = 'block';
+                    submitBtn.innerText = 'Ingresar al Panel';
+                }
+            } catch (err) {
+                errorMsg.innerText = 'Error de conexión con el servidor.';
+                errorMsg.style.display = 'block';
+                submitBtn.innerText = 'Ingresar al Panel';
+            }
+        });
+    </script>
+</body>
+</html>

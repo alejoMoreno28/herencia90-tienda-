@@ -8,7 +8,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent
 WEB_DIR = BASE_DIR / "web"
 JSON_PATH = WEB_DIR / "productos.json"
+FINANCE_JSON_PATH = WEB_DIR / "finanzas.json"
 IMG_DIR = WEB_DIR / "img"
+
+# Asegurar que finanzas.json existe
+if not FINANCE_JSON_PATH.exists():
+    with open(FINANCE_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump({"transacciones": []}, f, indent=4, ensure_ascii=False)
 
 class AdminHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -16,30 +22,70 @@ class AdminHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self):
         auth_header = self.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Basic '):
-            encoded = auth_header.split(' ')[1]
-            try:
-                decoded = base64.b64decode(encoded).decode('utf-8')
-                u, p = decoded.split(':', 1)
-                expected_user = os.environ.get('ADMIN_USER', 'admin')
-                expected_pass = os.environ.get('ADMIN_PASS', 'herencia2026')
-                if u == expected_user and p == expected_pass:
+        expected_user = os.environ.get('ADMIN_USER', 'admin')
+        expected_pass = os.environ.get('ADMIN_PASS', 'herencia2026')
+        STATIC_TOKEN = base64.b64encode(f"{expected_user}:{expected_pass}".encode('utf-8')).decode('utf-8')
+        
+        if auth_header:
+            if auth_header.startswith('Bearer '):
+                token = auth_header.split(' ')[1]
+                if token == STATIC_TOKEN:
                     return True
-            except:
-                pass
+            elif auth_header.startswith('Basic '):
+                encoded = auth_header.split(' ')[1]
+                try:
+                    decoded = base64.b64decode(encoded).decode('utf-8')
+                    u, p = decoded.split(':', 1)
+                    if u == expected_user and p == expected_pass:
+                        return True
+                except:
+                    pass
+                    
         self.send_response(401)
-        self.send_header('WWW-Authenticate', 'Basic realm="Panel Admin Herencia 90"')
+        self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(b"Acceso denegado. Se requiere cuenta de administrador.")
+        self.wfile.write(json.dumps({"status": "error", "message": "Unauthorized"}).encode('utf-8'))
         return False
 
     def do_GET(self):
-        if '/admin.html' in self.path or self.path.startswith('/api/'):
+        if self.path.startswith('/api/'):
             if not self.check_auth():
                 return
         super().do_GET()
 
     def do_POST(self):
+        # El endpoint de login es el único POST que no requiere auth previa
+        if self.path == '/api/login':
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                u = data.get('username')
+                p = data.get('password')
+                
+                expected_user = os.environ.get('ADMIN_USER', 'admin')
+                expected_pass = os.environ.get('ADMIN_PASS', 'herencia2026')
+                
+                if u == expected_user and p == expected_pass:
+                    STATIC_TOKEN = base64.b64encode(f"{u}:{p}".encode('utf-8')).decode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"status": "success", "token": STATIC_TOKEN}).encode('utf-8'))
+                else:
+                    self.send_response(401)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"status": "error", "message": "Credenciales inválidas"}).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                return
+
+        # Todos los demás POST requieren autenticación
         if not self.check_auth():
             return
             
@@ -50,6 +96,16 @@ class AdminHandler(SimpleHTTPRequestHandler):
             if self.path == '/api/save':
                 data = json.loads(post_data.decode('utf-8'))
                 with open(JSON_PATH, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "success"}).encode('utf-8'))
+                
+            elif self.path == '/api/finance/save':
+                data = json.loads(post_data.decode('utf-8'))
+                with open(FINANCE_JSON_PATH, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4, ensure_ascii=False)
                 
                 self.send_response(200)
@@ -80,21 +136,17 @@ class AdminHandler(SimpleHTTPRequestHandler):
 
                     img = Image.open(io.BytesIO(raw_bytes))
 
-                    # Normalizar modo: preservar transparencia si existe
                     if img.mode == "P":
-                        img = img.convert("RGBA")  # Paleta → RGBA
+                        img = img.convert("RGBA")
                     elif img.mode == "LA":
                         img = img.convert("RGBA")
                     elif img.mode not in ("RGB", "RGBA"):
                         img = img.convert("RGB")
-                    # RGB y RGBA se dejan tal cual → WebP preserva la transparencia de RGBA
 
-                    # Redimensionar si es demasiado ancha
                     if img.width > MAX_WIDTH:
                         ratio = MAX_WIDTH / img.width
                         img = img.resize((MAX_WIDTH, int(img.height * ratio)), Image.LANCZOS)
 
-                    # Forzar extensión .webp en el nombre
                     stem = Path(filename).stem
                     final_name = stem + ".webp"
                     file_path = IMG_DIR / final_name
@@ -104,7 +156,6 @@ class AdminHandler(SimpleHTTPRequestHandler):
                     file_bytes = out_buffer.getvalue()
 
                 except Exception as pil_err:
-                    # Si Pillow falla por algún motivo, guarda el original sin comprimir
                     print(f"[WARN] Compresión WebP falló ({pil_err}), guardando original.")
                     final_name = filename
                     file_path = IMG_DIR / final_name
@@ -132,9 +183,7 @@ class AdminHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
 
 def run():
-    # Detecta si el servidor en la nube (ej. Railway) asignó un puerto, de lo contrario usa 8000
     port = int(os.environ.get('PORT', 8000))
-    # '0.0.0.0' permite que la nube exponga el puerto correctamente hacia internet
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, AdminHandler)
     print(f"Servidor iniciado en el puerto {port}")
@@ -151,4 +200,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-

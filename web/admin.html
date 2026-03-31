@@ -3,92 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herencia 90 | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Herencia 90 | Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #f4f4f4;
-            --text: #333;
+            --bg-color: #f4f4f4;
+            --text-color: #333;
             --gold: #D9C391;
-            --header-bg: #111;
+            --sidebar-bg: #111;
             --danger: #dc3545;
+            --success: #28a745;
+            --card-bg: #ffffff;
         }
-        body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-        header { background: var(--header-bg); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-        header h2 { font-size: 1.1rem; }
-        .btn-save { background: var(--gold); color: #111; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; font-family: 'Montserrat', sans-serif; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-color); 
+            margin: 0; 
+            display: flex; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-brand {
+            padding: 24px;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+        .sidebar-brand span { color: var(--gold); }
+        .sidebar-menu {
+            list-style: none; padding: 0; margin: 20px 0; flex-grow: 1;
+        }
+        .sidebar-menu li { margin: 0; }
+        .sidebar-menu button {
+            width: 100%;
+            background: none; border: none; color: #ccc;
+            padding: 15px 24px; text-align: left;
+            font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar-menu button:hover { color: white; background: #222; }
+        .sidebar-menu button.active {
+            color: #111; background: var(--gold); border-right: 4px solid white;
+        }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #333; }
+        .btn-logout {
+            width: 100%; background: #222; color: #aaa; border: 1px solid #444; padding: 10px;
+            cursor: pointer; border-radius: 5px; font-family: 'Montserrat', sans-serif; font-weight: 600;
+        }
+        .btn-logout:hover { background: #333; color: white; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .topbar {
+            background: white; padding: 15px 30px; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .topbar h2 { margin: 0; font-size: 18px; color: #111; }
+        .content-area {
+            padding: 30px; overflow-y: auto; flex-grow: 1;
+        }
+        .view-section { display: none; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- BUTTONS & SHARED --- */
+        optgroup { font-family: 'Montserrat', sans-serif; }
+        .btn-save { background: var(--gold); color: #111; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 14px; font-family: 'Montserrat', sans-serif; }
         .btn-save:hover { background: #f0d9a0; }
-        .btn-add { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 25px; font-weight: bold; font-family: 'Montserrat', sans-serif; }
-        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: 'Montserrat', sans-serif; }
-        .container { max-width: 1500px; margin: 30px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .category-section { margin-bottom: 50px; overflow-x: auto; }
-        h3 { border-bottom: 2px solid var(--gold); padding-bottom: 10px; color: var(--header-bg); text-transform: uppercase; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; min-width: 1100px; }
-        th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
-        th { background: #eee; font-size: 12px; text-transform: uppercase; }
-        input[type="number"], input[type="text"], select, textarea {
-            width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;
-            font-family: 'Montserrat', sans-serif; font-size: 12px;
+        .btn-add { background: var(--success); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Montserrat', sans-serif; }
+        .btn-add:hover { background: #218838; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: 'Montserrat', sans-serif; font-size: 12px; }
+        .btn-danger:hover { background: #c82333; }
+        
+        input, select, textarea {
+            font-family: 'Montserrat', sans-serif; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 13px;
         }
-        textarea { resize: vertical; min-height: 70px; }
-        .stock-input { width: 50px !important; text-align: center; }
+        
         .toast { position: fixed; bottom: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-weight: bold; z-index: 9999; }
-        .photo-list { list-style: none; padding: 0; margin: 0 0 8px 0; font-size: 11px; }
-        .photo-list li { background: #f9f9f9; padding: 3px 6px; margin-bottom: 3px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; }
-        .remove-img { color: red; font-weight: bold; cursor: pointer; padding: 0 5px; }
-        .file-upload-lbl { display: inline-block; background: #eee; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; border: 1px solid #ccc; }
-        .file-upload-lbl:hover { background: #ddd; }
-        input[type="file"] { display: none; }
+
+        /* --- INVENTARIO --- */
+        .category-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; overflow-x: auto; }
+        .category-section h3 { margin-top: 0; color: #111; border-bottom: 2px solid var(--gold); padding-bottom: 10px; text-transform: uppercase; font-size: 14px;}
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; font-size: 12px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { background: #fafafa; text-transform: uppercase; font-size: 11px; color: #666; }
+        .stock-input { width: 45px !important; text-align: center; }
+        .cost-input { width: 80px !important; font-weight: bold; color: #555; }
+        .price-input { width: 90px !important; font-weight: bold; color: #111; }
+        .photo-list { list-style:none; padding:0; margin:0 0 8px 0; }
+        .photo-list li { background:#f9f9f9; padding:4px; margin-bottom:4px; border-radius:3px; display:flex; justify-content:space-between; align-items:center; border:1px solid #ddd; font-size:10px; }
+        .remove-img { color:red; font-weight:bold; cursor:pointer; }
+        .file-upload-lbl { display:inline-block; background:#eee; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; border:1px solid #ccc; font-weight:600;}
+        .file-upload-lbl:hover { background:#ddd; }
+        input[type="file"] { display:none; }
+        
+        /* --- FINANZAS DASHBOARD --- */
+        .finance-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--gold);
+        }
+        .stat-card.income { border-color: var(--success); }
+        .stat-card.expense { border-color: var(--danger); }
+        .stat-card.profit { border-color: #007bff; }
+        .stat-card h4 { margin: 0 0 10px 0; color: #666; font-size: 13px; text-transform: uppercase; }
+        .stat-card .value { font-size: 26px; font-weight: 900; color: #111; }
+        
+        .finance-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 1000px) { .finance-layout { grid-template-columns: 1fr; } }
+        
+        .chart-container, .form-container, .table-container {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+        .chart-container h3, .form-container h3, .table-container h3 {
+            margin-top: 0; font-size: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: white;}
+        .badge-in { background: var(--success); }
+        .badge-out { background: var(--danger); }
+
     </style>
 </head>
 <body>
-    <header>
-        <h2>Panel de Inventario — Herencia 90</h2>
-        <button class="btn-save" onclick="saveData()">Guardar Cambios</button>
-    </header>
 
-    <div class="container">
-        <div class="admin-controls" style="margin-bottom: 25px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
-            <button class="btn-add" style="margin-bottom:0;" onclick="addProduct()">+ Añadir Nuevo Producto</button>
-            <div style="background: #fdfdfd; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; display: flex; gap: 10px; align-items: center;">
-                <strong style="font-size: 13px;">Renombrar Categoría:</strong>
-                <select id="renameCatSelect" style="width: auto;"></select>
-                <input type="text" id="renameCatInput" placeholder="Nuevo nombre" style="width: 150px;">
-                <button class="btn-save" style="padding: 6px 12px; font-size: 12px;" onclick="renameCategory()">Renombrar</button>
-            </div>
-        </div>
-        <div id="tablesContainer"></div>
-    </div>
-
-    <div id="toast" class="toast">¡Cambios guardados exitosamente!</div>
-
+    <!-- Token Check & Setup -->
     <script>
+        const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+        if (!token) { window.location.href = '/login.html'; }
+        
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        };
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            sessionStorage.removeItem('adminToken');
+            window.location.href = '/login.html';
+        }
+    </script>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            Herencia <span>90</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><button onclick="switchTab('dashboard')" id="tab-dashboard" class="active">📊 Finanzas (Dashboard)</button></li>
+            <li><button onclick="switchTab('inventario')" id="tab-inventario">📦 Inventario</button></li>
+            <!-- Opcional si agregamos más secciones -->
+        </ul>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <h2 id="page-title">Dashboard Financiero</h2>
+            <div>
+                <button class="btn-save" id="globalSaveBtn" style="display:none;" onclick="saveInventory()">Guardar Inventario</button>
+            </div>
+        </header>
+
+        <section class="content-area">
+            
+            <!-- VISTA FINANZAS -->
+            <div id="view-dashboard" class="view-section active">
+                
+                <div class="finance-cards">
+                    <div class="stat-card">
+                        <h4>💰 Saldo Total (Caja)</h4>
+                        <div class="value" id="stat-caja">$0</div>
+                    </div>
+                    <div class="stat-card income">
+                        <h4>📈 Ingresos Totales</h4>
+                        <div class="value" id="stat-income">$0</div>
+                    </div>
+                    <div class="stat-card expense">
+                        <h4>📉 Gastos Totales</h4>
+                        <div class="value" id="stat-expense">$0</div>
+                    </div>
+                    <div class="stat-card profit">
+                        <h4>💎 Utilidad Neta (Ingresos - Costo Mercancía)</h4>
+                        <div class="value" id="stat-profit">$0</div>
+                    </div>
+                </div>
+
+                <div class="finance-layout">
+                    <!-- Columna Izquierda: Gráfico y Tabla -->
+                    <div>
+                        <div class="chart-container" style="position: relative; height:300px;">
+                            <h3>📊 Resumen Mensual</h3>
+                            <canvas id="financeChart"></canvas>
+                        </div>
+
+                        <div class="table-container">
+                            <h3>📝 Historial de Transacciones</h3>
+                            <table class="fin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Categoría</th>
+                                        <th>Descripción</th>
+                                        <th style="text-align:right">Monto</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-body">
+                                    <!-- Dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Formulario -->
+                    <div>
+                        <div class="form-container">
+                            <h3>➕ Registrar Movimiento</h3>
+                            <form id="transForm" onsubmit="addTransaction(event)">
+                                <div class="form-group">
+                                    <label>Tipo de Movimiento</label>
+                                    <select id="t-tipo" required onchange="updateCategories()">
+                                        <option value="gasto">Gasto (Salida de dinero)</option>
+                                        <option value="ingreso">Ingreso (Entrada de dinero)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Categoría</label>
+                                    <select id="t-categoria" required>
+                                        <!-- Se llena en JS -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha</label>
+                                    <input type="date" id="t-fecha" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Monto (COP)</label>
+                                    <input type="number" id="t-monto" min="0" step="1000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción / Detalle</label>
+                                    <textarea id="t-desc" rows="3" placeholder="Ej: Compra inicial de camisetas, Venta Camiseta Alemania" required></textarea>
+                                </div>
+                                <!-- Campo opcional de "Costo asociado" si es una venta para calcular Utilidad -->
+                                <div class="form-group" id="t-costo-group" style="display:none;">
+                                    <label>Costo del producto vendido (para calcular utilidad)</label>
+                                    <input type="number" id="t-costo" min="0" placeholder="Ej: 42000">
+                                </div>
+                                <button type="submit" class="btn-save" style="width:100%">Registrar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- VISTA INVENTARIO -->
+            <div id="view-inventario" class="view-section">
+                <div style="margin-bottom: 25px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                    <button class="btn-add" onclick="addProduct()">+ Añadir Nuevo Producto</button>
+                    <div style="background: white; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 10px; align-items: center;">
+                        <strong style="font-size: 13px;">Renombrar Categoría:</strong>
+                        <select id="renameCatSelect" style="width: auto;"></select>
+                        <input type="text" id="renameCatInput" placeholder="Nuevo nombre" style="width: 150px;">
+                        <button class="btn-save" style="padding: 6px 12px; font-size: 12px;" onclick="renameCategory()">Renombrar</button>
+                    </div>
+                </div>
+                <div id="tablesContainer"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <div id="toast" class="toast">¡Operación exitosa!</div>
+
+    <!-- LOGICA APP -->
+    <script>
+        // --- Navegación ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu button').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            document.getElementById('page-title').innerText = tabId === 'dashboard' ? 'Dashboard Financiero' : 'Gestión de Inventario';
+            document.getElementById('globalSaveBtn').style.display = tabId === 'inventario' ? 'block' : 'none';
+        }
+
+        // --- Datos Globales ---
         let productData = [];
-        let CATEGORIAS = [];
+        let financeData = { transacciones: [] };
+        let CATEGORIAS_INV = [];
+        let financeChartInstance = null;
+        
+        document.getElementById('t-fecha').valueAsDate = new Date();
 
-        fetch('/productos.json?v=' + Date.now())
-            .then(r => r.json())
-            .then(data => { 
-                productData = data; 
-                CATEGORIAS = [...new Set(productData.map(p => p.categoria || 'Sin Categoría'))];
-                if(CATEGORIAS.length === 0) CATEGORIAS = ['Nueva Categoría'];
-                renderTables(); 
-            })
-            .catch(() => alert('Error cargando inventario.'));
+        // Inicialización
+        async function loadData() {
+            try {
+                // Fetch Inventario
+                const rInv = await fetch('/productos.json?v=' + Date.now());
+                if(rInv.ok) productData = await rInv.json();
+                
+                // Fetch Finanzas
+                const rFin = await fetch('/finanzas.json?v=' + Date.now());
+                if(rFin.ok) financeData = await rFin.json();
+                if(!financeData.transacciones) financeData.transacciones = [];
 
-        function renderTables() {
+                renderInventory();
+                renderFinance();
+            } catch(e) {
+                console.error("Error loading data", e);
+            }
+        }
+        loadData();
+
+        // ==========================================
+        // FINANZAS LÓGICA
+        // ==========================================
+        const catCategorias = {
+            gasto: ['Compra Inventario (Camisetas)', 'Material Empaque (Cajas, Etiquetas)', 'Mensajería / Envíos', 'Publicidad (Ads)', 'Pago Plataformas/Hosting', 'Gastos Varios'],
+            ingreso: ['Venta de Camisetas', 'Inversión Inicial de Socios', 'Reembolsos', 'Otros Ingresos']
+        };
+
+        function updateCategories() {
+            const tipo = document.getElementById('t-tipo').value;
+            const sel = document.getElementById('t-categoria');
+            sel.innerHTML = '';
+            catCategorias[tipo].forEach(c => {
+                sel.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+            document.getElementById('t-costo-group').style.display = (tipo === 'ingreso' && sel.value.includes('Venta')) ? 'block' : 'none';
+        }
+        document.getElementById('t-categoria').addEventListener('change', () => {
+             const tipo = document.getElementById('t-tipo').value;
+             const sel = document.getElementById('t-categoria');
+             document.getElementById('t-costo-group').style.display = (tipo === 'ingreso' && sel.value.includes('Venta')) ? 'block' : 'none';
+        });
+        updateCategories();
+
+        async function addTransaction(e) {
+            e.preventDefault();
+            const trans = {
+                id: Date.now(),
+                tipo: document.getElementById('t-tipo').value,
+                categoria: document.getElementById('t-categoria').value,
+                fecha: document.getElementById('t-fecha').value,
+                monto: parseFloat(document.getElementById('t-monto').value),
+                descripcion: document.getElementById('t-desc').value,
+                costo_asociado: parseFloat(document.getElementById('t-costo').value) || 0
+            };
+            financeData.transacciones.push(trans);
+            
+            // Reordenar por fecha
+            financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+            await saveFinance();
+            document.getElementById('transForm').reset();
+            document.getElementById('t-fecha').valueAsDate = new Date();
+            updateCategories();
+            renderFinance();
+        }
+
+        async function deleteTransaction(id) {
+            if(!confirm("¿Seguro que deseas eliminar esta transacción?")) return;
+            financeData.transacciones = financeData.transacciones.filter(t => t.id !== id);
+            await saveFinance();
+            renderFinance();
+        }
+
+        async function saveFinance() {
+            try {
+                const res = await fetch('/api/finance/save', {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify(financeData)
+                });
+                const d = await res.json();
+                if(d.status === 'success') showToast("Finanzas actualizadas");
+                else alert("Error guardando finanzas: " + d.message);
+            } catch(e) { alert("Error de red"); }
+        }
+
+        const formatter = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+
+        function renderFinance() {
+            const tbody = document.getElementById('transactions-body');
+            tbody.innerHTML = '';
+            
+            let totalIn = 0; let totalOut = 0; let totalCostForSales = 0;
+            const monthlyData = {};
+
+            financeData.transacciones.forEach(t => {
+                // Cálculo de totales
+                if(t.tipo === 'ingreso') {
+                    totalIn += t.monto;
+                    if(t.costo_asociado) totalCostForSales += t.costo_asociado;
+                }
+                else totalOut += t.monto;
+
+                // Datos para Gráfico (Agrupado por mes YYYY-MM)
+                const month = t.fecha.substring(0,7);
+                if(!monthlyData[month]) monthlyData[month] = { in: 0, out: 0};
+                if(t.tipo === 'ingreso') monthlyData[month].in += t.monto;
+                else monthlyData[month].out += t.monto;
+
+                // Render Fila
+                const badgeClass = t.tipo === 'ingreso' ? 'badge-in' : 'badge-out';
+                const badgeTxt = t.tipo.toUpperCase();
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.fecha}</td>
+                    <td><span class="badge ${badgeClass}">${badgeTxt}</span></td>
+                    <td><b>${t.categoria}</b></td>
+                    <td>${t.descripcion} ${t.costo_asociado ? `<br><small style="color:#777">Costo Prod: ${formatter.format(t.costo_asociado)}</small>` : ''}</td>
+                    <td style="text-align:right; font-weight:bold; color: ${t.tipo==='ingreso'? '#28a745':'#dc3545'}">${t.tipo==='ingreso'?'+':'-'} ${formatter.format(t.monto)}</td>
+                    <td><button class="btn-danger" onclick="deleteTransaction(${t.id})">❌</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if(financeData.transacciones.length===0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No hay transacciones registradas.</td></tr>';
+            }
+
+            const caja = totalIn - totalOut;
+            const gananciaReal = totalIn - totalCostForSales; // Ingresos menos costo de la mercancía vendida (sin contar gastos operativos aún, o se puede calcular distinto si prefieren). 
+            // Para ellos la utilidad neta es: Total Ventas - Costo Mercancia Vendida = Margen Bruto, y Neta es restando todos los demás gastos. 
+            // Supongamos Margen = Total Ingresos Ventas - Total Costos asociados. O NETA = Total Ingresos - Totales Gastos Operativos - Costo de Ventas.
+            
+            // Calculemos Ganancia Real: Total Ingresos (que no sean inversion inicial) - Total Gastos - Costo asociado de ventas? 
+            // Para simplificar para ellos: Inversión Inicial no es ingreso venta.
+            let ventasPuras = 0;
+            let inversionInicial = 0;
+            financeData.transacciones.filter(t=>t.tipo==='ingreso').forEach(t=>{
+                if(t.categoria.includes("Inversión")) inversionInicial += t.monto;
+                else ventasPuras += t.monto;
+            });
+            // Utilidad del negocio = Ventas - GastosOperativos - CostoMercancia. Como "CostoMercancia" se mete como "Compra Inventario" en Gasto, YA SE RESTÓ EN CAJA! 
+            // Así que si suman Caja, eso es líquido. Si quieren ver Rentabilidad comercial: (Ventas Puras - Costo de esas Ventas).
+            const rentabilidadVentas = ventasPuras - totalCostForSales;
+
+            document.getElementById('stat-caja').innerText = formatter.format(caja);
+            document.getElementById('stat-income').innerText = formatter.format(totalIn);
+            document.getElementById('stat-expense').innerText = formatter.format(totalOut);
+            document.getElementById('stat-profit').innerText = formatter.format(rentabilidadVentas) + " (Bruta Venta)";
+
+            // Renderizar Gráfico
+            renderChart(monthlyData);
+        }
+
+        function renderChart(monthlyData) {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            const labels = Object.keys(monthlyData).sort();
+            const dIn = labels.map(l => monthlyData[l].in);
+            const dOut = labels.map(l => monthlyData[l].out);
+
+            if(financeChartInstance) financeChartInstance.destroy();
+
+            financeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length ? labels : ['Sin datos'],
+                    datasets: [
+                        { label: 'Ingresos', data: dIn, backgroundColor: '#28a745', borderRadius: 4 },
+                        { label: 'Gastos', data: dOut, backgroundColor: '#dc3545', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+
+        // ==========================================
+        // INVENTARIO LÓGICA
+        // ==========================================
+        function renderInventory() {
             const container = document.getElementById('tablesContainer');
             container.innerHTML = '';
+            CATEGORIAS_INV = [...new Set(productData.map(p => p.categoria || 'Sin Categoría'))];
+            if(CATEGORIAS_INV.length === 0) CATEGORIAS_INV = ['Nueva Categoría'];
 
             const grouped = {};
-            CATEGORIAS.forEach(cat => grouped[cat] = []);
+            CATEGORIAS_INV.forEach(cat => grouped[cat] = []);
             productData.forEach((p, idx) => {
                 const cat = p.categoria || 'Sin Categoría';
                 if (!grouped[cat]) grouped[cat] = [];
                 grouped[cat].push({ product: p, globalIndex: idx });
             });
 
-            CATEGORIAS.forEach(cat => {
+            CATEGORIAS_INV.forEach(cat => {
                 const items = grouped[cat];
                 if (items.length === 0) return;
 
@@ -102,15 +548,16 @@
                         <tr>
                             <th style="width:40px">ID</th>
                             <th style="width:110px">Categoría</th>
-                            <th style="width:160px">Equipo / Referencia</th>
-                            <th style="width:90px">Precio (COP)</th>
-                            <th style="width:50px">S</th>
-                            <th style="width:50px">M</th>
-                            <th style="width:50px">L</th>
-                            <th style="width:50px">XL</th>
+                            <th style="width:150px">Referencia</th>
+                            <th style="width:90px" title="Costo de Fabricación o Compra">Costo Base ($)</th>
+                            <th style="width:90px">Precio Venta ($)</th>
+                            <th style="width:45px">S</th>
+                            <th style="width:45px">M</th>
+                            <th style="width:45px">L</th>
+                            <th style="width:45px">XL</th>
                             <th>Descripción</th>
-                            <th style="width:180px">Fotos</th>
-                            <th style="width:75px">Acción</th>
+                            <th style="width:140px">Fotos</th>
+                            <th style="width:70px">Acción</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -119,173 +566,120 @@
                 const tbody = table.querySelector('tbody');
                 items.forEach(({ product: p, globalIndex }) => {
                     if (!p.tallas) p.tallas = { S: 0, M: 0, L: 0, XL: 0 };
-                    if (!p.imagenes && p.imagen) p.imagenes = [p.imagen];
-                    if (!p.imagenes) p.imagenes = [];
+                    if (!p.imagenes) p.imagenes = p.imagen ? [p.imagen] : [];
 
                     let photosHtml = '<ul class="photo-list">';
                     p.imagenes.forEach((img, imgIdx) => {
-                        const name = img.split('/').pop();
+                        const name = img.split('/').pop().substring(0,10)+'...';
                         photosHtml += `
                             <li>
-                                <a href="/${img}" target="_blank" title="Ver">📷 ${name}</a>
-                                <span class="remove-img" onclick="removeImage(${globalIndex},${imgIdx})" title="Quitar">✕</span>
+                                <a href="/${img}" target="_blank" title="${img}">📷 ${name}</a>
+                                <span class="remove-img" onclick="removeImage(${globalIndex},${imgIdx})">✕</span>
                             </li>`;
                     });
                     photosHtml += `</ul>
-                        <label class="file-upload-lbl">
-                            📷 Subir Foto
-                            <input type="file" accept="image/*" capture="environment" onchange="uploadImage(event,${globalIndex})">
-                        </label>`;
+                        <label class="file-upload-lbl">➕ Subir <input type="file" accept="image/*" onchange="uploadImage(event,${globalIndex})"></label>`;
 
-                    let catSelect = `<select onchange="updateData(${globalIndex},'categoria',this.value);setTimeout(renderTables,100)">`;
-                    CATEGORIAS.forEach(c => {
-                        catSelect += `<option value="${c}" ${p.categoria === c ? 'selected' : ''}>${c}</option>`;
-                    });
+                    let catSelect = `<select onchange="updateInvD(${globalIndex},'categoria',this.value);renderInventory()">`;
+                    CATEGORIAS_INV.forEach(c => { catSelect += `<option value="${c}" ${p.categoria === c ? 'selected' : ''}>${c}</option>`; });
                     catSelect += '</select>';
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${p.id}</td>
                         <td>${catSelect}</td>
-                        <td><input type="text" value="${p.equipo}" onchange="updateData(${globalIndex},'equipo',this.value)"></td>
-                        <td><input type="number" value="${p.precio}" onchange="updateData(${globalIndex},'precio',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="updateStock(${globalIndex},'S',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="updateStock(${globalIndex},'M',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="updateStock(${globalIndex},'L',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="updateStock(${globalIndex},'XL',this.value)"></td>
-                        <td><textarea onchange="updateData(${globalIndex},'descripcion',this.value)">${(p.descripcion||'').replace(/</g,'&lt;')}</textarea></td>
+                        <td><input type="text" value="${p.equipo}" onchange="updateInvD(${globalIndex},'equipo',this.value)"></td>
+                        <td><input type="number" class="cost-input" value="${p.costo||0}" onchange="updateInvD(${globalIndex},'costo',this.value)"></td>
+                        <td><input type="number" class="price-input" value="${p.precio}" onchange="updateInvD(${globalIndex},'precio',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="updateInvS(${globalIndex},'S',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="updateInvS(${globalIndex},'M',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="updateInvS(${globalIndex},'L',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="updateInvS(${globalIndex},'XL',this.value)"></td>
+                        <td><textarea onchange="updateInvD(${globalIndex},'descripcion',this.value)">${(p.descripcion||'').replace(/</g,'&lt;')}</textarea></td>
                         <td>${photosHtml}</td>
                         <td><button class="btn-danger" onclick="deleteProduct(${globalIndex})">Eliminar</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
-
                 section.appendChild(table);
                 container.appendChild(section);
             });
 
-            if (productData.length === 0) {
-                container.innerHTML = '<p>No hay productos en el inventario.</p>';
-            }
-
             const renameSelect = document.getElementById('renameCatSelect');
-            if(renameSelect) {
-                renameSelect.innerHTML = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
-            }
+            if(renameSelect) { renameSelect.innerHTML = CATEGORIAS_INV.map(c => `<option value="${c}">${c}</option>`).join(''); }
+        }
+
+        function updateInvD(i, f, v) { if (['precio','costo'].includes(f)) v = parseInt(v, 10) || 0; productData[i][f] = v; }
+        function updateInvS(i, s, v) { productData[i].tallas[s] = parseInt(v, 10) || 0; }
+        
+        function addProduct() {
+            const nextId = productData.length > 0 ? Math.max(...productData.map(p => p.id)) + 1 : 1;
+            const currentCat = CATEGORIAS_INV.length > 0 ? CATEGORIAS_INV[0] : 'Nueva Categoría';
+            productData.unshift({
+                id: nextId, categoria: currentCat, equipo: 'Nueva Referencia', descripcion: '', precio: 99000, costo: 40000,
+                tallas: { S: 0, M: 0, L: 0, XL: 0 }, imagenes: []
+            });
+            renderInventory(); saveInventory(true);
+        }
+
+        function deleteProduct(i) {
+            if(!confirm('¿Borrar producto?')) return;
+            productData.splice(i, 1); renderInventory(); saveInventory(true);
         }
 
         function renameCategory() {
-            const oldName = document.getElementById('renameCatSelect').value;
-            const newName = document.getElementById('renameCatInput').value.trim();
-            if(!newName || oldName === newName) return;
-            
-            productData.forEach(p => {
-                if(p.categoria === oldName) p.categoria = newName;
-            });
-            
-            CATEGORIAS = [...new Set(productData.map(p => p.categoria || 'Sin Categoría'))];
-            renderTables();
-            saveData(true);
+            const o = document.getElementById('renameCatSelect').value;
+            const n = document.getElementById('renameCatInput').value.trim();
+            if(!n || o === n) return;
+            productData.forEach(p => { if(p.categoria === o) p.categoria = n; });
+            renderInventory(); saveInventory(true);
             document.getElementById('renameCatInput').value = '';
-            alert(`Categoría "${oldName}" renombrada a "${newName}"`);
+            alert(`Categoría "${o}" renombrada a "${n}"`);
         }
 
-        function updateData(index, field, value) {
-            if (field === 'precio') value = parseInt(value, 10) || 0;
-            productData[index][field] = value;
-        }
+        function removeImage(pI, iI) { productData[pI].imagenes.splice(iI, 1); renderInventory(); saveInventory(true); }
 
-        function updateStock(index, size, value) {
-            productData[index].tallas[size] = parseInt(value, 10) || 0;
-        }
-
-        function addProduct() {
-            const nextId = productData.length > 0 ? Math.max(...productData.map(p => p.id)) + 1 : 1;
-            const currentCat = CATEGORIAS.length > 0 ? CATEGORIAS[0] : 'Nueva Categoría';
-            productData.unshift({
-                id: nextId,
-                categoria: currentCat,
-                equipo: 'Nueva Referencia',
-                descripcion: '',
-                precio: 99000,
-                tallas: { S: 0, M: 0, L: 0, XL: 0 },
-                imagenes: []
-            });
-            renderTables();
-            saveData(true);
-        }
-
-        function deleteProduct(index) {
-            productData.splice(index, 1);
-            renderTables();
-            saveData(true);
-        }
-
-        function removeImage(prodIndex, imgIndex) {
-            productData[prodIndex].imagenes.splice(imgIndex, 1);
-            renderTables();
-            saveData(true);
-        }
-
-        function uploadImage(event, prodIndex) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const label = event.target.parentElement;
-            label.innerHTML = '⏳ Comprimiendo...';
-            label.style.pointerEvents = 'none';
+        async function uploadImage(e, pI) {
+            const file = e.target.files[0]; if (!file) return;
+            const lbl = e.target.parentElement; lbl.innerText = '⏳'; lbl.style.pointerEvents = 'none';
+            
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const cleanName = file.name.replace(/\s+/g, '_').toLowerCase();
-                fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: cleanName, data: e.target.result })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        if (!productData[prodIndex].imagenes) productData[prodIndex].imagenes = [];
-                        productData[prodIndex].imagenes.push(data.filepath);
-                        renderTables();
-                        saveData(true);
-                    } else {
-                        alert('Error: ' + data.message);
-                        label.innerText = '📷 Subir Foto';
-                        label.style.pointerEvents = '';
-                    }
-                })
-                .catch(() => {
-                    alert('Error subiendo imagen.');
-                    label.innerText = '📷 Subir Foto';
-                    label.style.pointerEvents = '';
-                });
+            reader.onload = async function(evt) {
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST', headers: authHeaders,
+                        body: JSON.stringify({ filename: file.name.replace(/\s+/g, '_').toLowerCase(), data: evt.target.result })
+                    });
+                    const d = await res.json();
+                    if(d.status === 'success') {
+                        if(!productData[pI].imagenes) productData[pI].imagenes = [];
+                        productData[pI].imagenes.push(d.filepath);
+                        renderInventory(); saveInventory(true);
+                    } else alert('Error: ' + d.message);
+                } catch(err) { alert('Error subiendo foto.'); }
+                lbl.innerHTML = '➕ Subir <input type="file" onchange="uploadImage(event,'+pI+')">';
+                lbl.style.pointerEvents = '';
             };
             reader.readAsDataURL(file);
         }
 
-        function saveData(silent = false) {
-            const btn = document.querySelector('.btn-save');
-            if (!silent) btn.innerText = 'Guardando...';
-            fetch('/api/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(productData)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (!silent) btn.innerText = 'Guardar Cambios';
-                if (data.status === 'success' && !silent) showToast();
-                else if (data.status !== 'success') alert('Error guardando los datos.');
-            })
-            .catch(() => {
-                if (!silent) btn.innerText = 'Guardar Cambios';
-                alert('Error enviando la petición.');
-            });
+        async function saveInventory(silent = false) {
+            const btn = document.getElementById('globalSaveBtn');
+            if(!silent) btn.innerText = 'Guardando...';
+            try {
+                const res = await fetch('/api/save', {
+                    method: 'POST', headers: authHeaders, body: JSON.stringify(productData)
+                });
+                const d = await res.json();
+                if(!silent) { btn.innerText = 'Guardar Inventario'; if(d.status === 'success') showToast("Inventario Guardado"); }
+            } catch(err) {
+                if(!silent) { btn.innerText = 'Guardar Inventario'; alert('Error red guardando.'); }
+            }
         }
 
-        function showToast() {
+        function showToast(msg) {
             const t = document.getElementById('toast');
-            t.style.display = 'block';
+            t.innerText = msg; t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3000);
         }
     </script>
