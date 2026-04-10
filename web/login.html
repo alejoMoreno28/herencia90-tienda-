@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Especial - Herencia 90</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -131,7 +132,7 @@
 
         <form id="loginForm">
             <div class="input-group">
-                <label for="username">Usuario</label>
+                <label for="username">Email</label>
                 <input type="text" id="username" required autocomplete="username">
             </div>
             
@@ -151,10 +152,14 @@
     </div>
 
     <script>
-        // Si ya hay token (y no expiró), redirigir de una
-        if (localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken')) {
-            window.location.href = '/admin.html';
-        }
+        const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Si ya hay sesión activa, redirigir directo al admin
+        supabase.auth.getSession().then(({ data }) => {
+            if (data.session) window.location.href = '/admin.html';
+        });
 
         const form = document.getElementById('loginForm');
         const errorMsg = document.getElementById('error-msg');
@@ -165,34 +170,15 @@
             errorMsg.style.display = 'none';
             submitBtn.innerText = 'Verificando...';
 
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
-                });
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    // Guardar Token
-                    if (remember) {
-                        localStorage.setItem('adminToken', data.token);
-                    } else {
-                        sessionStorage.setItem('adminToken', data.token);
-                    }
-                    window.location.href = '/admin.html';
-                } else {
-                    errorMsg.innerText = data.message || 'Credenciales incorrectas.';
-                    errorMsg.style.display = 'block';
-                    submitBtn.innerText = 'Ingresar al Panel';
-                }
-            } catch (err) {
-                errorMsg.innerText = 'Error de conexión con el servidor.';
+            if (!error) {
+                window.location.href = '/admin.html';
+            } else {
+                errorMsg.innerText = 'Credenciales incorrectas.';
                 errorMsg.style.display = 'block';
                 submitBtn.innerText = 'Ingresar al Panel';
             }

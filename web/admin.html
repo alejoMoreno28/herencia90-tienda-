@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Herencia 90 | Panel Admin Avanzado</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -108,11 +109,15 @@
 <body>
 
     <script>
-        const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-        if (!token) { window.location.href = '/login.html'; }
-        const authHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
-        
-        let GLOBAL_TRM = 3714.0; // Fallback inicial (TRM Primer Pedido)
+        const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        supabase.auth.getSession().then(({ data }) => {
+            if (!data.session) window.location.href = '/login.html';
+        });
+
+        let GLOBAL_TRM = 3714.0;
     </script>
 
     <aside class="sidebar">
@@ -279,7 +284,7 @@
             document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
             if(tId === 'dashboard') calculateInventoryValuation();
         }
-        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href='/login.html'; }
+        async function logout() { await supabase.auth.signOut(); window.location.href='/login.html'; }
 
         // Fetch TRM Oficial (Superintendencia) API
         async function fetchTRM() {
@@ -314,11 +319,11 @@
         async function init() {
             await fetchTRM();
             try {
-                const r1 = await fetch('/productos.json?v=' + Date.now());
-                if(r1.ok) productData = await r1.json();
-                
-                const r2 = await fetch('/finanzas.json?v=' + Date.now());
-                if(r2.ok) financeData = await r2.json();
+                const { data: prods } = await supabase.from('productos').select('*').order('id');
+                if (prods) productData = prods;
+
+                const { data: trans } = await supabase.from('transacciones').select('*').order('fecha', { ascending: false });
+                if (trans) financeData.transacciones = trans;
 
                 renderInventory();
                 renderFinance();
@@ -370,10 +375,12 @@
                 descripcion: document.getElementById('t-desc').value,
                 costo_usd_asociado: parseFloat(document.getElementById('t-costo-usd').value) || 0
             };
-            
-            financeData.transacciones.push(trans);
+
+            const { data: saved, error } = await supabase.from('transacciones').insert(trans).select().single();
+            if (error) { alert("Error guardando: " + error.message); return; }
+            financeData.transacciones.push(saved);
             financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            await saveFinance();
+            showToast("Transacción guardada");
             document.getElementById('transForm').reset();
             document.getElementById('t-fecha').valueAsDate = new Date();
             updateCategories(); calcCOP(); renderFinance();
@@ -381,15 +388,11 @@
 
         async function delTrans(id) {
             if(!confirm("¿Borrar transacción?")) return;
+            const { error } = await supabase.from('transacciones').delete().eq('id', id);
+            if (error) { alert("Error borrando"); return; }
             financeData.transacciones = financeData.transacciones.filter(t => t.id !== id);
-            await saveFinance(); renderFinance();
-        }
-
-        async function saveFinance() {
-            try {
-                const res = await fetch('/api/finance/save', { method: 'POST', headers: authHeaders, body: JSON.stringify(financeData) });
-                if((await res.json()).status === 'success') showToast("Finanzas guardadas");
-            } catch(e) { alert("Error de red"); }
+            renderFinance();
+            showToast("Transacción eliminada");
         }
 
         function renderFinance() {
@@ -552,31 +555,54 @@
         function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
         function uS(i,s,v) { productData[i].tallas[s]=parseInt(v)||0; calculateInventoryValuation(); }
         
-        function addProduct() {
+        async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
-            productData.unshift({ id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] });
-            renderInventory(); saveInventory(true);
+            const newP = { id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] };
+            const { error } = await supabase.from('productos').insert(newP);
+            if (error) { alert("Error creando producto"); return; }
+            productData.unshift(newP);
+            renderInventory();
         }
-        function delP(i) { if(confirm('Borrar?')){ productData.splice(i,1); renderInventory(); saveInventory(true); } }
+        async function delP(i) {
+            if (!confirm('Borrar?')) return;
+            const id = productData[i].id;
+            const { error } = await supabase.from('productos').delete().eq('id', id);
+            if (error) { alert("Error borrando producto"); return; }
+            productData.splice(i,1);
+            renderInventory();
+        }
         function renameCategory() {
             const o = document.getElementById('renameCatSelect').value, n = document.getElementById('renameCatInput').value.trim();
             if(n && o!==n) { productData.forEach(p=>{if(p.categoria===o)p.categoria=n;}); renderInventory(); saveInventory(true); }
         }
-        function rmImg(pI, iI) { productData[pI].imagenes.splice(iI,1); renderInventory(); saveInventory(true); }
+        async function rmImg(pI, iI) {
+            const url = productData[pI].imagenes[iI];
+            const filename = url.split('/product-images/')[1];
+            if (filename) await supabase.storage.from('product-images').remove([filename]);
+            productData[pI].imagenes.splice(iI,1);
+            renderInventory();
+            await saveInventory(true);
+        }
         async function addImg(e, pI) {
-            const f = e.target.files[0]; if(!f)return;
-            const r = new FileReader();
-            r.onload = async(ev) => {
-                const res = await fetch('/api/upload', { method:'POST', headers:authHeaders, body:JSON.stringify({filename:f.name.replace(/\s+/g,'_'), data:ev.target.result}) });
-                const d = await res.json();
-                if(d.status==='success') { productData[pI].imagenes.push(d.filepath); renderInventory(); saveInventory(true); }
-            }; r.readAsDataURL(f);
+            const f = e.target.files[0]; if (!f) return;
+            const filename = `${Date.now()}_${f.name.replace(/\s+/g,'_')}`;
+            const { error } = await supabase.storage.from('product-images').upload(filename, f, { upsert: true });
+            if (error) { alert("Error subiendo imagen: " + error.message); return; }
+            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filename);
+            productData[pI].imagenes.push(urlData.publicUrl);
+            renderInventory();
+            await saveInventory(true);
         }
 
-        async function saveInventory(s=false) {
-            const b=document.getElementById('globalSaveBtn'); if(!s) b.innerText='...';
-            const res = await fetch('/api/save', { method:'POST', headers:authHeaders, body:JSON.stringify(productData) });
-            if(!s) { b.innerText='Guardar Inventario Completo'; if((await res.json()).status==='success') showToast('Inventario Editado'); }
+        async function saveInventory(silent=false) {
+            const b = document.getElementById('globalSaveBtn');
+            if (!silent) b.innerText = '...';
+            const { error } = await supabase.from('productos').upsert(productData);
+            if (!silent) {
+                b.innerText = 'Guardar Inventario Completo';
+                if (!error) showToast('Inventario Editado');
+                else { console.error(error); alert("Error guardando inventario"); }
+            }
         }
         function showToast(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
 

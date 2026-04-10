@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/web/index.html" },
+    { "src": "/admin", "dest": "/web/admin.html" },
+    { "src": "/admin.html", "dest": "/web/admin.html" },
+    { "src": "/login", "dest": "/web/login.html" },
+    { "src": "/login.html", "dest": "/web/login.html" },
+    { "src": "/(.*)", "dest": "/web/$1" }
+  ]
+}
