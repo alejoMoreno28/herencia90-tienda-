@@ -111,9 +111,9 @@
     <script>
         const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        supabase.auth.getSession().then(({ data }) => {
+        db.auth.getSession().then(({ data }) => {
             if (!data.session) window.location.href = '/login.html';
         });
 
@@ -284,7 +284,7 @@
             document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
             if(tId === 'dashboard') calculateInventoryValuation();
         }
-        async function logout() { await supabase.auth.signOut(); window.location.href='/login.html'; }
+        async function logout() { await db.auth.signOut(); window.location.href='/login.html'; }
 
         // Fetch TRM Oficial (Superintendencia) API
         async function fetchTRM() {
@@ -319,10 +319,10 @@
         async function init() {
             await fetchTRM();
             try {
-                const { data: prods } = await supabase.from('productos').select('*').order('id');
+                const { data: prods } = await db.from('productos').select('*').order('id');
                 if (prods) productData = prods;
 
-                const { data: trans } = await supabase.from('transacciones').select('*').order('fecha', { ascending: false });
+                const { data: trans } = await db.from('transacciones').select('*').order('fecha', { ascending: false });
                 if (trans) financeData.transacciones = trans;
 
                 renderInventory();
@@ -376,7 +376,7 @@
                 costo_usd_asociado: parseFloat(document.getElementById('t-costo-usd').value) || 0
             };
 
-            const { data: saved, error } = await supabase.from('transacciones').insert(trans).select().single();
+            const { data: saved, error } = await db.from('transacciones').insert(trans).select().single();
             if (error) { alert("Error guardando: " + error.message); return; }
             financeData.transacciones.push(saved);
             financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
@@ -388,7 +388,7 @@
 
         async function delTrans(id) {
             if(!confirm("¿Borrar transacción?")) return;
-            const { error } = await supabase.from('transacciones').delete().eq('id', id);
+            const { error } = await db.from('transacciones').delete().eq('id', id);
             if (error) { alert("Error borrando"); return; }
             financeData.transacciones = financeData.transacciones.filter(t => t.id !== id);
             renderFinance();
@@ -558,7 +558,7 @@
         async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
             const newP = { id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] };
-            const { error } = await supabase.from('productos').insert(newP);
+            const { error } = await db.from('productos').insert(newP);
             if (error) { alert("Error creando producto"); return; }
             productData.unshift(newP);
             renderInventory();
@@ -566,7 +566,7 @@
         async function delP(i) {
             if (!confirm('Borrar?')) return;
             const id = productData[i].id;
-            const { error } = await supabase.from('productos').delete().eq('id', id);
+            const { error } = await db.from('productos').delete().eq('id', id);
             if (error) { alert("Error borrando producto"); return; }
             productData.splice(i,1);
             renderInventory();
@@ -578,7 +578,7 @@
         async function rmImg(pI, iI) {
             const url = productData[pI].imagenes[iI];
             const filename = url.split('/product-images/')[1];
-            if (filename) await supabase.storage.from('product-images').remove([filename]);
+            if (filename) await db.storage.from('product-images').remove([filename]);
             productData[pI].imagenes.splice(iI,1);
             renderInventory();
             await saveInventory(true);
@@ -586,9 +586,9 @@
         async function addImg(e, pI) {
             const f = e.target.files[0]; if (!f) return;
             const filename = `${Date.now()}_${f.name.replace(/\s+/g,'_')}`;
-            const { error } = await supabase.storage.from('product-images').upload(filename, f, { upsert: true });
+            const { error } = await db.storage.from('product-images').upload(filename, f, { upsert: true });
             if (error) { alert("Error subiendo imagen: " + error.message); return; }
-            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filename);
+            const { data: urlData } = db.storage.from('product-images').getPublicUrl(filename);
             productData[pI].imagenes.push(urlData.publicUrl);
             renderInventory();
             await saveInventory(true);
@@ -597,7 +597,7 @@
         async function saveInventory(silent=false) {
             const b = document.getElementById('globalSaveBtn');
             if (!silent) b.innerText = '...';
-            const { error } = await supabase.from('productos').upsert(productData);
+            const { error } = await db.from('productos').upsert(productData);
             if (!silent) {
                 b.innerText = 'Guardar Inventario Completo';
                 if (!error) showToast('Inventario Editado');
