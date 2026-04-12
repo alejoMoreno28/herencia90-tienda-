@@ -303,6 +303,49 @@
 
     <div id="toast" class="toast">Operación exitosa</div>
 
+    <!-- Modal editar transaccion -->
+    <div id="editModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:10px; padding:30px; width:460px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:16px;">✏️ Editar Transacción</h3>
+                <button onclick="closeEditModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#666;">×</button>
+            </div>
+            <div class="form-group">
+                <label>Fecha</label>
+                <input type="date" id="e-fecha">
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="e-tipo" onchange="updateEditCategories()">
+                    <option value="gasto">Gasto</option>
+                    <option value="ingreso">Ingreso</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select id="e-categoria" onchange="checkEditVenta()"></select>
+            </div>
+            <div class="form-group">
+                <label>Monto (COP)</label>
+                <input type="number" id="e-monto" min="0" step="1">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="e-desc" rows="2"></textarea>
+            </div>
+            <div class="form-group" id="e-costo-group" style="display:none; background:#fffbf0; padding:10px; border-radius:6px; border:1px solid #f0d080;">
+                <label style="color:#b8860b;">💰 Costo del producto en USD</label>
+                <input type="number" id="e-costo-usd" min="0" step="0.01" placeholder="Ej: 10.44">
+                <small style="color:#888; margin-top:4px; display:block;">Actualiza esto para corregir el margen de ganancia</small>
+            </div>
+            <input type="hidden" id="e-id">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="saveEditTrans()" class="btn-save" style="flex:1;">Guardar Cambios</button>
+                <button onclick="closeEditModal()" style="flex:1; background:#eee; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:600;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- LOGICA APP -->
     <script>
         const formatter = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
@@ -441,6 +484,74 @@
             showToast(`${tipo === 'envio' ? 'Envío' : 'Caja'} registrado`);
         }
 
+        function openEditModal(id) {
+            const t = financeData.transacciones.find(x => x.id == id);
+            if (!t) return;
+            document.getElementById('e-id').value = t.id;
+            document.getElementById('e-fecha').value = t.fecha;
+            document.getElementById('e-monto').value = t.monto;
+            document.getElementById('e-desc').value = t.descripcion || '';
+            document.getElementById('e-costo-usd').value = t.costo_usd_asociado || '';
+            // Tipo y categoria
+            const tipoSel = document.getElementById('e-tipo');
+            tipoSel.value = t.tipo;
+            updateEditCategories();
+            document.getElementById('e-categoria').value = t.categoria;
+            checkEditVenta();
+            // Mostrar modal
+            const modal = document.getElementById('editModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function updateEditCategories() {
+            const tipo = document.getElementById('e-tipo').value;
+            const sel = document.getElementById('e-categoria');
+            sel.innerHTML = cats[tipo].map(c => `<option value="${c}">${c}</option>`).join('');
+            checkEditVenta();
+        }
+
+        function checkEditVenta() {
+            const isVenta = document.getElementById('e-tipo').value === 'ingreso' &&
+                            document.getElementById('e-categoria').value.includes('Venta');
+            document.getElementById('e-costo-group').style.display = isVenta ? 'block' : 'none';
+        }
+
+        async function saveEditTrans() {
+            const id = document.getElementById('e-id').value;
+            const monto = parseFloat(document.getElementById('e-monto').value) || 0;
+            const tipo = document.getElementById('e-tipo').value;
+            const categoria = document.getElementById('e-categoria').value;
+            const fecha = document.getElementById('e-fecha').value;
+            const descripcion = document.getElementById('e-desc').value.trim();
+            const costo_usd_asociado = parseFloat(document.getElementById('e-costo-usd').value) || 0;
+
+            const updates = {
+                monto, tipo, categoria, fecha, descripcion,
+                usd_amount: monto / GLOBAL_TRM,
+                trm: GLOBAL_TRM,
+                costo_usd_asociado: tipo === 'ingreso' && categoria.includes('Venta') ? costo_usd_asociado : 0
+            };
+
+            const { error } = await db.from('transacciones').update(updates).eq('id', id);
+            if (error) { alert('Error guardando: ' + error.message); return; }
+
+            // Actualizar local
+            const idx = financeData.transacciones.findIndex(x => x.id == id);
+            if (idx !== -1) financeData.transacciones[idx] = { ...financeData.transacciones[idx], ...updates };
+            closeEditModal();
+            renderFinance();
+            showToast('Transacción actualizada');
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
         async function delTrans(id) {
             if(!confirm("¿Borrar transacción?")) return;
             const { error } = await db.from('transacciones').delete().eq('id', id);
@@ -501,7 +612,10 @@
                     <td style="text-align:right; color:#666">${costoTotalStr}</td>
                     <td style="text-align:right; font-weight:700; color:${margenColor}">${margenStr}</td>
                     <td style="text-align:right; font-weight:900; color:${c}">${precioVentaStr !== '--' ? precioVentaStr : s+formatter.format(t.monto)}</td>
-                    <td><button class="btn-danger" onclick="delTrans('${t.id}')">x</button></td>
+                    <td style="display:flex; gap:4px;">
+                        <button style="background:#6f42c1; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;" onclick="openEditModal('${t.id}')">✏️</button>
+                        <button class="btn-danger" onclick="delTrans('${t.id}')">x</button>
+                    </td>
                 </tr>`;
             });
 
