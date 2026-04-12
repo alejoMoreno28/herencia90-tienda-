@@ -256,6 +256,30 @@
                                 <button type="submit" class="btn-save" style="width:100%; margin-top:5px;">Registrar Movimiento</button>
                             </form>
                         </div>
+
+                        <!-- Costos rapidos -->
+                        <div class="form-container" style="margin-top:0;">
+                            <h3>📦 Agregar Costo Puntual</h3>
+                            <p style="font-size:11px; color:#888; margin-top:-5px;">Para casos donde asumiste tú el envío o la caja.</p>
+                            <div style="display:flex; flex-direction:column; gap:10px;">
+                                <div style="background:#f8f9fa; padding:10px; border-radius:6px; border:1px solid #eee;">
+                                    <div style="font-size:11px; font-weight:700; margin-bottom:6px;">🚚 Envío</div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <input type="number" id="quick-envio-monto" placeholder="Valor ($)" min="0" style="flex:1; font-size:12px;">
+                                        <input type="text" id="quick-envio-desc" placeholder="Detalle (ej: Juan García)" style="flex:2; font-size:12px;">
+                                        <button class="btn-save" style="padding:6px 10px; font-size:11px;" onclick="quickAdd('envio')">+ Agregar</button>
+                                    </div>
+                                </div>
+                                <div style="background:#f8f9fa; padding:10px; border-radius:6px; border:1px solid #eee;">
+                                    <div style="font-size:11px; font-weight:700; margin-bottom:6px;">📦 Caja</div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <input type="number" id="quick-caja-monto" placeholder="Valor ($)" min="0" style="flex:1; font-size:12px;">
+                                        <input type="text" id="quick-caja-desc" placeholder="Detalle (ej: Juan García)" style="flex:2; font-size:12px;">
+                                        <button class="btn-save" style="padding:6px 10px; font-size:11px;" onclick="quickAdd('caja')">+ Agregar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -394,6 +418,29 @@
             updateCategories(); calcCOP(); renderFinance();
         }
 
+        async function quickAdd(tipo) {
+            const montoEl = document.getElementById(`quick-${tipo}-monto`);
+            const descEl  = document.getElementById(`quick-${tipo}-desc`);
+            const monto = parseInt(montoEl.value) || 0;
+            const desc  = descEl.value.trim();
+            if (!monto) { alert('Ingresa el valor'); return; }
+            const categoria = tipo === 'envio' ? 'Envíos Nacionales' : 'Material Empaques';
+            const descripcion = (desc ? `${tipo === 'envio' ? 'Envío' : 'Caja'} — ${desc}` : (tipo === 'envio' ? 'Envío' : 'Caja'));
+            const today = new Date().toISOString().split('T')[0];
+            const trans = {
+                id: crypto.randomUUID(), tipo: 'gasto', categoria,
+                fecha: today, monto, usd_amount: monto / GLOBAL_TRM, trm: GLOBAL_TRM,
+                descripcion, costo_usd_asociado: 0
+            };
+            const { error } = await db.from('transacciones').insert(trans);
+            if (error) { alert('Error: ' + error.message); return; }
+            financeData.transacciones.unshift(trans);
+            renderFinance();
+            montoEl.value = '';
+            descEl.value = '';
+            showToast(`${tipo === 'envio' ? 'Envío' : 'Caja'} registrado`);
+        }
+
         async function delTrans(id) {
             if(!confirm("¿Borrar transacción?")) return;
             const { error } = await db.from('transacciones').delete().eq('id', id);
@@ -437,14 +484,11 @@
                 const c = isIngreso ? 'var(--success)' : 'var(--danger)';
 
                 // Columnas de costo, margen y precio venta — solo para ventas
-                const COSTO_ENVIO = 10000;
-                const COSTO_CAJA  = 3000;
                 let costoTotalStr = '--', margenStr = '--', precioVentaStr = '--', margenColor = '#888';
                 if (isIngreso && t.categoria && t.categoria.includes('Venta')) {
                     const costoProducto = (t.costo_usd_asociado || 0) * (t.trm || GLOBAL_TRM);
-                    const costoTotal = costoProducto + COSTO_ENVIO + COSTO_CAJA;
-                    const margen = t.monto > 0 ? ((t.monto - costoTotal) / t.monto * 100) : 0;
-                    costoTotalStr = formatter.format(costoTotal);
+                    const margen = t.monto > 0 ? ((t.monto - costoProducto) / t.monto * 100) : 0;
+                    costoTotalStr = formatter.format(costoProducto);
                     margenStr = margen.toFixed(1) + '%';
                     precioVentaStr = formatter.format(t.monto);
                     margenColor = margen >= 40 ? 'var(--success)' : margen >= 20 ? '#fd7e14' : 'var(--danger)';
