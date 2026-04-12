@@ -266,11 +266,8 @@
         <h1 class="pv-title">La Quieres Pero<br><span>No Está en Stock</span></h1>
         <p class="pv-subtitle">
             Camisetas <strong>importadas</strong> traídas directamente para ti.<br>
-            Personalizadas con tu <strong>nombre y número</strong> si lo deseas.
+            Cuéntanos lo que quieres y te cotizamos el total.
         </p>
-        <div class="pv-personaliz-tag">
-            ✨ Personalización incluida — ponle tu nombre y número
-        </div>
         <div class="pv-cards">
             <div class="pv-card">
                 <span class="pv-card-icon">💰</span>
@@ -283,9 +280,9 @@
                 <div class="pv-card-val">~15 días</div>
             </div>
             <div class="pv-card">
-                <span class="pv-card-icon">✍️</span>
-                <div class="pv-card-label">Personalización</div>
-                <div class="pv-card-val">Nombre y número</div>
+                <span class="pv-card-icon">🎨</span>
+                <div class="pv-card-label">Extras</div>
+                <div class="pv-card-val">A tu gusto</div>
             </div>
             <div class="pv-card">
                 <span class="pv-card-icon">🌍</span>
@@ -324,10 +321,10 @@
                     </div>
                 </div>
 
-                <!-- PASO 2: Talla + Personalización -->
+                <!-- PASO 2: Talla y Extras -->
                 <div class="pp-slide" id="pp-slide-2" style="display:none;">
-                    <div class="pv-step-title">Talla y Personalización 🎨</div>
-                    <div class="pv-step-sub">Elige tu talla y personalízala con tu nombre y número</div>
+                    <div class="pv-step-title">Talla y Extras 🎨</div>
+                    <div class="pv-step-sub">Elige tu talla y los extras que quieras — te cotizamos el total</div>
                     <div class="pv-group">
                         <label class="pv-label">Talla *</label>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -339,13 +336,13 @@
                         </div>
                     </div>
                     <div class="pv-group">
-                        <label class="pv-label">¿Quieres personalización? <span style="font-size:0.65rem;color:var(--gold);font-weight:400;text-transform:none;">— Nombre y número en la camiseta</span></label>
+                        <label class="pv-label">Nombre y número en la espalda <span style="font-size:0.65rem;color:var(--gold);font-weight:600;text-transform:none;">— costo adicional</span></label>
                         <div style="display:flex;gap:8px;">
-                            <button type="button" class="pp-tipo-btn" data-val="no" id="pp-custom-no" onclick="ppSelectCustom('no')" style="flex:1;">Sin personalización</button>
-                            <button type="button" class="pp-tipo-btn pp-selected" data-val="si" id="pp-custom-si" onclick="ppSelectCustom('si')" style="flex:1;">✨ Sí, quiero personalizar</button>
+                            <button type="button" class="pp-tipo-btn pp-selected" data-val="no" id="pp-custom-no" onclick="ppSelectCustom('no')" style="flex:1;">Sin nombre/número</button>
+                            <button type="button" class="pp-tipo-btn" data-val="si" id="pp-custom-si" onclick="ppSelectCustom('si')" style="flex:1;">+ Quiero nombre/número</button>
                         </div>
                     </div>
-                    <div id="pp-custom-fields" style="background:rgba(217,195,145,0.04);border:1px solid var(--glass-border);border-radius:10px;padding:14px;margin-top:2px;">
+                    <div id="pp-custom-fields" style="display:none;background:rgba(217,195,145,0.04);border:1px solid var(--glass-border);border-radius:10px;padding:14px;margin-top:2px;">
                         <div style="display:flex;gap:10px;">
                             <div style="flex:1;">
                                 <label style="display:block;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:5px;">Nombre en camiseta</label>
@@ -356,6 +353,21 @@
                                 <input type="number" id="pp-custom-num" class="pv-input" style="padding:10px 12px;font-size:0.86rem;" placeholder="10" min="1" max="99">
                             </div>
                         </div>
+                    </div>
+                    <div class="pv-group" style="margin-bottom:0;">
+                        <label class="pv-label">Parches y emblemas <span style="font-size:0.65rem;color:var(--gold);font-weight:600;text-transform:none;">— costo adicional por cada uno</span></label>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;" id="pp-patches">
+                            <button type="button" class="pp-tipo-btn" data-val="UEFA Champions League" onclick="ppTogglePatch(this)">🏆 UEFA Champions</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Copa del Mundo FIFA" onclick="ppTogglePatch(this)">🌍 Copa del Mundo</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Copa América" onclick="ppTogglePatch(this)">🌎 Copa América</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Europa League" onclick="ppTogglePatch(this)">⭐ Europa League</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Premier League" onclick="ppTogglePatch(this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+                            <button type="button" class="pp-tipo-btn" data-val="La Liga" onclick="ppTogglePatch(this)">🇪🇸 La Liga</button>
+                        </div>
+                        <input type="text" id="pp-patch-otro" class="pv-input" style="font-size:0.84rem;" placeholder="Otro parche (ej: Serie A, Ligue 1, escudo personalizado…)">
+                    </div>
+                    <div style="background:rgba(255,100,100,0.05);border:1px solid rgba(255,100,100,0.15);border-radius:8px;padding:10px 12px;margin-top:12px;font-size:0.76rem;color:var(--text-secondary);line-height:1.5;">
+                        ⚠️ <strong style="color:#fff;">Todos los extras tienen costo adicional</strong> al valor base de la camiseta. Te cotizamos el total exacto por WhatsApp antes de confirmar nada.
                     </div>
                 </div>
 
@@ -381,18 +393,18 @@
                     </div>
                 </div>
 
-                <!-- PASO 4: Confirmar -->
+                <!-- PASO 4: Cotización -->
                 <div class="pp-slide" id="pp-slide-4" style="display:none;">
-                    <div class="pv-step-title">¡Casi listo! Confirma tu Pre-Venta 🎉</div>
-                    <div class="pv-step-sub">Revisa el resumen y envíanos el mensaje por WhatsApp</div>
+                    <div class="pv-step-title">¡Lista tu cotización! 📋</div>
+                    <div class="pv-step-sub">Te enviamos el precio total con todo lo que elegiste</div>
                     <div id="pp-summary-box" style="background:rgba(217,195,145,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:16px;margin-bottom:14px;"></div>
                     <div style="background:rgba(217,195,145,0.07);border:1px solid rgba(217,195,145,0.2);border-radius:8px;padding:12px 14px;font-size:0.8rem;color:var(--gold);margin-bottom:16px;line-height:1.6;">
-                        💳 <strong>Anticipo del 50%</strong> para confirmar tu pedido. Te contactamos para coordinar el pago.<br>
-                        ⏱️ Entrega estimada: <strong>~15 días hábiles</strong> desde la confirmación.
+                        📲 Te respondemos con el <strong>precio total cotizado</strong> (camiseta + todos los extras).<br>
+                        💳 Anticipo del <strong>50%</strong> para confirmar. ⏱️ Entrega: <strong>~15 días hábiles</strong>.
                     </div>
                     <a id="pp-wa-btn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--whatsapp-green);color:#fff;padding:14px 24px;border-radius:10px;font-size:1rem;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 20px rgba(37,211,102,0.2);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(37,211,102,0.35)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.2)'">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-                        Enviar Pre-Venta por WhatsApp
+                        Cotizar por WhatsApp
                     </a>
                 </div>
             </div>
@@ -496,19 +508,29 @@
             var ciudad    = document.getElementById('pp-ciudad').value.trim();
             var notas     = document.getElementById('pp-notas').value.trim();
 
-            var personaliz = 'Sin personalización';
+            // Parches seleccionados
+            var patchBtns = document.querySelectorAll('#pp-patches .pp-tipo-btn.pp-selected');
+            var patches = [];
+            patchBtns.forEach(function(b){ patches.push(b.dataset.val); });
+            var patchOtro = document.getElementById('pp-patch-otro').value.trim();
+            if (patchOtro) patches.push(patchOtro);
+
+            var personaliz = 'Sin nombre/número';
             if (isCustom) {
                 personaliz = 'Con nombre/número';
                 if (cNombre) personaliz += ' — ' + cNombre.toUpperCase();
                 if (cNum)    personaliz += ' #' + cNum;
             }
+            var patchesStr = patches.length ? patches.join(', ') : 'Sin parches';
 
             var rows = [
                 ['Equipo / Selección', equipo],
                 ['Tipo', tipo],
                 ['Temporada', temporada || 'La más reciente'],
                 ['Talla', talla],
-                ['Personalización', personaliz],
+                ['divider', ''],
+                ['Nombre/número', personaliz],
+                ['Parches', patchesStr],
                 ['divider', ''],
                 ['Tu nombre', nombre],
                 ['Celular', celular],
@@ -525,15 +547,26 @@
                     '</div>';
             }).join('');
 
-            var customStr = isCustom ? '\n✨ Personalización: ' + personaliz : '';
-            var notasStr  = notas ? '\n📝 Notas: ' + notas : '';
-            var msg = '🏷️ *PRE-VENTA HERENCIA 90*\n\n' +
+            // Extras para el mensaje WA
+            var extrasLines = [];
+            if (isCustom) extrasLines.push('  • Nombre/número: ' + personaliz.replace('Con nombre/número — ','').replace('Con nombre/número','').trim() || personaliz);
+            if (patches.length) extrasLines.push('  • Parches: ' + patches.join(', '));
+            var extrasStr = extrasLines.length
+                ? '\n\n📋 *Extras a cotizar (costo adicional):*\n' + extrasLines.join('\n')
+                : '\n\n📋 *Extras:* Sin extras adicionales';
+
+            var notasStr = notas ? '\n📝 *Notas:* ' + notas : '';
+            var msg = '🏷️ *COTIZACIÓN PRE-VENTA — HERENCIA 90*\n\n' +
                 '👕 *Camiseta:* ' + equipo + ' — ' + tipo + ' — ' + (temporada || 'La más reciente') + '\n' +
-                '📐 *Talla:* ' + talla + customStr + '\n\n' +
+                '📐 *Talla:* ' + talla +
+                extrasStr + '\n\n' +
                 '👤 *Nombre:* ' + nombre + '\n' +
                 '📱 *Celular:* ' + celular + '\n' +
                 '📍 *Ciudad:* ' + ciudad + notasStr + '\n\n' +
-                '━━━━━━━━━━━━━━━\n💰 Anticipo del 50% para confirmar\n⏱️ Entrega ~15 días hábiles\n✅ Camiseta importada';
+                '━━━━━━━━━━━━━━━\n' +
+                '¿Me puedes cotizar el total con todo incluido?\n' +
+                '💰 Entiendo que el anticipo es del 50%.\n' +
+                '⏱️ Entrega ~15 días hábiles.';
 
             document.getElementById('pp-wa-btn').href = 'https://wa.me/573183867147?text=' + encodeURIComponent(msg);
         }
@@ -552,6 +585,9 @@
             btn.closest('div').querySelectorAll('.pp-tipo-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
             btn.classList.add('pp-selected');
         };
+        window.ppTogglePatch = function (btn) {
+            btn.classList.toggle('pp-selected');
+        };
         window.ppSelectTalla = function (btn) {
             document.querySelectorAll('.pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
             btn.classList.add('pp-selected');
@@ -566,8 +602,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             ppRenderProgress();
             ppShowSlide(1);
-            // Por defecto: personalización activa
-            ppSelectCustom('si');
+            ppSelectCustom('no');
         });
     })();
     </script>
