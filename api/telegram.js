@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { randomUUID } = require('crypto');
 
 const db = createClient(
   process.env.SUPABASE_URL,
@@ -35,6 +36,7 @@ function parseMessage(text) {
   if (['resumen', '/resumen'].includes(raw)) return { cmd: 'resumen' };
   if (raw.startsWith('top') || raw === '/top') return { cmd: 'top' };
   if (['pendientes', '/pendientes'].includes(raw)) return { cmd: 'pendientes' };
+  if (['anular', '/anular'].includes(raw)) return { cmd: 'anular' };
 
   if (raw.startsWith('ventas')) {
     const periodo = raw.includes('hoy') ? 'hoy' : raw.includes('mes') ? 'mes' : 'todo';
@@ -83,7 +85,8 @@ async function handleAyuda() {
   return `🏆 *H90 Assistant — Herencia 90*\n\n` +
     `*Registrar:*\n• \`venta colombia L 90000\`\n• \`gasto envio cajas 22000\`\n• \`gasto publicidad instagram 50000\`\n\n` +
     `*Consultar:*\n• \`caja\` — saldo actual\n• \`stock colombia\` — inventario\n• \`ventas hoy\` / \`ventas mes\`\n• \`resumen\` — resumen del mes\n• \`top\` — más vendidas\n• \`pendientes\` — pedidos sin enviar\n\n` +
-    `*Pedidos:*\n• \`pedido Juan García - Colombia L - Bogotá\``;
+    `*Pedidos:*\n• \`pedido Juan García - Colombia L - Bogotá\`\n\n` +
+    `*Correcciones:*\n• \`anular\` — anula la última transacción del día`;
 }
 
 async function handleCaja() {
@@ -96,7 +99,7 @@ async function handleCaja() {
 async function handleVenta({ equipo, talla, precio, costoUsd }) {
   const trm = 3714;
   const { error } = await db.from('transacciones').insert({
-    id: Date.now(), tipo: 'ingreso', categoria: 'Venta de Producto',
+    id: randomUUID(), tipo: 'ingreso', categoria: 'Venta de Producto',
     fecha: today(), monto: precio, usd_amount: precio / trm, trm,
     descripcion: `Camiseta ${equipo} talla ${talla} ${fmt.format(precio)}`,
     costo_usd_asociado: costoUsd
@@ -104,6 +107,13 @@ async function handleVenta({ equipo, talla, precio, costoUsd }) {
   if (error) return `❌ Error: ${error.message}`;
 
   const { data: prods } = await db.from('productos').select('id, equipo, tallas').ilike('equipo', `%${equipo}%`);
+
+  // Si hay multiples matches, avisar al usuario para que sea mas especifico
+  if (prods && prods.length > 1) {
+    const lista = prods.map(p => `• ${p.equipo}`).join('\n');
+    return `✅ *Venta registrada*\n📦 ${equipo} — Talla ${talla}\n💰 ${fmt.format(precio)}\n\n⚠️ *Stock NO actualizado* — hay ${prods.length} productos con ese nombre:\n${lista}\n\nUsa el nombre exacto para descontar stock.`;
+  }
+
   if (prods && prods.length === 1) {
     const prod = prods[0];
     const tallas = prod.tallas;
@@ -113,14 +123,17 @@ async function handleVenta({ equipo, talla, precio, costoUsd }) {
       const alerta = tallas[talla] === 0 ? `\n⚠️ *Stock talla ${talla} agotado*` :
                      tallas[talla] <= 2 ? `\n⚡ Solo quedan ${tallas[talla]} en talla ${talla}` : '';
       return `✅ *Venta registrada*\n📦 ${prod.equipo} — Talla ${talla}\n💰 ${fmt.format(precio)}${alerta}`;
+    } else {
+      return `✅ *Venta registrada*\n📦 ${prod.equipo} — Talla ${talla}\n💰 ${fmt.format(precio)}\n⚠️ *Talla ${talla} ya estaba en 0*`;
     }
   }
-  return `✅ *Venta registrada*\n📦 ${equipo} — Talla ${talla}\n💰 ${fmt.format(precio)}`;
+
+  return `✅ *Venta registrada*\n📦 ${equipo} — Talla ${talla}\n💰 ${fmt.format(precio)}\n_(producto no encontrado en inventario — stock no actualizado)_`;
 }
 
 async function handleGasto({ categoria, descripcion, monto }) {
   const { error } = await db.from('transacciones').insert({
-    id: Date.now(), tipo: 'gasto', categoria, fecha: today(),
+    id: randomUUID(), tipo: 'gasto', categoria, fecha: today(),
     monto, usd_amount: monto / 3714, trm: 3714, descripcion, costo_usd_asociado: 0
   });
   if (error) return `❌ Error: ${error.message}`;
@@ -182,7 +195,7 @@ async function handleTop() {
 
 async function handlePedido({ descripcion }) {
   const { error } = await db.from('transacciones').insert({
-    id: Date.now(), tipo: 'gasto', categoria: 'Envíos Nacionales',
+    id: randomUUID(), tipo: 'gasto', categoria: 'Envíos Nacionales',
     fecha: today(), monto: 0, usd_amount: 0, trm: 3714,
     descripcion: `[PENDIENTE] ${descripcion}`, costo_usd_asociado: 0
   });
@@ -194,6 +207,43 @@ async function handlePendientes() {
   const { data } = await db.from('transacciones').select('fecha, descripcion').like('descripcion', '[PENDIENTE]%').order('fecha', { ascending: false });
   if (!data || data.length === 0) return '✅ No hay pedidos pendientes.';
   return '📦 *Pedidos pendientes:*\n\n' + data.map(t => `• ${t.fecha} — ${t.descripcion.replace('[PENDIENTE] ', '')}`).join('\n');
+}
+
+async function handleAnular() {
+  // Busca la ultima transaccion de hoy
+  const { data, error } = await db.from('transacciones')
+    .select('*')
+    .eq('fecha', today())
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  // Fallback si no hay created_at: buscar por id desc no aplica con UUID, buscar todas de hoy
+  const trans = data && data.length > 0 ? data[0] : null;
+
+  if (!trans) return `❌ No hay transacciones de hoy para anular.`;
+
+  // Si era venta, restaurar stock
+  if (trans.tipo === 'ingreso' && trans.categoria === 'Venta de Producto') {
+    const tallaMatch = trans.descripcion.match(/talla\s+(XS|S|M|L|XL|XXL)/i);
+    const equipoMatch = trans.descripcion.match(/Camiseta\s+(.+?)\s+talla/i);
+    if (tallaMatch && equipoMatch) {
+      const talla = tallaMatch[1].toUpperCase();
+      const equipo = equipoMatch[1];
+      const { data: prods } = await db.from('productos').select('id, tallas').ilike('equipo', `%${equipo}%`);
+      if (prods && prods.length === 1) {
+        const prod = prods[0];
+        const tallas = prod.tallas;
+        tallas[talla] = (tallas[talla] || 0) + 1;
+        await db.from('productos').update({ tallas }).eq('id', prod.id);
+      }
+    }
+  }
+
+  const { error: delError } = await db.from('transacciones').delete().eq('id', trans.id);
+  if (delError) return `❌ Error al anular: ${delError.message}`;
+
+  const tipo = trans.tipo === 'ingreso' ? '💰 Ingreso' : '💸 Gasto';
+  return `🗑️ *Transacción anulada:*\n${tipo}: ${trans.descripcion}\nMonto: ${fmt.format(trans.monto)}${trans.tipo === 'ingreso' && trans.categoria === 'Venta de Producto' ? '\n📦 Stock restaurado' : ''}`;
 }
 
 module.exports = async function handler(req, res) {
@@ -223,6 +273,7 @@ module.exports = async function handler(req, res) {
       case 'top':        reply = await handleTop(); break;
       case 'pedido':     reply = await handlePedido(parsed); break;
       case 'pendientes': reply = await handlePendientes(); break;
+      case 'anular':     reply = await handleAnular(); break;
       case 'error':      reply = `❌ ${parsed.msg}`; break;
       default: reply = `🤔 No entendí. Escribe *ayuda* para ver los comandos.`;
     }

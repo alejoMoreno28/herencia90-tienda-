@@ -366,7 +366,7 @@
             const usdVal = isUSD ? val : (val / GLOBAL_TRM);
 
             const trans = {
-                id: Date.now(),
+                id: crypto.randomUUID(),
                 tipo: document.getElementById('t-tipo').value,
                 categoria: document.getElementById('t-categoria').value,
                 fecha: document.getElementById('t-fecha').value,
@@ -523,7 +523,7 @@
                 
                 items.forEach(({p,i}) => {
                     if(!p.tallas) p.tallas={S:0,M:0,L:0,XL:0};
-                    const totQ = p.tallas.S + p.tallas.M + p.tallas.L + p.tallas.XL;
+                    const totQ = (p.tallas.S||0) + (p.tallas.M||0) + (p.tallas.L||0) + (p.tallas.XL||0);
                     const stockCls = totQ === 0 ? 'low-stock' : '';
                     
                     const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
@@ -554,7 +554,7 @@
         }
 
         function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
-        function uS(i,s,v) { productData[i].tallas[s]=parseInt(v)||0; calculateInventoryValuation(); }
+        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); calculateInventoryValuation(); }
         
         async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
