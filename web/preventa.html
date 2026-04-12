@@ -272,7 +272,7 @@
             <div class="pv-card">
                 <span class="pv-card-icon">💰</span>
                 <div class="pv-card-label">Anticipo</div>
-                <div class="pv-card-val">50% del valor</div>
+                <div class="pv-card-val">20% del valor</div>
             </div>
             <div class="pv-card">
                 <span class="pv-card-icon">⏱️</span>
@@ -326,13 +326,22 @@
                     <div class="pv-step-title">Talla y Extras 🎨</div>
                     <div class="pv-step-sub">Elige tu talla y los extras que quieras — te cotizamos el total</div>
                     <div class="pv-group">
+                        <label class="pv-label">Género *</label>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="pp-genero-btns">
+                            <button type="button" class="pp-talla-btn" data-val="Hombre" onclick="ppSelectGenero(this)">👨 Hombre</button>
+                            <button type="button" class="pp-talla-btn" data-val="Mujer" onclick="ppSelectGenero(this)">👩 Mujer</button>
+                            <button type="button" class="pp-talla-btn" data-val="Niño" onclick="ppSelectGenero(this)">👦 Niño</button>
+                        </div>
+                    </div>
+                    <div class="pv-group">
                         <label class="pv-label">Talla *</label>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="pp-talla-btns">
                             <button type="button" class="pp-talla-btn" data-val="S" onclick="ppSelectTalla(this)">S</button>
                             <button type="button" class="pp-talla-btn" data-val="M" onclick="ppSelectTalla(this)">M</button>
                             <button type="button" class="pp-talla-btn" data-val="L" onclick="ppSelectTalla(this)">L</button>
                             <button type="button" class="pp-talla-btn" data-val="XL" onclick="ppSelectTalla(this)">XL</button>
                             <button type="button" class="pp-talla-btn" data-val="XXL" onclick="ppSelectTalla(this)">XXL</button>
+                            <button type="button" class="pp-talla-btn" data-val="3XL" onclick="ppSelectTalla(this)">3XL</button>
                         </div>
                     </div>
                     <div class="pv-group">
@@ -400,7 +409,7 @@
                     <div id="pp-summary-box" style="background:rgba(217,195,145,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:16px;margin-bottom:14px;"></div>
                     <div style="background:rgba(217,195,145,0.07);border:1px solid rgba(217,195,145,0.2);border-radius:8px;padding:12px 14px;font-size:0.8rem;color:var(--gold);margin-bottom:16px;line-height:1.6;">
                         📲 Te respondemos con el <strong>precio total cotizado</strong> (camiseta + todos los extras).<br>
-                        💳 Anticipo del <strong>50%</strong> para confirmar. ⏱️ Entrega: <strong>~15 días hábiles</strong>.
+                        💳 Anticipo del <strong>20%</strong> para confirmar. ⏱️ Entrega: <strong>~15 días hábiles</strong>.
                     </div>
                     <a id="pp-wa-btn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--whatsapp-green);color:#fff;padding:14px 24px;border-radius:10px;font-size:1rem;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 20px rgba(37,211,102,0.2);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(37,211,102,0.35)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.2)'">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
@@ -472,10 +481,16 @@
                 }
             }
             if (ppStep === 2) {
-                if (!document.querySelector('.pp-talla-btn.pp-selected')) {
-                    var btns = document.querySelectorAll('.pp-talla-btn');
-                    btns.forEach(function(b){ b.style.borderColor='#ff5252'; });
-                    setTimeout(function(){ btns.forEach(function(b){ b.style.borderColor=''; }); }, 1800);
+                if (!document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected')) {
+                    var gbns = document.querySelectorAll('#pp-genero-btns .pp-talla-btn');
+                    gbns.forEach(function(b){ b.style.borderColor='#ff5252'; });
+                    setTimeout(function(){ gbns.forEach(function(b){ b.style.borderColor=''; }); }, 1800);
+                    return false;
+                }
+                if (!document.querySelector('#pp-talla-btns .pp-talla-btn.pp-selected')) {
+                    var tbns = document.querySelectorAll('#pp-talla-btns .pp-talla-btn');
+                    tbns.forEach(function(b){ b.style.borderColor='#ff5252'; });
+                    setTimeout(function(){ tbns.forEach(function(b){ b.style.borderColor=''; }); }, 1800);
                     return false;
                 }
             }
@@ -523,10 +538,13 @@
             }
             var patchesStr = patches.length ? patches.join(', ') : 'Sin parches';
 
+            var generoBtn2 = document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected');
+            var genero2    = generoBtn2 ? generoBtn2.dataset.val : 'No especificado';
             var rows = [
                 ['Equipo / Selección', equipo],
                 ['Tipo', tipo],
                 ['Temporada', temporada || 'La más reciente'],
+                ['Género', genero2],
                 ['Talla', talla],
                 ['divider', ''],
                 ['Nombre/número', personaliz],
@@ -556,8 +574,11 @@
                 : '\n\n📋 *Extras:* Sin extras adicionales';
 
             var notasStr = notas ? '\n📝 *Notas:* ' + notas : '';
+            var generoBtn  = document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected');
+            var genero     = generoBtn ? generoBtn.dataset.val : '';
             var msg = '🏷️ *COTIZACIÓN PRE-VENTA — HERENCIA 90*\n\n' +
                 '👕 *Camiseta:* ' + equipo + ' — ' + tipo + ' — ' + (temporada || 'La más reciente') + '\n' +
+                (genero ? '🧍 *Género:* ' + genero + '\n' : '') +
                 '📐 *Talla:* ' + talla +
                 extrasStr + '\n\n' +
                 '👤 *Nombre:* ' + nombre + '\n' +
@@ -565,7 +586,7 @@
                 '📍 *Ciudad:* ' + ciudad + notasStr + '\n\n' +
                 '━━━━━━━━━━━━━━━\n' +
                 '¿Me puedes cotizar el total con todo incluido?\n' +
-                '💰 Entiendo que el anticipo es del 50%.\n' +
+                '💰 Entiendo que el anticipo es del 20%.\n' +
                 '⏱️ Entrega ~15 días hábiles.';
 
             document.getElementById('pp-wa-btn').href = 'https://wa.me/573183867147?text=' + encodeURIComponent(msg);
@@ -589,7 +610,11 @@
             btn.classList.toggle('pp-selected');
         };
         window.ppSelectTalla = function (btn) {
-            document.querySelectorAll('.pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
+            document.querySelectorAll('#pp-talla-btns .pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
+            btn.classList.add('pp-selected');
+        };
+        window.ppSelectGenero = function (btn) {
+            document.querySelectorAll('#pp-genero-btns .pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
             btn.classList.add('pp-selected');
         };
         window.ppSelectCustom = function (val) {
