@@ -5,6 +5,22 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allProducts = [];
 
+// ── Analytics ────────────────────────────────────────────────────────────────
+async function trackEvent(eventType, productData = {}) {
+  try {
+    await db.from('analytics_events').insert({
+      event_type:   eventType,
+      product_id:   productData.id   || null,
+      product_name: productData.equipo || productData.product_name || null,
+      category:     productData.categoria || productData.category || null,
+      extra:        productData.extra || {},
+      referrer:     document.referrer || null
+    });
+  } catch (e) {
+    // Analytics nunca interrumpe la experiencia del usuario
+  }
+}
+
 // ── Carrito ───────────────────────────────────────────────────────────────────
 let cart = JSON.parse(localStorage.getItem('herencia90_cart') || '[]');
 
@@ -40,6 +56,7 @@ function addToCart(product, size) {
     }
     saveCart();
     showToast();
+    trackEvent('cart_add', { ...product, extra: { talla: size } });
 }
 
 function removeFromCart(id, talla) {
@@ -117,6 +134,7 @@ function checkoutWhatsApp() {
     });
     const total = cart.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
     msg += `\n💰 *Total: ${formatPrice(total)}*\n\nPor favor confirmar disponibilidad y forma de pago 🙏`;
+    trackEvent('checkout', { extra: { items: cart.length, total } });
     window.open(`https://wa.me/573127663252?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -178,6 +196,9 @@ function closeSearchOverlay() {
 
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // Registrar visita a la página
+    trackEvent('page_view', {});
+
     db.from('productos').select('*').order('id')
         .then(({ data, error }) => {
             if (error) { console.error('Error loading products:', error); return; }
@@ -384,6 +405,7 @@ function openModal(productIndex) {
     const product = allProducts[productIndex];
     if (!product) return;
     const modal = document.getElementById('productModal');
+    trackEvent('modal_open', product);
 
     document.getElementById('modalTitle').innerText = product.equipo;
     document.getElementById('modalPrice').innerText = formatPrice(product.precio);
@@ -439,6 +461,7 @@ function openModal(productIndex) {
             btn.onclick = () => {
                 Array.from(sizeContainer.children).forEach(c => c.classList.remove('selected'));
                 btn.classList.add('selected');
+                trackEvent('whatsapp_click', { ...product, extra: { talla: size } });
                 const msg = encodeURIComponent(`Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`);
                 wsBtn.href = `https://wa.me/573127663252?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';

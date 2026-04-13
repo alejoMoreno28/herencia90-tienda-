@@ -126,6 +126,7 @@
         <ul class="sidebar-menu">
             <li><button onclick="switchTab('dashboard')" id="tab-dashboard" class="active">📊 Dashboard Finanzas</button></li>
             <li><button onclick="switchTab('inventario')" id="tab-inventario">📦 Gestión Inventario</button></li>
+            <li><button onclick="switchTab('analytics')" id="tab-analytics">📈 Analytics Web</button></li>
         </ul>
         <div class="sidebar-footer">
             <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
@@ -296,6 +297,64 @@
                 <div id="tablesContainer"></div>
             </div>
 
+            <!-- VISTA ANALYTICS -->
+            <div id="view-analytics" class="view-section">
+                <div class="finance-cards" id="analytics-cards">
+                    <div class="stat-card" style="border-color:#6f42c1">
+                        <h4>👁️ Productos vistos (modal)</h4>
+                        <div class="value" id="an-views">-</div>
+                        <div class="sub-value">Últimos 30 días</div>
+                    </div>
+                    <div class="stat-card" style="border-color:#28a745">
+                        <h4>💬 Clicks WhatsApp</h4>
+                        <div class="value" id="an-wa">-</div>
+                        <div class="sub-value">Últimos 30 días</div>
+                    </div>
+                    <div class="stat-card" style="border-color:#17a2b8">
+                        <h4>🛒 Agregados a carrito</h4>
+                        <div class="value" id="an-cart">-</div>
+                        <div class="sub-value">Últimos 30 días</div>
+                    </div>
+                    <div class="stat-card" style="border-color:#fd7e14">
+                        <h4>📱 Visitas página</h4>
+                        <div class="value" id="an-pv">-</div>
+                        <div class="sub-value">Últimos 30 días</div>
+                    </div>
+                </div>
+
+                <div class="finance-layout">
+                    <div>
+                        <div class="chart-container" style="height:280px;">
+                            <h3>📊 Eventos por día (últimos 30 días)</h3>
+                            <canvas id="analyticsChart"></canvas>
+                        </div>
+                        <div class="table-container">
+                            <h3>🏆 Top Productos — más vistos (modal)</h3>
+                            <table class="fin-table">
+                                <thead><tr><th>#</th><th>Camiseta</th><th>Categoría</th><th style="text-align:right">Vistas</th><th style="text-align:right">WhatsApp</th><th style="text-align:right">Conversión</th></tr></thead>
+                                <tbody id="an-top-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="table-container">
+                            <h3>🔥 Top — más clickeados (WhatsApp)</h3>
+                            <table class="fin-table">
+                                <thead><tr><th>#</th><th>Camiseta</th><th style="text-align:right">Clicks</th></tr></thead>
+                                <tbody id="an-wa-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="table-container">
+                            <h3>📅 Visitas recientes</h3>
+                            <table class="fin-table">
+                                <thead><tr><th>Fecha</th><th>Evento</th><th>Producto</th></tr></thead>
+                                <tbody id="an-recent-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
     </main>
 
@@ -353,9 +412,11 @@
             document.querySelectorAll('.view-section, .sidebar-menu button').forEach(el => el.classList.remove('active'));
             document.getElementById('view-'+tId).classList.add('active');
             document.getElementById('tab-'+tId).classList.add('active');
-            document.getElementById('page-title').innerText = tId === 'dashboard' ? 'Dashboard Financiero' : 'Gestión de Inventario (Al Costo)';
+            const titles = { dashboard: 'Dashboard Financiero', inventario: 'Gestión de Inventario (Al Costo)', analytics: 'Analytics Web' };
+            document.getElementById('page-title').innerText = titles[tId] || tId;
             document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
-            if(tId === 'dashboard') calculateInventoryValuation();
+            if (tId === 'dashboard') calculateInventoryValuation();
+            if (tId === 'analytics') loadAnalytics();
         }
         async function logout() { await db.auth.signOut(); window.location.href='/login.html'; }
 
@@ -794,6 +855,106 @@
             updateCategories();
             init();
         });
+
+        // ─── ANALYTICS ─────────────────────────────────────────────────────────
+        let analyticsChart = null;
+        let analyticsLoaded = false;
+
+        async function loadAnalytics() {
+            if (analyticsLoaded) return;
+            analyticsLoaded = true;
+
+            const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+            const { data: events } = await db.from('analytics_events')
+                .select('*')
+                .gte('timestamp', since)
+                .order('timestamp', { ascending: false });
+
+            if (!events || events.length === 0) {
+                document.getElementById('an-views').innerText = '0';
+                document.getElementById('an-wa').innerText = '0';
+                document.getElementById('an-cart').innerText = '0';
+                document.getElementById('an-pv').innerText = '0';
+                return;
+            }
+
+            // Conteos globales
+            const counts = { modal_open: 0, whatsapp_click: 0, cart_add: 0, page_view: 0 };
+            events.forEach(e => { if (counts[e.event_type] !== undefined) counts[e.event_type]++; });
+            document.getElementById('an-views').innerText = counts.modal_open;
+            document.getElementById('an-wa').innerText   = counts.whatsapp_click;
+            document.getElementById('an-cart').innerText = counts.cart_add;
+            document.getElementById('an-pv').innerText   = counts.page_view;
+
+            // Top productos por vistas (modal_open)
+            const viewsByProd = {};
+            const waByprod   = {};
+            events.forEach(e => {
+                if (!e.product_name) return;
+                if (e.event_type === 'modal_open')      viewsByProd[e.product_name] = (viewsByProd[e.product_name] || 0) + 1;
+                if (e.event_type === 'whatsapp_click')  waByprod[e.product_name]   = (waByprod[e.product_name] || 0) + 1;
+            });
+
+            const topViews = Object.entries(viewsByProd).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const topWA    = Object.entries(waByprod).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+            // Tabla top vistas
+            const topBody = document.getElementById('an-top-body');
+            topBody.innerHTML = topViews.map(([name, views], i) => {
+                const wa   = waByprod[name] || 0;
+                const conv = views > 0 ? ((wa / views) * 100).toFixed(0) + '%' : '0%';
+                const convColor = wa / views >= 0.3 ? 'var(--success)' : wa / views >= 0.1 ? '#fd7e14' : 'var(--danger)';
+                return `<tr>
+                    <td style="font-weight:700;">${i + 1}</td>
+                    <td>${name}</td>
+                    <td><span class="badge" style="background:#6f42c1">${events.find(e => e.product_name === name)?.category || '-'}</span></td>
+                    <td style="text-align:right;font-weight:700;">${views}</td>
+                    <td style="text-align:right;">${wa}</td>
+                    <td style="text-align:right;font-weight:700;color:${convColor}">${conv}</td>
+                </tr>`;
+            }).join('');
+
+            // Tabla top WhatsApp
+            const waBody = document.getElementById('an-wa-body');
+            waBody.innerHTML = topWA.map(([name, clicks], i) =>
+                `<tr><td style="font-weight:700;">${i + 1}</td><td>${name}</td><td style="text-align:right;font-weight:900;color:var(--success);">${clicks}</td></tr>`
+            ).join('');
+
+            // Eventos recientes
+            const recentBody = document.getElementById('an-recent-body');
+            const typeEmoji = { page_view: '📱', modal_open: '👁️', whatsapp_click: '💬', cart_add: '🛒', checkout: '✅' };
+            recentBody.innerHTML = events.slice(0, 20).map(e => {
+                const ts = new Date(e.timestamp).toLocaleString('es-CO', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                return `<tr>
+                    <td style="font-size:11px;">${ts}</td>
+                    <td>${typeEmoji[e.event_type] || '📌'} ${e.event_type}</td>
+                    <td style="font-size:11px;">${e.product_name || '-'}</td>
+                </tr>`;
+            }).join('');
+
+            // Gráfico eventos por día
+            const dayMap = {};
+            events.forEach(e => {
+                const day = e.timestamp.substring(0, 10);
+                if (!dayMap[day]) dayMap[day] = { modal_open: 0, whatsapp_click: 0, page_view: 0 };
+                if (dayMap[day][e.event_type] !== undefined) dayMap[day][e.event_type]++;
+            });
+            const days = Object.keys(dayMap).sort();
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            if (analyticsChart) analyticsChart.destroy();
+            analyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [
+                        { label: 'Visitas', data: days.map(d => dayMap[d].page_view), borderColor: '#17a2b8', backgroundColor: 'rgba(23,162,184,0.1)', tension: 0.3, fill: true },
+                        { label: 'Productos vistos', data: days.map(d => dayMap[d].modal_open), borderColor: '#6f42c1', backgroundColor: 'rgba(111,66,193,0.1)', tension: 0.3, fill: true },
+                        { label: 'WhatsApp clicks', data: days.map(d => dayMap[d].whatsapp_click), borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', tension: 0.3, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+        }
     </script>
 </body>
 </html>
