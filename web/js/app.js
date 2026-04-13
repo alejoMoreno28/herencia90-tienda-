@@ -117,7 +117,7 @@ function checkoutWhatsApp() {
     });
     const total = cart.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
     msg += `\n💰 *Total: ${formatPrice(total)}*\n\nPor favor confirmar disponibilidad y forma de pago 🙏`;
-    window.open(`https://wa.me/573183867147?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/573127663252?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 let toastTimer = null;
@@ -440,7 +440,7 @@ function openModal(productIndex) {
                 Array.from(sizeContainer.children).forEach(c => c.classList.remove('selected'));
                 btn.classList.add('selected');
                 const msg = encodeURIComponent(`Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`);
-                wsBtn.href = `https://wa.me/573183867147?text=${msg}`;
+                wsBtn.href = `https://wa.me/573127663252?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';
                 wsBtn.style.opacity = '1';
                 wsBtn.className = 'btn-whatsapp green';
