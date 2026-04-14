@@ -37,6 +37,9 @@ check('homepage catalog CTA points to an existing catalog section', () => {
 
   assert.match(html, /href="#catalogo"/i);
   assert.match(html, /id="catalogo"/i);
+  assert.match(html, /\/categorias\/colombia/i);
+  assert.match(html, /\/categorias\/real-madrid/i);
+  assert.match(html, /\/categorias\/retro/i);
 });
 
 check('pre-sale page uses the current whatsapp number and has SEO metadata', () => {
@@ -61,9 +64,11 @@ check('robots and sitemap files exist and point to the live domain', () => {
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\//i);
 });
 
-check('vercel rewrites include clean product URLs', () => {
+check('vercel rewrites include clean product and category URLs', () => {
   const vercelConfig = read('vercel.json');
 
+  assert.match(vercelConfig, /"source":\s*"\/categorias\/:slug"/i);
+  assert.match(vercelConfig, /"destination":\s*"\/categorias\/:slug\.html"/i);
   assert.match(vercelConfig, /"source":\s*"\/camisetas\/:slug"/i);
   assert.match(vercelConfig, /"destination":\s*"\/camisetas\/:slug\.html"/i);
 });
@@ -96,6 +101,33 @@ check('product pages preserve analytics and refresh live product data', () => {
   assert.match(sampleHtml, /trackEvent\('whatsapp_click'/i);
   assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.eq\('id'/i);
   assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
+});
+
+check('static category pages exist and are included in the sitemap', () => {
+  const categoryPagesDir = path.join(root, 'web', 'categorias');
+  assert.ok(fs.existsSync(categoryPagesDir), 'web/categorias should exist');
+
+  const samplePage = path.join(categoryPagesDir, 'colombia.html');
+  assert.ok(fs.existsSync(samplePage), 'sample category page should exist');
+
+  const sampleHtml = fs.readFileSync(samplePage, 'utf8');
+  assert.match(sampleHtml, /Colombia 2026/i);
+  assert.match(sampleHtml, /application\/ld\+json/i);
+  assert.match(sampleHtml, /\/camisetas\/camiseta-local-colombia-26/i);
+
+  const sitemap = fs.readFileSync(path.join(root, 'web', 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/categorias\/colombia/i);
+  assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/categorias\/real-madrid/i);
+});
+
+check('category pages preserve analytics and live collection refresh', () => {
+  const samplePage = path.join(root, 'web', 'categorias', 'colombia.html');
+  const sampleHtml = fs.readFileSync(samplePage, 'utf8');
+
+  assert.match(sampleHtml, /analytics_events/i);
+  assert.match(sampleHtml, /STATIC_COLLECTION/i);
+  assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.in\('id'/i);
+  assert.match(sampleHtml, /db\.channel\('seo-collection-live-/i);
 });
 
 check('generator syncs products from Supabase and automation workflow exists', () => {
