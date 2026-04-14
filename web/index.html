@@ -3,9 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HERENCIA 90 | Catálogo</title>
+    <title>Camisetas de Futbol Retro e Importadas en Colombia | Herencia 90</title>
+    <meta name="description" content="Compra camisetas de futbol retro, importadas y de temporada en Colombia. Clubes, selecciones, ediciones especiales y envios nacionales con Herencia 90.">
+    <link rel="canonical" href="https://www.herencia90.shop/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Herencia 90">
+    <meta property="og:title" content="Camisetas de Futbol Retro e Importadas en Colombia | Herencia 90">
+    <meta property="og:description" content="Camisetas retro, importadas y de temporada para hinchas en toda Colombia. Explora clubes, selecciones y ediciones especiales.">
+    <meta property="og:url" content="https://www.herencia90.shop/">
+    <meta property="og:image" content="https://www.herencia90.shop/img/logo.webp">
+    <meta property="og:image:alt" content="Logo de Herencia 90">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Camisetas de Futbol Retro e Importadas en Colombia | Herencia 90">
+    <meta name="twitter:description" content="Compra camisetas de futbol retro, importadas y de temporada con envios a toda Colombia.">
+    <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "Herencia 90",
+          "url": "https://www.herencia90.shop/",
+          "logo": "https://www.herencia90.shop/img/logo.webp",
+          "sameAs": [
+            "https://www.instagram.com/herencia90_/",
+            "https://www.tiktok.com/@herencia.90"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+57 3126428153",
+            "contactType": "sales",
+            "areaServed": "CO",
+            "availableLanguage": "es"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Herencia 90",
+          "url": "https://www.herencia90.shop/"
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <!-- Promo Banner Marquee -->
@@ -28,7 +72,7 @@
     <header class="header">
         <div class="header-container">
             <img src="img/logo.webp" alt="Herencia 90 Logo" class="logo">
-            <h1 class="header-title">Colección 2026</h1>
+            <h1 class="header-title">Camisetas de Futbol Retro e Importadas</h1>
             <div class="header-right">
                 <input type="text" id="searchInput" class="search-input" placeholder="Buscar equipo, ej. Real Madrid...">
                 <button class="cart-btn" id="cartBtn" aria-label="Ver carrito">
@@ -51,7 +95,7 @@
     <!-- Área superior móvil (no sticky) -->
     <div class="mobile-top">
         <img src="img/logo.webp" alt="Herencia 90" class="mobile-logo">
-        <p class="mobile-subtitle">Colección 2026</p>
+        <p class="mobile-subtitle">Retro, temporada y ediciones especiales</p>
     </div>
 
     <section class="hero">
@@ -60,13 +104,34 @@
             <h2 class="hero-title">Viste la Historia.<br><span class="gold-text">Siente la Pasión.</span></h2>
             <p class="hero-subtitle">Camisetas retro, ediciones limitadas y la nueva colección 2026 para los verdaderos hinchas.</p>
             <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
-                <a href="#clubes_25_26" class="btn-hero">Explorar Colección</a>
-                <a href="preventa.html" class="btn-hero-pp">🏷️ Pre-Venta</a>
+                <a href="#catalogo" class="btn-hero">Explorar Catalogo</a>
+                <a href="/preventa" class="btn-hero-pp">🏷️ Pre-Venta</a>
             </div>
         </div>
     </section>
 
-    <main class="container">
+        <section class="trust-strip" aria-label="Beneficios de compra">
+        <div class="trust-shell">
+            <article class="trust-item">
+                <strong>Envios a toda Colombia</strong>
+                <span>Atencion rapida por WhatsApp y seguimiento directo.</span>
+            </article>
+            <article class="trust-item">
+                <strong>Promo 2 x $180.000</strong>
+                <span>Una oferta clara para mover mas referencias por compra.</span>
+            </article>
+            <article class="trust-item">
+                <strong>Caja desde 2 unidades</strong>
+                <span>Mejor presentacion para regalo o compra multiple.</span>
+            </article>
+            <article class="trust-item">
+                <strong>Calidad importada</strong>
+                <span>Camisetas retro, actuales y especiales con muy buenos acabados.</span>
+            </article>
+        </div>
+    </section>
+
+    <main class="container" id="catalogo">
         <div class="product-grid" id="productGrid"></div>
     </main>
 
@@ -241,7 +306,7 @@
             </svg>
             <span>Menú</span>
         </button>
-        <button class="mobile-nav-btn" onclick="location.href='preventa.html'" aria-label="Pre-Venta">
+        <button class="mobile-nav-btn" onclick="location.href='/preventa'" aria-label="Pre-Venta">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10l-1.5 7H8.5L7 7z"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/><path d="M5 7H3"/></svg>
             <span>Pre-Venta</span>
         </button>

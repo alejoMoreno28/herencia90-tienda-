@@ -5,6 +5,24 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allProducts = [];
 
+async function loadProducts() {
+    try {
+        const { data, error } = await db.from('productos').select('*').order('id');
+        if (error) throw error;
+        if (Array.isArray(data) && data.length > 0) return data;
+        throw new Error('Catalogo vacio desde Supabase');
+    } catch (error) {
+        try {
+            const response = await fetch('productos.json', { cache: 'no-store' });
+            if (!response.ok) throw new Error(`Fallback local fallo: ${response.status}`);
+            return await response.json();
+        } catch (fallbackError) {
+            console.error('No fue posible cargar productos', error, fallbackError);
+            return [];
+        }
+    }
+}
+
 // ── Analytics ────────────────────────────────────────────────────────────────
 async function trackEvent(eventType, productData = {}) {
   try {
@@ -199,13 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Registrar visita a la página
     trackEvent('page_view', {});
 
-    db.from('productos').select('*').order('id')
-        .then(({ data, error }) => {
-            if (error) { console.error('Error loading products:', error); return; }
-            allProducts = data;
-            renderNavigation(allProducts);
-            renderProducts(allProducts);
-        });
+    loadProducts().then((products) => {
+        allProducts = products;
+        renderNavigation(allProducts);
+        renderProducts(allProducts);
+    });
 
     // Real-time: actualiza stock cuando cambia un producto
     db.channel('stock-live')
@@ -303,6 +319,19 @@ function toWebp(src) {
     return src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
 }
 
+function slugifyText(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function buildProductUrl(product) {
+    return `/camisetas/${slugifyText(product.equipo)}`;
+}
+
 function makeCategoryId(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+$/, '');
 }
@@ -387,10 +416,15 @@ function renderProducts(products) {
                     <div class="product-price">${formatPrice(product.precio)}</div>
                     <div class="product-sizes">Tallas: ${sizesStr}</div>
                     ${product.descripcion ? `<p class="product-description">${product.descripcion}</p>` : ''}
-                    <button class="btn-whatsapp" style="margin-top:auto"
-                        onclick="event.stopPropagation(); openModal(${idx})">
-                        Ver Detalles
-                    </button>
+                    <div class="product-actions">
+                        <button class="btn-whatsapp"
+                            onclick="event.stopPropagation(); openModal(${idx})">
+                            Ver Detalles
+                        </button>
+                        <a class="product-page-link" href="${buildProductUrl(product)}" onclick="event.stopPropagation()">
+                            Ver Ficha
+                        </a>
+                    </div>
                 </div>
             `;
 
