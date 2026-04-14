@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camiseta local Retro Real Madrid 1999/00 | Herencia 90 Colombia</title>
-  <meta name="description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo…">
+  <meta name="description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Fi...">
   <link rel="canonical" href="https://www.herencia90.shop/camisetas/camiseta-local-retro-real-madrid-1999-00">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
   <meta property="og:title" content="Camiseta local Retro Real Madrid 1999/00 | Herencia 90 Colombia">
-  <meta property="og:description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo…">
+  <meta property="og:description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Fi...">
   <meta property="og:url" content="https://www.herencia90.shop/camisetas/camiseta-local-retro-real-madrid-1999-00">
   <meta property="og:image" content="https://www.herencia90.shop/img/real_majdrid_retro_1999-00_home_fan_1.webp">
   <meta property="og:image:alt" content="Camiseta local Retro Real Madrid 1999/00">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Camiseta local Retro Real Madrid 1999/00 | Herencia 90 Colombia">
-  <meta name="twitter:description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo…">
+  <meta name="twitter:description" content="Camiseta local Retro Real Madrid 1999/00 en Herencia 90. Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Fi...">
   <meta name="twitter:image" content="https://www.herencia90.shop/img/real_majdrid_retro_1999-00_home_fan_1.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -418,7 +418,7 @@
   <script>
     const SUPABASE_URL = "https://nlnrdtcgbdkzfzwnsffp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00";
-    const STATIC_PRODUCT = {"id":20,"equipo":"Camiseta local Retro Real Madrid 1999/00","categoria":"Leyendas Clásicas","descripcion":"Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo, Raúl, Morientes y Hierro con el escudo vintage dorado. Una pieza de colección para quienes vivieron la gloria.","precio":120000,"tallas":{"S":0,"M":1,"L":0,"XL":0},"imagenes":["img/real_majdrid_retro_1999-00_home_fan_1.webp","img/real_majdrid_retro_1999-00_home_fan_2.webp","img/real_majdrid_retro_1999-00_home_fan_3.webp","img/real_majdrid_retro_1999-00_home_fan_4.webp","img/real_majdrid_retro_1999-00_home_fan_5.webp","img/real_majdrid_retro_1999-00_home_fan_6.webp","img/real_majdrid_retro_1999-00_home_fan_7.webp","img/real_majdrid_retro_1999-00_home_fan_8.webp"]};
+    const STATIC_PRODUCT = {"id":20,"equipo":"Camiseta local Retro Real Madrid 1999/00","categoria":"Leyendas Clásicas","descripcion":"Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo, Raúl, Morientes y Hierro con el escudo vintage dorado. Una pieza de colección para quienes vivieron la gloria.","precio":120000,"tallas":{"L":0,"M":1,"S":0,"XL":0},"imagenes":["img/real_majdrid_retro_1999-00_home_fan_1.webp","img/real_majdrid_retro_1999-00_home_fan_2.webp","img/real_majdrid_retro_1999-00_home_fan_3.webp","img/real_majdrid_retro_1999-00_home_fan_4.webp","img/real_majdrid_retro_1999-00_home_fan_5.webp","img/real_majdrid_retro_1999-00_home_fan_6.webp","img/real_majdrid_retro_1999-00_home_fan_7.webp","img/real_majdrid_retro_1999-00_home_fan_8.webp"]};
     const PRODUCT_URL = "https://www.herencia90.shop/camisetas/camiseta-local-retro-real-madrid-1999-00";
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -518,6 +518,13 @@
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
+    db.channel('seo-product-live-camiseta-local-retro-real-madrid-1999-00')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.20' }, (payload) => {
+        if (payload && payload.new) {
+          renderLiveProduct(payload.new);
+        }
+      })
+      .subscribe();
   </script>
 </body>
 </html>
