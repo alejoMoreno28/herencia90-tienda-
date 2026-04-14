@@ -95,6 +95,22 @@ check('product pages preserve analytics and refresh live product data', () => {
   assert.match(sampleHtml, /trackEvent\('modal_open'/i);
   assert.match(sampleHtml, /trackEvent\('whatsapp_click'/i);
   assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.eq\('id'/i);
+  assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
+});
+
+check('generator syncs products from Supabase and automation workflow exists', () => {
+  const generatorScript = read('scripts/generate-product-pages.mjs');
+  const workflowPath = path.join(root, '.github', 'workflows', 'sync-seo-catalog.yml');
+
+  assert.match(generatorScript, /rest\/v1\/productos\?select=\*&order=id/i);
+  assert.match(generatorScript, /fs\.writeFileSync\(productsPath/i);
+  assert.ok(fs.existsSync(workflowPath), 'sync workflow should exist');
+
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  assert.match(workflow, /schedule:/i);
+  assert.match(workflow, /workflow_dispatch:/i);
+  assert.match(workflow, /node scripts\/generate-product-pages\.mjs/i);
+  assert.match(workflow, /node tests\/site-seo\.test\.mjs/i);
 });
 
 if (failures.length > 0) {

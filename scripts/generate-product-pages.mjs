@@ -3,14 +3,42 @@ import path from 'node:path';
 
 const root = process.cwd();
 const siteUrl = 'https://www.herencia90.shop';
-const supabaseUrl = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
+const supabaseProductsUrl = `${supabaseUrl}/rest/v1/productos?select=*&order=id`;
 const outputDir = path.join(root, 'web', 'camisetas');
 const productsPath = path.join(root, 'web', 'productos.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
 
-const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+async function loadProducts() {
+  try {
+    const response = await fetch(supabaseProductsUrl, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase respondio ${response.status}`);
+    }
+
+    const liveProducts = await response.json();
+
+    if (!Array.isArray(liveProducts) || liveProducts.length === 0) {
+      throw new Error('Supabase no devolvio productos');
+    }
+
+    fs.writeFileSync(productsPath, `${JSON.stringify(liveProducts, null, 4)}\n`, 'utf8');
+    return liveProducts;
+  } catch (error) {
+    console.warn(`No fue posible sincronizar productos desde Supabase: ${error.message}`);
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+  }
+}
+
+const products = await loadProducts();
 
 function slugify(value) {
   return String(value || '')
@@ -45,7 +73,7 @@ function formatPrice(value) {
 function truncateText(value, maxLength = 160) {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+  return `${text.slice(0, maxLength - 3).trimEnd()}...`;
 }
 
 function absoluteAssetUrl(assetPath) {
@@ -654,6 +682,13 @@ function renderProductPage(product) {
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
+    db.channel('seo-product-live-${slug}')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
+        if (payload && payload.new) {
+          renderLiveProduct(payload.new);
+        }
+      })
+      .subscribe();
   </script>
 </body>
 </html>`;

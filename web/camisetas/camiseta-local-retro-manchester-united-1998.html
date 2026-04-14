@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camiseta local Retro Manchester United 1998 | Herencia 90 Colombia</title>
-  <meta name="description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El c…">
+  <meta name="description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El...">
   <link rel="canonical" href="https://www.herencia90.shop/camisetas/camiseta-local-retro-manchester-united-1998">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
   <meta property="og:title" content="Camiseta local Retro Manchester United 1998 | Herencia 90 Colombia">
-  <meta property="og:description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El c…">
+  <meta property="og:description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El...">
   <meta property="og:url" content="https://www.herencia90.shop/camisetas/camiseta-local-retro-manchester-united-1998">
   <meta property="og:image" content="https://www.herencia90.shop/img/man_ud_retro_98_home_1.webp">
   <meta property="og:image:alt" content="Camiseta local Retro Manchester United 1998">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Camiseta local Retro Manchester United 1998 | Herencia 90 Colombia">
-  <meta name="twitter:description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El c…">
+  <meta name="twitter:description" content="Camiseta local Retro Manchester United 1998 en Herencia 90. Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El...">
   <meta name="twitter:image" content="https://www.herencia90.shop/img/man_ud_retro_98_home_1.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -418,7 +418,7 @@
   <script>
     const SUPABASE_URL = "https://nlnrdtcgbdkzfzwnsffp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00";
-    const STATIC_PRODUCT = {"id":15,"equipo":"Camiseta local Retro Manchester United 1998","categoria":"Leyendas Clásicas","descripcion":"Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.","precio":120000,"tallas":{"S":0,"M":1,"L":0,"XL":0},"imagenes":["img/man_ud_retro_98_home_1.webp","img/man_ud_retro_98_home_2.webp","img/man_ud_retro_98_home_3.webp","img/man_ud_retro_98_home_4.webp","img/man_ud_retro_98_home_5.webp","img/man_ud_retro_98_home_6.webp","img/man_ud_retro_98_home_7.webp","img/man_ud_retro_98_home_8.webp"]};
+    const STATIC_PRODUCT = {"id":15,"equipo":"Camiseta local Retro Manchester United 1998","categoria":"Leyendas Clásicas","descripcion":"Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.","precio":120000,"tallas":{"L":0,"M":1,"S":0,"XL":0},"imagenes":["img/man_ud_retro_98_home_1.webp","img/man_ud_retro_98_home_2.webp","img/man_ud_retro_98_home_3.webp","img/man_ud_retro_98_home_4.webp","img/man_ud_retro_98_home_5.webp","img/man_ud_retro_98_home_6.webp","img/man_ud_retro_98_home_7.webp","img/man_ud_retro_98_home_8.webp"]};
     const PRODUCT_URL = "https://www.herencia90.shop/camisetas/camiseta-local-retro-manchester-united-1998";
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -518,6 +518,13 @@
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
+    db.channel('seo-product-live-camiseta-local-retro-manchester-united-1998')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.15' }, (payload) => {
+        if (payload && payload.new) {
+          renderLiveProduct(payload.new);
+        }
+      })
+      .subscribe();
   </script>
 </body>
 </html>
