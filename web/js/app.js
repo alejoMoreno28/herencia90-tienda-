@@ -343,6 +343,7 @@ function renderNavigation(products) {
     
     if(desktopNav) {
         desktopNav.innerHTML = cats.map(c => `<li><a href="#${makeCategoryId(c)}">${c}</a></li>`).join('');
+        desktopNav.innerHTML += `<li><a href="/nosotros.html" style="color:var(--gold);">ℹ️ Nosotros</a></li>`;
     }
     
     const icons = ['⚽', '🌍', '🏆', '⭐', '🔥', '💎', '🚀'];
@@ -353,6 +354,13 @@ function renderNavigation(products) {
                 <span>${c}</span>
             </a>
         `).join('');
+        
+        mobileNav.innerHTML += `
+            <a href="/nosotros.html" class="category-drawer-link" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                <span class="drawer-link-icon">ℹ️</span>
+                <span style="color:var(--gold);">Sobre Nosotros</span>
+            </a>
+        `;
         
         mobileNav.querySelectorAll('.category-drawer-link').forEach(link => {
             link.addEventListener('click', () => closeDrawer());
