@@ -1,3 +1,16 @@
+// ── Nombres de categorías para mostrar (sin tocar la BD) ──────────────────────
+const CATEGORY_LABELS = {
+    'coleccion 2026':  'Mundial 2026',
+    'colección 2026':  'Mundial 2026',
+    'Coleccion 2026':  'Mundial 2026',
+    'Colección 2026':  'Mundial 2026',
+    'COLECCION 2026':  'Mundial 2026',
+    'COLECCIÓN 2026':  'Mundial 2026',
+};
+function displayCategory(name) {
+    return CATEGORY_LABELS[name] || CATEGORY_LABELS[name.toLowerCase()] || name;
+}
+
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
 const { createClient } = window.supabase;
@@ -342,16 +355,16 @@ function renderNavigation(products) {
     const mobileNav = document.getElementById('mobileCatNav');
     
     if(desktopNav) {
-        desktopNav.innerHTML = cats.map(c => `<li><a href="#${makeCategoryId(c)}">${c}</a></li>`).join('');
+        desktopNav.innerHTML = cats.map(c => `<li><a href="#${makeCategoryId(c)}">${displayCategory(c)}</a></li>`).join('');
         desktopNav.innerHTML += `<li><a href="/nosotros.html" style="color:var(--gold);">ℹ️ Nosotros</a></li>`;
     }
-    
+
     const icons = ['⚽', '🌍', '🏆', '⭐', '🔥', '💎', '🚀'];
     if(mobileNav) {
         mobileNav.innerHTML = cats.map((c, i) => `
             <a href="#${makeCategoryId(c)}" class="category-drawer-link">
                 <span class="drawer-link-icon">${icons[i % icons.length]}</span>
-                <span>${c}</span>
+                <span>${displayCategory(c)}</span>
             </a>
         `).join('');
         
@@ -394,7 +407,7 @@ function renderProducts(products) {
         const catTitle = document.createElement('h2');
         catTitle.id = makeCategoryId(catName);
         catTitle.className = 'category-title';
-        catTitle.innerText = catName;
+        catTitle.innerText = displayCategory(catName);
         container.appendChild(catTitle);
 
         const grid = document.createElement('div');
@@ -429,9 +442,9 @@ function renderProducts(products) {
                             onclick="event.stopPropagation(); openModal(${idx})">
                             Ver Detalles
                         </button>
-                        <a class="product-page-link" href="${buildProductUrl(product)}" onclick="event.stopPropagation()">
-                            Ver Ficha
-                        </a>
+                        <button class="product-page-link" style="background:none;border:none;cursor:pointer;font-family:inherit;" onclick="event.stopPropagation(); openModal(${idx})">
+                            🛒 Agregar
+                        </button>
                     </div>
                 </div>
             `;
