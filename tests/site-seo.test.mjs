@@ -103,8 +103,6 @@ check('product pages preserve analytics and refresh live product data', () => {
   assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
 });
 
-<<<<<<< HEAD
-=======
 check('static category pages exist and are included in the sitemap', () => {
   const categoryPagesDir = path.join(root, 'web', 'categorias');
   assert.ok(fs.existsSync(categoryPagesDir), 'web/categorias should exist');
@@ -131,8 +129,6 @@ check('category pages preserve analytics and live collection refresh', () => {
   assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.in\('id'/i);
   assert.match(sampleHtml, /db\.channel\('seo-collection-live-/i);
 });
-
->>>>>>> origin/main
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');
   const workflowPath = path.join(root, '.github', 'workflows', 'sync-seo-catalog.yml');

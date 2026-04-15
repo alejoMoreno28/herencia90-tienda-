@@ -40,8 +40,6 @@ async function loadProducts() {
 }
 
 const products = await loadProducts();
-<<<<<<< HEAD
-=======
 
 function normalizeText(value) {
   return String(value || '')
@@ -117,7 +115,6 @@ const seoCollections = [
     }
   }
 ];
->>>>>>> origin/main
 
 function slugify(value) {
   return String(value || '')
