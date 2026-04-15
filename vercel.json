@@ -13,6 +13,7 @@
     { "source": "/camisetas/:slug", "destination": "/camisetas/:slug.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/login", "destination": "/login.html" },
-    { "source": "/preventa", "destination": "/preventa.html" }
+    { "source": "/preventa", "destination": "/preventa.html" },
+    { "source": "/nosotros", "destination": "/nosotros.html" }
   ]
 }
