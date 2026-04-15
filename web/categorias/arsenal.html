@@ -22,7 +22,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Camisetas Arsenal 25/26 Importadas | Herencia 90 Colombia","description":"Compra camisetas Arsenal 25/26 importadas en Colombia. Local y visitante de los Gunners con envio nacional y atencion por WhatsApp.","url":"https://www.herencia90.shop/categorias/arsenal","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.herencia90.shop/camisetas/camiseta-local-arsenal-25-26","name":"Camiseta local Arsenal 25/26"},{"@type":"ListItem","position":2,"url":"https://www.herencia90.shop/camisetas/camiseta-visitante-arsenal-25-26","name":"Camiseta visitante Arsenal 25/26"}]}}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://www.herencia90.shop/"},{"@type":"ListItem","position":2,"name":"Categorias","item":"https://www.herencia90.shop/categorias"},{"@type":"ListItem","position":3,"name":"Camisetas Arsenal 25/26"}]}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Las camisetas Arsenal son importadas?","acceptedAnswer":{"@type":"Answer","text":"Si, todas nuestras referencias del Arsenal son importadas directamente, version Fan con acabados de calidad y telas livianas."}},{"@type":"Question","name":"¿Tienen stock inmediato del Arsenal 25/26?","acceptedAnswer":{"@type":"Answer","text":"Manejamos stock fisico en Bogota con envio a toda Colombia. La disponibilidad exacta por talla la confirmas por WhatsApp."}},{"@type":"Question","name":"¿Puedo pedir una talla agotada del Arsenal?","acceptedAnswer":{"@type":"Answer","text":"Si, a traves del servicio de pre-pedido traemos tu talla en aproximadamente 15 dias habiles."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Las camisetas Arsenal son importadas?","acceptedAnswer":{"@type":"Answer","text":"Si, todas nuestras referencias del Arsenal son importadas directamente, version Fan con acabados de calidad y telas livianas."}},{"@type":"Question","name":"¿Tienen stock inmediato del Arsenal 25/26?","acceptedAnswer":{"@type":"Answer","text":"Manejamos stock fisico en Medellin con envio a toda Colombia. La disponibilidad exacta por talla la confirmas por WhatsApp."}},{"@type":"Question","name":"¿Puedo pedir una talla agotada del Arsenal?","acceptedAnswer":{"@type":"Answer","text":"Si, a traves del servicio de pre-pedido traemos tu talla en aproximadamente 15 dias habiles."}}]}</script>
   <style>
     :root {
       --bg-dark: #050505;
@@ -363,12 +363,12 @@
           <span>referencias activas</span>
         </div>
         <div class="stat-box">
-          <strong class="stat-number">10</strong>
-          <span>unidades visibles en stock</span>
+          <strong class="stat-number" id="collectionStock">—</strong>
+          <span>unidades en stock</span>
         </div>
         <div class="stat-box">
-          <strong class="stat-number">2 x 180</strong>
-          <span>promo vigente para impulsar ticket promedio</span>
+          <strong class="stat-number">Medellín</strong>
+          <span>stock fisico, envio a toda Colombia</span>
         </div>
       </div>
     </section>
@@ -434,7 +434,7 @@
         </article>
         <article class="benefit-card">
           <strong>¿Tienen stock inmediato del Arsenal 25/26?</strong>
-          <p>Manejamos stock fisico en Bogota con envio a toda Colombia. La disponibilidad exacta por talla la confirmas por WhatsApp.</p>
+          <p>Manejamos stock fisico en Medellin con envio a toda Colombia. La disponibilidad exacta por talla la confirmas por WhatsApp.</p>
         </article>
         <article class="benefit-card">
           <strong>¿Puedo pedir una talla agotada del Arsenal?</strong>
@@ -588,6 +588,13 @@
         // Mantener contenido estatico como respaldo
       }
     }
+
+    // Mostrar stock estatico inmediatamente mientras carga Supabase
+    const initStock = (STATIC_COLLECTION.products || []).reduce((sum, p) => {
+      return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
+    }, 0);
+    const initStockEl = document.getElementById('collectionStock');
+    if (initStockEl) initStockEl.textContent = initStock > 0 ? initStock : 'Consultar';
 
     trackCollectionPage();
     refreshCollectionFromSupabase();

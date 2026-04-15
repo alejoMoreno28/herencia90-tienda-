@@ -559,6 +559,11 @@
 
       const safeProducts = Array.isArray(products) ? products : [];
       document.getElementById('collectionCount').textContent = safeProducts.length;
+      const totalStock = safeProducts.reduce((sum, p) => {
+        return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
+      }, 0);
+      const stockEl = document.getElementById('collectionStock');
+      if (stockEl) stockEl.textContent = totalStock > 0 ? totalStock : 'Consultar';
       document.getElementById('collectionCountLabel').textContent = safeProducts.length + ' productos listados con ficha propia';
 
       if (safeProducts.length === 0) {
@@ -595,6 +600,13 @@
         // Mantener contenido estatico como respaldo
       }
     }
+
+    // Mostrar stock estatico inmediatamente mientras carga Supabase
+    const initStock = (STATIC_COLLECTION.products || []).reduce((sum, p) => {
+      return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
+    }, 0);
+    const initStockEl = document.getElementById('collectionStock');
+    if (initStockEl) initStockEl.textContent = initStock > 0 ? initStock : 'Consultar';
 
     trackCollectionPage();
     refreshCollectionFromSupabase();
