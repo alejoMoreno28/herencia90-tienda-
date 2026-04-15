@@ -442,9 +442,6 @@ function renderProducts(products) {
                             onclick="event.stopPropagation(); openModal(${idx})">
                             Ver Detalles
                         </button>
-                        <button class="product-page-link" style="background:none;border:none;cursor:pointer;font-family:inherit;" onclick="event.stopPropagation(); openModal(${idx})">
-                            🛒 Agregar
-                        </button>
                     </div>
                 </div>
             `;
