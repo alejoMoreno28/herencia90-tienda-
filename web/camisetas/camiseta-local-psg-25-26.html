@@ -2,14 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
-    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camiseta local PSG 25/26 | Herencia 90 Colombia</title>
   <meta name="description" content="Camiseta local PSG 25/26 en Herencia 90. La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital france...">
@@ -28,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Camiseta local PSG 25/26","image":["https://www.herencia90.shop/img/psg_25-26_home_fan_1.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_2.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_3.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_4.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_5.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_6.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_7.webp","https://www.herencia90.shop/img/psg_25-26_home_fan_8.webp"],"description":"La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital francesa. Elegancia parisina en cada detalle. Versión Fan del club más glamuroso de la Ligue 1.","brand":{"@type":"Brand","name":"Herencia 90"},"sku":"HERENCIA90-18","category":"Temporada 25/26","url":"https://www.herencia90.shop/camisetas/camiseta-local-psg-25-26","offers":{"@type":"Offer","url":"https://www.herencia90.shop/camisetas/camiseta-local-psg-25-26","priceCurrency":"COP","price":99000,"availability":"https://schema.org/InStock","itemCondition":"https://schema.org/NewCondition","seller":{"@type":"Organization","name":"Herencia 90"}}}</script>
   <style>
@@ -52,6 +45,25 @@
     }
     h1, h2, h3, .price { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
+      transform-origin: left; transform: scaleX(0);
+      animation: grow-progress linear; animation-timeline: scroll(root);
+      z-index: 9999; pointer-events: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .scroll-progress { display: none; }
+      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -321,6 +333,7 @@
   </style>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
@@ -533,6 +546,16 @@
         }
       })
       .subscribe();
+  </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
+    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
+      VanillaTilt.init(document.querySelectorAll('.pp-thumbs img, .pp-main-img'), {
+        max: 4, speed: 500, glare: true, 'max-glare': 0.06, scale: 1.02
+      });
+    }
   </script>
 </body>
 </html>

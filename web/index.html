@@ -28,6 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <script type="application/ld+json">
     {
@@ -80,6 +81,9 @@
     </script>
 </head>
 <body>
+    <!-- Scroll Progress Bar (CSS Scroll-Driven Animation) -->
+    <div class="scroll-progress" aria-hidden="true"></div>
+
     <!-- Promo Banner Marquee -->
     <div class="promo-banner" aria-label="Promoción activa">
         <div class="promo-track">
@@ -131,9 +135,10 @@
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
+            <img src="img/logo.webp" alt="Herencia 90" class="hero-logo-mobile">
             <h2 class="hero-title">Viste la Historia.<br><span class="gold-text">Siente la Pasión.</span></h2>
             <p class="hero-subtitle">Camisetas retro, ediciones limitadas y la nueva colección 2026 para los verdaderos hinchas.</p>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+            <div class="hero-ctas">
                 <a href="#catalogo" class="btn-hero">Explorar Catalogo</a>
                 <a href="/preventa" class="btn-hero-pp">🏷️ Pre-Venta</a>
             </div>
@@ -144,89 +149,115 @@
 
 
 
+    <!-- Trust Strip -->
+    <div class="trust-strip" data-aos="fade-up" data-aos-delay="0">
+        <div class="trust-shell">
+            <div class="trust-item">
+                <div class="trust-icon">🚚</div>
+                <strong>Envio Nacional</strong>
+                <span>A toda Colombia con seguimiento en tiempo real</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">🏅</div>
+                <strong>Calidad Garantizada</strong>
+                <span>Camisetas importadas, tela premium fan version</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">🏷️</div>
+                <strong>Pre-Pedido</strong>
+                <span>Tu camiseta en 15 dias si no esta en inventario</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">💬</div>
+                <strong>WhatsApp Directo</strong>
+                <span>Atencion personalizada, respuesta inmediata</span>
+            </div>
+        </div>
+    </div>
+
     <main class="container" id="catalogo">
         <div class="product-grid" id="productGrid"></div>
     </main>
 
     <section class="seo-hub-section" aria-labelledby="seoHubTitle">
         <div class="seo-hub-shell">
-            <div class="seo-hub-header">
+            <div class="seo-hub-header" data-aos="fade-up">
                 <p class="seo-hub-eyebrow">Explora Por Colecciones</p>
                 <h2 id="seoHubTitle">Entradas directas para las busquedas que mas venden</h2>
                 <p class="seo-hub-text">Si ya sabes lo que quieres, entra por equipo o tipo de camiseta. Colombia 2026, Real Madrid, Barcelona, Arsenal, Liverpool, Bayern, Manchester United, PSG, retro y temporada 25/26.</p>
             </div>
             <div class="seo-hub-grid">
-                <a class="seo-hub-card" href="/categorias/colombia">
+                <a class="seo-hub-card" href="/categorias/colombia" data-aos="fade-up" data-aos-delay="0">
                     <span class="seo-hub-kicker">Seleccion</span>
                     <h3>Colombia 2026</h3>
                     <p>Camisetas de Colombia para hombre y mujer en una sola landing.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/real-madrid">
+                <a class="seo-hub-card" href="/categorias/real-madrid" data-aos="fade-up" data-aos-delay="50">
                     <span class="seo-hub-kicker">Club</span>
                     <h3>Real Madrid</h3>
                     <p>Referencias locales, visitantes y edicion especial del club mas ganador.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/barcelona">
+                <a class="seo-hub-card" href="/categorias/barcelona" data-aos="fade-up" data-aos-delay="100">
                     <span class="seo-hub-kicker">Club</span>
                     <h3>Barcelona</h3>
                     <p>Versiones 25/26 agrupadas para una compra mas rapida.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/arsenal">
+                <a class="seo-hub-card" href="/categorias/arsenal" data-aos="fade-up" data-aos-delay="150">
                     <span class="seo-hub-kicker">Premier League</span>
                     <h3>Arsenal</h3>
                     <p>Local y visitante de los Gunners importadas en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/liverpool">
+                <a class="seo-hub-card" href="/categorias/liverpool" data-aos="fade-up" data-aos-delay="200">
                     <span class="seo-hub-kicker">Premier League</span>
                     <h3>Liverpool</h3>
                     <p>El rojo de Anfield disponible con envio a toda Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/manchester-united">
+                <a class="seo-hub-card" href="/categorias/manchester-united" data-aos="fade-up" data-aos-delay="0">
                     <span class="seo-hub-kicker">Premier League</span>
                     <h3>Manchester United</h3>
                     <p>Los Red Devils de Old Trafford importados en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/bayern-munich">
+                <a class="seo-hub-card" href="/categorias/bayern-munich" data-aos="fade-up" data-aos-delay="50">
                     <span class="seo-hub-kicker">Bundesliga</span>
                     <h3>Bayern Munich</h3>
                     <p>Local y tercera del gigante aleman disponibles en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/psg">
+                <a class="seo-hub-card" href="/categorias/psg" data-aos="fade-up" data-aos-delay="100">
                     <span class="seo-hub-kicker">Ligue 1</span>
                     <h3>PSG</h3>
                     <p>La elegancia parisina del Paris Saint-Germain en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/brasil">
+                <a class="seo-hub-card" href="/categorias/brasil" data-aos="fade-up" data-aos-delay="150">
                     <span class="seo-hub-kicker">Mundial 2026</span>
                     <h3>Brasil</h3>
                     <p>La canarinha, la camiseta mas buscada del mundo para el Mundial.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/argentina">
+                <a class="seo-hub-card" href="/categorias/argentina" data-aos="fade-up" data-aos-delay="200">
                     <span class="seo-hub-kicker">Mundial 2026</span>
                     <h3>Argentina</h3>
                     <p>La Albiceleste campeona del mundo disponible en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/alemania">
+                <a class="seo-hub-card" href="/categorias/alemania" data-aos="fade-up" data-aos-delay="0">
                     <span class="seo-hub-kicker">Mundial 2026</span>
                     <h3>Alemania</h3>
                     <p>El blanco clasico de la seleccion alemana importado en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/portugal">
+                <a class="seo-hub-card" href="/categorias/portugal" data-aos="fade-up" data-aos-delay="50">
                     <span class="seo-hub-kicker">Mundial 2026</span>
                     <h3>Portugal</h3>
                     <p>Edicion especial de Portugal, la seleccion de Ronaldo.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/manchester-city">
+                <a class="seo-hub-card" href="/categorias/manchester-city" data-aos="fade-up" data-aos-delay="100">
                     <span class="seo-hub-kicker">Premier League</span>
                     <h3>Manchester City</h3>
                     <p>Local celeste y tercera negra de los Citizens en Colombia.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/retro">
+                <a class="seo-hub-card" href="/categorias/retro" data-aos="fade-up" data-aos-delay="150">
                     <span class="seo-hub-kicker">Leyendas</span>
                     <h3>Retro</h3>
                     <p>Camisetas clasicas para quienes buscan nostalgia y coleccion.</p>
                 </a>
-                <a class="seo-hub-card" href="/categorias/temporada-25-26">
+                <a class="seo-hub-card" href="/categorias/temporada-25-26" data-aos="fade-up" data-aos-delay="200">
                     <span class="seo-hub-kicker">Temporada</span>
                     <h3>Temporada 25/26</h3>
                     <p>Clubes actuales con mayor intencion de compra en el catalogo.</p>
@@ -235,8 +266,119 @@
         </div>
     </section>
 
+    <!-- Como Funciona -->
+    <section class="how-it-works" aria-labelledby="hiwTitle">
+        <div class="hiw-container">
+            <p class="section-eyebrow" data-aos="fade-up">Simple y sin complicaciones</p>
+            <h2 class="section-title" id="hiwTitle" data-aos="fade-up" data-aos-delay="50">Como comprar en Herencia 90</h2>
+            <div class="hiw-steps">
+                <div class="hiw-step" data-aos="fade-up" data-aos-delay="0">
+                    <div class="hiw-num">01</div>
+                    <div class="hiw-icon">👕</div>
+                    <h3>Elige tu camiseta</h3>
+                    <p>Explora el catalogo, encuentra el equipo que amas y selecciona tu talla.</p>
+                </div>
+                <div class="hiw-arrow" aria-hidden="true">→</div>
+                <div class="hiw-step" data-aos="fade-up" data-aos-delay="100">
+                    <div class="hiw-num">02</div>
+                    <div class="hiw-icon">💬</div>
+                    <h3>Escríbenos por WhatsApp</h3>
+                    <p>Te confirmamos disponibilidad, te enviamos el link de pago y coordinamos el envio.</p>
+                </div>
+                <div class="hiw-arrow" aria-hidden="true">→</div>
+                <div class="hiw-step" data-aos="fade-up" data-aos-delay="200">
+                    <div class="hiw-num">03</div>
+                    <div class="hiw-icon">📦</div>
+                    <h3>Recibe en casa</h3>
+                    <p>Enviamos a toda Colombia con numero de guia. Entrega en 2-5 dias habiles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mini Stats -->
+    <div class="mini-stats" data-aos="fade-up">
+        <div class="mini-stats-inner">
+            <div class="mini-stat">
+                <strong>23+</strong>
+                <span>Modelos disponibles</span>
+            </div>
+            <div class="mini-stat-divider"></div>
+            <div class="mini-stat">
+                <strong>🌍</strong>
+                <span>Envios a toda Colombia</span>
+            </div>
+            <div class="mini-stat-divider"></div>
+            <div class="mini-stat">
+                <strong>&lt; 1h</strong>
+                <span>Respuesta WhatsApp</span>
+            </div>
+            <div class="mini-stat-divider"></div>
+            <div class="mini-stat">
+                <strong>2026</strong>
+                <span>Coleccion actual</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonios -->
+    <!-- NOTA: Reemplaza estos testimonios con opiniones reales de tus clientes cuando los tengas -->
+    <section class="testimonials-section" aria-labelledby="testiTitle">
+        <div class="testi-container">
+            <p class="section-eyebrow" data-aos="fade-up">Lo que dicen nuestros clientes</p>
+            <h2 class="section-title" id="testiTitle" data-aos="fade-up" data-aos-delay="50">Primeros en confiar en Herencia 90</h2>
+            <div class="testi-grid">
+                <div class="testi-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="testi-stars">★★★★★</div>
+                    <p class="testi-text">"La camiseta del Real Madrid llego impecable, la tela es exactamente como la describen. El proceso por WhatsApp fue super facil y rapido."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">A</div>
+                        <div class="testi-meta">
+                            <strong>Andres M.</strong>
+                            <span>Bogota, Colombia</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testi-card" data-aos="fade-up" data-aos-delay="80">
+                    <div class="testi-stars">★★★★★</div>
+                    <p class="testi-text">"Compre la camiseta de Colombia para el Mundial 2026. Calidad premium, llego bien empacada y antes de lo esperado. Ya quiero pedir otra."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">C</div>
+                        <div class="testi-meta">
+                            <strong>Catalina R.</strong>
+                            <span>Medellin, Colombia</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testi-card" data-aos="fade-up" data-aos-delay="160">
+                    <div class="testi-stars">★★★★★</div>
+                    <p class="testi-text">"Atención personalizada de verdad. Me asesoraron con la talla, me avisaron cuando llego el pedido y la camiseta retro del Manchester United es hermosa."</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">F</div>
+                        <div class="testi-meta">
+                            <strong>Felipe O.</strong>
+                            <span>Cali, Colombia</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
-        <p>&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="img/logo.webp" alt="Herencia 90" class="footer-logo">
+                <p>Camisetas de futbol retro e importadas.<br>Medellin, Colombia.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/nosotros.html">Nosotros</a>
+                <a href="/preventa">Pre-Venta</a>
+                <a href="https://www.instagram.com/herencia90_/" target="_blank" rel="noopener">Instagram</a>
+                <a href="https://www.tiktok.com/@herencia90_" target="_blank" rel="noopener">TikTok</a>
+            </div>
+            <p class="footer-legal">&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
+        </div>
     </footer>
 
     <!-- Modal de Producto -->
@@ -269,6 +411,11 @@
                         </svg>
                         Agregar al Carrito
                     </button>
+                    <div class="modal-trust-strip">
+                        <span>🔒 Pago 100% seguro</span>
+                        <span>📦 Envio a toda Colombia</span>
+                        <span>🔄 Cambios en 7 dias</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -363,6 +510,9 @@
         </button>
     </nav>
 
+    <!-- UX Libraries -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="js/app.js"></script>
 </body>

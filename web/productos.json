@@ -2,7 +2,7 @@
     {
         "id": 1,
         "categoria": "Colección 2026",
-        "equipo": "Camiseta local Alemania 26",
+        "equipo": "Camiseta Alemania Mundial 2026",
         "descripcion": "Camiseta oficial de la Selección de Alemania para el Mundial 2026. Diseño blanco clásico con detalles en negro y el águila federal bordada. Versión Fan con tela transpirable y corte moderno.",
         "precio": 99000,
         "costo_usd": 10.44,
@@ -25,7 +25,7 @@
     {
         "id": 2,
         "categoria": "Colección 2026",
-        "equipo": "Camiseta local Argentina 26",
+        "equipo": "Camiseta Argentina Mundial 2026",
         "descripcion": "La camiseta más icónica del mundo en su versión 2026. Rayas celeste y blanco con detalles dorados en honor a los campeones del mundo. Versión Fan de alta calidad para los verdaderos hinchas de la Albiceleste.",
         "precio": 99000,
         "costo_usd": 10.44,
@@ -186,7 +186,7 @@
     {
         "id": 9,
         "categoria": "Colección 2026",
-        "equipo": "Camiseta local Brasil 26",
+        "equipo": "Camiseta Brasil Mundial 2026",
         "descripcion": "La canarinha para el Mundial 2026. El icónico amarillo de Vinicius Jr. y Rodrygo con detalles verdes y el escudo de la CBF bordado. Para los hinchas de la Seleção que sueñan con el hexacampeonato.",
         "precio": 99000,
         "costo_usd": 10.44,
@@ -209,7 +209,7 @@
     {
         "id": 10,
         "categoria": "Colección 2026",
-        "equipo": "Camiseta local Colombia 26",
+        "equipo": "Camiseta Colombia Mundial 2026",
         "descripcion": "La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.",
         "precio": 99000,
         "costo_usd": 10.44,
@@ -375,7 +375,7 @@
     {
         "id": 17,
         "categoria": "Colección 2026",
-        "equipo": "Camiseta Edición Especial Portugal 26",
+        "equipo": "Camiseta Portugal Edicion Especial Mundial 2026",
         "descripcion": "Edición especial de la Selección de Portugal para el ciclo 2026-27. El rojo de Cristiano Ronaldo y Bruno Fernandes en un diseño único y atrevido que rompe con lo convencional. Versión Fan de colección exclusiva.",
         "precio": 110000,
         "costo_usd": 13.44,
@@ -465,7 +465,7 @@
     {
         "id": 24,
         "categoria": "Women's Collection",
-        "equipo": "Camiseta local Colombia 26 (Mujer)",
+        "equipo": "Camiseta Colombia Mujer Mundial 2026",
         "descripcion": "Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.",
         "precio": 99000,
         "costo_usd": 10.44,

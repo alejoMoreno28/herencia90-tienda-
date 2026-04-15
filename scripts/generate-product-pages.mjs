@@ -170,6 +170,24 @@ function getProductUrl(product) {
   return `${siteUrl}/camisetas/${slugify(product.equipo)}`;
 }
 
+function getProductAliasSlug(product) {
+  if (product.id === 10) return 'camiseta-local-colombia-26';
+  if (product.id === 24) return 'camiseta-local-colombia-26-mujer';
+  return null;
+}
+
+function getProductUrls(product) {
+  const canonical = getProductUrl(product);
+  const aliasSlug = getProductAliasSlug(product);
+  const urls = [canonical];
+
+  if (aliasSlug) {
+    urls.push(`${siteUrl}/camisetas/${aliasSlug}`);
+  }
+
+  return urls;
+}
+
 function getCollectionUrl(collection) {
   return `${siteUrl}/categorias/${collection.slug}`;
 }
@@ -242,21 +260,22 @@ function renderCollectionProductCards(collectionProducts) {
     .map((product) => {
       const availableSizes = getAvailableSizes(product);
       const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
+      const productUrl = getProductAliasSlug(product) ? `/camisetas/${getProductAliasSlug(product)}` : `/camisetas/${slugify(product.equipo)}`;
       return `
         <article class="collection-product-card">
-          <a class="collection-product-image" href="/camisetas/${slugify(product.equipo)}">
+          <a class="collection-product-image" href="${productUrl}">
             <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)}">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">${escapeHtml(product.categoria || 'Herencia 90')}</span>
-            <h2><a href="/camisetas/${slugify(product.equipo)}">${escapeHtml(product.equipo)}</a></h2>
+            <h2><a href="${productUrl}">${escapeHtml(product.equipo)}</a></h2>
             <p>${escapeHtml(truncateText(product.descripcion || 'Consulta disponibilidad por WhatsApp.', 138))}</p>
             <div class="collection-product-meta">
               <span>${escapeHtml(formatPrice(product.precio))}</span>
               <span>${escapeHtml(availableSizes.join(', ') || 'Consultar')}</span>
             </div>
             <div class="collection-product-actions">
-              <a class="mini-btn mini-btn-primary" href="/camisetas/${slugify(product.equipo)}">Ver ficha</a>
+              <a class="mini-btn mini-btn-primary" href="${productUrl}">Ver ficha</a>
               <a class="mini-btn mini-btn-secondary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </div>
           </div>
@@ -318,6 +337,7 @@ function renderCollectionPage(collection) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
@@ -340,6 +360,25 @@ function renderCollectionPage(collection) {
     }
     h1, h2, h3, .stat-number { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
+      transform-origin: left; transform: scaleX(0);
+      animation: grow-progress linear; animation-timeline: scroll(root);
+      z-index: 9999; pointer-events: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .scroll-progress { display: none; }
+      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -628,6 +667,7 @@ function renderCollectionPage(collection) {
   </style>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
@@ -851,6 +891,11 @@ function renderCollectionPage(collection) {
       })
       .subscribe();
   </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
+  </script>
 </body>
 </html>`;
 }
@@ -921,6 +966,7 @@ function renderProductPage(product) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
@@ -945,6 +991,25 @@ function renderProductPage(product) {
     }
     h1, h2, h3, .price { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
+      transform-origin: left; transform: scaleX(0);
+      animation: grow-progress linear; animation-timeline: scroll(root);
+      z-index: 9999; pointer-events: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .scroll-progress { display: none; }
+      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -1214,6 +1279,7 @@ function renderProductPage(product) {
   </style>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
@@ -1396,6 +1462,16 @@ function renderProductPage(product) {
       })
       .subscribe();
   </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
+    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
+      VanillaTilt.init(document.querySelectorAll('.pp-thumbs img, .pp-main-img'), {
+        max: 4, speed: 500, glare: true, 'max-glare': 0.06, scale: 1.02
+      });
+    }
+  </script>
 </body>
 </html>`;
 }
@@ -1406,7 +1482,7 @@ function buildSitemap() {
     `${siteUrl}/`,
     `${siteUrl}/preventa`,
     ...seoCollections.map((collection) => getCollectionUrl(collection)),
-    ...products.map((product) => `${siteUrl}/camisetas/${slugify(product.equipo)}`)
+    ...products.flatMap((product) => getProductUrls(product))
   ];
 
   const items = urls

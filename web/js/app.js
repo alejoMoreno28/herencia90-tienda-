@@ -177,6 +177,28 @@ function showToast() {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
+// ── Card Scroll Reveal ────────────────────────────────────────────────────────
+const cardRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target;
+        card.classList.remove('card-hidden');
+        card.addEventListener('transitionend', () => {
+            card.style.transitionDelay = '';
+        }, { once: true });
+        cardRevealObserver.unobserve(card);
+    });
+}, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+
+// ── Category Title Reveal ─────────────────────────────────────────────────────
+const titleRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('revealed');
+        titleRevealObserver.unobserve(entry.target);
+    });
+}, { threshold: 0.2 });
+
 // ── Lazy loading ──────────────────────────────────────────────────────────────
 const imgObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -227,6 +249,16 @@ function closeSearchOverlay() {
 
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // AOS - Animate On Scroll
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 60,
+        });
+    }
+
     // Registrar visita a la página
     trackEvent('page_view', {});
 
@@ -322,6 +354,32 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
 });
 
+// ── Badge detection ───────────────────────────────────────────────────────────
+function getProductBadge(product) {
+    const cat  = (product.categoria || '').toLowerCase();
+    const name = (product.equipo    || '').toLowerCase();
+    if (cat.includes('2026') || cat.includes('mundial') || name.includes('mundial')) {
+        return { text: 'Mundial 2026', cls: 'badge-mundial' };
+    }
+    if (name.includes('edicion especial') || name.includes('edición especial')) {
+        return { text: 'Ed. Especial', cls: 'badge-edicion' };
+    }
+    if (cat.includes('retro') || name.includes('retro')) {
+        return { text: 'Retro', cls: 'badge-retro' };
+    }
+    if (cat.includes('25/26') || cat.includes('25-26') || cat.includes('temporada')) {
+        return { text: '25/26', cls: 'badge-temporada' };
+    }
+    return null;
+}
+
+// ── Size pills ────────────────────────────────────────────────────────────────
+function buildSizePills(tallas) {
+    return Object.entries(tallas || {}).map(([s, qty]) =>
+        `<span class="size-pill ${qty > 0 ? 'available' : 'unavailable'}">${s}</span>`
+    ).join('');
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatPrice(price) {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(price);
@@ -414,40 +472,57 @@ function renderProducts(products) {
         grid.className = 'product-grid-inner';
         container.appendChild(grid);
 
-        catProducts.forEach(product => {
+        catProducts.forEach((product, i) => {
             const idx = allProducts.findIndex(p => p.id === product.id);
             let coverImg = toWebp(product.imagenes && product.imagenes.length > 0
                 ? product.imagenes[0] : (product.imagen || ''));
 
             const tallas = Object.entries(product.tallas || {});
-            const sizesStr = tallas.map(([s, qty]) =>
-                qty > 0 ? s : `<span style="text-decoration:line-through;opacity:0.4">${s}</span>`
-            ).join(' · ');
+            const allSoldOut = tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+            const sizePills  = buildSizePills(product.tallas);
+            const badge      = getProductBadge(product);
 
             const card = document.createElement('div');
-            card.className = 'product-card';
-            card.onclick = () => openModal(idx);
+            card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
+            card.style.transitionDelay = `${Math.min(i * 65, 260)}ms`;
+            if (!allSoldOut) card.onclick = () => openModal(idx);
 
             card.innerHTML = `
                 <div class="product-image-wrapper img-loading">
                     <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
+                    ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">${product.equipo}</h3>
                     <div class="product-price">${formatPrice(product.precio)}</div>
-                    <div class="product-sizes">Tallas: ${sizesStr}</div>
+                    <div class="product-sizes">${sizePills}</div>
                     ${product.descripcion ? `<p class="product-description">${product.descripcion}</p>` : ''}
                     <div class="product-actions">
-                        <button class="btn-whatsapp"
-                            onclick="event.stopPropagation(); openModal(${idx})">
-                            Ver Detalles
-                        </button>
+                        ${allSoldOut
+                            ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
+                            : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver Detalles</button>`
+                        }
                     </div>
                 </div>
             `;
 
             imgObserver.observe(card.querySelector('.lazy-img'));
+            cardRevealObserver.observe(card);
             grid.appendChild(card);
+        });
+
+        titleRevealObserver.observe(catTitle);
+    }
+
+    // VanillaTilt on desktop only
+    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
+        VanillaTilt.init(document.querySelectorAll('.product-card'), {
+            max: 5,
+            speed: 500,
+            glare: true,
+            'max-glare': 0.07,
+            scale: 1.02,
+            perspective: 900,
         });
     }
 }

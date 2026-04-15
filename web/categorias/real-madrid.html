@@ -2,14 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
-    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camisetas Real Madrid Importadas | Herencia 90 Colombia</title>
   <meta name="description" content="Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio a toda Colombia y atencion directa por WhatsApp.">
@@ -27,10 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Camisetas Real Madrid Importadas | Herencia 90 Colombia","description":"Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio a toda Colombia y atencion directa por WhatsApp.","url":"https://www.herencia90.shop/categorias/real-madrid","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.herencia90.shop/camisetas/camiseta-visitante-real-madrid-25-26","name":"Camiseta visitante Real Madrid 25/26"},{"@type":"ListItem","position":2,"url":"https://www.herencia90.shop/camisetas/camiseta-local-real-madrid-25-26","name":"Camiseta local Real Madrid 25/26"},{"@type":"ListItem","position":3,"url":"https://www.herencia90.shop/camisetas/camiseta-edicion-especial-real-madrid","name":"Camiseta Edición Especial Real Madrid"}]}}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://www.herencia90.shop/"},{"@type":"ListItem","position":2,"name":"Categorias","item":"https://www.herencia90.shop/categorias"},{"@type":"ListItem","position":3,"name":"Real Madrid 25/26"}]}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Las camisetas del Real Madrid son importadas?","acceptedAnswer":{"@type":"Answer","text":"Si, todas nuestras referencias del Real Madrid son importadas directamente, version Fan con acabados de calidad y telas livianas."}},{"@type":"Question","name":"¿Tienen la camiseta local blanca y la visitante azul del Real Madrid?","acceptedAnswer":{"@type":"Answer","text":"Si, tenemos ambas referencias del Real Madrid 25/26 y la edicion especial en negro. Disponibilidad por talla se confirma por WhatsApp."}},{"@type":"Question","name":"¿Puedo pedir tallas agotadas del Real Madrid?","acceptedAnswer":{"@type":"Answer","text":"Si, mediante el servicio de pre-pedido conseguimos tu talla en aproximadamente 15 dias habiles."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Camisetas Real Madrid Importadas | Herencia 90 Colombia","description":"Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio a toda Colombia y atencion directa por WhatsApp.","url":"https://www.herencia90.shop/categorias/real-madrid","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.herencia90.shop/camisetas/camiseta-visitante-real-madrid-25-26","name":"Camiseta visitante Real Madrid 25/26"},{"@type":"ListItem","position":2,"url":"https://www.herencia90.shop/camisetas/camiseta-local-retro-real-madrid-1999-00","name":"Camiseta local Retro Real Madrid 1999/00"},{"@type":"ListItem","position":3,"url":"https://www.herencia90.shop/camisetas/camiseta-local-real-madrid-25-26","name":"Camiseta local Real Madrid 25/26"},{"@type":"ListItem","position":4,"url":"https://www.herencia90.shop/camisetas/camiseta-edicion-especial-real-madrid","name":"Camiseta Edición Especial Real Madrid"}]}}</script>
   <style>
     :root {
       --bg-dark: #050505;
@@ -51,6 +42,25 @@
     }
     h1, h2, h3, .stat-number { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
+      transform-origin: left; transform: scaleX(0);
+      animation: grow-progress linear; animation-timeline: scroll(root);
+      z-index: 9999; pointer-events: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .scroll-progress { display: none; }
+      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -339,6 +349,7 @@
   </style>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
@@ -409,7 +420,24 @@
           </div>
         </article>
       
-        
+        <article class="collection-product-card">
+          <a class="collection-product-image" href="/camisetas/camiseta-local-retro-real-madrid-1999-00">
+            <img src="../img/real_majdrid_retro_1999-00_home_fan_1.webp" alt="Camiseta local Retro Real Madrid 1999/00">
+          </a>
+          <div class="collection-product-copy">
+            <span class="collection-product-category">Leyendas Clásicas</span>
+            <h2><a href="/camisetas/camiseta-local-retro-real-madrid-1999-00">Camiseta local Retro Real Madrid 1999/00</a></h2>
+            <p>Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo, Raúl, Morientes y Hierro con el...</p>
+            <div class="collection-product-meta">
+              <span>$ 120.000</span>
+              <span>M</span>
+            </div>
+            <div class="collection-product-actions">
+              <a class="mini-btn mini-btn-primary" href="/camisetas/camiseta-local-retro-real-madrid-1999-00">Ver ficha</a>
+              <a class="mini-btn mini-btn-secondary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20local%20Retro%20Real%20Madrid%201999%2F00.%20Tallas%20disponibles%3A%20M.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-local-retro-real-madrid-1999-00%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            </div>
+          </div>
+        </article>
       
         <article class="collection-product-card">
           <a class="collection-product-image" href="/camisetas/camiseta-local-real-madrid-25-26">
@@ -512,7 +540,12 @@
   <script>
     const SUPABASE_URL = "https://nlnrdtcgbdkzfzwnsffp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00";
-    const STATIC_COLLECTION = {"slug":"real-madrid","name":"Real Madrid","eyebrow":"Coleccion Merengue","description":"Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio {"slug":"real-madrid","name":"Real Madrid","eyebrow":"Coleccion Merengue","description":"Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio a toda Colombia y atencion directa por WhatsApp.","productIds":[19,25,26],"products":[{"id":19,"categoria":"Temporada 25/26","equipo":"Camiseta visitante Real Madrid 25/26","descripcion":"Camiseta visitante del Real Madrid 2025-26 en azul marino. El equipo más ganador de la historia con una segunda equipación de elegancia y poder. Versión Fan para los madridistas que dominan también de visitante.","precio":99000,"costo_usd":10.44,"tallas":{"L":1,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_25-26_azul_fan_1.webp","img/real_madrid_25-26_azul_fan_2.webp","img/real_madrid_25-26_azul_fan_3.webp","img/real_madrid_25-26_azul_fan_4.webp","img/real_madrid_25-26_azul_fan_5.webp"]},{"id":25,"categoria":"Temporada 25/26","equipo":"Camiseta local Real Madrid 25/26","descripcion":"La camiseta local del Real Madrid 2026 en el eterno blanco merengue. Diseño moderno que honra la tradición del club más laureado del mundo. Versión Fan premium del campeón de Champions. Disponible en todas las tallas.","precio":99000,"costo_usd":10.44,"tallas":{"L":0,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_home_white_fan_2026_1.webp","img/real_madrid_home_white_fan_2026_2.webp","img/real_madrid_home_white_fan_2026_3.webp","img/real_madrid_home_white_fan_2026_4.webp","img/real_madrid_home_white_fan_2026_5.webp","img/real_madrid_home_white_fan_2026_6.webp","img/real_madrid_home_white_fan_2026_7.webp"]},{"id":26,"categoria":"Temporada 25/26","equipo":"Camiseta Edición Especial Real Madrid","descripcion":"Edición especial del Real Madrid en negro absoluto. Una camiseta única del equipo merengue que combina el poder del negro con los escudos dorados. Versión Fan de colección para los madridistas más atrevidos.","precio":110000,"costo_usd":13.44,"tallas":{"L":0,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_special_stly_black_fan_1.webp","img/real_madrid_special_stly_black_fan_2.webp","img/real_madrid_special_stly_black_fan_3.webp","img/real_madrid_special_stly_black_fan_4.webp","img/real_madrid_special_stly_black_fan_5.webp","img/real_madrid_special_stly_black_fan_6.webp"]}]}|| '')
+    const STATIC_COLLECTION = {"slug":"real-madrid","name":"Real Madrid","eyebrow":"Coleccion Merengue","description":"Encuentra camisetas Real Madrid locales, visitantes, especiales y retro con envio a toda Colombia y atencion directa por WhatsApp.","productIds":[19,20,25,26],"products":[{"id":19,"categoria":"Temporada 25/26","equipo":"Camiseta visitante Real Madrid 25/26","descripcion":"Camiseta visitante del Real Madrid 2025-26 en azul marino. El equipo más ganador de la historia con una segunda equipación de elegancia y poder. Versión Fan para los madridistas que dominan también de visitante.","precio":99000,"costo_usd":10.44,"tallas":{"L":1,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_25-26_azul_fan_1.webp","img/real_madrid_25-26_azul_fan_2.webp","img/real_madrid_25-26_azul_fan_3.webp","img/real_madrid_25-26_azul_fan_4.webp","img/real_madrid_25-26_azul_fan_5.webp"]},{"id":20,"categoria":"Leyendas Clásicas","equipo":"Camiseta local Retro Real Madrid 1999/00","descripcion":"Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo, Raúl, Morientes y Hierro con el escudo vintage dorado. Una pieza de colección para quienes vivieron la gloria.","precio":120000,"costo_usd":15.44,"tallas":{"L":0,"M":1,"S":0,"XL":0},"imagenes":["img/real_majdrid_retro_1999-00_home_fan_1.webp","img/real_majdrid_retro_1999-00_home_fan_2.webp","img/real_majdrid_retro_1999-00_home_fan_3.webp","img/real_majdrid_retro_1999-00_home_fan_4.webp","img/real_majdrid_retro_1999-00_home_fan_5.webp","img/real_majdrid_retro_1999-00_home_fan_6.webp","img/real_majdrid_retro_1999-00_home_fan_7.webp","img/real_majdrid_retro_1999-00_home_fan_8.webp"]},{"id":25,"categoria":"Temporada 25/26","equipo":"Camiseta local Real Madrid 25/26","descripcion":"La camiseta local del Real Madrid 2026 en el eterno blanco merengue. Diseño moderno que honra la tradición del club más laureado del mundo. Versión Fan premium del campeón de Champions. Disponible en todas las tallas.","precio":99000,"costo_usd":10.44,"tallas":{"L":0,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_home_white_fan_2026_1.webp","img/real_madrid_home_white_fan_2026_2.webp","img/real_madrid_home_white_fan_2026_3.webp","img/real_madrid_home_white_fan_2026_4.webp","img/real_madrid_home_white_fan_2026_5.webp","img/real_madrid_home_white_fan_2026_6.webp","img/real_madrid_home_white_fan_2026_7.webp"]},{"id":26,"categoria":"Temporada 25/26","equipo":"Camiseta Edición Especial Real Madrid","descripcion":"Edición especial del Real Madrid en negro absoluto. Una camiseta única del equipo merengue que combina el poder del negro con los escudos dorados. Versión Fan de colección para los madridistas más atrevidos.","precio":110000,"costo_usd":13.44,"tallas":{"L":0,"M":2,"S":0,"XL":0},"imagenes":["img/real_madrid_special_stly_black_fan_1.webp","img/real_madrid_special_stly_black_fan_2.webp","img/real_madrid_special_stly_black_fan_3.webp","img/real_madrid_special_stly_black_fan_4.webp","img/real_madrid_special_stly_black_fan_5.webp","img/real_madrid_special_stly_black_fan_6.webp"]}]};
+    const { createClient } = window.supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function slugifyText(value) {
+      return String(value || '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
@@ -583,11 +616,6 @@
 
       const safeProducts = Array.isArray(products) ? products : [];
       document.getElementById('collectionCount').textContent = safeProducts.length;
-      const totalStock = safeProducts.reduce((sum, p) => {
-        return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
-      }, 0);
-      const stockEl = document.getElementById('collectionStock');
-      if (stockEl) stockEl.textContent = totalStock > 0 ? totalStock : 'Consultar';
       document.getElementById('collectionCountLabel').textContent = safeProducts.length + ' productos listados con ficha propia';
 
       if (safeProducts.length === 0) {
@@ -625,13 +653,6 @@
       }
     }
 
-    // Mostrar stock estatico inmediatamente mientras carga Supabase
-    const initStock = (STATIC_COLLECTION.products || []).reduce((sum, p) => {
-      return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
-    }, 0);
-    const initStockEl = document.getElementById('collectionStock');
-    if (initStockEl) initStockEl.textContent = initStock > 0 ? initStock : 'Consultar';
-
     trackCollectionPage();
     refreshCollectionFromSupabase();
     db.channel('seo-collection-live-real-madrid')
@@ -641,6 +662,11 @@
         }
       })
       .subscribe();
+  </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
   </script>
 </body>
 </html>

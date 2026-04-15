@@ -2,14 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
-    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camisetas Colombia 2026 Importadas | Herencia 90 Colombia</title>
   <meta name="description" content="Explora camisetas de Colombia 2026 para hombre y mujer con enfoque en acabados importados, envio nacional y atencion por WhatsApp.">
@@ -27,10 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Camisetas Colombia 2026 Importadas | Herencia 90 Colombia","description":"Explora camisetas de Colombia 2026 para hombre y mujer con enfoque en acabados importados, envio nacional y atencion por WhatsApp.","url":"https://www.herencia90.shop/categorias/colombia","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.herencia90.shop/camisetas/camiseta-local-colombia-26","name":"Camiseta local Colombia 26"},{"@type":"ListItem","position":2,"url":"https://www.herencia90.shop/camisetas/camiseta-local-colombia-26-mujer","name":"Camiseta local Colombia 26 (Mujer)"}]}}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://www.herencia90.shop/"},{"@type":"ListItem","position":2,"name":"Categorias","item":"https://www.herencia90.shop/categorias"},{"@type":"ListItem","position":3,"name":"Colombia 2026"}]}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Las camisetas de Colombia 2026 son importadas?","acceptedAnswer":{"@type":"Answer","text":"Si, todas nuestras referencias de la seleccion Colombia son importadas directamente, version Fan con acabados de calidad y telas livianas."}},{"@type":"Question","name":"¿Tienen la camiseta local amarilla de Colombia 2026?","acceptedAnswer":{"@type":"Answer","text":"Si, tenemos la camiseta local de Colombia 2026 en amarillo tricolor y la version femenina. Stock disponible con envio inmediato."}},{"@type":"Question","name":"¿Puedo pedir tallas agotadas de Colombia 2026?","acceptedAnswer":{"@type":"Answer","text":"Si, a traves del servicio de pre-pedido traemos tu talla en aproximadamente 15 dias habiles con envio a toda Colombia."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Camisetas Colombia 2026 Importadas | Herencia 90 Colombia","description":"Explora camisetas de Colombia 2026 para hombre y mujer con enfoque en acabados importados, envio nacional y atencion por WhatsApp.","url":"https://www.herencia90.shop/categorias/colombia","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.herencia90.shop/camisetas/camiseta-colombia-mundial-2026","name":"Camiseta Colombia Mundial 2026"},{"@type":"ListItem","position":2,"url":"https://www.herencia90.shop/camisetas/camiseta-colombia-mujer-mundial-2026","name":"Camiseta Colombia Mujer Mundial 2026"}]}}</script>
   <style>
     :root {
       --bg-dark: #050505;
@@ -51,6 +42,25 @@
     }
     h1, h2, h3, .stat-number { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
+      transform-origin: left; transform: scaleX(0);
+      animation: grow-progress linear; animation-timeline: scroll(root);
+      z-index: 9999; pointer-events: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .scroll-progress { display: none; }
+      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -339,6 +349,7 @@
   </style>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
@@ -371,12 +382,12 @@
           <span>referencias activas</span>
         </div>
         <div class="stat-box">
-          <strong class="stat-number" id="collectionStock">—</strong>
-          <span>unidades en stock</span>
+          <strong class="stat-number">10</strong>
+          <span>unidades visibles en stock</span>
         </div>
         <div class="stat-box">
-          <strong class="stat-number">Medellín</strong>
-          <span>stock fisico, envio a toda Colombia</span>
+          <strong class="stat-number">2 x 180</strong>
+          <span>promo vigente para impulsar ticket promedio</span>
         </div>
       </div>
     </section>
@@ -392,11 +403,11 @@
         
         <article class="collection-product-card">
           <a class="collection-product-image" href="/camisetas/camiseta-local-colombia-26">
-            <img src="../img/colombia_2026_1.webp" alt="Camiseta local Colombia 26">
+            <img src="../img/colombia_2026_1.webp" alt="Camiseta Colombia Mundial 2026">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">Colección 2026</span>
-            <h2><a href="/camisetas/camiseta-local-colombia-26">Camiseta local Colombia 26</a></h2>
+            <h2><a href="/camisetas/camiseta-local-colombia-26">Camiseta Colombia Mundial 2026</a></h2>
             <p>La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican...</p>
             <div class="collection-product-meta">
               <span>$ 99.000</span>
@@ -404,18 +415,18 @@
             </div>
             <div class="collection-product-actions">
               <a class="mini-btn mini-btn-primary" href="/camisetas/camiseta-local-colombia-26">Ver ficha</a>
-              <a class="mini-btn mini-btn-secondary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20local%20Colombia%2026.%20Tallas%20disponibles%3A%20L%2C%20M.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-local-colombia-26%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <a class="mini-btn mini-btn-secondary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20Colombia%20Mundial%202026.%20Tallas%20disponibles%3A%20L%2C%20M.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-colombia-mundial-2026%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </div>
           </div>
         </article>
       
         <article class="collection-product-card">
           <a class="collection-product-image" href="/camisetas/camiseta-local-colombia-26-mujer">
-            <img src="../img/colombia_2026_mujer_fan_1.webp" alt="Camiseta local Colombia 26 (Mujer)">
+            <img src="../img/colombia_2026_mujer_fan_1.webp" alt="Camiseta Colombia Mujer Mundial 2026">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">Women&#39;s Collection</span>
-            <h2><a href="/camisetas/camiseta-local-colombia-26-mujer">Camiseta local Colombia 26 (Mujer)</a></h2>
+            <h2><a href="/camisetas/camiseta-local-colombia-26-mujer">Camiseta Colombia Mujer Mundial 2026</a></h2>
             <p>Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las...</p>
             <div class="collection-product-meta">
               <span>$ 99.000</span>
@@ -423,7 +434,7 @@
             </div>
             <div class="collection-product-actions">
               <a class="mini-btn mini-btn-primary" href="/camisetas/camiseta-local-colombia-26-mujer">Ver ficha</a>
-              <a class="mini-btn mini-btn-secondary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20local%20Colombia%2026%20(Mujer).%20Tallas%20disponibles%3A%20M%2C%20S.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-local-colombia-26-mujer%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <a class="mini-btn mini-btn-secondary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20Colombia%20Mujer%20Mundial%202026.%20Tallas%20disponibles%3A%20M%2C%20S.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-colombia-mujer-mundial-2026%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </div>
           </div>
         </article>
@@ -491,7 +502,7 @@
   <script>
     const SUPABASE_URL = "https://nlnrdtcgbdkzfzwnsffp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00";
-    const STATIC_COLLECTION = {"slug":"colombia","name":"Colombia 2026","eyebrow":"Seleccion Colombia","description":"Explora camisetas de Colombia 2026 para hombre y mujer con enfoque en acabados importados, envio nacional y atencion por WhatsApp.","productIds":[10,24],"products":[{"id":10,"categoria":"Colección 2026","equipo":"Camiseta local Colombia 26","descripcion":"La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.","precio":99000,"costo_usd":10.44,"tallas":{"L":3,"M":4,"S":0,"XL":0},"imagenes":["img/colombia_2026_1.webp","img/colombia_2026_2.webp","img/colombia_2026_3.webp","img/colombia_2026_4.webp","img/colombia_2026_5.webp","img/colombia_2026_6.webp"]},{"id":24,"categoria":"Women's Collection","equipo":"Camiseta local Colombia 26 (Mujer)","descripcion":"Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.","precio":99000,"costo_usd":10.44,"tallas":{"L":0,"M":1,"S":2,"XL":0},"imagenes":["img/colombia_2026_mujer_fan_1.webp","img/colombia_2026_mujer_fan_2.webp","img/colombia_2026_mujer_fan_3.webp","img/colombia_2026_mujer_fan_4.webp","img/colombia_2026_mujer_fan_5.webp"]}]};
+    const STATIC_COLLECTION = {"slug":"colombia","name":"Colombia 2026","eyebrow":"Seleccion Colombia","description":"Explora camisetas de Colombia 2026 para hombre y mujer con enfoque en acabados importados, envio nacional y atencion por WhatsApp.","productIds":[10,24],"products":[{"id":10,"categoria":"Colección 2026","equipo":"Camiseta Colombia Mundial 2026","descripcion":"La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.","precio":99000,"costo_usd":10.44,"tallas":{"L":3,"M":4,"S":0,"XL":0},"imagenes":["img/colombia_2026_1.webp","img/colombia_2026_2.webp","img/colombia_2026_3.webp","img/colombia_2026_4.webp","img/colombia_2026_5.webp","img/colombia_2026_6.webp"]},{"id":24,"categoria":"Women's Collection","equipo":"Camiseta Colombia Mujer Mundial 2026","descripcion":"Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.","precio":99000,"costo_usd":10.44,"tallas":{"L":0,"M":1,"S":2,"XL":0},"imagenes":["img/colombia_2026_mujer_fan_1.webp","img/colombia_2026_mujer_fan_2.webp","img/colombia_2026_mujer_fan_3.webp","img/colombia_2026_mujer_fan_4.webp","img/colombia_2026_mujer_fan_5.webp"]}]};
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -604,13 +615,6 @@
       }
     }
 
-    // Mostrar stock estatico inmediatamente mientras carga Supabase
-    const initStock = (STATIC_COLLECTION.products || []).reduce((sum, p) => {
-      return sum + Object.values(p.tallas || {}).reduce((s, q) => s + Number(q || 0), 0);
-    }, 0);
-    const initStockEl = document.getElementById('collectionStock');
-    if (initStockEl) initStockEl.textContent = initStock > 0 ? initStock : 'Consultar';
-
     trackCollectionPage();
     refreshCollectionFromSupabase();
     db.channel('seo-collection-live-colombia')
@@ -620,6 +624,11 @@
         }
       })
       .subscribe();
+  </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
   </script>
 </body>
 </html>
