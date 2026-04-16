@@ -426,12 +426,45 @@ function renderNavigation(products) {
     const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
-        let navHtml = `<li><a href="/" style="display:flex; align-items:center; gap:6px;"><i class="ph ph-house" style="font-size:1.1em;"></i> Inicio</a></li>`;
-        navHtml += `<li><a href="/catalogo.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Catálogo</a></li>`;
-        navHtml += cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
-        navHtml += `<li><a href="/nosotros.html" style="display:flex; align-items:center; gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
-        navHtml += `<li><a href="/preventa" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-Venta</a></li>`;
-        desktopNav.innerHTML = navHtml;
+        const megaHtml = `
+        <li><a href="/" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-house" style="font-size:1.1em;"></i> Inicio</a></li>
+        <li class="has-mega">
+            <a href="/catalogo.html" class="mega-trigger" style="color:var(--gold);">
+                <i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Camisetas <i class="ph ph-caret-down mega-caret"></i>
+            </a>
+            <div class="mega-menu">
+                <div class="mega-col">
+                    <h4 class="mega-col-title">Selecciones</h4>
+                    <a href="/categorias/mundial-2026" class="mega-link"><i class="ph-fill ph-globe-hemisphere-west"></i> Mundial 2026</a>
+                    <a href="/categorias/colombia" class="mega-link"><i class="ph-fill ph-flag"></i> Colombia</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Argentina</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Brasil</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Alemania</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Portugal</a>
+                    <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todas</a>
+                </div>
+                <div class="mega-col">
+                    <h4 class="mega-col-title">Clubes</h4>
+                    <a href="/categorias/real-madrid" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Real Madrid</a>
+                    <a href="/categorias/barcelona" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Barcelona</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Arsenal</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Liverpool</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Bayern M&uuml;nich</a>
+                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Manchester Utd</a>
+                    <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todos</a>
+                </div>
+                <div class="mega-col">
+                    <h4 class="mega-col-title">Colecciones</h4>
+                    <a href="/categorias/temporada-25-26" class="mega-link"><i class="ph-fill ph-star"></i> Temporada 25/26</a>
+                    <a href="/categorias/retro" class="mega-link"><i class="ph-fill ph-clock-counter-clockwise"></i> Leyendas Retro</a>
+                    <a href="/categorias/mujer" class="mega-link"><i class="ph-fill ph-heart"></i> Women&#39;s Collection</a>
+                    <a href="/catalogo.html" class="mega-link mega-link-all" style="margin-top:24px;"><i class="ph-fill ph-squares-four"></i> Cat&aacute;logo completo</a>
+                </div>
+            </div>
+        </li>
+        <li><a href="/preventa" style="color:var(--gold);display:flex;align-items:center;gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-Venta</a></li>
+        <li><a href="/nosotros" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
+        desktopNav.innerHTML = megaHtml;
     }
 
     const icons = [
