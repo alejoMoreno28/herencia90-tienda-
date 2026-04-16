@@ -411,16 +411,25 @@ function renderNavigation(products) {
     const cats = [...new Set(products.map(p => p.categoria || 'Sin Categoría'))];
     const desktopNav = document.getElementById('desktopCatNav');
     const mobileNav = document.getElementById('mobileCatNav');
+
+    const catMap = {
+        'Mundial 2026': '/categorias/mundial-2026.html',
+        'Temporada 25/26': '/categorias/temporada-25-26.html',
+        'Retro': '/categorias/retro.html',
+        'Coleccion Mujer': '/categorias/mujer.html'
+    };
+
+    const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
-        desktopNav.innerHTML = cats.map(c => `<li><a href="#${makeCategoryId(c)}">${displayCategory(c)}</a></li>`).join('');
+        desktopNav.innerHTML = cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
         desktopNav.innerHTML += `<li><a href="/nosotros.html" style="color:var(--gold);">ℹ️ Nosotros</a></li>`;
     }
 
     const icons = ['⚽', '🌍', '🏆', '⭐', '🔥', '💎', '🚀'];
     if(mobileNav) {
         mobileNav.innerHTML = cats.map((c, i) => `
-            <a href="#${makeCategoryId(c)}" class="category-drawer-link">
+            <a href="${getLink(c)}" class="category-drawer-link">
                 <span class="drawer-link-icon">${icons[i % icons.length]}</span>
                 <span>${displayCategory(c)}</span>
             </a>
@@ -442,18 +451,33 @@ function renderNavigation(products) {
 // ── Render Products ───────────────────────────────────────────────────────────
 function renderProducts(products) {
     const container = document.getElementById('productGrid');
+    if (!container) return;
+
+    let displayProducts = products;
+    const pageCat = document.body.getAttribute('data-category');
+    if (pageCat) {
+        displayProducts = products.filter(p => {
+            const cat = (p.categoria || '').toLowerCase();
+            if (pageCat === 'mundial-2026' && cat.includes('mundial')) return true;
+            if (pageCat === 'temporada-25-26' && (cat.includes('clubes') || cat.includes('25/26'))) return true;
+            if (pageCat === 'retro' && cat.includes('retro')) return true;
+            if (pageCat === 'mujer' && cat.includes('mujer')) return true;
+            return false;
+        });
+    }
+
     container.innerHTML = '';
 
-    if (products.length === 0) {
-        container.innerHTML = '<p style="text-align:center;margin-top:50px;color:#aaa;">No se encontraron resultados.</p>';
+    if (displayProducts.length === 0) {
+        container.innerHTML = '<p style="text-align:center;margin-top:50px;color:#aaa;">No se encontraron resultados en esta categoría.</p>';
         return;
     }
 
-    const uniqueCats = [...new Set(products.map(p => p.categoria || 'Sin Categoría'))];
+    const uniqueCats = [...new Set(displayProducts.map(p => p.categoria || 'Sin Categoría'))];
     const categories = {};
     uniqueCats.forEach(cat => categories[cat] = []);
 
-    products.forEach(p => {
+    displayProducts.forEach(p => {
         const cat = p.categoria || 'Clubes 25/26';
         if (!categories[cat]) categories[cat] = [];
         categories[cat].push(p);

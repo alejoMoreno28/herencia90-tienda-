@@ -2392,3 +2392,19 @@ body.grid-single .product-grid-inner {
     .product-card.card-hidden { opacity: 1 !important; transform: none !important; }
     .category-title { opacity: 1 !important; transform: none !important; }
 }
+/* --- COLLECTIONS HUB (BEAUTIFUL IMAGE CARDS) ---------------- */
+.collections-hub { padding: 60px 16px 20px; }
+.collections-hub-container { max-width: 1300px; margin: 0 auto; }
+.collections-hub-header { text-align: center; margin-bottom: 40px; }
+.collections-hub-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+@media (min-width: 768px) { .collections-hub-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .collections-hub-grid { grid-template-columns: repeat(3, 1fr); } }
+.hub-card { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 280px; border-radius: 24px; overflow: hidden; text-decoration: none; color: var(--text-primary); background-size: cover; background-position: center; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.hub-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(217,195,145,0.2); border-color: rgba(217,195,145,0.4); }
+.hub-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.95) 100%); transition: opacity 0.3s ease; }
+.hub-card:hover .hub-card-overlay { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); }
+.hub-card-content { position: relative; z-index: 2; padding: 24px; }
+.hub-card h3 { font-size: 1.6rem; margin-bottom: 8px; color: var(--gold); line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.hub-card p { font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-bottom: 15px; line-height: 1.4; }
+.hub-card span { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; display: inline-flex; align-items: center; transition: color 0.3s ease; }
+.hub-card:hover span { color: var(--gold); }
