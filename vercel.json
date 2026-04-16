@@ -15,6 +15,7 @@
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/preventa", "destination": "/preventa.html" },
-    { "source": "/nosotros", "destination": "/nosotros.html" }
+    { "source": "/nosotros", "destination": "/nosotros.html" },
+    { "source": "/preguntas-frecuentes", "destination": "/preguntas-frecuentes.html" }
   ]
 }
