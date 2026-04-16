@@ -26,7 +26,7 @@ async function loadProducts() {
         throw new Error('Catalogo vacio desde Supabase');
     } catch (error) {
         try {
-            const response = await fetch('productos.json', { cache: 'no-store' });
+            const response = await fetch('/productos.json', { cache: 'no-store' });
             if (!response.ok) throw new Error(`Fallback local fallo: ${response.status}`);
             return await response.json();
         } catch (fallbackError) {
@@ -387,7 +387,11 @@ function formatPrice(price) {
 
 function toWebp(src) {
     if (!src) return src;
-    return src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+    let newSrc = src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+    if (!newSrc.startsWith('/') && !newSrc.startsWith('http')) {
+        newSrc = '/' + newSrc;
+    }
+    return newSrc;
 }
 
 function slugifyText(value) {
