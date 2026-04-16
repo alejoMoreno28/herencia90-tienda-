@@ -28,6 +28,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         /* ── Página pre-venta ── */
         .pv-page {
@@ -299,7 +300,7 @@
 
     <!-- Hero -->
     <div class="pv-hero">
-        <span class="pv-badge">🏷️ Pre-Venta</span>
+        <span class="pv-badge"><i class="ph-bold ph-tag"></i> Pre-Venta</span>
         <h1 class="pv-title">La Quieres Pero<br><span>No Está en Stock</span></h1>
         <p class="pv-subtitle">
             Camisetas <strong>importadas</strong> traídas directamente para ti.<br>
@@ -307,22 +308,22 @@
         </p>
         <div class="pv-cards">
             <div class="pv-card">
-                <span class="pv-card-icon">💰</span>
+                <span class="pv-card-icon"><i class="ph-fill ph-coin"></i></span>
                 <div class="pv-card-label">Anticipo</div>
                 <div class="pv-card-val">20% del valor</div>
             </div>
             <div class="pv-card">
-                <span class="pv-card-icon">⏱️</span>
+                <span class="pv-card-icon"><i class="ph-fill ph-clock"></i></span>
                 <div class="pv-card-label">Entrega</div>
                 <div class="pv-card-val">~15 días</div>
             </div>
             <div class="pv-card">
-                <span class="pv-card-icon">🎨</span>
+                <span class="pv-card-icon"><i class="ph-fill ph-palette"></i></span>
                 <div class="pv-card-label">Extras</div>
                 <div class="pv-card-val">A tu gusto</div>
             </div>
             <div class="pv-card">
-                <span class="pv-card-icon">🌍</span>
+                <span class="pv-card-icon"><i class="ph-fill ph-globe-hemisphere-west"></i></span>
                 <div class="pv-card-label">Envío</div>
                 <div class="pv-card-val">Toda Colombia</div>
             </div>
@@ -337,7 +338,7 @@
 
                 <!-- PASO 1: La Camiseta -->
                 <div class="pp-slide" id="pp-slide-1">
-                    <div class="pv-step-title">La Camiseta 👕</div>
+                    <div class="pv-step-title">La Camiseta <i class="ph-fill ph-t-shirt"></i></div>
                     <div class="pv-step-sub">Cuéntanos qué camiseta importada estás buscando</div>
                     <div class="pv-group">
                         <label class="pv-label">¿Qué equipo o selección? *</label>
@@ -346,10 +347,10 @@
                     <div class="pv-group">
                         <label class="pv-label">Tipo de camiseta</label>
                         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                            <button type="button" class="pp-tipo-btn" data-val="Local" onclick="ppSelectTipo(this)">⚡ Local</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Visitante" onclick="ppSelectTipo(this)">✈️ Visitante</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Tercera" onclick="ppSelectTipo(this)">🎨 Tercera</button>
-                            <button type="button" class="pp-tipo-btn" data-val="No sé / Cualquiera" onclick="ppSelectTipo(this)">🤷 No sé</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Local" onclick="ppSelectTipo(this)"><i class="ph-bold ph-lightning"></i> Local</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Visitante" onclick="ppSelectTipo(this)"><i class="ph-bold ph-airplane-tilt"></i> Visitante</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Tercera" onclick="ppSelectTipo(this)"><i class="ph-bold ph-palette"></i> Tercera</button>
+                            <button type="button" class="pp-tipo-btn" data-val="No sé / Cualquiera" onclick="ppSelectTipo(this)"><i class="ph-bold ph-question"></i> No sé</button>
                         </div>
                     </div>
                     <div class="pv-group" style="margin-bottom:0;">
@@ -360,14 +361,14 @@
 
                 <!-- PASO 2: Talla y Extras -->
                 <div class="pp-slide" id="pp-slide-2" style="display:none;">
-                    <div class="pv-step-title">Talla y Extras 🎨</div>
+                    <div class="pv-step-title">Talla y Extras <i class="ph-fill ph-palette"></i></div>
                     <div class="pv-step-sub">Elige tu talla y los extras que quieras — te cotizamos el total</div>
                     <div class="pv-group">
                         <label class="pv-label">Género *</label>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;" id="pp-genero-btns">
-                            <button type="button" class="pp-talla-btn" data-val="Hombre" onclick="ppSelectGenero(this)">👨 Hombre</button>
-                            <button type="button" class="pp-talla-btn" data-val="Mujer" onclick="ppSelectGenero(this)">👩 Mujer</button>
-                            <button type="button" class="pp-talla-btn" data-val="Niño" onclick="ppSelectGenero(this)">👦 Niño</button>
+                            <button type="button" class="pp-talla-btn" data-val="Hombre" onclick="ppSelectGenero(this)"><i class="ph-bold ph-gender-male"></i> Hombre</button>
+                            <button type="button" class="pp-talla-btn" data-val="Mujer" onclick="ppSelectGenero(this)"><i class="ph-bold ph-gender-female"></i> Mujer</button>
+                            <button type="button" class="pp-talla-btn" data-val="Niño" onclick="ppSelectGenero(this)"><i class="ph-bold ph-baby"></i> Niño</button>
                         </div>
                     </div>
                     <div class="pv-group">
@@ -403,12 +404,12 @@
                     <div class="pv-group" style="margin-bottom:0;">
                         <label class="pv-label">Parches y emblemas <span style="font-size:0.65rem;color:var(--gold);font-weight:600;text-transform:none;">— costo adicional por cada uno</span></label>
                         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;" id="pp-patches">
-                            <button type="button" class="pp-tipo-btn" data-val="UEFA Champions League" onclick="ppTogglePatch(this)">🏆 UEFA Champions</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Copa del Mundo FIFA" onclick="ppTogglePatch(this)">🌍 Copa del Mundo</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Copa América" onclick="ppTogglePatch(this)">🌎 Copa América</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Europa League" onclick="ppTogglePatch(this)">⭐ Europa League</button>
-                            <button type="button" class="pp-tipo-btn" data-val="Premier League" onclick="ppTogglePatch(this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
-                            <button type="button" class="pp-tipo-btn" data-val="La Liga" onclick="ppTogglePatch(this)">🇪🇸 La Liga</button>
+                            <button type="button" class="pp-tipo-btn" data-val="UEFA Champions League" onclick="ppTogglePatch(this)"><i class="ph-bold ph-trophy"></i> UEFA Champions</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Copa del Mundo FIFA" onclick="ppTogglePatch(this)"><i class="ph-bold ph-globe-hemisphere-west"></i> Copa del Mundo</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Copa América" onclick="ppTogglePatch(this)"><i class="ph-bold ph-globe-hemisphere-east"></i> Copa América</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Europa League" onclick="ppTogglePatch(this)"><i class="ph-bold ph-star"></i> Europa League</button>
+                            <button type="button" class="pp-tipo-btn" data-val="Premier League" onclick="ppTogglePatch(this)"><i class="ph-bold ph-shield"></i> Premier League</button>
+                            <button type="button" class="pp-tipo-btn" data-val="La Liga" onclick="ppTogglePatch(this)"><i class="ph-bold ph-flag"></i> La Liga</button>
                         </div>
                         <input type="text" id="pp-patch-otro" class="pv-input" style="font-size:0.84rem;" placeholder="Otro parche (ej: Serie A, Ligue 1, escudo personalizado…)">
                     </div>
@@ -419,7 +420,7 @@
 
                 <!-- PASO 3: Tus Datos -->
                 <div class="pp-slide" id="pp-slide-3" style="display:none;">
-                    <div class="pv-step-title">Tus Datos 👤</div>
+                    <div class="pv-step-title">Tus Datos <i class="ph-fill ph-user"></i></div>
                     <div class="pv-step-sub">Para contactarte y coordinar el envío</div>
                     <div class="pv-group">
                         <label class="pv-label">Nombre completo *</label>
@@ -441,7 +442,7 @@
 
                 <!-- PASO 4: Cotización -->
                 <div class="pp-slide" id="pp-slide-4" style="display:none;">
-                    <div class="pv-step-title">¡Lista tu cotización! 📋</div>
+                    <div class="pv-step-title">¡Lista tu cotización! <i class="ph-fill ph-clipboard-text"></i></div>
                     <div class="pv-step-sub">Te enviamos el precio total con todo lo que elegiste</div>
                     <div id="pp-summary-box" style="background:rgba(217,195,145,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:16px;margin-bottom:14px;"></div>
                     <div style="background:rgba(217,195,145,0.07);border:1px solid rgba(217,195,145,0.2);border-radius:8px;padding:12px 14px;font-size:0.8rem;color:var(--gold);margin-bottom:16px;line-height:1.6;">
