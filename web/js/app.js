@@ -422,26 +422,42 @@ function renderNavigation(products) {
     const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
-        desktopNav.innerHTML = cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
-        desktopNav.innerHTML += `<li><a href="/nosotros.html" style="color:var(--gold);">ℹ️ Nosotros</a></li>`;
+        let navHtml = `<li><a href="/#catalogo" style="color:var(--gold);">Explorar Catálogo</a></li>`;
+        navHtml += cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
+        navHtml += `<li><a href="/nosotros.html" style="color:var(--gold);">ℹ️ Nosotros</a></li>`;
+        navHtml += `<li><a href="/preventa" style="color:var(--gold);">🏷️ Pre-Venta</a></li>`;
+        desktopNav.innerHTML = navHtml;
     }
 
     const icons = ['⚽', '🌍', '🏆', '⭐', '🔥', '💎', '🚀'];
     if(mobileNav) {
-        mobileNav.innerHTML = cats.map((c, i) => `
-            <a href="${getLink(c)}" class="category-drawer-link">
+        let mobileHtml = `
+            <a href="/#catalogo" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
+                <span class="drawer-link-icon" style="color:var(--gold);">👕</span>
+                <span style="color:var(--gold);">Explorar Catálogo</span>
+            </a>
+        `;
+        
+        mobileHtml += cats.map((c, i) => `
+            <a href="${getLink(c)}" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
                 <span class="drawer-link-icon">${icons[i % icons.length]}</span>
                 <span>${displayCategory(c)}</span>
             </a>
         `).join('');
         
-        mobileNav.innerHTML += `
+        mobileHtml += `
             <a href="/nosotros.html" class="category-drawer-link" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
                 <span class="drawer-link-icon">ℹ️</span>
                 <span style="color:var(--gold);">Sobre Nosotros</span>
             </a>
+            <a href="/preventa" class="category-drawer-link">
+                <span class="drawer-link-icon">🏷️</span>
+                <span style="color:var(--gold);">Pre-Venta</span>
+            </a>
         `;
+        mobileNav.innerHTML = mobileHtml;
         
+        // Add listeners to all these new dynamically created links
         mobileNav.querySelectorAll('.category-drawer-link').forEach(link => {
             link.addEventListener('click', () => closeDrawer());
         });
