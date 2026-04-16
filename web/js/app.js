@@ -453,7 +453,8 @@ function renderNavigation() {
             </div>
         </li>
         <li><a href="/preventa" style="color:var(--gold);display:flex;align-items:center;gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-Venta</a></li>
-        <li><a href="/nosotros" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
+        <li><a href="/nosotros" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>
+        <li><a href="/preguntas-frecuentes" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-question" style="font-size:1.1em;"></i> Preguntas Frecuentes</a></li>`;
         desktopNav.innerHTML = megaHtml;
     }
 
@@ -526,6 +527,10 @@ function renderNavigation() {
             <a href="/nosotros" class="category-drawer-link" style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.05); padding-top:18px;">
                 <span class="drawer-link-icon"><i class="ph-bold ph-info"></i></span>
                 <span>Sobre Nosotros</span>
+            </a>
+            <a href="/preguntas-frecuentes" class="category-drawer-link">
+                <span class="drawer-link-icon"><i class="ph-bold ph-question"></i></span>
+                <span>Preguntas Frecuentes</span>
             </a>
             <a href="/preventa" class="category-drawer-link">
                 <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-bold ph-tag"></i></span>
