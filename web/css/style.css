@@ -217,16 +217,16 @@ h1, h2, h3, .product-price, .hero-title {
 
 .mega-menu {
     position: absolute;
-    top: calc(100% + 10px);
+    top: 100%;
     left: 50%;
-    transform: translateX(-50%) translateY(-6px);
+    transform: translateX(-50%) translateY(-4px);
     background: rgba(7, 7, 7, 0.97);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(217, 195, 145, 0.12);
     border-top: 2px solid var(--gold);
     border-radius: 0 0 20px 20px;
-    padding: 28px 32px;
+    padding: 12px 32px 28px;
     display: flex;
     gap: 36px;
     min-width: 560px;
@@ -2513,3 +2513,126 @@ body.grid-single .product-grid-inner {
 .hub-card p { font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-bottom: 15px; line-height: 1.4; }
 .hub-card span { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; display: inline-flex; align-items: center; transition: color 0.3s ease; }
 .hub-card:hover span { color: var(--gold); }
+
+/* ─── PRE-VENTA BANNER (homepage) ───────────────────────── */
+.pv-banner {
+    padding: 0 20px 60px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+.pv-banner-inner {
+    position: relative;
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1710 55%, #0a0a08 100%);
+    border: 1px solid rgba(217, 195, 145, 0.18);
+    border-radius: 28px;
+    padding: 48px 52px;
+    display: flex;
+    align-items: center;
+    gap: 52px;
+    overflow: hidden;
+}
+.pv-banner-glow {
+    position: absolute;
+    top: -80px; left: -60px;
+    width: 500px; height: 400px;
+    background: radial-gradient(ellipse, rgba(217,195,145,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.pv-banner-left { flex: 1; min-width: 0; }
+.pv-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gold);
+    color: #111;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    padding: 5px 16px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+.pv-banner-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    text-transform: uppercase;
+    color: #fff;
+    line-height: 1.08;
+    margin: 0 0 14px;
+}
+.pv-banner-title span { color: var(--gold); font-style: italic; }
+.pv-banner-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0 0 24px;
+    max-width: 420px;
+}
+.pv-banner-sub strong { color: #fff; }
+.pv-banner-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: #111;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    padding: 13px 32px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.pv-banner-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(217,195,145,0.35);
+}
+.pv-banner-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    flex-shrink: 0;
+}
+.pv-banner-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(217, 195, 145, 0.12);
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.pv-banner-stat i {
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-bottom: 6px;
+}
+.pv-banner-stat strong {
+    display: block;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.pv-banner-stat span {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+@media (max-width: 768px) {
+    .pv-banner-inner {
+        flex-direction: column;
+        padding: 32px 24px;
+        gap: 32px;
+    }
+    .pv-banner-stats {
+        width: 100%;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .pv-banner-stat { padding: 12px 8px; }
+    .pv-banner-stat strong { font-size: 0.82rem; }
+}
