@@ -413,10 +413,10 @@ function renderNavigation(products) {
     const mobileNav = document.getElementById('mobileCatNav');
 
     const catMap = {
-        'Mundial 2026': '/categorias/mundial-2026.html',
+        'Colección 2026': '/categorias/mundial-2026.html',
         'Temporada 25/26': '/categorias/temporada-25-26.html',
-        'Retro': '/categorias/retro.html',
-        'Coleccion Mujer': '/categorias/mujer.html'
+        'Leyendas Clásicas': '/categorias/retro.html',
+        "Women's Collection": '/categorias/mujer.html'
     };
 
     const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
@@ -483,10 +483,10 @@ function renderProducts(products) {
     if (pageCat) {
         displayProducts = products.filter(p => {
             const cat = (p.categoria || '').toLowerCase();
-            if (pageCat === 'mundial-2026' && cat.includes('mundial')) return true;
-            if (pageCat === 'temporada-25-26' && (cat.includes('clubes') || cat.includes('25/26'))) return true;
-            if (pageCat === 'retro' && cat.includes('retro')) return true;
-            if (pageCat === 'mujer' && cat.includes('mujer')) return true;
+            if (pageCat === 'mundial-2026' && cat.includes('2026')) return true;
+            if (pageCat === 'temporada-25-26' && cat.includes('25/26')) return true;
+            if (pageCat === 'retro' && cat.includes('leyendas')) return true;
+            if (pageCat === 'mujer' && cat.includes('women')) return true;
             return false;
         });
     }
