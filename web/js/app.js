@@ -478,27 +478,32 @@ function renderNavigation(products) {
     ];
     
     if(mobileNav) {
+        const closeDrawer = `document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');`;
         let mobileHtml = `
-            <a href="/catalogo.html" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
+            <a href="/" class="category-drawer-link" onclick="${closeDrawer}">
+                <span class="drawer-link-icon"><i class="ph-bold ph-house"></i></span>
+                <span>Inicio</span>
+            </a>
+            <a href="/catalogo.html" class="category-drawer-link" onclick="${closeDrawer}">
                 <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-fill ph-t-shirt"></i></span>
-                <span style="color:var(--gold);">Explorar Catálogo</span>
+                <span style="color:var(--gold);">Explorar Cat&aacute;logo</span>
             </a>
         `;
-        
+
         mobileHtml += cats.map((c, i) => `
-            <a href="${getLink(c)}" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
+            <a href="${getLink(c)}" class="category-drawer-link" onclick="${closeDrawer}">
                 <span class="drawer-link-icon">${icons[i % icons.length]}</span>
                 <span>${displayCategory(c)}</span>
             </a>
         `).join('');
-        
+
         mobileHtml += `
-            <a href="/nosotros.html" class="category-drawer-link" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <a href="/nosotros" class="category-drawer-link" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
                 <span class="drawer-link-icon"><i class="ph-bold ph-info"></i></span>
-                <span style="color:var(--gold);">Sobre Nosotros</span>
+                <span>Sobre Nosotros</span>
             </a>
             <a href="/preventa" class="category-drawer-link">
-                <span class="drawer-link-icon"><i class="ph-bold ph-tag"></i></span>
+                <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-bold ph-tag"></i></span>
                 <span style="color:var(--gold);">Pre-Venta</span>
             </a>
         `;

@@ -1660,6 +1660,23 @@ body.grid-single .product-grid-inner {
 /* Logo hero: oculto en desktop, visible solo en movil */
 .hero-logo-mobile { display: none; }
 
+/* CTA hero mobile: solo visible en mobile */
+.hero-mobile-cta {
+    display: none;
+    margin-top: 18px;
+    padding: 13px 32px;
+    background: var(--gold);
+    color: #111;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.88rem;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
 /* ─── RESPONSIVE: MÓVIL ──────────────────────────────────── */
 @media (max-width: 767px) {
     /* Activar nav inferior + ocultar header */
@@ -1691,6 +1708,13 @@ body.grid-single .product-grid-inner {
         margin: 0 auto 12px;
         filter: drop-shadow(0 0 14px rgba(217,195,145,0.35));
     }
+
+    /* CTA hero mobile */
+    .hero-mobile-cta {
+        display: inline-block;
+        box-shadow: 0 4px 20px rgba(217,195,145,0.3);
+    }
+    .hero-mobile-cta:active { transform: scale(0.97); }
 
     /* Hero CTAs: apilados, anchos y tapables */
     .hero-ctas {
@@ -1851,6 +1875,49 @@ body.grid-single .product-grid-inner {
     }
 
     .footer { margin-top: 20px; }
+
+    /* Hub categorias: mas compacto y con mejor espaciado */
+    .collections-hub { padding: 40px 12px 32px; }
+    .collections-hub-grid { gap: 14px; }
+    .hub-card { min-height: 220px; border-radius: 18px; }
+    .hub-card h3 { font-size: 1.3rem; }
+
+    /* How it works: columna vertical en mobile */
+    .hiw-steps {
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+    .hiw-step {
+        min-width: unset;
+        max-width: 320px;
+        width: 100%;
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+        padding: 16px 8px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .hiw-step:last-child { border-bottom: none; }
+    .hiw-num {
+        font-size: 2rem;
+        min-width: 44px;
+        text-align: center;
+        margin-top: 2px;
+    }
+    .hiw-icon { font-size: 1.6rem; margin-top: 0; display: none; }
+    .hiw-step h3 { font-size: 0.9rem; margin-bottom: 4px; }
+    .hiw-step p { font-size: 0.8rem; max-width: none; }
+    .how-it-works { padding: 48px 16px 40px; }
+
+    /* Mini stats: mas compacto */
+    .mini-stats { margin: 32px 0; }
+
+    /* Testimonials: centrado */
+    .testi-grid { margin: 0 auto; }
+    .testi-card { padding: 20px; }
+    .testi-text { font-size: 0.88rem; }
 }
 
 /* ─── PRE-PEDIDO WIZARD ──────────────────────────────────── */
@@ -2202,8 +2269,6 @@ body.grid-single .product-grid-inner {
 }
 @media (max-width: 600px) {
     .hiw-arrow { display: none; }
-    .hiw-steps { gap: 8px; }
-    .hiw-step { min-width: 150px; }
 }
 
 /* ── Mini Stats ──────────────────────────────────────────── */
@@ -2623,16 +2688,19 @@ body.grid-single .product-grid-inner {
     letter-spacing: 1px;
 }
 @media (max-width: 768px) {
+    .pv-banner { padding: 0 12px 40px; }
     .pv-banner-inner {
         flex-direction: column;
-        padding: 32px 24px;
-        gap: 32px;
+        padding: 28px 20px 24px;
+        gap: 24px;
     }
     .pv-banner-stats {
         width: 100%;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    .pv-banner-stat { padding: 12px 8px; }
-    .pv-banner-stat strong { font-size: 0.82rem; }
+    .pv-banner-stat { padding: 14px 10px; }
+    .pv-banner-stat strong { font-size: 0.85rem; }
+    .pv-banner-title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+    .pv-banner-btn { width: 100%; text-align: center; padding: 14px; }
 }
