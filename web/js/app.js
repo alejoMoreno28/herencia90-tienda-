@@ -426,9 +426,10 @@ function renderNavigation(products) {
     const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
-        let navHtml = `<li><a href="/catalogo.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Explorar Catálogo</a></li>`;
+        let navHtml = `<li><a href="/" style="display:flex; align-items:center; gap:6px;"><i class="ph ph-house" style="font-size:1.1em;"></i> Inicio</a></li>`;
+        navHtml += `<li><a href="/catalogo.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Catálogo</a></li>`;
         navHtml += cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
-        navHtml += `<li><a href="/nosotros.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
+        navHtml += `<li><a href="/nosotros.html" style="display:flex; align-items:center; gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
         navHtml += `<li><a href="/preventa" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-Venta</a></li>`;
         desktopNav.innerHTML = navHtml;
     }

@@ -98,8 +98,10 @@ h1, h2, h3, .product-price, .hero-title {
     object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(217, 195, 145, 0.2));
     transition: transform 0.3s ease;
+    display: block;
 }
 .logo:hover { transform: scale(1.05); }
+.header-container > a { display: flex; align-items: center; text-decoration: none; }
 
 .header-right {
     display: flex;
