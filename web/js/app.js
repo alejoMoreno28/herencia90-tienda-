@@ -1,11 +1,11 @@
 // ── Nombres de categorías para mostrar (sin tocar la BD) ──────────────────────
 const CATEGORY_LABELS = {
-    'coleccion 2026':  'Mundial 2026',
-    'colección 2026':  'Mundial 2026',
-    'Coleccion 2026':  'Mundial 2026',
-    'Colección 2026':  'Mundial 2026',
-    'COLECCION 2026':  'Mundial 2026',
-    'COLECCIÓN 2026':  'Mundial 2026',
+    'coleccion 2026': 'Mundial 2026',
+    'colección 2026': 'Mundial 2026',
+    'Coleccion 2026': 'Mundial 2026',
+    'Colección 2026': 'Mundial 2026',
+    'COLECCION 2026': 'Mundial 2026',
+    'COLECCIÓN 2026': 'Mundial 2026',
 };
 function displayCategory(name) {
     return CATEGORY_LABELS[name] || CATEGORY_LABELS[name.toLowerCase()] || name;
@@ -38,18 +38,18 @@ async function loadProducts() {
 
 // ── Analytics ────────────────────────────────────────────────────────────────
 async function trackEvent(eventType, productData = {}) {
-  try {
-    await db.from('analytics_events').insert({
-      event_type:   eventType,
-      product_id:   productData.id   || null,
-      product_name: productData.equipo || productData.product_name || null,
-      category:     productData.categoria || productData.category || null,
-      extra:        productData.extra || {},
-      referrer:     document.referrer || null
-    });
-  } catch (e) {
-    // Analytics nunca interrumpe la experiencia del usuario
-  }
+    try {
+        await db.from('analytics_events').insert({
+            event_type: eventType,
+            product_id: productData.id || null,
+            product_name: productData.equipo || productData.product_name || null,
+            category: productData.categoria || productData.category || null,
+            extra: productData.extra || {},
+            referrer: document.referrer || null
+        });
+    } catch (e) {
+        // Analytics nunca interrumpe la experiencia del usuario
+    }
 }
 
 // ── Carrito ───────────────────────────────────────────────────────────────────
@@ -205,7 +205,7 @@ const imgObserver = new IntersectionObserver((entries) => {
         if (!entry.isIntersecting) return;
         const img = entry.target;
         img.src = img.dataset.src;
-        img.onload  = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
+        img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
         img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
         imgObserver.unobserve(img);
     });
@@ -356,8 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Badge detection ───────────────────────────────────────────────────────────
 function getProductBadge(product) {
-    const cat  = (product.categoria || '').toLowerCase();
-    const name = (product.equipo    || '').toLowerCase();
+    const cat = (product.categoria || '').toLowerCase();
+    const name = (product.equipo || '').toLowerCase();
     if (cat.includes('2026') || cat.includes('mundial') || name.includes('mundial')) {
         return { text: 'Mundial 2026', cls: 'badge-mundial' };
     }
@@ -414,8 +414,8 @@ function makeCategoryId(name) {
 function renderNavigation() {
     const desktopNav = document.getElementById('desktopCatNav');
     const mobileNav = document.getElementById('mobileCatNav');
-    
-    if(desktopNav) {
+
+    if (desktopNav) {
         const megaHtml = `
         <li><a href="/" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-house" style="font-size:1.1em;"></i> Inicio</a></li>
         <li class="has-mega">
@@ -457,7 +457,7 @@ function renderNavigation() {
         desktopNav.innerHTML = megaHtml;
     }
 
-    if(mobileNav) {
+    if (mobileNav) {
         const closeFn = () => {
             document.getElementById('categoryDrawer').classList.remove('open');
             document.getElementById('drawerOverlay').classList.remove('open');
@@ -626,8 +626,8 @@ function renderProducts(products) {
 
             const tallas = Object.entries(product.tallas || {});
             const allSoldOut = tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
-            const sizePills  = buildSizePills(product.tallas);
-            const badge      = getProductBadge(product);
+            const sizePills = buildSizePills(product.tallas);
+            const badge = getProductBadge(product);
 
             const card = document.createElement('div');
             card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
@@ -646,9 +646,9 @@ function renderProducts(products) {
                     ${product.descripcion ? `<p class="product-description">${product.descripcion}</p>` : ''}
                     <div class="product-actions">
                         ${allSoldOut
-                            ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                            : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver Detalles</button>`
-                        }
+                    ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
+                    : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver Detalles</button>`
+                }
                     </div>
                 </div>
             `;

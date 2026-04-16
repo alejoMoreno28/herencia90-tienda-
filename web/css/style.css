@@ -1589,7 +1589,7 @@ body.grid-single .product-grid-inner {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 12px 24px 12px 52px;
+    padding: 12px 24px 12px 36px;
     color: rgba(255,255,255,0.55);
     text-decoration: none;
     font-family: 'Oswald', sans-serif;
@@ -1598,7 +1598,7 @@ body.grid-single .product-grid-inner {
     letter-spacing: 1px;
     transition: all 0.2s ease;
 }
-.drawer-sub-link:hover { color: var(--gold); padding-left: 60px; }
+.drawer-sub-link:hover { color: var(--gold); padding-left: 44px; }
 .drawer-overlay {
     position: fixed;
     inset: 0;
