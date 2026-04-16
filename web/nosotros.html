@@ -27,7 +27,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -162,11 +164,36 @@
 </head>
 <body style="background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%);background-attachment:fixed;color:#fff;">
 
-    <header class="nos-topbar">
-        <a href="/">&#8592; Volver al Catalogo</a>
-        <img src="/img/logo.webp" alt="Herencia 90 Logo">
-        <a href="/preventa">Pre-venta</a>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" aria-hidden="true"></div>
+
+    <!-- Desktop Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo"></a>
+            <div class="header-right">
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar equipo, ej. Real Madrid...">
+                <button class="cart-btn" id="cartBtn" aria-label="Ver carrito">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.69l1.38-9.3H6"/>
+                    </svg>
+                    <span>Carrito</span>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
+        <nav class="category-nav">
+            <ul id="desktopCatNav">
+                <!-- Se llenará dinámicamente desde app.js -->
+            </ul>
+        </nav>
     </header>
+
+    <!-- Área superior móvil -->
+    <div class="mobile-top">
+        <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="mobile-logo"></a>
+    </div>
 
     <nav style="max-width:900px;margin:0 auto;padding:14px 20px;font-size:0.82rem;color:rgba(255,255,255,0.45);">
         <a href="/" style="color:inherit;text-decoration:none;">Inicio</a>
@@ -255,8 +282,109 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="/img/logo.webp" alt="Herencia 90" class="footer-logo">
+                <p>Camisetas de futbol retro e importadas.<br>Medellin, Colombia.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/nosotros">Nosotros</a>
+                <a href="/preventa">Pre-Venta</a>
+                <a href="https://www.instagram.com/herencia90_/" target="_blank" rel="noopener">Instagram</a>
+                <a href="https://www.tiktok.com/@herencia90_" target="_blank" rel="noopener">TikTok</a>
+            </div>
+            <p class="footer-legal">&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
+        </div>
     </footer>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3><i class="ph-bold ph-shopping-cart"></i> Mi Carrito</h3>
+            <button class="cart-close" id="cartClose">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cartTotal">$0</span>
+            </div>
+            <button class="btn-checkout" id="cartCheckout">
+                <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+                Pedir por WhatsApp
+            </button>
+            <button class="btn-clear-cart" id="cartClear">Vaciar carrito</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="cart-toast" id="cartToast"><i class="ph-bold ph-check"></i> Agregado al carrito</div>
+
+    <!-- Category Drawer (m&oacute;vil) -->
+    <div class="category-drawer" id="categoryDrawer">
+        <div class="category-drawer-header">
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
+        </div>
+        <nav class="category-drawer-nav" id="mobileCatNav">
+            <!-- Se llenar&aacute; din&aacute;micamente desde app.js -->
+        </nav>
+        <div class="category-drawer-footer">
+            <p>Herencia 90 &copy; 2026</p>
+        </div>
+    </div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- Search Overlay (m&oacute;vil) -->
+    <div class="search-overlay" id="searchOverlay">
+        <button class="search-back-btn" id="searchOverlayClose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+        </button>
+        <input type="search" id="mobileSearchInput" class="search-overlay-input" placeholder="Buscar camiseta...">
+    </div>
+
+    <!-- Bottom Nav M&oacute;vil -->
+    <nav class="mobile-bottom-nav" aria-label="Navegaci&oacute;n">
+        <button class="mobile-nav-btn" id="mobileSearchBtn" aria-label="Buscar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span>Buscar</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="location.href='/'" aria-label="Inicio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Inicio</span>
+        </button>
+        <button class="mobile-nav-btn" id="mobileMenuBtn" aria-label="Men&uacute;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <span>Men&uacute;</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="location.href='/preventa'" aria-label="Pre-Venta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10l-1.5 7H8.5L7 7z"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/><path d="M5 7H3"/></svg>
+            <span>Pre-Venta</span>
+        </button>
+        <button class="mobile-nav-btn mobile-cart-btn" id="mobileCartBtn" aria-label="Carrito">
+            <span class="mobile-cart-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.69l1.38-9.3H6"/>
+                </svg>
+                <span class="cart-badge-mobile" id="cartBadgeMobile" style="display:none;">0</span>
+            </span>
+            <span>Carrito</span>
+        </button>
+    </nav>
+
+    <!-- UX Libraries -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="/js/app.js"></script>
 
 </body>
 </html>

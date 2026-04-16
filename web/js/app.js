@@ -437,20 +437,20 @@ function renderNavigation(products) {
                     <h4 class="mega-col-title">Selecciones</h4>
                     <a href="/categorias/mundial-2026" class="mega-link"><i class="ph-fill ph-globe-hemisphere-west"></i> Mundial 2026</a>
                     <a href="/categorias/colombia" class="mega-link"><i class="ph-fill ph-flag"></i> Colombia</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Argentina</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Brasil</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Alemania</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-flag"></i> Portugal</a>
+                    <a href="/categorias/argentina" class="mega-link"><i class="ph-fill ph-flag"></i> Argentina</a>
+                    <a href="/categorias/brasil" class="mega-link"><i class="ph-fill ph-flag"></i> Brasil</a>
+                    <a href="/categorias/alemania" class="mega-link"><i class="ph-fill ph-flag"></i> Alemania</a>
+                    <a href="/categorias/portugal" class="mega-link"><i class="ph-fill ph-flag"></i> Portugal</a>
                     <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todas</a>
                 </div>
                 <div class="mega-col">
                     <h4 class="mega-col-title">Clubes</h4>
                     <a href="/categorias/real-madrid" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Real Madrid</a>
                     <a href="/categorias/barcelona" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Barcelona</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Arsenal</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Liverpool</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Bayern M&uuml;nich</a>
-                    <a href="/catalogo.html" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Manchester Utd</a>
+                    <a href="/categorias/arsenal" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Arsenal</a>
+                    <a href="/categorias/liverpool" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Liverpool</a>
+                    <a href="/categorias/bayern-munich" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Bayern M&uuml;nich</a>
+                    <a href="/categorias/manchester-united" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Manchester Utd</a>
                     <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todos</a>
                 </div>
                 <div class="mega-col">
@@ -526,10 +526,21 @@ function renderProducts(products) {
     if (pageCat) {
         displayProducts = products.filter(p => {
             const cat = (p.categoria || '').toLowerCase();
+            const eq = (p.equipo || '').toLowerCase();
             if (pageCat === 'mundial-2026' && cat.includes('2026')) return true;
             if (pageCat === 'temporada-25-26' && cat.includes('25/26')) return true;
             if (pageCat === 'retro' && cat.includes('leyendas')) return true;
             if (pageCat === 'mujer' && cat.includes('women')) return true;
+            if (pageCat === 'arsenal' && eq.includes('arsenal')) return true;
+            if (pageCat === 'liverpool' && eq.includes('liverpool')) return true;
+            if (pageCat === 'manchester-united' && eq.includes('manchester united')) return true;
+            if (pageCat === 'bayern-munich' && eq.includes('bayern')) return true;
+            if (pageCat === 'psg' && eq.includes('psg')) return true;
+            if (pageCat === 'brasil' && eq.includes('brasil')) return true;
+            if (pageCat === 'argentina' && eq.includes('argentina')) return true;
+            if (pageCat === 'alemania' && eq.includes('alemania')) return true;
+            if (pageCat === 'portugal' && eq.includes('portugal')) return true;
+            if (pageCat === 'manchester-city' && eq.includes('manchester city')) return true;
             return false;
         });
     }
