@@ -1791,8 +1791,12 @@ body.grid-single .product-grid-inner {
         letter-spacing: 1.5px;
     }
 
-    /* Trust strip: oculto en movil — el usuario quiere ver productos rapido */
-    .trust-strip { display: none; }
+    /* Trust strip: mobile visible para maximizar confianza */
+    .trust-strip { display: block; padding: 0 12px; margin-top: -20px; }
+    .trust-shell { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .trust-item { padding: 12px; text-align: center; }
+    .trust-item strong { font-size: 0.9rem; }
+    .trust-item span { font-size: 0.75rem; }
 
     .seo-hub-section {
         padding: 22px 12px 0;
