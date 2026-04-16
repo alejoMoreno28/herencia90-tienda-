@@ -8,6 +8,7 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsIn
 const supabaseProductsUrl = `${supabaseUrl}/rest/v1/productos?select=*&order=id`;
 const outputDir = path.join(root, 'web', 'camisetas');
 const categoryOutputDir = path.join(root, 'web', 'categorias');
+const cityOutputDir = path.join(root, 'web', 'ciudades');
 const productsPath = path.join(root, 'web', 'productos.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
@@ -113,6 +114,61 @@ const seoCollections = [
     match(product) {
       return includesNormalized(product.categoria, 'temporada 25/26');
     }
+  },
+  {
+    type: 'city',
+    slug: 'bogota',
+    name: 'Bogota',
+    eyebrow: 'Envios a Bogota',
+    title: 'Camisetas de Futbol en Bogota | Herencia 90',
+    shortDescription: 'Compra camisetas de futbol en Bogota con pago contra entrega. Camisetas retro, importadas y de temporada enviadas a tu casa.',
+    intro: 'Llevamos la pasion del futbol a Bogota con envio seguro y pago contra entrega. Encuentra las mejores referencias retro y de la nueva temporada.',
+    faqTitle: 'Preguntas sobre envios a Bogota',
+    match(product) { return true; }
+  },
+  {
+    type: 'city',
+    slug: 'medellin',
+    name: 'Medellin',
+    eyebrow: 'Envios a Medellin',
+    title: 'Camisetas de Futbol en Medellin | Herencia 90',
+    shortDescription: 'Compra camisetas de futbol en Medellin con pago contra entrega. Camisetas retro, importadas y de temporada enviadas a tu casa.',
+    intro: 'Llevamos la pasion del futbol a Medellin con envio seguro y pago contra entrega. Encuentra las mejores referencias retro y de la nueva temporada.',
+    faqTitle: 'Preguntas sobre envios a Medellin',
+    match(product) { return true; }
+  },
+  {
+    type: 'city',
+    slug: 'cali',
+    name: 'Cali',
+    eyebrow: 'Envios a Cali',
+    title: 'Camisetas de Futbol en Cali | Herencia 90',
+    shortDescription: 'Compra camisetas de futbol en Cali con pago contra entrega. Camisetas retro, importadas y de temporada enviadas a tu casa.',
+    intro: 'Llevamos la pasion del futbol a Cali con envio seguro y pago contra entrega. Encuentra las mejores referencias retro y de la nueva temporada.',
+    faqTitle: 'Preguntas sobre envios a Cali',
+    match(product) { return true; }
+  },
+  {
+    type: 'city',
+    slug: 'barranquilla',
+    name: 'Barranquilla',
+    eyebrow: 'Envios a Barranquilla',
+    title: 'Camisetas de Futbol en Barranquilla | Herencia 90',
+    shortDescription: 'Compra camisetas de futbol en Barranquilla con pago contra entrega. Camisetas retro, importadas y de temporada enviadas a tu casa.',
+    intro: 'Llevamos la pasion del futbol a Barranquilla con envio seguro y pago contra entrega. Encuentra las mejores referencias retro y de la nueva temporada.',
+    faqTitle: 'Preguntas sobre envios a Barranquilla',
+    match(product) { return true; }
+  },
+  {
+    type: 'city',
+    slug: 'ibague',
+    name: 'Ibague',
+    eyebrow: 'Envios a Ibague',
+    title: 'Camisetas de Futbol en Ibague | Herencia 90',
+    shortDescription: 'Compra camisetas de futbol en Ibague con pago contra entrega. Camisetas retro, importadas y de temporada enviadas a tu casa.',
+    intro: 'Llevamos la pasion del futbol a Ibague con envio seguro y pago contra entrega. Encuentra las mejores referencias retro y de la nueva temporada.',
+    faqTitle: 'Preguntas sobre envios a Ibague',
+    match(product) { return true; }
   }
 ];
 
@@ -189,6 +245,7 @@ function getProductUrls(product) {
 }
 
 function getCollectionUrl(collection) {
+  if (collection.type === 'city') return `${siteUrl}/ciudades/${collection.slug}`;
   return `${siteUrl}/categorias/${collection.slug}`;
 }
 
@@ -220,7 +277,7 @@ function renderRelatedCards(currentProduct) {
       const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
       return `
         <a class="related-card" href="${productUrl}">
-          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)}">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
           <div class="related-copy">
             <strong>${escapeHtml(product.equipo)}</strong>
             <span>${escapeHtml(formatPrice(product.precio))}</span>
@@ -237,14 +294,14 @@ function renderGallery(product) {
   const thumbs = images
     .map((image, index) => {
       const src = `../${image}`;
-      return `<button class="thumb ${index === 0 ? 'active' : ''}" type="button" data-image="${escapeHtml(src)}"><img src="${escapeHtml(src)}" alt="${escapeHtml(product.equipo)} vista ${index + 1}"></button>`;
+      return `<button class="thumb ${index === 0 ? 'active' : ''}" type="button" data-image="${escapeHtml(src)}"><img src="${escapeHtml(src)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')} - Vista ${index + 1}"></button>`;
     })
     .join('');
 
   return `
     <div class="product-gallery">
       <div class="main-image-wrap">
-        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)}">
+        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
       </div>
       <div class="thumb-grid">${thumbs}</div>
     </div>
@@ -264,7 +321,7 @@ function renderCollectionProductCards(collectionProducts) {
       return `
         <article class="collection-product-card">
           <a class="collection-product-image" href="${productUrl}">
-            <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)}">
+            <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">${escapeHtml(product.categoria || 'Herencia 90')}</span>
@@ -678,7 +735,7 @@ function renderCollectionPage(collection) {
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Inicio</a>
       <span>/</span>
-      <span>Categorias</span>
+      <span>${collection.type === 'city' ? 'Ciudades' : 'Categorias'}</span>
       <span>/</span>
       <span>${escapeHtml(collection.name)}</span>
     </nav>
@@ -1498,6 +1555,7 @@ function buildRobots() {
 
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(categoryOutputDir, { recursive: true });
+fs.mkdirSync(cityOutputDir, { recursive: true });
 
 for (const product of products) {
   const filePath = path.join(outputDir, `${slugify(product.equipo)}.html`);
@@ -1505,7 +1563,9 @@ for (const product of products) {
 }
 
 for (const collection of seoCollections) {
-  const filePath = path.join(categoryOutputDir, `${collection.slug}.html`);
+  const filePath = collection.type === 'city' 
+    ? path.join(cityOutputDir, `${collection.slug}.html`)
+    : path.join(categoryOutputDir, `${collection.slug}.html`);
   fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
 }
 

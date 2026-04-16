@@ -10,6 +10,7 @@
   ],
   "rewrites": [
     { "source": "/categorias/:slug", "destination": "/categorias/:slug.html" },
+    { "source": "/ciudades/:slug", "destination": "/ciudades/:slug.html" },
     { "source": "/camisetas/:slug", "destination": "/camisetas/:slug.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/login", "destination": "/login.html" },
