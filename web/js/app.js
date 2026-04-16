@@ -422,7 +422,7 @@ function renderNavigation(products) {
     const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
-        let navHtml = `<li><a href="/#catalogo" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Explorar Catálogo</a></li>`;
+        let navHtml = `<li><a href="/catalogo.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-t-shirt" style="font-size:1.1em;"></i> Explorar Catálogo</a></li>`;
         navHtml += cats.map(c => `<li><a href="${getLink(c)}">${displayCategory(c)}</a></li>`).join('');
         navHtml += `<li><a href="/nosotros.html" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>`;
         navHtml += `<li><a href="/preventa" style="color:var(--gold); display:flex; align-items:center; gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-Venta</a></li>`;
@@ -441,7 +441,7 @@ function renderNavigation(products) {
     
     if(mobileNav) {
         let mobileHtml = `
-            <a href="/#catalogo" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
+            <a href="/catalogo.html" class="category-drawer-link" onclick="document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');">
                 <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-fill ph-t-shirt"></i></span>
                 <span style="color:var(--gold);">Explorar Catálogo</span>
             </a>
