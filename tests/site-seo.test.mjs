@@ -35,10 +35,9 @@ check('homepage includes core SEO metadata and structured data', () => {
 check('homepage catalog CTA points to an existing catalog section', () => {
   const html = read('web/index.html');
 
-  assert.match(html, /href="#catalogo"/i);
-  assert.match(html, /id="catalogo"/i);
-  assert.match(html, /\/categorias\/colombia/i);
-  assert.match(html, /\/categorias\/real-madrid/i);
+  assert.match(html, /href="\/catalogo\.html"/i);
+  assert.match(html, /\/categorias\/mundial-2026/i);
+  assert.match(html, /\/categorias\/temporada-25-26/i);
   assert.match(html, /\/categorias\/retro/i);
 });
 
