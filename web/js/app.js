@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadProducts().then((products) => {
         allProducts = products;
-        renderNavigation(allProducts);
+        renderNavigation();
         renderProducts(allProducts);
     });
 
@@ -411,19 +411,9 @@ function makeCategoryId(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+$/, '');
 }
 
-function renderNavigation(products) {
-    const cats = [...new Set(products.map(p => p.categoria || 'Sin Categoría'))];
+function renderNavigation() {
     const desktopNav = document.getElementById('desktopCatNav');
     const mobileNav = document.getElementById('mobileCatNav');
-
-    const catMap = {
-        'Colección 2026': '/categorias/mundial-2026.html',
-        'Temporada 25/26': '/categorias/temporada-25-26.html',
-        'Leyendas Clásicas': '/categorias/retro.html',
-        "Women's Collection": '/categorias/mujer.html'
-    };
-
-    const getLink = (c) => catMap[c] || `/#${makeCategoryId(c)}`;
     
     if(desktopNav) {
         const megaHtml = `
@@ -467,38 +457,73 @@ function renderNavigation(products) {
         desktopNav.innerHTML = megaHtml;
     }
 
-    const icons = [
-        '<i class="ph-bold ph-soccer-ball"></i>', 
-        '<i class="ph-bold ph-globe-hemisphere-west"></i>', 
-        '<i class="ph-bold ph-trophy"></i>', 
-        '<i class="ph-bold ph-star"></i>', 
-        '<i class="ph-bold ph-fire"></i>', 
-        '<i class="ph-bold ph-diamonds-four"></i>', 
-        '<i class="ph-bold ph-rocket-launch"></i>'
-    ];
-    
     if(mobileNav) {
-        const closeDrawer = `document.getElementById('categoryDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open');`;
-        let mobileHtml = `
-            <a href="/" class="category-drawer-link" onclick="${closeDrawer}">
+        const closeFn = () => {
+            document.getElementById('categoryDrawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('open');
+        };
+
+        const mobileHtml = `
+            <a href="/" class="category-drawer-link">
                 <span class="drawer-link-icon"><i class="ph-bold ph-house"></i></span>
                 <span>Inicio</span>
             </a>
-            <a href="/catalogo.html" class="category-drawer-link" onclick="${closeDrawer}">
+            <a href="/catalogo.html" class="category-drawer-link">
                 <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-fill ph-t-shirt"></i></span>
                 <span style="color:var(--gold);">Explorar Cat&aacute;logo</span>
             </a>
-        `;
 
-        mobileHtml += cats.map((c, i) => `
-            <a href="${getLink(c)}" class="category-drawer-link" onclick="${closeDrawer}">
-                <span class="drawer-link-icon">${icons[i % icons.length]}</span>
-                <span>${displayCategory(c)}</span>
-            </a>
-        `).join('');
+            <!-- Acordeon: Selecciones -->
+            <div class="drawer-accordion">
+                <button class="drawer-accordion-trigger" data-target="acc-selecciones">
+                    <span class="drawer-link-icon"><i class="ph-bold ph-flag"></i></span>
+                    <span>Selecciones</span>
+                    <i class="ph-bold ph-caret-down drawer-accordion-caret"></i>
+                </button>
+                <div class="drawer-accordion-body" id="acc-selecciones">
+                    <a href="/categorias/colombia" class="drawer-sub-link"><i class="ph-fill ph-flag"></i> Colombia</a>
+                    <a href="/categorias/argentina" class="drawer-sub-link"><i class="ph-fill ph-flag"></i> Argentina</a>
+                    <a href="/categorias/brasil" class="drawer-sub-link"><i class="ph-fill ph-flag"></i> Brasil</a>
+                    <a href="/categorias/alemania" class="drawer-sub-link"><i class="ph-fill ph-flag"></i> Alemania</a>
+                    <a href="/categorias/portugal" class="drawer-sub-link"><i class="ph-fill ph-flag"></i> Portugal</a>
+                    <a href="/categorias/mundial-2026" class="drawer-sub-link"><i class="ph-fill ph-globe-hemisphere-west"></i> Mundial 2026</a>
+                </div>
+            </div>
 
-        mobileHtml += `
-            <a href="/nosotros" class="category-drawer-link" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+            <!-- Acordeon: Clubes -->
+            <div class="drawer-accordion">
+                <button class="drawer-accordion-trigger" data-target="acc-clubes">
+                    <span class="drawer-link-icon"><i class="ph-bold ph-soccer-ball"></i></span>
+                    <span>Clubes</span>
+                    <i class="ph-bold ph-caret-down drawer-accordion-caret"></i>
+                </button>
+                <div class="drawer-accordion-body" id="acc-clubes">
+                    <a href="/categorias/real-madrid" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Real Madrid</a>
+                    <a href="/categorias/barcelona" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Barcelona</a>
+                    <a href="/categorias/arsenal" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Arsenal</a>
+                    <a href="/categorias/liverpool" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Liverpool</a>
+                    <a href="/categorias/manchester-united" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Manchester Utd</a>
+                    <a href="/categorias/manchester-city" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Manchester City</a>
+                    <a href="/categorias/bayern-munich" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> Bayern M&uuml;nich</a>
+                    <a href="/categorias/psg" class="drawer-sub-link"><i class="ph-fill ph-soccer-ball"></i> PSG</a>
+                </div>
+            </div>
+
+            <!-- Acordeon: Colecciones -->
+            <div class="drawer-accordion">
+                <button class="drawer-accordion-trigger" data-target="acc-colecciones">
+                    <span class="drawer-link-icon"><i class="ph-bold ph-star"></i></span>
+                    <span>Colecciones</span>
+                    <i class="ph-bold ph-caret-down drawer-accordion-caret"></i>
+                </button>
+                <div class="drawer-accordion-body" id="acc-colecciones">
+                    <a href="/categorias/temporada-25-26" class="drawer-sub-link"><i class="ph-fill ph-star"></i> Temporada 25/26</a>
+                    <a href="/categorias/retro" class="drawer-sub-link"><i class="ph-fill ph-clock-counter-clockwise"></i> Leyendas Retro</a>
+                    <a href="/categorias/mujer" class="drawer-sub-link"><i class="ph-fill ph-heart"></i> Women's Collection</a>
+                </div>
+            </div>
+
+            <a href="/nosotros" class="category-drawer-link" style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.05); padding-top:18px;">
                 <span class="drawer-link-icon"><i class="ph-bold ph-info"></i></span>
                 <span>Sobre Nosotros</span>
             </a>
@@ -508,10 +533,26 @@ function renderNavigation(products) {
             </a>
         `;
         mobileNav.innerHTML = mobileHtml;
-        
-        // Add listeners to all these new dynamically created links
-        mobileNav.querySelectorAll('.category-drawer-link').forEach(link => {
-            link.addEventListener('click', () => closeDrawer());
+
+        // Close drawer on regular link click
+        mobileNav.querySelectorAll('.category-drawer-link, .drawer-sub-link').forEach(link => {
+            link.addEventListener('click', closeFn);
+        });
+
+        // Accordion toggle
+        mobileNav.querySelectorAll('.drawer-accordion-trigger').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const body = document.getElementById(btn.dataset.target);
+                const isOpen = body.classList.contains('open');
+                // Close all first
+                mobileNav.querySelectorAll('.drawer-accordion-body').forEach(b => b.classList.remove('open'));
+                mobileNav.querySelectorAll('.drawer-accordion-trigger').forEach(b => b.classList.remove('open'));
+                // Toggle clicked
+                if (!isOpen) {
+                    body.classList.add('open');
+                    btn.classList.add('open');
+                }
+            });
         });
     }
 }

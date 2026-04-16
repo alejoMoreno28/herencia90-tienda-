@@ -1539,6 +1539,58 @@ body.grid-single .product-grid-inner {
     font-size: 0.78rem;
     text-align: center;
 }
+
+/* Acordeon mobile drawer */
+.drawer-accordion {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.drawer-accordion-trigger {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    text-align: left;
+}
+.drawer-accordion-trigger:hover { color: var(--gold); background: rgba(217,195,145,0.05); }
+.drawer-accordion-trigger.open { color: var(--gold); }
+.drawer-accordion-caret {
+    margin-left: auto;
+    font-size: 0.9rem;
+    transition: transform 0.25s ease;
+}
+.drawer-accordion-trigger.open .drawer-accordion-caret { transform: rotate(180deg); }
+.drawer-accordion-body {
+    display: none;
+    flex-direction: column;
+    background: rgba(0,0,0,0.25);
+    padding: 6px 0 10px;
+}
+.drawer-accordion-body.open { display: flex; }
+.drawer-sub-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 24px 12px 52px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+.drawer-sub-link:hover { color: var(--gold); padding-left: 60px; }
 .drawer-overlay {
     position: fixed;
     inset: 0;
