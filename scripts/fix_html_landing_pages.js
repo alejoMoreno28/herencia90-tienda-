@@ -1,4 +1,23 @@
-<!DOCTYPE html>
+const fs = require('fs');
+
+const teams = ['real-madrid', 'barcelona', 'colombia'];
+
+teams.forEach(team => {
+  let title = '';
+  let description = '';
+  
+  if(team === 'real-madrid') {
+    title = 'Real Madrid | Herencia 90';
+    description = 'Camisetas del Real Madrid. Locales, visitantes, retro y de temporada con envío a toda Colombia en Herencia 90.';
+  } else if(team === 'barcelona') {
+    title = 'Barcelona | Herencia 90';
+    description = 'Camisetas del Barcelona local y visitante. Envío a toda Colombia en Herencia 90.';
+  } else if(team === 'colombia') {
+    title = 'Colombia | Herencia 90';
+    description = 'Camisetas de la Selección Colombia para el Mundial 2026. Envío a toda Colombia en Herencia 90.';
+  }
+
+  const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -11,19 +30,19 @@
       gtag('config', 'G-576MFSV66N');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcelona | Herencia 90</title>
-    <meta name="description" content="Camisetas del Barcelona local y visitante. Envío a toda Colombia en Herencia 90.">
-    <link rel="canonical" href="https://www.herencia90.shop/categorias/barcelona">
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <link rel="canonical" href="https://www.herencia90.shop/categorias/${team}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Herencia 90">
-    <meta property="og:title" content="Barcelona | Herencia 90">
-    <meta property="og:description" content="Camisetas del Barcelona local y visitante. Envío a toda Colombia en Herencia 90.">
-    <meta property="og:url" content="https://www.herencia90.shop/categorias/barcelona">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:url" content="https://www.herencia90.shop/categorias/${team}">
     <meta property="og:image" content="https://www.herencia90.shop/img/logo.webp">
     <meta property="og:image:alt" content="Logo de Herencia 90">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Barcelona | Herencia 90">
-    <meta name="twitter:description" content="Camisetas del Barcelona local y visitante. Envío a toda Colombia en Herencia 90.">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,7 +100,7 @@
     }
     </script>
 </head>
-<body data-category="barcelona">
+<body data-category="${team}">
     <!-- Scroll Progress Bar (CSS Scroll-Driven Animation) -->
     <div class="scroll-progress" aria-hidden="true"></div>
 
@@ -279,4 +298,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="/js/app.js"></script>
 </body>
-</html>
+</html>`;
+
+  fs.writeFileSync('c:/Users/PC/Desktop/HERENCIA90/web/categorias/' + team + '.html', html, 'utf8');
+});
+console.log("Done");

@@ -211,7 +211,7 @@
         "categoria": "Colección 2026",
         "equipo": "Camiseta Colombia Mundial 2026",
         "descripcion": "La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.",
-        "precio": 99000,
+        "precio": 79000,
         "costo_usd": 10.44,
         "tallas": {
             "L": 3,
@@ -398,7 +398,7 @@
         "categoria": "Temporada 25/26",
         "equipo": "Camiseta local PSG 25/26",
         "descripcion": "La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital francesa. Elegancia parisina en cada detalle. Versión Fan del club más glamuroso de la Ligue 1.",
-        "precio": 99000,
+        "precio": 79000,
         "costo_usd": 10.44,
         "tallas": {
             "L": 1,
@@ -467,7 +467,7 @@
         "categoria": "Women's Collection",
         "equipo": "Camiseta Colombia Mujer Mundial 2026",
         "descripcion": "Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.",
-        "precio": 99000,
+        "precio": 79000,
         "costo_usd": 10.44,
         "tallas": {
             "L": 0,
