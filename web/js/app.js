@@ -759,10 +759,10 @@ function openModal(productIndex) {
 
 // Inject Global Floating WhatsApp Button
 document.addEventListener('DOMContentLoaded', () => {
-    const floatingWspHtml = 
+    const floatingWspHtml = `
     <a href="https://wa.me/573126428153" target="_blank" rel="noopener noreferrer" class="floating-wsp" aria-label="Escríbenos por WhatsApp">
         <i class="ph-fill ph-whatsapp-logo"></i>
     </a>
-    ;
+    `;
     document.body.insertAdjacentHTML('beforeend', floatingWspHtml);
 });
