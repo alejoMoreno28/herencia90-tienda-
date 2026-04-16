@@ -2112,8 +2112,12 @@ body.grid-single .product-grid-inner {
     font-size: 0.76rem;
     line-height: 1.4;
 }
-@media (max-width: 400px) {
-    /* trust-shell mobile handled by main mobile block */
+@media (max-width: 768px) {
+    .trust-strip { padding: 0 12px; margin-top: -24px; }
+    .trust-shell { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+    .trust-item { padding: 14px 10px; display: flex; align-items: center; justify-content: center; min-height: 54px; }
+    .trust-item strong { font-size: 0.85rem; margin-bottom: 0; text-align: center; line-height: 1.2; }
+    .trust-item span { display: none !important; }
 }
 
 /* ── Category Title — Scoreboard Style ───────────────────── */
