@@ -531,6 +531,9 @@ function renderProducts(products) {
             if (pageCat === 'temporada-25-26' && cat.includes('25/26')) return true;
             if (pageCat === 'retro' && cat.includes('leyendas')) return true;
             if (pageCat === 'mujer' && cat.includes('women')) return true;
+            if (pageCat === 'colombia' && eq.includes('colombia')) return true;
+            if (pageCat === 'real-madrid' && eq.includes('real madrid')) return true;
+            if (pageCat === 'barcelona' && eq.includes('barcelona')) return true;
             if (pageCat === 'arsenal' && eq.includes('arsenal')) return true;
             if (pageCat === 'liverpool' && eq.includes('liverpool')) return true;
             if (pageCat === 'manchester-united' && eq.includes('manchester united')) return true;
