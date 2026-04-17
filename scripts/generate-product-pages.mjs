@@ -377,6 +377,8 @@ function renderCollectionPage(collection) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="/img/logo.webp" type="image/webp">
+  <meta name="theme-color" content="#050505">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(collection.title)}</title>
   <meta name="description" content="${escapeHtml(collection.shortDescription)}">
@@ -1015,6 +1017,8 @@ function renderProductPage(product) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="/img/logo.webp" type="image/webp">
+  <meta name="theme-color" content="#050505">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(product.equipo)} | Herencia 90 Colombia</title>
   <meta name="description" content="${escapeHtml(description)}">
