@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +9,21 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-576MFSV66N');
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Pre-Venta Herencia 90",
+      "provider": {
+        "@type": "Organization",
+        "name": "Herencia 90",
+        "url": "https://www.herencia90.shop/"
+      },
+      "url": "https://www.herencia90.shop/preventa",
+      "areaServed": "CO",
+      "serviceType": "Pre-venta de camisetas importadas de futbol"
+    }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pre-Venta de Camisetas Importadas | Herencia 90</title>
@@ -26,265 +41,18 @@
     <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
+    </noscript>
     <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        /* â”€â”€ P&aacute;gina pre-venta â”€â”€ */
-        .pv-page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .pv-topbar {
-            background: rgba(5,5,5,0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .pv-back {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.82rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: color 0.2s;
-        }
-        .pv-back:hover { color: var(--gold); }
-        .pv-topbar-logo {
-            height: 42px;
-            object-fit: contain;
-        }
-        .pv-topbar-right {
-            width: 80px; /* balance visual */
-        }
-
-        /* Hero banner */
-        .pv-hero {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1710 50%, #0a0a08 100%);
-            padding: 60px 20px 50px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .pv-hero::before {
-            content: '';
-            position: absolute;
-            top: -60px; left: 50%;
-            transform: translateX(-50%);
-            width: 600px; height: 300px;
-            background: radial-gradient(ellipse, rgba(217,195,145,0.08) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .pv-badge {
-            display: inline-block;
-            background: var(--gold);
-            color: #111;
-            font-size: 0.68rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            padding: 5px 18px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            margin-bottom: 18px;
-        }
-        .pv-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: clamp(2.4rem, 7vw, 4rem);
-            text-transform: uppercase;
-            color: #fff;
-            line-height: 1.05;
-            margin-bottom: 10px;
-        }
-        .pv-title span { color: var(--gold); font-style: italic; }
-        .pv-subtitle {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            max-width: 520px;
-            margin: 0 auto 16px;
-            line-height: 1.75;
-        }
-        .pv-subtitle strong { color: #fff; }
-        .pv-personaliz-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(217,195,145,0.1);
-            border: 1px solid rgba(217,195,145,0.3);
-            color: var(--gold);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-bottom: 36px;
-        }
-
-        /* Info cards */
-        .pv-cards {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        .pv-card {
-            background: rgba(217,195,145,0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 16px 18px;
-            text-align: center;
-            flex: 1;
-            min-width: 100px;
-            max-width: 145px;
-        }
-        .pv-card-icon { font-size: 1.4rem; display: block; margin-bottom: 6px; }
-        .pv-card-label {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 3px;
-        }
-        .pv-card-val {
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--gold);
-            font-family: 'Oswald', sans-serif;
-        }
-
-        /* Wizard */
-        .pv-wizard-wrap {
-            flex: 1;
-            padding: 40px 20px 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .pv-wizard {
-            width: 100%;
-            max-width: 580px;
-            background: rgba(12,12,12,0.95);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .pv-progress {
-            display: flex;
-            align-items: flex-start;
-            padding: 20px 24px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .pv-body { padding: 26px; }
-        .pv-nav {
-            padding: 0 24px 22px;
-            display: flex;
-            gap: 10px;
-        }
-        .pv-step-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            color: #fff;
-            margin-bottom: 3px;
-        }
-        .pv-step-sub {
-            font-size: 0.79rem;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-        .pv-label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-        .pv-input, .pv-textarea {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 11px 14px;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.88rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .pv-input::placeholder, .pv-textarea::placeholder { color: rgba(255,255,255,0.2); }
-        .pv-input:focus, .pv-textarea:focus { border-color: var(--gold); }
-        .pv-textarea { resize: vertical; min-height: 68px; }
-        .pv-group { margin-bottom: 14px; }
-        .btn-pv-back {
-            background: transparent;
-            border: 1.5px solid rgba(255,255,255,0.15);
-            color: var(--text-secondary);
-            padding: 11px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.84rem;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-pv-back:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-        .btn-pv-next {
-            flex: 1;
-            background: var(--gold);
-            border: none;
-            color: #111;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-        .btn-pv-next:hover { background: var(--gold-hover); transform: translateY(-1px); }
-
-        /* Mobile */
-        @media (max-width: 767px) {
-            .pv-hero { padding: 40px 16px 36px; }
-            .pv-body { padding: 20px 16px; }
-            .pv-nav { padding: 0 16px 18px; }
-            .pv-progress { padding: 16px 16px 12px; }
-            body { padding-bottom: 0; }
-        }
-    </style>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "name": "Pre-Venta Herencia 90",
-      "provider": {
-        "@type": "Organization",
-        "name": "Herencia 90",
-        "url": "https://www.herencia90.shop/"
-      },
-      "url": "https://www.herencia90.shop/preventa",
-      "areaServed": "CO",
-      "serviceType": "Pre-venta de camisetas importadas de futbol"
-    }
-    </script>
+    <link rel="stylesheet" href="/css/preventa.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+    
 </head>
 <body style="background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%);background-attachment:fixed;">
 
@@ -294,7 +62,7 @@
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Cat&aacute;logo
         </a>
-        <img src="/img/logo.webp" alt="Herencia 90" class="pv-topbar-logo">
+        <img src="/img/logo.webp" alt="Herencia 90" class="pv-topbar-logo" width="120" height="42" fetchpriority="high">
         <div class="pv-topbar-right"></div>
     </div>
 
@@ -330,8 +98,67 @@
         </div>
     </div>
 
+    <!-- Galería de referencias famosas -->
+    <section class="pv-galeria" id="pv-galeria">
+        <div class="pv-galeria-inner">
+            <div class="pv-galeria-header">
+                <div class="pv-galeria-eyebrow">Cat&aacute;logo pre-venta</div>
+                <h2 class="pv-galeria-title">Referencias famosas<br><span>listas para pedir</span></h2>
+                <p class="pv-galeria-sub">Haz clic en cualquier camiseta &mdash; te armamos la cotizaci&oacute;n al instante.</p>
+            </div>
+
+            <!-- Buscador -->
+            <div class="pv-search-wrap">
+                <div class="pv-search-container">
+                    <i class="ph-bold ph-magnifying-glass pv-search-icon"></i>
+                    <input type="text" class="pv-search" id="pv-search" placeholder="Buscar camiseta… Ej: Colombia, Real Madrid, Brasil">
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="pv-filtros" id="pv-filtros">
+                <button class="pv-filtro-btn active" data-filtro-type="all" data-filtro-val="" onclick="pvFiltrar(this,'all','')">Todo</button>
+                <button class="pv-filtro-btn" data-filtro-type="categoria" data-filtro-val="selecciones" onclick="pvFiltrar(this,'categoria','selecciones')">Selecciones</button>
+                <button class="pv-filtro-btn" data-filtro-type="categoria" data-filtro-val="clubes" onclick="pvFiltrar(this,'categoria','clubes')">Clubes</button>
+                <button class="pv-filtro-btn" data-filtro-type="decada" data-filtro-val="90s" onclick="pvFiltrar(this,'decada','90s')">90s</button>
+                <button class="pv-filtro-btn" data-filtro-type="decada" data-filtro-val="80s" onclick="pvFiltrar(this,'decada','80s')">80s</button>
+                <button class="pv-filtro-btn" data-filtro-type="decada" data-filtro-val="2000s" onclick="pvFiltrar(this,'decada','2000s')">2000s</button>
+                <button class="pv-filtro-btn" data-filtro-type="tipo" data-filtro-val="retro" onclick="pvFiltrar(this,'tipo','retro')">Retro</button>
+                <button class="pv-filtro-btn" data-filtro-type="destacado" data-filtro-val="true" onclick="pvFiltrar(this,'destacado','true')">&#9733; Destacadas</button>
+            </div>
+
+            <div class="pv-gallery-shell">
+                <div class="pv-intro-copy" id="pv-intro-copy">
+                    <div class="pv-intro-chip"><i class="ph-bold ph-fire"></i> Primero lo que más provoca abrir</div>
+                    <p>
+                        La galería arranca con las referencias más icónicas y luego baja a bloques más fáciles de explorar
+                        para que se sienta rápida y más vendedora desde el primer vistazo.
+                    </p>
+                </div>
+
+                <div class="pv-grid-stage" id="pv-grid-stage">
+                    <div class="pv-grid-loading">
+                        <div class="pv-skeleton"><div class="pv-skeleton-img"></div><div class="pv-skeleton-info"><div class="pv-skeleton-line"></div><div class="pv-skeleton-line short"></div><div class="pv-skeleton-line price"></div></div></div>
+                        <div class="pv-skeleton"><div class="pv-skeleton-img"></div><div class="pv-skeleton-info"><div class="pv-skeleton-line"></div><div class="pv-skeleton-line short"></div><div class="pv-skeleton-line price"></div></div></div>
+                        <div class="pv-skeleton"><div class="pv-skeleton-img"></div><div class="pv-skeleton-info"><div class="pv-skeleton-line"></div><div class="pv-skeleton-line short"></div><div class="pv-skeleton-line price"></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="pv-empty" style="display:none; text-align:center; padding:40px 20px;">
+                <p style="color:var(--text-secondary); font-size:0.9rem;">No hay referencias con esos filtros. <button onclick="pvReset()" style="color:var(--gold);background:none;border:none;cursor:pointer;font-weight:700;text-decoration:underline;">Ver todas</button></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider y ancla para el wizard -->
+    <div style="text-align:center; padding:10px 20px 0; color:var(--text-secondary); font-size:0.78rem; text-transform:uppercase; letter-spacing:2px;">
+        &mdash;&nbsp; O cu&eacute;ntanos t&uacute; qu&eacute; buscas &nbsp;&mdash;
+    </div>
+
     <!-- Wizard -->
-    <div class="pv-wizard-wrap">
+    <div class="pv-wizard-wrap" id="pv-wizard-anchor">
         <div class="pv-wizard">
             <div class="pv-progress" id="pp-progress"></div>
             <div class="pv-body" id="pp-body">
@@ -357,6 +184,8 @@
                         <label class="pv-label">Temporada <span style="font-weight:400;text-transform:none;font-size:0.68rem;">(opcional)</span></label>
                         <input type="text" id="pp-temporada" class="pv-input" placeholder="Ej: 2025/26, Retro 90s, La m&aacute;s recienteâ€¦">
                     </div>
+                    <!-- Campo oculto — referencia interna para trazabilidad WA -->
+                    <input type="hidden" id="pp-ref-interna" value="">
                 </div>
 
                 <!-- PASO 2: Talla y Extras -->
@@ -449,7 +278,8 @@
                         ðŸ“² Te respondemos con el <strong>precio total cotizado</strong> (camiseta + todos los extras).<br>
                         ðŸ’³ Anticipo del <strong>20%</strong> para confirmar. â±ï¸ Entrega: <strong>~15 d&iacute;as h&aacute;biles</strong>.
                     </div>
-                    <a id="pp-wa-btn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--whatsapp-green);color:#fff;padding:14px 24px;border-radius:10px;font-size:1rem;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 20px rgba(37,211,102,0.2);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(37,211,102,0.35)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.2)'">
+    <!-- WhatsApp de preventa: 3126428153 -->
+    <a id="pp-wa-btn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--whatsapp-green);color:#fff;padding:14px 24px;border-radius:10px;font-size:1rem;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 20px rgba(37,211,102,0.2);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(37,211,102,0.35)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.2)'">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
                         Cotizar por WhatsApp
                     </a>
@@ -462,213 +292,125 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal -->
+    <div class="pv-lightbox" id="pv-lightbox">
+        <div class="pv-lb-counter" id="pv-lb-counter">1 / 1</div>
+        <button class="pv-lb-close" id="pv-lb-close" aria-label="Cerrar">&times;</button>
+        <div class="pv-lb-content">
+            <div class="pv-lb-carousel" id="pv-lb-carousel">
+                <button class="pv-lb-arrow left" id="pv-lb-prev" aria-label="Anterior">&#8249;</button>
+                <img class="pv-lb-img" id="pv-lb-img" src="" alt="">
+                <button class="pv-lb-arrow right" id="pv-lb-next" aria-label="Siguiente">&#8250;</button>
+            </div>
+            <div class="pv-lb-thumbs" id="pv-lb-thumbs"></div>
+            <div class="pv-lb-info">
+                <div class="pv-lb-details">
+                    <div class="pv-lb-equipo" id="pv-lb-equipo"></div>
+                    <div class="pv-lb-meta" id="pv-lb-meta"></div>
+                </div>
+                <div class="pv-lb-precio" id="pv-lb-precio"></div>
+                <button class="pv-lb-cta" id="pv-lb-cta">
+                    <i class="ph-bold ph-shopping-bag"></i> Pedir por Pre-Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Drawer (movil) -->
+    <div class="category-drawer" id="categoryDrawer">
+        <div class="category-drawer-header">
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <button class="category-drawer-close" id="categoryDrawerClose" aria-label="Cerrar menu">&times;</button>
+        </div>
+        <nav class="category-drawer-nav" id="mobileCatNav">
+            <a href="/" class="category-drawer-link">
+                <span class="drawer-link-icon"><i class="ph-bold ph-house"></i></span>
+                <span>Inicio</span>
+            </a>
+            <a href="/catalogo" class="category-drawer-link">
+                <span class="drawer-link-icon"><i class="ph-bold ph-squares-four"></i></span>
+                <span>Catalogo general</span>
+            </a>
+            <a href="#pv-galeria" class="category-drawer-link">
+                <span class="drawer-link-icon"><i class="ph-bold ph-fire-simple"></i></span>
+                <span>Referencias top</span>
+            </a>
+            <a href="#pv-wizard-anchor" class="category-drawer-link">
+                <span class="drawer-link-icon"><i class="ph-bold ph-clipboard-text"></i></span>
+                <span>Cotizar ahora</span>
+            </a>
+            <a href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20quiero%20cotizar%20una%20camiseta%20por%20preventa." class="category-drawer-link" target="_blank" rel="noopener">
+                <span class="drawer-link-icon"><i class="ph-bold ph-whatsapp-logo"></i></span>
+                <span>WhatsApp directo</span>
+            </a>
+            <a href="https://www.instagram.com/herencia90_/" class="category-drawer-link" target="_blank" rel="noopener">
+                <span class="drawer-link-icon"><i class="ph-bold ph-instagram-logo"></i></span>
+                <span>Instagram</span>
+            </a>
+        </nav>
+        <div class="category-drawer-footer">
+            <p>Pre-Venta Herencia 90</p>
+        </div>
+    </div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- Search Overlay (movil) -->
+    <div class="search-overlay" id="searchOverlay">
+        <button class="search-back-btn" id="searchOverlayClose" aria-label="Cerrar busqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+        </button>
+        <input type="search" id="mobileSearchInput" class="search-overlay-input" placeholder="Buscar camiseta en preventa...">
+    </div>
+
+    <!-- Bottom Nav Movil -->
+    <nav class="mobile-bottom-nav" aria-label="Navegacion movil preventa">
+        <button class="mobile-nav-btn" id="mobileSearchBtn" aria-label="Buscar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span>Buscar</span>
+        </button>
+        <button class="mobile-nav-btn" id="gridToggleBtn" aria-label="Cambiar vista">
+            <svg id="gridToggleIconCompact" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+            <svg id="gridToggleIconSingle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                <rect x="3" y="4" width="18" height="4" rx="1"></rect>
+                <rect x="3" y="10" width="18" height="4" rx="1"></rect>
+                <rect x="3" y="16" width="18" height="4" rx="1"></rect>
+            </svg>
+            <span id="gridToggleLabel">Vista</span>
+        </button>
+        <button class="mobile-nav-btn" id="mobileMenuBtn" aria-label="Menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <span>Menu</span>
+        </button>
+        <button class="mobile-nav-btn is-current" id="mobilePreventaBtn" aria-label="Pre-Venta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10l-1.5 7H8.5L7 7z"></path><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="18" r="1"></circle><path d="M5 7H3"></path></svg>
+            <span>Pre-Venta</span>
+        </button>
+        <button class="mobile-nav-btn" id="mobileQuoteBtn" aria-label="Cotizar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"></path><path d="M9 16h6"></path><path d="M9 8h6"></path><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"></path><path d="M14 3v5h5"></path></svg>
+            <span>Cotizar</span>
+        </button>
+    </nav>
+
     <footer class="footer" style="margin-top:0;">
         <p>&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
     </footer>
 
-    <script>
-    (function () {
-        var ppStep = 1;
-        var PP_TOTAL = 4;
-        var PP_LABELS = ['Camiseta', 'Talla', 'Mis Datos', 'Confirmar'];
+    
 
-        function ppRenderProgress() {
-            var el = document.getElementById('pp-progress');
-            if (!el) return;
-            var html = '';
-            for (var i = 1; i <= PP_TOTAL; i++) {
-                var done = i < ppStep, active = i === ppStep;
-                var connColor = i < ppStep ? 'var(--gold-dark)' : 'rgba(255,255,255,0.1)';
-                var numBg = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(255,255,255,0.04)';
-                var numBorder = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(255,255,255,0.15)';
-                var numColor = done ? '#fff' : active ? '#111' : 'var(--text-secondary)';
-                var labelColor = active ? 'var(--gold)' : 'var(--text-secondary)';
-                var labelWeight = active ? '700' : '400';
-                var glow = active ? 'box-shadow:0 0 0 4px rgba(217,195,145,0.15);' : '';
-                var connector = i < PP_TOTAL
-                    ? '<div style="position:absolute;top:13px;left:calc(50% + 15px);right:calc(-50% + 15px);height:1px;background:' + connColor + ';z-index:0;"></div>'
-                    : '';
-                html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;">' +
-                    connector +
-                    '<div style="width:28px;height:28px;border-radius:50%;border:2px solid ' + numBorder + ';background:' + numBg + ';display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:' + numColor + ';position:relative;z-index:1;' + glow + '">' + (done ? 'âœ“' : i) + '</div>' +
-                    '<div style="font-size:0.58rem;color:' + labelColor + ';font-weight:' + labelWeight + ';text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + PP_LABELS[i - 1] + '</div>' +
-                    '</div>';
-            }
-            el.innerHTML = html;
-        }
-
-        function ppShowSlide(n) {
-            for (var i = 1; i <= PP_TOTAL; i++) {
-                var s = document.getElementById('pp-slide-' + i);
-                if (s) s.style.display = i === n ? 'block' : 'none';
-            }
-            var backBtn = document.getElementById('pp-back-btn');
-            var nextBtn = document.getElementById('pp-next-btn');
-            if (backBtn) backBtn.style.display = n > 1 ? 'inline-block' : 'none';
-            if (nextBtn) nextBtn.style.display = n < PP_TOTAL ? 'block' : 'none';
-            ppRenderProgress();
-        }
-
-        function ppValidate() {
-            if (ppStep === 1) {
-                var eq = document.getElementById('pp-equipo');
-                if (!eq.value.trim()) {
-                    eq.style.borderColor = '#ff5252'; eq.focus();
-                    setTimeout(function () { eq.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1800);
-                    return false;
-                }
-            }
-            if (ppStep === 2) {
-                if (!document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected')) {
-                    var gbns = document.querySelectorAll('#pp-genero-btns .pp-talla-btn');
-                    gbns.forEach(function(b){ b.style.borderColor='#ff5252'; });
-                    setTimeout(function(){ gbns.forEach(function(b){ b.style.borderColor=''; }); }, 1800);
-                    return false;
-                }
-                if (!document.querySelector('#pp-talla-btns .pp-talla-btn.pp-selected')) {
-                    var tbns = document.querySelectorAll('#pp-talla-btns .pp-talla-btn');
-                    tbns.forEach(function(b){ b.style.borderColor='#ff5252'; });
-                    setTimeout(function(){ tbns.forEach(function(b){ b.style.borderColor=''; }); }, 1800);
-                    return false;
-                }
-            }
-            if (ppStep === 3) {
-                var ids = ['pp-nombre', 'pp-celular', 'pp-ciudad'];
-                for (var f = 0; f < ids.length; f++) {
-                    var el = document.getElementById(ids[f]);
-                    if (!el.value.trim()) {
-                        el.style.borderColor = '#ff5252'; el.focus();
-                        (function(e){ setTimeout(function(){ e.style.borderColor='rgba(255,255,255,0.1)'; }, 1800); })(el);
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        function ppBuildSummary() {
-            var equipo    = document.getElementById('pp-equipo').value.trim();
-            var temporada = document.getElementById('pp-temporada').value.trim();
-            var tipoBtn   = document.querySelector('#pp-slide-1 .pp-tipo-btn.pp-selected');
-            var tipo      = tipoBtn ? tipoBtn.dataset.val : 'No especificado';
-            var tallaBtn  = document.querySelector('.pp-talla-btn.pp-selected');
-            var talla     = tallaBtn ? tallaBtn.dataset.val : '';
-            var isCustom  = document.getElementById('pp-custom-si').classList.contains('pp-selected');
-            var cNombre   = document.getElementById('pp-custom-nombre').value.trim();
-            var cNum      = document.getElementById('pp-custom-num').value.trim();
-            var nombre    = document.getElementById('pp-nombre').value.trim();
-            var celular   = document.getElementById('pp-celular').value.trim();
-            var ciudad    = document.getElementById('pp-ciudad').value.trim();
-            var notas     = document.getElementById('pp-notas').value.trim();
-
-            // Parches seleccionados
-            var patchBtns = document.querySelectorAll('#pp-patches .pp-tipo-btn.pp-selected');
-            var patches = [];
-            patchBtns.forEach(function(b){ patches.push(b.dataset.val); });
-            var patchOtro = document.getElementById('pp-patch-otro').value.trim();
-            if (patchOtro) patches.push(patchOtro);
-
-            var personaliz = 'Sin nombre/n&uacute;mero';
-            if (isCustom) {
-                personaliz = 'Con nombre/n&uacute;mero';
-                if (cNombre) personaliz += ' â€” ' + cNombre.toUpperCase();
-                if (cNum)    personaliz += ' #' + cNum;
-            }
-            var patchesStr = patches.length ? patches.join(', ') : 'Sin parches';
-
-            var generoBtn2 = document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected');
-            var genero2    = generoBtn2 ? generoBtn2.dataset.val : 'No especificado';
-            var rows = [
-                ['Equipo / Selecci&oacute;n', equipo],
-                ['Tipo', tipo],
-                ['Temporada', temporada || 'La m&aacute;s reciente'],
-                ['G&eacute;nero', genero2],
-                ['Talla', talla],
-                ['divider', ''],
-                ['Nombre/n&uacute;mero', personaliz],
-                ['Parches', patchesStr],
-                ['divider', ''],
-                ['Tu nombre', nombre],
-                ['Celular', celular],
-                ['Ciudad', ciudad]
-            ];
-            if (notas) rows.push(['Notas', notas]);
-
-            var box = document.getElementById('pp-summary-box');
-            box.innerHTML = rows.map(function(r) {
-                if (r[0] === 'divider') return '<div style="border-bottom:1px solid rgba(255,255,255,0.07);margin:7px 0;"></div>';
-                return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px;">' +
-                    '<span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);min-width:110px;flex-shrink:0;">' + r[0] + '</span>' +
-                    '<span style="font-size:0.83rem;font-weight:600;color:#fff;text-align:right;">' + r[1] + '</span>' +
-                    '</div>';
-            }).join('');
-
-            // Extras para el mensaje WA
-            var extrasLines = [];
-            if (isCustom) extrasLines.push('  â€¢ Nombre/n&uacute;mero: ' + personaliz.replace('Con nombre/n&uacute;mero â€” ','').replace('Con nombre/n&uacute;mero','').trim() || personaliz);
-            if (patches.length) extrasLines.push('  â€¢ Parches: ' + patches.join(', '));
-            var extrasStr = extrasLines.length
-                ? '\n\nðŸ“‹ *Extras a cotizar (costo adicional):*\n' + extrasLines.join('\n')
-                : '\n\nðŸ“‹ *Extras:* Sin extras adicionales';
-
-            var notasStr = notas ? '\nðŸ“ *Notas:* ' + notas : '';
-            var generoBtn  = document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected');
-            var genero     = generoBtn ? generoBtn.dataset.val : '';
-            var msg = 'ðŸ·ï¸ *COTIZACI&Oacute;N PRE-VENTA â€” HERENCIA 90*\n\n' +
-                'ðŸ‘• *Camiseta:* ' + equipo + ' â€” ' + tipo + ' â€” ' + (temporada || 'La m&aacute;s reciente') + '\n' +
-                (genero ? 'ðŸ§ *G&eacute;nero:* ' + genero + '\n' : '') +
-                'ðŸ“ *Talla:* ' + talla +
-                extrasStr + '\n\n' +
-                'ðŸ‘¤ *Nombre:* ' + nombre + '\n' +
-                'ðŸ“± *Celular:* ' + celular + '\n' +
-                'ðŸ“ *Ciudad:* ' + ciudad + notasStr + '\n\n' +
-                'â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n' +
-                '&iquest;Me puedes cotizar el total con todo incluido?\n' +
-                'ðŸ’° Entiendo que el anticipo es del 20%.\n' +
-                'â±ï¸ Entrega ~15 d&iacute;as h&aacute;biles.';
-
-            document.getElementById('pp-wa-btn').href = 'https://wa.me/573126428153?text=' + encodeURIComponent(msg);
-        }
-
-        window.ppNext = function () {
-            if (!ppValidate()) return;
-            if (ppStep === PP_TOTAL - 1) ppBuildSummary();
-            ppStep = Math.min(ppStep + 1, PP_TOTAL);
-            ppShowSlide(ppStep);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-        window.ppBack = function () {
-            if (ppStep > 1) { ppStep--; ppShowSlide(ppStep); }
-        };
-        window.ppSelectTipo = function (btn) {
-            btn.closest('div').querySelectorAll('.pp-tipo-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
-            btn.classList.add('pp-selected');
-        };
-        window.ppTogglePatch = function (btn) {
-            btn.classList.toggle('pp-selected');
-        };
-        window.ppSelectTalla = function (btn) {
-            document.querySelectorAll('#pp-talla-btns .pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
-            btn.classList.add('pp-selected');
-        };
-        window.ppSelectGenero = function (btn) {
-            document.querySelectorAll('#pp-genero-btns .pp-talla-btn').forEach(function(b){ b.classList.remove('pp-selected'); });
-            btn.classList.add('pp-selected');
-        };
-        window.ppSelectCustom = function (val) {
-            ['no','si'].forEach(function(v){
-                document.getElementById('pp-custom-'+v).classList.toggle('pp-selected', v === val);
-            });
-            document.getElementById('pp-custom-fields').style.display = val === 'si' ? 'block' : 'none';
-        };
-
-        document.addEventListener('DOMContentLoaded', function () {
-            ppRenderProgress();
-            ppShowSlide(1);
-            ppSelectCustom('no');
-        });
-    })();
-    </script>
+    <!-- Galería pre-venta — Supabase + filtros + prefill -->
+    
+    <script src="/js/preventa.js" defer></script>
 </body>
 </html>
 
