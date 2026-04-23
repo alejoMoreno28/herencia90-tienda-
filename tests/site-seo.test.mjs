@@ -110,23 +110,26 @@ check('static category pages exist and are included in the sitemap', () => {
   assert.ok(fs.existsSync(samplePage), 'sample category page should exist');
 
   const sampleHtml = fs.readFileSync(samplePage, 'utf8');
-  assert.match(sampleHtml, /Colombia 2026/i);
+  assert.match(sampleHtml, /<title>Colombia \| Herencia 90<\/title>/i);
   assert.match(sampleHtml, /application\/ld\+json/i);
-  assert.match(sampleHtml, /\/camisetas\/camiseta-local-colombia-26/i);
+  assert.match(sampleHtml, /data-category="colombia"/i);
+  assert.match(sampleHtml, /<div class="product-grid" id="productGrid"><\/div>/i);
 
   const sitemap = fs.readFileSync(path.join(root, 'web', 'sitemap.xml'), 'utf8');
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/categorias\/colombia/i);
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/categorias\/real-madrid/i);
 });
 
-check('category pages preserve analytics and live collection refresh', () => {
+check('category pages preserve shared navigation and dynamic catalog rendering', () => {
   const samplePage = path.join(root, 'web', 'categorias', 'colombia.html');
   const sampleHtml = fs.readFileSync(samplePage, 'utf8');
 
-  assert.match(sampleHtml, /analytics_events/i);
-  assert.match(sampleHtml, /STATIC_COLLECTION/i);
-  assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.in\('id'/i);
-  assert.match(sampleHtml, /db\.channel\('seo-collection-live-/i);
+  assert.match(sampleHtml, /<nav class="category-nav">/i);
+  assert.match(sampleHtml, /id="desktopCatNav"/i);
+  assert.match(sampleHtml, /id="mobileCatNav"/i);
+  assert.match(sampleHtml, /<script src="\/js\/app\.js"><\/script>/i);
+  assert.doesNotMatch(sampleHtml, /STATIC_COLLECTION/i);
+  assert.doesNotMatch(sampleHtml, /seo-collection-live-/i);
 });
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');

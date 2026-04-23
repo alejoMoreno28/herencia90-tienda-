@@ -301,7 +301,7 @@ function renderGallery(product) {
   return `
     <div class="product-gallery">
       <div class="main-image-wrap">
-        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" width="600" height="600" fetchpriority="high">
+        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
       </div>
       <div class="thumb-grid">${thumbs}</div>
     </div>
@@ -314,14 +314,14 @@ function getOtherCollections(currentCollection) {
 
 function renderCollectionProductCards(collectionProducts) {
   return collectionProducts
-    .map((product, i) => {
+    .map((product) => {
       const availableSizes = getAvailableSizes(product);
       const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
       const productUrl = getProductAliasSlug(product) ? `/camisetas/${getProductAliasSlug(product)}` : `/camisetas/${slugify(product.equipo)}`;
       return `
         <article class="collection-product-card">
           <a class="collection-product-image" href="${productUrl}">
-            <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} width="400" height="400">
+            <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">${escapeHtml(product.categoria || 'Herencia 90')}</span>
@@ -377,8 +377,6 @@ function renderCollectionPage(collection) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/img/logo.webp" type="image/webp">
-  <meta name="theme-color" content="#050505">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(collection.title)}</title>
   <meta name="description" content="${escapeHtml(collection.shortDescription)}">
@@ -395,15 +393,9 @@ function renderCollectionPage(collection) {
   <meta name="twitter:image" content="${firstImage}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
@@ -735,7 +727,7 @@ function renderCollectionPage(collection) {
   <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
-    <img src="../img/logo.webp" alt="Herencia 90" width="120" height="42" fetchpriority="high">
+    <img src="../img/logo.webp" alt="Herencia 90">
     <a href="/preventa">Pre-venta</a>
   </header>
 
@@ -831,14 +823,13 @@ function renderCollectionPage(collection) {
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
-      const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
-      const STATIC_COLLECTION = ${serializeForScript(staticCollectionPayload)};
-      const { createClient } = window.supabase;
-      const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
+    const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
+    const STATIC_COLLECTION = ${serializeForScript(staticCollectionPayload)};
+    const { createClient } = window.supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      function slugifyText(value) {
+    function slugifyText(value) {
       return String(value || '')
         .normalize('NFD')
         .replace(/[\\u0300-\\u036f]/g, '')
@@ -949,21 +940,18 @@ function renderCollectionPage(collection) {
 
     trackCollectionPage();
     refreshCollectionFromSupabase();
-    db.channel('seo-collection-live-' + STATIC_COLLECTION.slug)
+    db.channel('seo-collection-live-${collection.slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
         if (payload && payload.new && STATIC_COLLECTION.productIds.includes(payload.new.id)) {
           refreshCollectionFromSupabase();
         }
       })
       .subscribe();
-    });
   </script>
-  <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script defer src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-  <script defer>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
-    });
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
   </script>
 </body>
 </html>`;
@@ -1017,8 +1005,6 @@ function renderProductPage(product) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/img/logo.webp" type="image/webp">
-  <meta name="theme-color" content="#050505">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(product.equipo)} | Herencia 90 Colombia</title>
   <meta name="description" content="${escapeHtml(description)}">
@@ -1036,15 +1022,9 @@ function renderProductPage(product) {
   <meta name="twitter:image" content="${imageUrls[0]}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
@@ -1359,7 +1339,7 @@ function renderProductPage(product) {
   <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
-    <img src="../img/logo.webp" alt="Herencia 90" width="120" height="42" fetchpriority="high">
+    <img src="../img/logo.webp" alt="Herencia 90">
     <a href="/preventa">Pre-venta</a>
   </header>
 
@@ -1429,14 +1409,13 @@ function renderProductPage(product) {
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
-      const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
-      const STATIC_PRODUCT = ${serializeForScript(staticProductPayload)};
-      const PRODUCT_URL = ${serializeForScript(getProductUrl(product))};
-      const { createClient } = window.supabase;
-      const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      let currentProduct = STATIC_PRODUCT;
+    const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
+    const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
+    const STATIC_PRODUCT = ${serializeForScript(staticProductPayload)};
+    const PRODUCT_URL = ${serializeForScript(getProductUrl(product))};
+    const { createClient } = window.supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentProduct = STATIC_PRODUCT;
 
     function formatPriceClient(value) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
@@ -1532,26 +1511,23 @@ function renderProductPage(product) {
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
-      db.channel('seo-product-live-' + currentProduct.id)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: \`id=eq.\${currentProduct.id}\` }, (payload) => {
-          if (payload && payload.new) {
-            renderLiveProduct(payload.new);
-          }
-        })
-        .subscribe();
-    });
+    db.channel('seo-product-live-${slug}')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
+        if (payload && payload.new) {
+          renderLiveProduct(payload.new);
+        }
+      })
+      .subscribe();
   </script>
-  <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script defer src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-  <script defer>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
-      if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
-        VanillaTilt.init(document.querySelectorAll('.pp-thumbs img, .pp-main-img'), {
-          max: 4, speed: 500, glare: true, 'max-glare': 0.06, scale: 1.02
-        });
-      }
-    });
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script>
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
+    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
+      VanillaTilt.init(document.querySelectorAll('.pp-thumbs img, .pp-main-img'), {
+        max: 4, speed: 500, glare: true, 'max-glare': 0.06, scale: 1.02
+      });
+    }
   </script>
 </body>
 </html>`;

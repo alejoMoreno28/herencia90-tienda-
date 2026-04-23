@@ -17,7 +17,7 @@ const JS_UTILS = templateHtml.slice(jsUtilsStart, jsUtilsEnd);
 // Leer productos del temporada-25-26
 const html25 = readFileSync(`${BASE}/web/categorias/temporada-25-26.html`, 'utf8');
 const scStart = html25.indexOf('const STATIC_COLLECTION = ') + 'const STATIC_COLLECTION = '.length;
-const scEnd = html25.indexOf(';\n      const { createClient }');
+const scEnd = html25.indexOf(';\n    const { createClient }');
 const allProducts = JSON.parse(html25.slice(scStart, scEnd)).products;
 const byId = {};
 allProducts.forEach(p => { byId[p.id] = p; });
@@ -91,12 +91,12 @@ function buildPage(cfg) {
       ({ id, equipo, categoria, descripcion, precio, tallas, imagenes }))
   });
 
-  const cardsHtml = products.map((p, i) => {
+  const cardsHtml = products.map(p => {
     const sz = sizes(p);
     return `
         <article class="collection-product-card">
           <a class="collection-product-image" href="${pUrl(p)}">
-            <img src="${imgSrc(p)}" alt="${esc(p.equipo)}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} width="400" height="400">
+            <img src="${imgSrc(p)}" alt="${esc(p.equipo)}">
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">${esc(p.categoria || 'Herencia 90')}</span>
@@ -134,8 +134,6 @@ function buildPage(cfg) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/img/logo.webp" type="image/webp">
-  <meta name="theme-color" content="#050505">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${metaDesc}">
@@ -152,15 +150,8 @@ function buildPage(cfg) {
   <meta name="twitter:image" content="https://www.herencia90.shop/${ogImage}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${schemaCollection}</script>
   <script type="application/ld+json">${schemaBreadcrumb}</script>
   <script type="application/ld+json">${schemaFaq}</script>
@@ -169,7 +160,7 @@ function buildPage(cfg) {
 <body>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
-    <img src="../img/logo.webp" alt="Herencia 90" width="120" height="42" fetchpriority="high">
+    <img src="../img/logo.webp" alt="Herencia 90">
     <a href="/preventa">Pre-venta</a>
   </header>
 
@@ -261,13 +252,6 @@ function buildPage(cfg) {
         }
       })
       .subscribe();
-  </script>
-  <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script defer src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-  <script defer>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
-    });
   </script>
 </body>
 </html>`;
