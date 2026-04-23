@@ -121,15 +121,26 @@ check('static category pages exist and are included in the sitemap', () => {
 });
 
 check('category pages preserve shared navigation and dynamic catalog rendering', () => {
-  const samplePage = path.join(root, 'web', 'categorias', 'colombia.html');
-  const sampleHtml = fs.readFileSync(samplePage, 'utf8');
+  const sharedCategoryPages = [
+    'colombia.html',
+    'real-madrid.html',
+    'retro.html',
+    'temporada-25-26.html',
+    'mundial-2026.html'
+  ];
 
-  assert.match(sampleHtml, /<nav class="category-nav">/i);
-  assert.match(sampleHtml, /id="desktopCatNav"/i);
-  assert.match(sampleHtml, /id="mobileCatNav"/i);
-  assert.match(sampleHtml, /<script src="\/js\/app\.js"><\/script>/i);
-  assert.doesNotMatch(sampleHtml, /STATIC_COLLECTION/i);
-  assert.doesNotMatch(sampleHtml, /seo-collection-live-/i);
+  for (const file of sharedCategoryPages) {
+    const samplePage = path.join(root, 'web', 'categorias', file);
+    const sampleHtml = fs.readFileSync(samplePage, 'utf8');
+
+    assert.match(sampleHtml, /<nav class="category-nav">/i, `${file} should keep the shared nav`);
+    assert.match(sampleHtml, /id="desktopCatNav"/i, `${file} should expose desktop category nav`);
+    assert.match(sampleHtml, /id="mobileCatNav"/i, `${file} should expose mobile category nav`);
+    assert.match(sampleHtml, /<script src="\/js\/app\.js"><\/script>/i, `${file} should load app.js`);
+    assert.doesNotMatch(sampleHtml, /<header class="topbar">/i, `${file} should not use the legacy topbar landing`);
+    assert.doesNotMatch(sampleHtml, /STATIC_COLLECTION/i, `${file} should not use the legacy static collection`);
+    assert.doesNotMatch(sampleHtml, /seo-collection-live-/i, `${file} should not use legacy live collection hooks`);
+  }
 });
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');
