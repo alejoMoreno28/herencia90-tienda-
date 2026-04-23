@@ -102,9 +102,7 @@
     <section class="pv-galeria" id="pv-galeria">
         <div class="pv-galeria-inner">
             <div class="pv-galeria-header">
-                <div class="pv-galeria-eyebrow">Cat&aacute;logo pre-venta</div>
-                <h2 class="pv-galeria-title">Referencias famosas<br><span>listas para pedir</span></h2>
-                <p class="pv-galeria-sub">Haz clic en cualquier camiseta &mdash; te armamos la cotizaci&oacute;n al instante.</p>
+                <h1 class="pv-galeria-title pv-galeria-title-minimal">Pre-venta</h1>
             </div>
 
             <!-- Buscador -->
@@ -113,6 +111,19 @@
                     <i class="ph-bold ph-magnifying-glass pv-search-icon"></i>
                     <input type="text" class="pv-search" id="pv-search" placeholder="Buscar camiseta… Ej: Colombia, Real Madrid, Brasil">
                 </div>
+            </div>
+
+            <div class="pv-toolbar">
+                <label class="pv-sort-wrap" for="pv-sort">
+                    <span class="pv-sort-label">Ordenar por</span>
+                    <select class="pv-sort-select" id="pv-sort">
+                        <option value="popularidad" selected>Popularidad</option>
+                        <option value="equipo-az">Equipo A-Z</option>
+                        <option value="equipo-za">Equipo Z-A</option>
+                        <option value="mas-fotos">M&aacute;s fotos</option>
+                        <option value="destacadas">Destacadas primero</option>
+                    </select>
+                </label>
             </div>
 
             <!-- Filtros -->
@@ -148,6 +159,26 @@
             <!-- Empty state -->
             <div id="pv-empty" style="display:none; text-align:center; padding:40px 20px;">
                 <p style="color:var(--text-secondary); font-size:0.9rem;">No hay referencias con esos filtros. <button onclick="pvReset()" style="color:var(--gold);background:none;border:none;cursor:pointer;font-weight:700;text-decoration:underline;">Ver todas</button></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pv-info-band" aria-label="Condiciones de preventa">
+        <div class="pv-info-band-inner">
+            <div class="pv-info-copy">Anticipo del 20%, entrega aproximada en 15 d&iacute;as y env&iacute;os a toda Colombia.</div>
+            <div class="pv-cards pv-cards-compact">
+                <div class="pv-card">
+                    <div class="pv-card-label">Anticipo</div>
+                    <div class="pv-card-val">20%</div>
+                </div>
+                <div class="pv-card">
+                    <div class="pv-card-label">Entrega</div>
+                    <div class="pv-card-val">15 d&iacute;as</div>
+                </div>
+                <div class="pv-card">
+                    <div class="pv-card-label">Env&iacute;o</div>
+                    <div class="pv-card-val">Colombia</div>
+                </div>
             </div>
         </div>
     </section>
@@ -307,6 +338,7 @@
                 <div class="pv-lb-details">
                     <div class="pv-lb-equipo" id="pv-lb-equipo"></div>
                     <div class="pv-lb-meta" id="pv-lb-meta"></div>
+                    <div class="pv-lb-desc" id="pv-lb-desc"></div>
                 </div>
                 <div class="pv-lb-precio" id="pv-lb-precio"></div>
                 <button class="pv-lb-cta" id="pv-lb-cta">

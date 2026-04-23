@@ -6,3 +6,13 @@ ESTILO VISUAL REFERENCIAS/
 0_ORIGINALES_PESADOS/
 __pycache__/
 .seo-category-pages/
+.env
+.env.local
+*.env
+
+.vercel
+node_modules/
+.preventa-clean-preview/
+scratch_*.json
+urls.txt
+yupoo_dump.html

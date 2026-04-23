@@ -1,7 +1,12 @@
 {
   "name": "herencia90-tienda",
   "version": "1.0.0",
+  "scripts": {
+    "pv:discover:huiliyuan": "node scripts/pv-discover-provider-catalog.mjs https://huiliyuan.x.yupoo.com/"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "cheerio": "^1.2.0",
+    "sharp": "^0.34.5"
   }
 }

@@ -949,7 +949,7 @@ function renderCollectionPage(collection) {
 
     trackCollectionPage();
     refreshCollectionFromSupabase();
-    db.channel(\`seo-collection-live-\${STATIC_COLLECTION.slug}\`)
+    db.channel('seo-collection-live-' + STATIC_COLLECTION.slug)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
         if (payload && payload.new && STATIC_COLLECTION.productIds.includes(payload.new.id)) {
           refreshCollectionFromSupabase();
@@ -1532,7 +1532,7 @@ function renderProductPage(product) {
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
-      db.channel(\`seo-product-live-\${currentProduct.id}\`)
+      db.channel('seo-product-live-' + currentProduct.id)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: \`id=eq.\${currentProduct.id}\` }, (payload) => {
           if (payload && payload.new) {
             renderLiveProduct(payload.new);

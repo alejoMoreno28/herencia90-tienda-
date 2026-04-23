@@ -548,7 +548,7 @@
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
-      db.channel(`seo-product-live-${currentProduct.id}`)
+      db.channel('seo-product-live-' + currentProduct.id)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: `id=eq.${currentProduct.id}` }, (payload) => {
           if (payload && payload.new) {
             renderLiveProduct(payload.new);

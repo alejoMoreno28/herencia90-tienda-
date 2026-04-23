@@ -2019,6 +2019,42 @@ body.grid-single .product-grid-inner {
     color: var(--gold);
 }
 .pp-slide { animation: ppSlideIn 0.3s ease; }
+
+@media (max-width: 767px) {
+    .pp-tipo-btn,
+    .pp-talla-btn {
+        min-height: 46px;
+        padding: 12px 10px;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        touch-action: manipulation;
+    }
+    #pp-genero-btns {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        width: 100%;
+    }
+    #pp-talla-btns {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        width: 100%;
+    }
+    #pp-custom-fields > div {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+    }
+    #pp-patches {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #pp-genero-btns,
+    #pp-talla-btns,
+    #pp-patches {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
 @keyframes ppSlideIn {
     from { opacity: 0; transform: translateX(16px); }
     to   { opacity: 1; transform: translateX(0); }

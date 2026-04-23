@@ -113,6 +113,25 @@
         .photo-list { list-style:none; padding:0; margin:0; }
         .photo-list li { background:#f9f9f9; padding:4px; margin-bottom:4px; border-radius:3px; display:flex; justify-content:space-between; align-items:center; border:1px solid #ddd; font-size:10px; }
         .remove-img { color:red; font-weight:bold; cursor:pointer; }
+
+        /* --- PREVENTA ADMIN --- */
+        .pv-admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+        @media (max-width:1100px) { .pv-admin-grid { grid-template-columns:1fr; } }
+        .pv-thumb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; margin-top:10px; }
+        .pv-thumb { position:relative; aspect-ratio:3/4; border-radius:6px; overflow:hidden; border:2px solid #eee; cursor:pointer; }
+        .pv-thumb img { width:100%; height:100%; object-fit:cover; }
+        .pv-thumb .pv-thumb-exclude { position:absolute; top:4px; right:4px; background:rgba(220,53,69,0.9); color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .pv-thumb.excluded { opacity:0.35; }
+        .pv-tag-chip { display:inline-flex; align-items:center; gap:4px; background:#f0ebe1; border:1px solid #d9c391; color:#7a6434; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:600; margin:3px 2px; }
+        .pv-tag-chip button { background:none; border:none; cursor:pointer; color:#7a6434; font-size:12px; line-height:1; padding:0; }
+        .pv-import-status { font-size:12px; font-weight:600; margin-top:8px; min-height:18px; }
+        .pv-list-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .pv-list-table th, .pv-list-table td { padding:8px 10px; border-bottom:1px solid #eee; text-align:left; vertical-align:middle; }
+        .pv-list-table th { background:#fafafa; color:#666; font-size:10px; text-transform:uppercase; font-weight:700; }
+        .pv-list-img { width:42px; height:54px; object-fit:cover; border-radius:4px; }
+        .badge-pub { background:#28a745; color:white; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+        .badge-draft { background:#6c757d; color:white; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+        .badge-dest { background:#d9c391; color:#111; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
     </style>
 </head>
 <body>
@@ -136,6 +155,7 @@
             <li><button onclick="switchTab('dashboard')" id="tab-dashboard" class="active">📊 Dashboard Finanzas</button></li>
             <li><button onclick="switchTab('inventario')" id="tab-inventario">📦 Gestión Inventario</button></li>
             <li><button onclick="switchTab('analytics')" id="tab-analytics">📈 Analytics Web</button></li>
+            <li><button onclick="switchTab('preventa')" id="tab-preventa">🏷️ Pre-Venta Catálogo</button></li>
         </ul>
         <div class="sidebar-footer">
             <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
@@ -378,6 +398,165 @@
                 </div>
             </div>
 
+            <!-- VISTA PRE-VENTA CATÁLOGO -->
+            <div id="view-preventa" class="view-section">
+
+                <div class="pv-admin-grid">
+
+                    <!-- Panel izquierdo: Importar -->
+                    <div>
+                        <div class="form-container">
+                            <h3>📥 Importar álbum Yupoo</h3>
+                            <div class="form-group">
+                                <label>URL del álbum Yupoo</label>
+                                <input type="url" id="pva-url" placeholder="https://helen.x.yupoos.com/albums/12345678">
+                            </div>
+                            <div class="form-group">
+                                <label>Proveedor (informativo)</label>
+                                <select id="pva-proveedor">
+                                    <option value="helen">Helen</option>
+                                    <option value="james">James Snake</option>
+                                    <option value="feng">Feng</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="number" id="pva-max" value="8" min="1" max="20" style="width:70px;" title="Máx. fotos a descargar">
+                                <label style="font-size:11px;color:#666;margin:0;">fotos máx</label>
+                                <button class="btn-save" onclick="pvaImportar()" id="pva-import-btn" style="margin-left:auto;">📥 Importar fotos</button>
+                            </div>
+                            <div id="pva-status" class="pv-import-status" style="color:#666;"></div>
+                        </div>
+
+                        <div class="form-container" id="pva-meta-panel" style="display:none;">
+                            <h3>✏️ Metadata de la referencia</h3>
+
+                            <div id="pva-thumbs" class="pv-thumb-grid"></div>
+                            <p style="font-size:11px;color:#888;margin:6px 0 14px;">Clic en ✕ para excluir una foto. Se guardan solo las no excluidas (en el orden mostrado).</p>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <div class="form-group">
+                                    <label>Equipo / Selección *</label>
+                                    <input type="text" id="pva-equipo" placeholder="Ej: Selección Colombia">
+                                </div>
+                                <div class="form-group">
+                                    <label>Temporada / Año *</label>
+                                    <input type="text" id="pva-temporada" placeholder="Ej: 1990">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo *</label>
+                                    <select id="pva-tipo">
+                                        <option value="local">Local</option>
+                                        <option value="visitante">Visitante</option>
+                                        <option value="tercera">Tercera</option>
+                                        <option value="retro">Retro</option>
+                                        <option value="portero">Portero</option>
+                                        <option value="manga-larga">Manga larga</option>
+                                        <option value="fan">Fan</option>
+                                        <option value="player">Player</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Categoría *</label>
+                                    <select id="pva-categoria">
+                                        <option value="selecciones">Selecciones</option>
+                                        <option value="clubes">Clubes</option>
+                                        <option value="ligas-nba">Ligas NBA</option>
+                                        <option value="otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>País / Club</label>
+                                    <input type="text" id="pva-pais" placeholder="Ej: Colombia, Real Madrid">
+                                </div>
+                                <div class="form-group">
+                                    <label>Década</label>
+                                    <select id="pva-decada">
+                                        <option value="">— Seleccionar —</option>
+                                        <option value="70s">70s</option>
+                                        <option value="80s">80s</option>
+                                        <option value="90s">90s</option>
+                                        <option value="2000s">2000s</option>
+                                        <option value="2010s">2010s</option>
+                                        <option value="2020s">2020s</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Precio aprox. (COP)</label>
+                                    <input type="number" id="pva-precio" placeholder="Ej: 130000">
+                                </div>
+                                <div class="form-group" style="display:flex;align-items:flex-end;gap:16px;">
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:700;text-transform:none;">
+                                        <input type="checkbox" id="pva-destacado" style="width:16px;height:16px;"> Destacada
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Descripción (opcional)</label>
+                                <textarea id="pva-desc" rows="2" placeholder="Ej: La icónica camiseta de los mundiales de la era Valderrama..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div style="display:flex;gap:8px;margin-bottom:6px;">
+                                    <input type="text" id="pva-tag-input" placeholder="Ej: retro, mundial, colombia..." style="flex:1;" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();pvaAddTag();}">
+                                    <button class="btn-save" onclick="pvaAddTag()" style="padding:6px 12px;">+ Tag</button>
+                                </div>
+                                <div id="pva-tags-display"></div>
+                            </div>
+
+                            <div style="display:flex;gap:10px;margin-top:14px;">
+                                <button class="btn-save" onclick="pvaGuardar(false)" id="pva-save-draft-btn">💾 Guardar borrador</button>
+                                <button class="btn-add" onclick="pvaGuardar(true)" id="pva-save-pub-btn">🚀 Guardar y publicar</button>
+                                <button onclick="pvaCancelar()" style="margin-left:auto;background:none;border:1px solid #ccc;padding:8px 14px;border-radius:5px;cursor:pointer;font-size:12px;">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel derecho: Lista de referencias -->
+                    <div>
+                        <div class="table-container">
+                            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:12px;">
+                                <h3 style="margin:0;border:none;padding:0;">📋 Referencias en catálogo</h3>
+                                <button class="btn-save" onclick="pvaCargarLista()" style="padding:5px 10px;font-size:11px;">↻ Actualizar</button>
+                            </div>
+                            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                                <select id="pva-filtro-pub" onchange="pvaCargarLista()" style="font-size:11px;padding:4px;width:auto;">
+                                    <option value="">Todos</option>
+                                    <option value="true">Publicados</option>
+                                    <option value="false">Borradores</option>
+                                </select>
+                                <select id="pva-filtro-cat" onchange="pvaCargarLista()" style="font-size:11px;padding:4px;width:auto;">
+                                    <option value="">Todas categorías</option>
+                                    <option value="selecciones">Selecciones</option>
+                                    <option value="clubes">Clubes</option>
+                                    <option value="ligas-nba">Ligas NBA</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                            <div id="pva-list-wrap" style="overflow-x:auto;">
+                                <table class="pv-list-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Equipo</th>
+                                            <th>Año</th>
+                                            <th>Tipo</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pva-list-body">
+                                        <tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Cargando...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
     </main>
 
@@ -435,11 +614,12 @@
             document.querySelectorAll('.view-section, .sidebar-menu button').forEach(el => el.classList.remove('active'));
             document.getElementById('view-'+tId).classList.add('active');
             document.getElementById('tab-'+tId).classList.add('active');
-            const titles = { dashboard: 'Dashboard Financiero', inventario: 'Gestión de Inventario (Al Costo)', analytics: 'Analytics Web' };
+            const titles = { dashboard: 'Dashboard Financiero', inventario: 'Gestión de Inventario (Al Costo)', analytics: 'Analytics Web', preventa: 'Pre-Venta — Catálogo de Referencias' };
             document.getElementById('page-title').innerText = titles[tId] || tId;
             document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
             if (tId === 'dashboard') calculateInventoryValuation();
             if (tId === 'analytics') loadAnalytics();
+            if (tId === 'preventa') pvaCargarLista();
         }
         async function logout() { await db.auth.signOut(); window.location.href='/login.html'; }
 
@@ -979,6 +1159,257 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
             });
+        }
+
+        // ─── PRE-VENTA ADMIN ──────────────────────────────────────────────────────
+
+        // Estado de sesión de importación actual
+        var _pvaImportResult = null;  // { titulo, imagenes, yupoo_origen }
+        var _pvaTags = [];
+        var _pvaEditId = null;        // uuid si estamos editando un existente
+
+        async function pvaImportar() {
+            const url = document.getElementById('pva-url').value.trim();
+            const max = parseInt(document.getElementById('pva-max').value) || 8;
+            const statusEl = document.getElementById('pva-status');
+            const btn = document.getElementById('pva-import-btn');
+
+            if (!url) { statusEl.style.color='#dc3545'; statusEl.textContent = '⚠️ Ingresa la URL del álbum.'; return; }
+            if (!url.includes('yupoo')) { statusEl.style.color='#dc3545'; statusEl.textContent = '⚠️ La URL debe ser de yupoo.com o yupoos.com.'; return; }
+
+            btn.disabled = true;
+            statusEl.style.color = '#666';
+            statusEl.textContent = '⏳ Descargando y subiendo fotos… (puede tomar 30-60s según la cantidad)';
+
+            try {
+                const res = await fetch('/api/preventa-yupoo-import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer herencia2026'
+                    },
+                    body: JSON.stringify({ yupoo_album_url: url, max_imagenes: max })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error del servidor');
+
+                _pvaImportResult = data;
+                statusEl.style.color = '#28a745';
+                statusEl.textContent = `✅ ${data.imagenes.length} fotos importadas. Completa los datos y publica.`;
+
+                // Prellenar título como equipo si está vacío
+                if (data.titulo && !document.getElementById('pva-equipo').value) {
+                    document.getElementById('pva-equipo').value = data.titulo;
+                }
+                pvaRenderThumbs(data.imagenes);
+                document.getElementById('pva-meta-panel').style.display = 'block';
+            } catch (e) {
+                statusEl.style.color = '#dc3545';
+                statusEl.textContent = '❌ ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function pvaRenderThumbs(imagenes) {
+            const wrap = document.getElementById('pva-thumbs');
+            wrap.innerHTML = imagenes.map((img, i) => `
+                <div class="pv-thumb" id="pvt-${i}">
+                    <img src="${img.url}" alt="Foto ${i+1}" loading="lazy">
+                    <button class="pv-thumb-exclude" onclick="pvaExcluirFoto(${i})" title="Excluir esta foto">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function pvaExcluirFoto(i) {
+            const el = document.getElementById('pvt-' + i);
+            if (el) el.classList.toggle('excluded');
+        }
+
+        function pvaAddTag() {
+            const input = document.getElementById('pva-tag-input');
+            const val = input.value.trim().toLowerCase().replace(/,/g,'');
+            if (val && !_pvaTags.includes(val)) {
+                _pvaTags.push(val);
+                pvaRenderTags();
+            }
+            input.value = '';
+            input.focus();
+        }
+
+        function pvaRemoveTag(tag) {
+            _pvaTags = _pvaTags.filter(t => t !== tag);
+            pvaRenderTags();
+        }
+
+        function pvaRenderTags() {
+            document.getElementById('pva-tags-display').innerHTML =
+                _pvaTags.map(t => `<span class="pv-tag-chip">${t}<button onclick="pvaRemoveTag('${t}')">×</button></span>`).join('');
+        }
+
+        async function pvaGuardar(publicar) {
+            const equipo = document.getElementById('pva-equipo').value.trim();
+            const temporada = document.getElementById('pva-temporada').value.trim();
+            const tipo = document.getElementById('pva-tipo').value;
+            const categoria = document.getElementById('pva-categoria').value;
+
+            if (!equipo || !temporada) {
+                alert('Equipo y temporada son obligatorios.'); return;
+            }
+
+            // Fotos no excluidas
+            const imagenes = _pvaImportResult
+                ? _pvaImportResult.imagenes.filter((_, i) => {
+                    const el = document.getElementById('pvt-' + i);
+                    return el && !el.classList.contains('excluded');
+                })
+                : [];
+
+            if (!imagenes.length && !_pvaEditId) {
+                alert('No hay fotos importadas. Importa un álbum primero.'); return;
+            }
+
+            // Generar slug
+            const slug = _pvaEditId
+                ? undefined  // mantener el existente en update
+                : (equipo + '-' + temporada + '-' + tipo)
+                    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,60)
+                    + '-' + Date.now().toString(36);
+
+            const payload = {
+                equipo,
+                temporada,
+                tipo,
+                categoria,
+                pais_o_club: document.getElementById('pva-pais').value.trim() || null,
+                decada: document.getElementById('pva-decada').value || null,
+                descripcion: document.getElementById('pva-desc').value.trim() || null,
+                precio_aprox: parseInt(document.getElementById('pva-precio').value) || null,
+                destacado: document.getElementById('pva-destacado').checked,
+                tags: _pvaTags,
+                publicado: publicar,
+                ...(imagenes.length ? { imagenes } : {}),
+                ...(_pvaImportResult ? { yupoo_origen: _pvaImportResult.yupoo_origen } : {}),
+                ...(!_pvaEditId ? { slug } : {}),
+            };
+
+            try {
+                let error;
+                if (_pvaEditId) {
+                    ({ error } = await db.from('preventa_catalogo').update(payload).eq('id', _pvaEditId));
+                } else {
+                    ({ error } = await db.from('preventa_catalogo').insert(payload));
+                }
+                if (error) throw error;
+                showToast(publicar ? '✅ Referencia publicada' : '💾 Borrador guardado');
+                pvaCancelar();
+                pvaCargarLista();
+            } catch (e) {
+                alert('Error guardando: ' + (e.message || JSON.stringify(e)));
+            }
+        }
+
+        function pvaCancelar() {
+            _pvaImportResult = null;
+            _pvaTags = [];
+            _pvaEditId = null;
+            document.getElementById('pva-meta-panel').style.display = 'none';
+            document.getElementById('pva-url').value = '';
+            document.getElementById('pva-status').textContent = '';
+            document.getElementById('pva-equipo').value = '';
+            document.getElementById('pva-temporada').value = '';
+            document.getElementById('pva-tipo').value = 'local';
+            document.getElementById('pva-categoria').value = 'selecciones';
+            document.getElementById('pva-pais').value = '';
+            document.getElementById('pva-decada').value = '';
+            document.getElementById('pva-precio').value = '';
+            document.getElementById('pva-desc').value = '';
+            document.getElementById('pva-destacado').checked = false;
+            document.getElementById('pva-thumbs').innerHTML = '';
+            pvaRenderTags();
+        }
+
+        async function pvaCargarLista() {
+            const pubFiltro = document.getElementById('pva-filtro-pub').value;
+            const catFiltro = document.getElementById('pva-filtro-cat').value;
+            const tbody = document.getElementById('pva-list-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Cargando...</td></tr>';
+
+            let q = db.from('preventa_catalogo').select('id,slug,equipo,temporada,tipo,categoria,publicado,destacado,imagenes,orden').order('orden', { ascending: true });
+            if (pubFiltro !== '') q = q.eq('publicado', pubFiltro === 'true');
+            if (catFiltro) q = q.eq('categoria', catFiltro);
+
+            const { data, error } = await q;
+            if (error || !data) { tbody.innerHTML = '<tr><td colspan="6" style="color:red;padding:20px;">Error cargando datos</td></tr>'; return; }
+            if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Sin referencias aún</td></tr>'; return; }
+
+            tbody.innerHTML = data.map(r => {
+                const thumb = r.imagenes && r.imagenes[0] ? `<img src="${r.imagenes[0].url}" class="pv-list-img">` : '—';
+                const pub = r.publicado ? '<span class="badge-pub">Publicada</span>' : '<span class="badge-draft">Borrador</span>';
+                const dest = r.destacado ? ' <span class="badge-dest">★</span>' : '';
+                return `<tr>
+                    <td>${thumb}</td>
+                    <td style="font-weight:700;">${r.equipo}</td>
+                    <td>${r.temporada}</td>
+                    <td style="text-transform:capitalize;">${r.tipo}</td>
+                    <td>${pub}${dest}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-save" onclick="pvaEditar('${r.id}')" style="padding:3px 8px;font-size:10px;margin-right:4px;">✏️</button>
+                        <button onclick="pvaTogglePub('${r.id}', ${r.publicado})" style="background:${r.publicado?'#6c757d':'#28a745'};color:white;border:none;padding:3px 8px;font-size:10px;border-radius:4px;cursor:pointer;margin-right:4px;">${r.publicado?'Ocultar':'Publicar'}</button>
+                        <button class="btn-danger" onclick="pvaEliminar('${r.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function pvaTogglePub(id, actual) {
+            const { error } = await db.from('preventa_catalogo').update({ publicado: !actual }).eq('id', id);
+            if (error) { alert('Error: ' + error.message); return; }
+            showToast(actual ? 'Referencia ocultada' : 'Referencia publicada');
+            pvaCargarLista();
+        }
+
+        async function pvaEditar(id) {
+            const { data, error } = await db.from('preventa_catalogo').select('*').eq('id', id).single();
+            if (error || !data) { alert('Error cargando referencia'); return; }
+
+            _pvaEditId = id;
+            _pvaTags = data.tags || [];
+            _pvaImportResult = data.imagenes && data.imagenes.length
+                ? { titulo: data.equipo, imagenes: data.imagenes, yupoo_origen: data.yupoo_origen }
+                : null;
+
+            document.getElementById('pva-equipo').value = data.equipo || '';
+            document.getElementById('pva-temporada').value = data.temporada || '';
+            document.getElementById('pva-tipo').value = data.tipo || 'local';
+            document.getElementById('pva-categoria').value = data.categoria || 'selecciones';
+            document.getElementById('pva-pais').value = data.pais_o_club || '';
+            document.getElementById('pva-decada').value = data.decada || '';
+            document.getElementById('pva-precio').value = data.precio_aprox || '';
+            document.getElementById('pva-desc').value = data.descripcion || '';
+            document.getElementById('pva-destacado').checked = !!data.destacado;
+
+            if (_pvaImportResult) pvaRenderThumbs(_pvaImportResult.imagenes);
+            pvaRenderTags();
+            document.getElementById('pva-meta-panel').style.display = 'block';
+            document.getElementById('pva-status').textContent = '✏️ Modo edición — modifica los campos y guarda.';
+            document.getElementById('pva-status').style.color = '#6f42c1';
+        }
+
+        async function pvaEliminar(id) {
+            if (!confirm('¿Eliminar esta referencia? Esta acción no se puede deshacer.')) return;
+            const { error } = await db.from('preventa_catalogo').delete().eq('id', id);
+            if (error) { alert('Error: ' + error.message); return; }
+            showToast('Referencia eliminada');
+            pvaCargarLista();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
         }
     </script>
 </body>

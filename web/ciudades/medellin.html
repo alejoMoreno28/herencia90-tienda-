@@ -1025,7 +1025,7 @@
 
     trackCollectionPage();
     refreshCollectionFromSupabase();
-    db.channel(`seo-collection-live-${STATIC_COLLECTION.slug}`)
+    db.channel('seo-collection-live-' + STATIC_COLLECTION.slug)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
         if (payload && payload.new && STATIC_COLLECTION.productIds.includes(payload.new.id)) {
           refreshCollectionFromSupabase();
