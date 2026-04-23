@@ -601,6 +601,14 @@
             var passFilter = true;
             if (_pvFiltroType !== 'all') {
                 if (_pvFiltroType === 'destacado') passFilter = !!r.destacado;
+                else if (_pvFiltroType === 'keyword') {
+                    var keywordNeedle = normalizeText(_pvFiltroVal);
+                    var keywordHaystack = normalizeText([
+                        r.equipo, r.temporada, r.tipo, r.categoria,
+                        r.pais_o_club, r.descripcion, (r.tags || []).join(' ')
+                    ].join(' '));
+                    passFilter = keywordHaystack.indexOf(keywordNeedle) !== -1;
+                }
                 else passFilter = r[_pvFiltroType] === _pvFiltroVal;
             }
             if (!passFilter) return false;

@@ -113,23 +113,11 @@
                 </div>
             </div>
 
-            <div class="pv-toolbar">
-                <label class="pv-sort-wrap" for="pv-sort">
-                    <span class="pv-sort-label">Ordenar por</span>
-                    <select class="pv-sort-select" id="pv-sort">
-                        <option value="popularidad" selected>Popularidad</option>
-                        <option value="equipo-az">Equipo A-Z</option>
-                        <option value="equipo-za">Equipo Z-A</option>
-                        <option value="mas-fotos">M&aacute;s fotos</option>
-                        <option value="destacadas">Destacadas primero</option>
-                    </select>
-                </label>
-            </div>
-
             <!-- Filtros -->
             <div class="pv-filtros" id="pv-filtros">
                 <button class="pv-filtro-btn active" data-filtro-type="all" data-filtro-val="" onclick="pvFiltrar(this,'all','')">Todo</button>
                 <button class="pv-filtro-btn" data-filtro-type="categoria" data-filtro-val="selecciones" onclick="pvFiltrar(this,'categoria','selecciones')">Selecciones</button>
+                <button class="pv-filtro-btn" data-filtro-type="keyword" data-filtro-val="colombia" onclick="pvFiltrar(this,'keyword','colombia')">Colombia</button>
                 <button class="pv-filtro-btn" data-filtro-type="categoria" data-filtro-val="clubes" onclick="pvFiltrar(this,'categoria','clubes')">Clubes</button>
                 <button class="pv-filtro-btn" data-filtro-type="decada" data-filtro-val="90s" onclick="pvFiltrar(this,'decada','90s')">90s</button>
                 <button class="pv-filtro-btn" data-filtro-type="decada" data-filtro-val="80s" onclick="pvFiltrar(this,'decada','80s')">80s</button>
