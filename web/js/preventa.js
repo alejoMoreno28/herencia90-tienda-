@@ -534,7 +534,7 @@
             _pvVisibleCounts[section.key] = section.initialCount;
         });
 
-        intro.style.display = '';
+        if (intro) intro.style.display = '';
         stage.innerHTML = renderSection(sections[0]);
 
         var remainingSections = sections.slice(1);
@@ -556,7 +556,7 @@
 
         if (!items.length) {
             stage.innerHTML = '';
-            intro.style.display = 'none';
+            if (intro) intro.style.display = 'none';
             empty.style.display = 'block';
             return;
         }
@@ -564,7 +564,7 @@
         empty.style.display = 'none';
         if (isFiltered) {
             _pvRenderToken++;
-            intro.style.display = 'none';
+            if (intro) intro.style.display = 'none';
             stage.innerHTML = renderSearchResults(items, searchTerm);
             return;
         }
