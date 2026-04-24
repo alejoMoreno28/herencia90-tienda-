@@ -1,0 +1,3 @@
+display_name: Provider Photo Matcher
+short_description: Match provider jersey photos before import.
+default_prompt: Match provider product photos against jersey references, reject mismatches and branded/guide images, then produce a dry-run import plan before any upload.
