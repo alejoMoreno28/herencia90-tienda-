@@ -53,6 +53,10 @@ const PRICES = {
 const SHIPPING_1_4 = 8;
 const SHIPPING_5_PLUS = 0;
 
+// ── Tasa de cambio ─────────────────────────────────────────────────────────────
+// Actualizar antes de cada pedido según TRM del día (COP por 1 USD)
+const TRM = 4200;
+
 // ── Constantes de imagen ───────────────────────────────────────────────────────
 const IMG_W  = 70;
 const IMG_H  = 70;
@@ -264,14 +268,17 @@ async function addOrderSheet(wb, orderRows) {
   const nData = orderRows.length;
   const lastDataRow = nData + 2;
 
+  const COP_FMT = '"$" #,##0';
   const summaryItems = [
-    { r: 2, label: 'Provider',       value: PROVIDER.name, fmt: null },
-    { r: 3, label: 'Contact',        value: PROVIDER.contact, fmt: null },
-    { r: 4, label: 'Total units',    value: { formula: `=COUNTA(E3:E${lastDataRow})` }, fmt: null },
-    { r: 5, label: 'Subtotal (USD)', value: { formula: `=IFERROR(SUM(G3:G${lastDataRow}),"")` }, fmt: MONEY },
-    { r: 6, label: 'Shipping (USD)', value: { formula: `=IF(J4>=5,0,${SHIPPING_1_4})` }, fmt: MONEY },
-    { r: 7, label: 'TOTAL (USD)',    value: { formula: `=IFERROR(J5+J6,"")` }, fmt: MONEY, bold: true, bg: C.yellow },
-    { r: 8, label: 'Shipping rule',  value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
+    { r: 2,  label: 'Provider',          value: PROVIDER.name, fmt: null },
+    { r: 3,  label: 'Contact',           value: PROVIDER.contact, fmt: null },
+    { r: 4,  label: 'Total units',       value: { formula: `=COUNTA(E3:E${lastDataRow})` }, fmt: null },
+    { r: 5,  label: 'Subtotal (USD)',    value: { formula: `=IFERROR(SUM(G3:G${lastDataRow}),"")` }, fmt: MONEY },
+    { r: 6,  label: 'Shipping (USD)',    value: { formula: `=IF(J4>=5,0,${SHIPPING_1_4})` }, fmt: MONEY },
+    { r: 7,  label: 'TOTAL (USD)',       value: { formula: `=IFERROR(J5+J6,"")` }, fmt: MONEY, bold: true, bg: C.yellow },
+    { r: 8,  label: `TRM (1 USD = COP)`,value: TRM, fmt: '"$" #,##0' },
+    { r: 9,  label: 'TOTAL (COP)',       value: { formula: `=IFERROR(J7*J8,"")` }, fmt: '"$ "#,##0', bold: true, bg: C.yellow },
+    { r: 10, label: 'Shipping rule',     value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
   ];
 
   for (const s of summaryItems) {
