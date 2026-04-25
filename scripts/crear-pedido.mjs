@@ -26,28 +26,28 @@ const CACHE_DIR = path.join(ROOT, '.pedido-imagenes-cache');
 // ── Configuración del proveedor ───────────────────────────────────────────────
 // Para cambiar de proveedor: edita solo este bloque
 const PROVIDER = {
-  name:    'Feng',
-  contact: '+86 138 7819 1561',
-  catalog: 'https://yupooscolombia.wixsite.com/yupooscolombia',
-  notes:   '',
+  name:    'Huang X',
+  contact: '+86 180 5424 5771',
+  catalog: 'https://jingdongtiyu.x.yupoo.com/collections/3804419  (pass: 111999) | https://1022669895.x.yupoo.com',
+  notes:   'Football shoes: https://mzrycm102618.x.yupoo.com/albums',
 };
 
 // ── Precios por tipo ───────────────────────────────────────────────────────────
 const PRICES = {
-  'FAN':                    10,
-  'FAN WOMAN':              10,
+  'FAN':                    12,
+  'FAN WOMAN':              12,
   'SPECIAL EDITION FAN':    12,
   'SHORTS':                  8,
   'RETRO':                  15,
-  'GOALKEEPER':             13,
-  'TRAINING CLOTHES':       13,
-  'POLO':                   13,
+  'GOALKEEPER':             15,
+  'TRAINING CLOTHES':       15,
+  'POLO':                   15,
   'LONG SLEEVE':            15,
-  'PLAYER':                 13,
+  'PLAYER':                 15,
   'SPECIAL EDITION PLAYER': 15,
-  "CHILDREN'S KIT":         15,
+  "CHILDREN'S KIT":         16,
   'NBA':                    18,
-  'SOCKS':                   7,
+  'SOCKS':                   3,
 };
 
 const SHIPPING_1_4 = 8;
