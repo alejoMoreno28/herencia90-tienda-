@@ -13,6 +13,7 @@ __pycache__/
 .vercel
 node_modules/
 .preventa-clean-preview/
+.tmp-provider-photo-audit-live/
 scratch_*.json
 urls.txt
 yupoo_dump.html
