@@ -220,11 +220,22 @@ function addConfigSheet(wb) {
   addHeader('SHIPPING');
   addField('1–4 units', SHIPPING_1_4);
   addField('5+ units',  SHIPPING_5_PLUS);
+
+  ws.addRow([]);
+  addHeader('EXCHANGE RATE  ← Update before each order');
+  const trmRow = addField('TRM  (1 USD = COP)', TRM, true);
+  trmRow.getCell(2).numFmt = '"$ "#,##0';
+
+  const noteR = ws.addRow(['Change the value in B to today\'s exchange rate (e.g. 4200)']);
+  noteR.getCell(1).style = { font: { italic: true, color: { argb: 'FF888888' }, size: 9, name: 'Calibri' } };
+  ws.mergeCells(`A${noteR.number}:B${noteR.number}`);
+
+  return trmRow.number; // devuelve la fila para que ORDER pueda referenciarla
 }
 
 // ─── Excel: hoja ORDER ────────────────────────────────────────────────────────
 
-async function addOrderSheet(wb, orderRows) {
+async function addOrderSheet(wb, orderRows, trmRow) {
   const ws = wb.addWorksheet('ORDER', {
     properties: { tabColor: { argb: C.darkBlue } },
   });
@@ -276,9 +287,9 @@ async function addOrderSheet(wb, orderRows) {
     { r: 5,  label: 'Subtotal (USD)',    value: { formula: `=IFERROR(SUM(G3:G${lastDataRow}),"")` }, fmt: MONEY },
     { r: 6,  label: 'Shipping (USD)',    value: { formula: `=IF(J4>=5,0,${SHIPPING_1_4})` }, fmt: MONEY },
     { r: 7,  label: 'TOTAL (USD)',       value: { formula: `=IFERROR(J5+J6,"")` }, fmt: MONEY, bold: true, bg: C.yellow },
-    { r: 8,  label: `TRM (1 USD = COP)`,value: TRM, fmt: '"$" #,##0' },
-    { r: 9,  label: 'TOTAL (COP)',       value: { formula: `=IFERROR(J7*J8,"")` }, fmt: '"$ "#,##0', bold: true, bg: C.yellow },
-    { r: 10, label: 'Shipping rule',     value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
+    { r: 8,  label: 'TRM  (1 USD = COP)', value: { formula: `=CONFIG!B${trmRow}` }, fmt: '"$ "#,##0' },
+    { r: 9,  label: 'TOTAL (COP)',        value: { formula: `=IFERROR(J7*J8,"")` }, fmt: '"$ "#,##0', bold: true, bg: C.yellow },
+    { r: 10, label: 'Shipping rule',      value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
   ];
 
   for (const s of summaryItems) {
@@ -420,8 +431,8 @@ async function run() {
   wb.creator = 'Herencia 90';
   wb.created = new Date();
 
-  addConfigSheet(wb);
-  await addOrderSheet(wb, orderRows);
+  const trmRow = addConfigSheet(wb);
+  await addOrderSheet(wb, orderRows, trmRow);
 
   // Guardar
   const date    = new Date().toISOString().slice(0, 10);
