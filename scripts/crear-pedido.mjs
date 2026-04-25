@@ -57,6 +57,11 @@ const SHIPPING_5_PLUS = 0;
 // Actualizar antes de cada pedido según TRM del día (COP por 1 USD)
 const TRM = 3551; // TRM 25 abril 2026 — actualizar antes de cada pedido
 
+// ── Costos de extras ───────────────────────────────────────────────────────────
+const EXTRA_PERSONALIZACION = 2; // dorsal, nombre, número
+const EXTRA_PATCH           = 1; // parche/escudo
+const EXTRA_TALLA_GRANDE    = 1; // 2XL, 3XL, 4XL
+
 // ── Constantes de imagen ───────────────────────────────────────────────────────
 const IMG_W  = 70;
 const IMG_H  = 70;
@@ -163,6 +168,28 @@ async function getJerseyImage(version, comment) {
   return null;
 }
 
+// ─── parsear extras de la descripción ────────────────────────────────────────
+
+function parseExtras(comment, size) {
+  const parts = [];
+  let cost = 0;
+
+  if (/dorsal|personaliz|nombre|número|numero|printing/i.test(comment)) {
+    parts.push('Dorsal / Personalization');
+    cost += EXTRA_PERSONALIZACION;
+  }
+  if (/patch|parche|escudo badge/i.test(comment)) {
+    parts.push('Patch');
+    cost += EXTRA_PATCH;
+  }
+  if (/^[234]XL$/i.test(String(size).trim())) {
+    parts.push('Size surcharge (2XL+)');
+    cost += EXTRA_TALLA_GRANDE;
+  }
+
+  return { label: parts.join(' + '), cost };
+}
+
 // ─── Excel: hoja CONFIG ───────────────────────────────────────────────────────
 
 function addConfigSheet(wb) {
@@ -240,33 +267,38 @@ async function addOrderSheet(wb, orderRows, trmRow) {
     properties: { tabColor: { argb: C.darkBlue } },
   });
 
-  // Anchos
-  ws.getColumn(1).width = 12;   // PHOTO
-  ws.getColumn(2).width = 7;    // SIZE
-  ws.getColumn(3).width = 18;   // TYPE
-  ws.getColumn(4).width = 34;   // DESCRIPTION
-  ws.getColumn(5).width = 6;    // QTY
-  ws.getColumn(6).width = 16;   // UNIT PRICE
-  ws.getColumn(7).width = 14;   // SUBTOTAL
-  ws.getColumn(8).width = 16;   // RUNNING TOTAL
-  ws.getColumn(9).width = 3;    // spacer
-  ws.getColumn(10).width = 22;  // SUMMARY label
-  ws.getColumn(11).width = 20;  // SUMMARY value
+  // ── Columnas ──
+  // A=1:PHOTO  B=2:SIZE  C=3:TYPE  D=4:DESCRIPTION
+  // E=5:EXTRAS  F=6:EXTRAS COST  G=7:QTY  H=8:UNIT PRICE
+  // I=9:SUBTOTAL  J=10:RUNNING TOTAL  K=11:spacer  L=12:SUMMARY label  M=13:SUMMARY value
+  ws.getColumn(1).width  = 12;   // PHOTO
+  ws.getColumn(2).width  = 7;    // SIZE
+  ws.getColumn(3).width  = 16;   // TYPE
+  ws.getColumn(4).width  = 28;   // DESCRIPTION
+  ws.getColumn(5).width  = 22;   // EXTRAS
+  ws.getColumn(6).width  = 13;   // EXTRAS COST
+  ws.getColumn(7).width  = 6;    // QTY
+  ws.getColumn(8).width  = 15;   // UNIT PRICE
+  ws.getColumn(9).width  = 14;   // SUBTOTAL
+  ws.getColumn(10).width = 16;   // RUNNING TOTAL
+  ws.getColumn(11).width = 3;    // spacer
+  ws.getColumn(12).width = 22;   // SUMMARY label
+  ws.getColumn(13).width = 20;   // SUMMARY value
 
   // ── Fila 1: título ──
-  ws.mergeCells('A1:H1');
+  ws.mergeCells('A1:J1');
   const titleCell = ws.getCell('A1');
   titleCell.value = `HERENCIA 90 — ORDER   |   Provider: ${PROVIDER.name}   |   Contact: ${PROVIDER.contact}`;
   titleCell.style = { ...cellStyle({ bold: true, bg: C.darkBlue, fg: 'FFFFFF', hAlign: 'center' }), font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 12, name: 'Calibri' } };
   ws.getRow(1).height = 26;
 
   // ── Fila 1: resumen título ──
-  ws.mergeCells('J1:K1');
-  ws.getCell('J1').value = 'ORDER SUMMARY';
-  ws.getCell('J1').style = { ...cellStyle({ bold: true, bg: C.darkBlue, fg: 'FFFFFF', hAlign: 'center' }), font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Calibri' } };
+  ws.mergeCells('L1:M1');
+  ws.getCell('L1').value = 'ORDER SUMMARY';
+  ws.getCell('L1').style = { ...cellStyle({ bold: true, bg: C.darkBlue, fg: 'FFFFFF', hAlign: 'center' }), font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Calibri' } };
 
   // ── Fila 2: headers ──
-  const headers = ['PHOTO', 'SIZE', 'TYPE', 'DESCRIPTION', 'QTY', 'UNIT PRICE (USD)', 'SUBTOTAL (USD)', 'RUNNING TOTAL (USD)'];
+  const headers = ['PHOTO','SIZE','TYPE','DESCRIPTION','EXTRAS','EXTRAS COST (USD)','QTY','UNIT PRICE (USD)','SUBTOTAL (USD)','RUNNING TOTAL (USD)'];
   const hRow = ws.getRow(2);
   hRow.height = 22;
   headers.forEach((h, i) => {
@@ -274,84 +306,100 @@ async function addOrderSheet(wb, orderRows, trmRow) {
     hRow.getCell(i + 1).style = cellStyle({ bold: true, bg: C.midBlue, fg: 'FFFFFF', hAlign: 'center' });
   });
 
-  // ── Resumen (filas 2-8 col J-K) ──
+  // ── Resumen (cols L=12 / M=13) ──
   const MONEY = '"$"#,##0.00';
   const nData = orderRows.length;
   const lastDataRow = nData + 2;
 
-  const COP_FMT = '"$" #,##0';
   const summaryItems = [
-    { r: 2,  label: 'Provider',          value: PROVIDER.name, fmt: null },
-    { r: 3,  label: 'Contact',           value: PROVIDER.contact, fmt: null },
-    { r: 4,  label: 'Total units',       value: { formula: `=COUNTA(E3:E${lastDataRow})` }, fmt: null },
-    { r: 5,  label: 'Subtotal (USD)',    value: { formula: `=IFERROR(SUM(G3:G${lastDataRow}),"")` }, fmt: MONEY },
-    { r: 6,  label: 'Shipping (USD)',    value: { formula: `=IF(J4>=5,0,${SHIPPING_1_4})` }, fmt: MONEY },
-    { r: 7,  label: 'TOTAL (USD)',       value: { formula: `=IFERROR(J5+J6,"")` }, fmt: MONEY, bold: true, bg: C.yellow },
-    { r: 8,  label: 'TRM  (1 USD = COP)', value: { formula: `=CONFIG!B${trmRow}` }, fmt: '"$ "#,##0' },
-    { r: 9,  label: 'TOTAL (COP)',        value: { formula: `=IFERROR(J7*J8,"")` }, fmt: '"$ "#,##0', bold: true, bg: C.yellow },
+    { r: 2,  label: 'Provider',           value: PROVIDER.name,                                                                  fmt: null },
+    { r: 3,  label: 'Contact',            value: PROVIDER.contact,                                                               fmt: null },
+    { r: 4,  label: 'Total units',        value: { formula: `=COUNTA(G3:G${lastDataRow})` },                                     fmt: null },
+    { r: 5,  label: 'Subtotal (USD)',     value: { formula: `=IFERROR(SUM(I3:I${lastDataRow}),"")` },                            fmt: MONEY },
+    { r: 6,  label: 'Shipping (USD)',     value: { formula: `=IF(M4>=5,0,${SHIPPING_1_4})` },                                    fmt: MONEY },
+    { r: 7,  label: 'TOTAL (USD)',        value: { formula: `=IFERROR(M5+M6,"")` },   fmt: MONEY, bold: true, bg: C.yellow },
+    { r: 8,  label: 'TRM  (1 USD = COP)',value: { formula: `=CONFIG!B${trmRow}` },    fmt: '"$ "#,##0' },
+    { r: 9,  label: 'TOTAL (COP)',        value: { formula: `=IFERROR(M7*M8,"")` },   fmt: '"$ "#,##0', bold: true, bg: C.yellow },
     { r: 10, label: 'Shipping rule',      value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
   ];
 
   for (const s of summaryItems) {
     const row = ws.getRow(s.r);
     row.height = 20;
-    const j = row.getCell(10);
-    const k = row.getCell(11);
-    j.value = s.label;
-    j.style = cellStyle({ bold: s.bold || false, bg: s.bg || C.lightBlue, fg: '1F3864' });
-    k.value = s.value;
-    if (s.fmt) k.numFmt = s.fmt;
-    k.style = { ...cellStyle({ bold: s.bold || false, bg: s.bg || C.white }), numFmt: s.fmt || 'General' };
+    const lCell = row.getCell(12);
+    const mCell = row.getCell(13);
+    lCell.value = s.label;
+    lCell.style = cellStyle({ bold: s.bold || false, bg: s.bg || C.lightBlue, fg: '1F3864' });
+    mCell.value = s.value;
+    if (s.fmt) mCell.numFmt = s.fmt;
+    mCell.style = { ...cellStyle({ bold: s.bold || false, bg: s.bg || C.white }), numFmt: s.fmt || 'General' };
   }
 
   // ── Filas de datos ──
   const imgCache = new Map();
 
   for (let idx = 0; idx < orderRows.length; idx++) {
-    const row     = orderRows[idx];
-    const excelR  = idx + 3;
-    const xRow    = ws.getRow(excelR);
-    xRow.height   = 58;
-    const bg      = idx % 2 === 0 ? C.white : C.altRow;
+    const row    = orderRows[idx];
+    const excelR = idx + 3;
+    const xRow   = ws.getRow(excelR);
+    xRow.height  = 58;
+    const bg     = idx % 2 === 0 ? C.white : C.altRow;
 
-    // SIZE
+    const { label: extrasLabel, cost: extrasCost } = parseExtras(row.comment, row.size);
+
+    // B: SIZE
     const sc = xRow.getCell(2);
     sc.value = row.size;
     sc.style = cellStyle({ bg, hAlign: 'center' });
 
-    // TYPE
+    // C: TYPE
     const tc = xRow.getCell(3);
     tc.value = row.version;
     tc.style = cellStyle({ bg, hAlign: 'center' });
 
-    // DESCRIPTION
+    // D: DESCRIPTION
     const dc = xRow.getCell(4);
     dc.value = row.comment;
     dc.style = cellStyle({ bg, wrap: true });
 
-    // QTY
-    const qc = xRow.getCell(5);
+    // E: EXTRAS
+    const ec = xRow.getCell(5);
+    ec.value = extrasLabel || '';
+    ec.style = cellStyle({ bg, wrap: true });
+    if (extrasLabel) {
+      ec.style.font = { ...ec.style.font, color: { argb: 'FF7030A0' }, bold: true }; // morado para destacar
+    }
+
+    // F: EXTRAS COST
+    const fc = xRow.getCell(6);
+    fc.value = extrasCost || 0;
+    fc.numFmt = '"$"#,##0.00';
+    fc.style  = { ...cellStyle({ bg, hAlign: 'right' }), numFmt: '"$"#,##0.00' };
+    if (extrasCost > 0) {
+      fc.style.font = { ...fc.style.font, bold: true, color: { argb: 'FF7030A0' } };
+    }
+
+    // G: QTY
+    const qc = xRow.getCell(7);
     qc.value = row.qty;
     qc.style = cellStyle({ bg, hAlign: 'center' });
 
-    // UNIT PRICE (lookup en CONFIG)
-    // CONFIG: precios en columna B, tipos en columna A, empezando en fila ~9
-    // Calculamos precio directamente del objeto PRICES para simplificar
+    // H: UNIT PRICE
     const price = PRICES[row.version] || '';
-    const pc = xRow.getCell(6);
+    const pc = xRow.getCell(8);
     pc.value = price;
     pc.numFmt = '"$"#,##0.00';
-    pc.style = { ...cellStyle({ bg, hAlign: 'right' }), numFmt: '"$"#,##0.00' };
+    pc.style  = { ...cellStyle({ bg, hAlign: 'right' }), numFmt: '"$"#,##0.00' };
 
-    // SUBTOTAL
-    const stc = xRow.getCell(7);
-    stc.value = { formula: `IF(OR(F${excelR}="",E${excelR}=""),"",F${excelR}*E${excelR})` };
+    // I: SUBTOTAL = (UNIT_PRICE + EXTRAS_COST) * QTY
+    const stc = xRow.getCell(9);
+    stc.value = { formula: `IF(OR(H${excelR}="",G${excelR}=""),"",( H${excelR}+F${excelR} )*G${excelR})` };
     stc.numFmt = '"$"#,##0.00';
     stc.style  = { ...cellStyle({ bg, hAlign: 'right' }), numFmt: '"$"#,##0.00' };
 
-    // RUNNING TOTAL
-    const rtc = xRow.getCell(8);
-    rtc.value = { formula: `IF(G${excelR}="","",SUM($G$3:G${excelR}))` };
+    // J: RUNNING TOTAL
+    const rtc = xRow.getCell(10);
+    rtc.value = { formula: `IF(I${excelR}="","",SUM($I$3:I${excelR}))` };
     rtc.numFmt = '"$"#,##0.00';
     rtc.style  = { ...cellStyle({ bg, hAlign: 'right' }), numFmt: '"$"#,##0.00' };
 
