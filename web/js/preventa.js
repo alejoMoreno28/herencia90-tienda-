@@ -340,8 +340,9 @@
         var tipoLabel = (item.tipo || '').replace(/-/g, ' ');
         var nFotos = imgs.length;
         var precio = pvGetPrecio(item.tipo);
+        var detailUrl = '/preventa/' + encodeURIComponent(item.slug || item.equipo || '');
 
-        return '<div class="pv-card-item" onclick="pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
+        return '<a class="pv-card-item" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
             '<div class="pv-card-img-wrap">' +
                 (img1 ? '<img class="pv-img-main" src="' + img1 + '" alt="' + escHtml(item.equipo) + '" loading="lazy" decoding="async">' : '') +
                 (img2 ? '<img class="pv-img-hover" src="' + img2 + '" alt="' + escHtml(item.equipo) + ' - foto 2" loading="lazy" decoding="async">' : '') +
@@ -355,7 +356,7 @@
                 '<div class="pv-card-meta">' + escHtml(item.temporada) + ' &middot; ' + escHtml(tipoLabel) + '</div>' +
                 '<div class="pv-card-cta"><i class="ph-bold ph-eye"></i> Ver fotos</div>' +
             '</div>' +
-        '</div>';
+        '</a>';
     }
 
     function buildSections(items) {

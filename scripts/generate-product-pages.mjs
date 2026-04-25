@@ -6,10 +6,13 @@ const siteUrl = 'https://www.herencia90.shop';
 const supabaseUrl = process.env.SUPABASE_URL || 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
 const supabaseProductsUrl = `${supabaseUrl}/rest/v1/productos?select=*&order=id`;
+const supabasePreventaUrl = `${supabaseUrl}/rest/v1/preventa_catalogo?select=*&publicado=eq.true&order=destacado.desc&order=slug.asc`;
 const outputDir = path.join(root, 'web', 'camisetas');
+const preventaOutputDir = path.join(root, 'web', 'preventa');
 const categoryOutputDir = path.join(root, 'web', 'categorias');
 const cityOutputDir = path.join(root, 'web', 'ciudades');
 const productsPath = path.join(root, 'web', 'productos.json');
+const preventaCatalogPath = path.join(root, 'web', 'preventa-catalogo.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
 
@@ -41,6 +44,38 @@ async function loadProducts() {
 }
 
 const products = await loadProducts();
+
+async function loadPreventaItems() {
+  try {
+    const response = await fetch(supabasePreventaUrl, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase respondio ${response.status}`);
+    }
+
+    const liveItems = await response.json();
+
+    if (!Array.isArray(liveItems)) {
+      throw new Error('Supabase no devolvio preventa_catalogo como arreglo');
+    }
+
+    fs.writeFileSync(preventaCatalogPath, `${JSON.stringify(liveItems, null, 4)}\n`, 'utf8');
+    return liveItems;
+  } catch (error) {
+    console.warn(`No fue posible sincronizar preventa desde Supabase: ${error.message}`);
+    if (fs.existsSync(preventaCatalogPath)) {
+      return JSON.parse(fs.readFileSync(preventaCatalogPath, 'utf8'));
+    }
+    return [];
+  }
+}
+
+const preventaItems = await loadPreventaItems();
 
 function normalizeText(value) {
   return String(value || '')
@@ -202,6 +237,43 @@ function formatPrice(value) {
   }).format(value);
 }
 
+function getPreventaPrice(item) {
+  if (Number(item.precio_aprox) > 0) return Number(item.precio_aprox);
+  const prices = { fan: 99000, player: 110000, 'manga-larga': 110000, retro: 120000 };
+  return prices[item.tipo] || 99000;
+}
+
+function formatPreventaTipo(item) {
+  return String(item.tipo || 'preventa').replace(/-/g, ' ');
+}
+
+function buildPreventaTitle(item) {
+  const baseText = normalizeText([item.slug, item.equipo, item.tipo, ...(item.tags || [])].join(' '));
+  const name = String(item.equipo || '').trim();
+  const season = String(item.temporada || '').trim();
+  const type = formatPreventaTipo(item);
+  const variant = [
+    baseText.includes('local') && !normalizeText(name).includes('local') ? 'Local' : '',
+    baseText.includes('visitante') && !normalizeText(name).includes('visitante') ? 'Visitante' : '',
+    baseText.includes('tercera') && !normalizeText(name).includes('tercera') ? 'Tercera' : '',
+    baseText.includes('manga larga') || baseText.includes('manga-larga') ? 'Manga Larga' : '',
+    baseText.includes('player') && !normalizeText(name).includes('player') ? 'Player' : '',
+  ].filter(Boolean).join(' ');
+  const suffix = type !== 'fan' && !variant.toLowerCase().includes(type.toLowerCase()) ? type : '';
+  return ['Camiseta', name, variant, season, suffix].filter(Boolean).join(' ');
+}
+
+function buildPreventaMetaDescription(item) {
+  const title = buildPreventaTitle(item);
+  const price = formatPrice(getPreventaPrice(item));
+  return truncateText(`${title} por pre-venta en Colombia. Fotos de proveedor, anticipo 20%, entrega aprox. 15 dias. Desde ${price}.`, 158);
+}
+
+function buildPreventaWhatsAppUrl(item) {
+  const message = `Hola Herencia 90, quiero pedir por pre-venta la ${buildPreventaTitle(item)}. Vi esta referencia en ${getPreventaUrl(item)} y quiero confirmar talla, precio final y disponibilidad.`;
+  return `https://wa.me/573126428153?text=${encodeURIComponent(message)}`;
+}
+
 function truncateText(value, maxLength = 160) {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   if (text.length <= maxLength) return text;
@@ -242,6 +314,17 @@ function getProductUrls(product) {
   }
 
   return urls;
+}
+
+function getPreventaUrl(item) {
+  return `${siteUrl}/preventa/${slugify(item.slug || item.equipo)}`;
+}
+
+function getPreventaImageUrl(image) {
+  const raw = image?.url || image?.publicUrl || image;
+  if (!raw) return `${siteUrl}/img/logo.webp`;
+  if (String(raw).startsWith('http')) return raw;
+  return absoluteAssetUrl(String(raw));
 }
 
 function getCollectionUrl(collection) {
@@ -957,6 +1040,177 @@ function renderCollectionPage(collection) {
 </html>`;
 }
 
+function renderPreventaPage(item) {
+  const slug = slugify(item.slug || item.equipo);
+  const title = buildPreventaTitle(item);
+  const description = buildPreventaMetaDescription(item);
+  const price = getPreventaPrice(item);
+  const imageUrls = (Array.isArray(item.imagenes) && item.imagenes.length ? item.imagenes : [`${siteUrl}/img/logo.webp`]).map(getPreventaImageUrl);
+  const categoryLabel = item.categoria === 'selecciones' ? 'Selecciones' : 'Clubes';
+  const tipoLabel = formatPreventaTipo(item);
+  const related = preventaItems
+    .filter((candidate) => candidate.slug !== item.slug && candidate.categoria === item.categoria)
+    .slice(0, 4);
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Product',
+        name: title,
+        image: imageUrls,
+        description,
+        brand: {
+          '@type': 'Brand',
+          name: 'Herencia 90'
+        },
+        sku: `H90-PV-${slug}`,
+        category: `${categoryLabel} / ${tipoLabel}`,
+        url: getPreventaUrl(item),
+        offers: {
+          '@type': 'Offer',
+          url: getPreventaUrl(item),
+          priceCurrency: 'COP',
+          price,
+          availability: 'https://schema.org/PreOrder',
+          itemCondition: 'https://schema.org/NewCondition',
+          seller: {
+            '@type': 'Organization',
+            name: 'Herencia 90'
+          }
+        }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl}/` },
+          { '@type': 'ListItem', position: 2, name: 'Pre-venta', item: `${siteUrl}/preventa` },
+          { '@type': 'ListItem', position: 3, name: title, item: getPreventaUrl(item) }
+        ]
+      }
+    ]
+  };
+
+  const gallery = imageUrls.map((url, index) => `
+        <img src="${escapeHtml(url)}" alt="${escapeHtml(title)} foto ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async">
+      `).join('');
+  const relatedCards = related.map((candidate) => {
+    const relatedImage = getPreventaImageUrl(candidate.imagenes?.[0]);
+    return `
+        <a class="related-card" href="/preventa/${slugify(candidate.slug || candidate.equipo)}">
+          <img src="${escapeHtml(relatedImage)}" alt="${escapeHtml(buildPreventaTitle(candidate))}" loading="lazy" decoding="async">
+          <span>${escapeHtml(buildPreventaTitle(candidate))}</span>
+        </a>
+      `;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)} | Pre-venta Herencia 90</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <link rel="canonical" href="${getPreventaUrl(item)}">
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="Herencia 90">
+  <meta property="og:title" content="${escapeHtml(title)} | Herencia 90">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${getPreventaUrl(item)}">
+  <meta property="og:image" content="${escapeHtml(imageUrls[0])}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(title)} | Herencia 90">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
+  <meta name="twitter:image" content="${escapeHtml(imageUrls[0])}">
+  <link rel="icon" href="/img/logo.webp" type="image/webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+  <style>
+    :root { --bg:#050505; --panel:rgba(20,20,20,.84); --gold:#d9c391; --text:#fff; --muted:#aaa; --line:rgba(217,195,145,.16); --wa:#25d366; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Montserrat',sans-serif; color:var(--text); background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%); }
+    h1,h2,.price { font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; }
+    a { color:inherit; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 22px; border-bottom:1px solid var(--line); background:rgba(5,5,5,.88); position:sticky; top:0; z-index:5; backdrop-filter:blur(14px); }
+    .topbar img { height:42px; }
+    .topbar a { color:var(--muted); text-decoration:none; font-weight:700; font-size:.86rem; }
+    .shell { max-width:1180px; margin:0 auto; padding:34px 18px 72px; }
+    .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:.82rem; margin-bottom:20px; }
+    .breadcrumbs a { text-decoration:none; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr); gap:28px; align-items:start; }
+    .gallery,.panel,.trust,.related { background:var(--panel); border:1px solid var(--line); border-radius:26px; box-shadow:0 16px 48px rgba(0,0,0,.28); }
+    .gallery { padding:18px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .gallery img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f7f7f7; border-radius:18px; }
+    .panel { padding:28px; }
+    .eyebrow { display:inline-flex; padding:6px 14px; border:1px solid rgba(217,195,145,.26); border-radius:999px; color:var(--gold); background:rgba(217,195,145,.08); font-size:.72rem; text-transform:uppercase; letter-spacing:1.2px; font-weight:800; margin-bottom:14px; }
+    h1 { margin:0 0 12px; font-size:clamp(2rem,4vw,3.4rem); line-height:1.04; }
+    .description { color:var(--muted); line-height:1.65; margin:0 0 18px; }
+    .price { color:var(--gold); font-size:2rem; margin:0 0 18px; }
+    .meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
+    .meta div { border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:12px; background:rgba(255,255,255,.03); }
+    .meta strong { display:block; color:var(--gold); font-size:.76rem; text-transform:uppercase; margin-bottom:5px; }
+    .meta span { color:var(--muted); font-size:.88rem; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .btn { min-height:48px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:0 20px; font-weight:800; text-transform:uppercase; text-decoration:none; letter-spacing:.8px; font-size:.82rem; }
+    .btn-primary { background:var(--wa); color:#fff; }
+    .btn-secondary { border:1px solid rgba(217,195,145,.32); color:var(--gold); background:rgba(217,195,145,.08); }
+    .microcopy { color:var(--muted); font-size:.82rem; margin:14px 0 0; line-height:1.55; }
+    .trust,.related { margin-top:26px; padding:24px; }
+    .trust-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .trust-grid div { border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; background:rgba(255,255,255,.03); }
+    .trust-grid strong { color:var(--gold); display:block; margin-bottom:6px; }
+    .trust-grid p { margin:0; color:var(--muted); line-height:1.55; font-size:.9rem; }
+    .related-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .related-card { text-decoration:none; border:1px solid rgba(255,255,255,.08); border-radius:18px; overflow:hidden; background:rgba(255,255,255,.03); }
+    .related-card img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f7f7f7; display:block; }
+    .related-card span { display:block; padding:12px; color:var(--text); font-size:.84rem; font-weight:800; }
+    @media (max-width:820px) { .layout,.trust-grid,.related-grid { grid-template-columns:1fr; } .gallery { grid-template-columns:1fr; } .panel { padding:22px; } .shell { padding-top:22px; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="/preventa">Volver a pre-venta</a>
+    <a href="/"><img src="/img/logo.webp" alt="Herencia 90"></a>
+    <a href="/catalogo">Catalogo</a>
+  </header>
+  <main class="shell">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Inicio</a><span>/</span><a href="/preventa">Pre-venta</a><span>/</span><span>${escapeHtml(title)}</span>
+    </nav>
+    <section class="layout">
+      <div class="gallery">${gallery}</div>
+      <article class="panel">
+        <span class="eyebrow">${escapeHtml(categoryLabel)} · ${escapeHtml(tipoLabel)}</span>
+        <h1>${escapeHtml(title)}</h1>
+        <p class="description">${escapeHtml(description)}</p>
+        <div class="price">${escapeHtml(formatPrice(price))}</div>
+        <div class="meta">
+          <div><strong>Entrega</strong><span>Pre-venta aprox. 15 dias</span></div>
+          <div><strong>Anticipo</strong><span>20% para separar</span></div>
+          <div><strong>Temporada</strong><span>${escapeHtml(item.temporada || 'Consultar')}</span></div>
+          <div><strong>Fotos</strong><span>${imageUrls.length} fotos de proveedor</span></div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="${buildPreventaWhatsAppUrl(item)}" target="_blank" rel="noopener noreferrer">Pedir por WhatsApp</a>
+          <a class="btn btn-secondary" href="/preventa">Ver mas referencias</a>
+        </div>
+        <p class="microcopy">Confirmamos talla, version, precio final y extras antes de pedir. Las imagenes son referencia de proveedor y pueden variar levemente segun lote.</p>
+      </article>
+    </section>
+    <section class="trust">
+      <div class="trust-grid">
+        <div><strong>Compra guiada</strong><p>Te atendemos por WhatsApp para evitar errores de talla, version o referencia.</p></div>
+        <div><strong>Envio Colombia</strong><p>Despacho nacional con seguimiento y soporte durante el proceso.</p></div>
+        <div><strong>Pre-venta clara</strong><p>Anticipo del 20%, entrega aproximada de 15 dias y confirmacion antes de cerrar el pedido.</p></div>
+      </div>
+    </section>
+    ${relatedCards ? `<section class="related"><h2>Tambien puede gustarte</h2><div class="related-grid">${relatedCards}</div></section>` : ''}
+  </main>
+</body>
+</html>`;
+}
+
 function renderProductPage(product) {
   const slug = slugify(product.equipo);
   const availableSizes = getAvailableSizes(product);
@@ -1539,7 +1793,8 @@ function buildSitemap() {
     `${siteUrl}/`,
     `${siteUrl}/preventa`,
     ...seoCollections.map((collection) => getCollectionUrl(collection)),
-    ...products.flatMap((product) => getProductUrls(product))
+    ...products.flatMap((product) => getProductUrls(product)),
+    ...preventaItems.map((item) => getPreventaUrl(item))
   ];
 
   const items = urls
@@ -1554,6 +1809,7 @@ function buildRobots() {
 }
 
 fs.mkdirSync(outputDir, { recursive: true });
+fs.mkdirSync(preventaOutputDir, { recursive: true });
 fs.mkdirSync(categoryOutputDir, { recursive: true });
 fs.mkdirSync(cityOutputDir, { recursive: true });
 
@@ -1562,14 +1818,21 @@ for (const product of products) {
   fs.writeFileSync(filePath, renderProductPage(product), 'utf8');
 }
 
+for (const item of preventaItems) {
+  const filePath = path.join(preventaOutputDir, `${slugify(item.slug || item.equipo)}.html`);
+  fs.writeFileSync(filePath, renderPreventaPage(item), 'utf8');
+}
+
 for (const collection of seoCollections) {
   const filePath = collection.type === 'city' 
     ? path.join(cityOutputDir, `${collection.slug}.html`)
     : path.join(categoryOutputDir, `${collection.slug}.html`);
-  fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
+  }
 }
 
 fs.writeFileSync(sitemapPath, buildSitemap(), 'utf8');
 fs.writeFileSync(robotsPath, buildRobots(), 'utf8');
 
-console.log(`Generated ${products.length} product pages, sitemap.xml and robots.txt`);
+console.log(`Generated ${products.length} product pages, ${preventaItems.length} preventa pages, sitemap.xml and robots.txt`);

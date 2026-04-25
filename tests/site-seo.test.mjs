@@ -70,6 +70,8 @@ check('vercel rewrites include clean product and category URLs', () => {
   assert.match(vercelConfig, /"destination":\s*"\/categorias\/:slug\.html"/i);
   assert.match(vercelConfig, /"source":\s*"\/camisetas\/:slug"/i);
   assert.match(vercelConfig, /"destination":\s*"\/camisetas\/:slug\.html"/i);
+  assert.match(vercelConfig, /"source":\s*"\/preventa\/:slug"/i);
+  assert.match(vercelConfig, /"destination":\s*"\/preventa\/:slug\.html"/i);
 });
 
 check('a static product page exists for every product in the catalog', () => {
@@ -147,7 +149,9 @@ check('generator syncs products from Supabase and automation workflow exists', (
   const workflowPath = path.join(root, '.github', 'workflows', 'sync-seo-catalog.yml');
 
   assert.match(generatorScript, /rest\/v1\/productos\?select=\*&order=id/i);
+  assert.match(generatorScript, /rest\/v1\/preventa_catalogo\?select=\*&publicado=eq\.true/i);
   assert.match(generatorScript, /fs\.writeFileSync\(productsPath/i);
+  assert.match(generatorScript, /fs\.writeFileSync\(preventaCatalogPath/i);
   assert.ok(fs.existsSync(workflowPath), 'sync workflow should exist');
 
   const workflow = fs.readFileSync(workflowPath, 'utf8');
@@ -155,6 +159,23 @@ check('generator syncs products from Supabase and automation workflow exists', (
   assert.match(workflow, /workflow_dispatch:/i);
   assert.match(workflow, /node scripts\/generate-product-pages\.mjs/i);
   assert.match(workflow, /node tests\/site-seo\.test\.mjs/i);
+});
+
+check('static preventa pages exist and expose Product schema', () => {
+  const preventaPagesDir = path.join(root, 'web', 'preventa');
+  assert.ok(fs.existsSync(preventaPagesDir), 'web/preventa should exist');
+
+  const samplePage = path.join(preventaPagesDir, 'barcelona-1998-1999-local.html');
+  assert.ok(fs.existsSync(samplePage), 'sample preventa page should exist');
+
+  const sampleHtml = fs.readFileSync(samplePage, 'utf8');
+  assert.match(sampleHtml, /<link\s+rel="canonical"\s+href="https:\/\/www\.herencia90\.shop\/preventa\/barcelona-1998-1999-local"/i);
+  assert.match(sampleHtml, /"@type":"Product"/i);
+  assert.match(sampleHtml, /https:\/\/schema\.org\/PreOrder/i);
+  assert.match(sampleHtml, /Pedir por WhatsApp/i);
+
+  const sitemap = fs.readFileSync(path.join(root, 'web', 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/preventa\/barcelona-1998-1999-local/i);
 });
 
 check('static city pages exist and are included in the sitemap', () => {
