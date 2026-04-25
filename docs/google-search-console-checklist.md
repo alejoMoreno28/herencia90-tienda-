@@ -4,6 +4,7 @@ Estado actual:
 - Sitemap activo: `https://www.herencia90.shop/sitemap.xml`
 - Robots activo: `https://www.herencia90.shop/robots.txt`
 - URLs SEO activas por camiseta: `https://www.herencia90.shop/camisetas/...`
+- URLs SEO activas por preventa: `https://www.herencia90.shop/preventa/...`
 - Sincronizacion automatica del catalogo SEO: cada 6 horas desde GitHub Actions
 
 Pasos manuales obligatorios:
@@ -20,6 +21,16 @@ Pasos manuales obligatorios:
    - `https://www.herencia90.shop/camisetas/camiseta-local-barcelona-25-26`
    - `https://www.herencia90.shop/camisetas/camiseta-local-bayern-munich-25-26`
    - `https://www.herencia90.shop/camisetas/camiseta-local-colombia-26-mujer`
+   - `https://www.herencia90.shop/preventa/colombia-2024-centenary-blanca`
+   - `https://www.herencia90.shop/preventa/colombia-2024-2025-100-aniversario-negra`
+   - `https://www.herencia90.shop/preventa/colombia-2025-2026-visitante`
+   - `https://www.herencia90.shop/preventa/barcelona-1998-1999-local`
+   - `https://www.herencia90.shop/preventa/barcelona-2008-2009-local-manga-larga`
+   - `https://www.herencia90.shop/preventa/real-madrid-2011-2012-local`
+   - `https://www.herencia90.shop/preventa/real-madrid-2017-2018-visitante`
+   - `https://www.herencia90.shop/preventa/manchester-united-1998-1999-local`
+   - `https://www.herencia90.shop/preventa/ac-milan-2006-2007-local`
+   - `https://www.herencia90.shop/preventa/brasil-2002-local`
 
 Chequeo recomendado despues de indexar:
 1. Confirmar que Google lea el sitemap sin errores.
@@ -28,5 +39,6 @@ Chequeo recomendado despues de indexar:
 
 Notas utiles:
 - Las paginas SEO se regeneran automaticamente desde Supabase cada 6 horas.
+- Las paginas SEO de preventa ya existen como HTML estatico y estan incluidas en el sitemap.
 - Si agregas o editas una camiseta en el panel admin, el sitemap y las fichas deberian actualizarse solos en el siguiente ciclo.
 - Si quieres una sincronizacion inmediata fuera del horario, puedes ejecutar manualmente el workflow `Sync SEO Catalog` en GitHub Actions.
