@@ -55,7 +55,7 @@ const SHIPPING_5_PLUS = 0;
 
 // ── Tasa de cambio ─────────────────────────────────────────────────────────────
 // Actualizar antes de cada pedido según TRM del día (COP por 1 USD)
-const TRM = 4200;
+const TRM = 3551; // TRM 25 abril 2026 — actualizar antes de cada pedido
 
 // ── Constantes de imagen ───────────────────────────────────────────────────────
 const IMG_W  = 70;
