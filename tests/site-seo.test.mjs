@@ -178,6 +178,16 @@ check('static preventa pages exist and expose Product schema', () => {
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/preventa\/barcelona-1998-1999-local/i);
 });
 
+check('preventa gallery uses descriptive titles with season details', () => {
+  const preventaScript = read('web/js/preventa.js');
+
+  assert.match(preventaScript, /function getPreventaDisplayTitle\(item\)/i);
+  assert.match(preventaScript, /titleAlreadyHasSeason\(title,\s*temporada\)/i);
+  assert.match(preventaScript, /var displayTitle = getPreventaDisplayTitle\(item\)/i);
+  assert.match(preventaScript, /<div class="pv-card-equipo">'\s*\+\s*escHtml\(displayTitle\)/i);
+  assert.match(preventaScript, /pv-lb-equipo'\)\.textContent = getPreventaDisplayTitle\(r\)/i);
+});
+
 check('static city pages exist and are included in the sitemap', () => {
   const cityPagesDir = path.join(root, 'web', 'ciudades');
   assert.ok(fs.existsSync(cityPagesDir), 'web/ciudades should exist');

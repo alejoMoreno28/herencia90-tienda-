@@ -333,6 +333,67 @@
         return '$99.000';
     }
 
+    function normalizeKey(value) {
+        return normalizeText(value).replace(/[^a-z0-9]/g, '');
+    }
+
+    function getSeasonKeys(temporada) {
+        var raw = String(temporada || '').trim();
+        if (!raw) return [];
+
+        var keys = [normalizeKey(raw)];
+        var years = raw.match(/\d{2,4}/g) || [];
+        if (years.length >= 2) {
+            var first = years[0];
+            var second = years[1];
+            var shortFirst = first.length === 4 ? first.slice(2) : first;
+            var shortSecond = second.length === 4 ? second.slice(2) : second;
+            keys.push(normalizeKey(shortFirst + shortSecond));
+            keys.push(normalizeKey(shortFirst + '/' + shortSecond));
+            keys.push(normalizeKey(first + '/' + second));
+            keys.push(normalizeKey(first + '-' + second));
+        }
+
+        return keys.filter(Boolean);
+    }
+
+    function titleAlreadyHasSeason(title, temporada) {
+        var titleKey = normalizeKey(title);
+        var seasonKeys = getSeasonKeys(temporada);
+        for (var i = 0; i < seasonKeys.length; i++) {
+            if (seasonKeys[i] && titleKey.indexOf(seasonKeys[i]) !== -1) return true;
+        }
+        return false;
+    }
+
+    function getPreventaVariant(item) {
+        var titleText = normalizeText(item.equipo || '');
+        var sourceText = normalizeText([item.slug, item.equipo, item.tipo, item.descripcion].join(' '));
+        var parts = [];
+
+        if (sourceText.indexOf('local') !== -1 && titleText.indexOf('local') === -1) parts.push('Local');
+        if (sourceText.indexOf('visitante') !== -1 && titleText.indexOf('visitante') === -1) parts.push('Visitante');
+        if (sourceText.indexOf('tercera') !== -1 && titleText.indexOf('tercera') === -1) parts.push('Tercera');
+        if ((sourceText.indexOf('manga larga') !== -1 || sourceText.indexOf('manga-larga') !== -1) && titleText.indexOf('manga larga') === -1) parts.push('Manga Larga');
+        if (sourceText.indexOf('player') !== -1 && titleText.indexOf('player') === -1) parts.push('Player');
+
+        return parts.join(' ');
+    }
+
+    function getPreventaDisplayTitle(item) {
+        var title = String(item.equipo || '').trim();
+        var temporada = String(item.temporada || '').trim();
+        var variant = getPreventaVariant(item);
+        var tipo = String(item.tipo || '').replace(/-/g, ' ').trim();
+        var titleNorm = normalizeText(title);
+
+        if (temporada && !titleAlreadyHasSeason(title, temporada)) title += ' ' + temporada;
+        if (variant && normalizeText(title).indexOf(normalizeText(variant)) === -1) title += ' ' + variant;
+        if (tipo && tipo !== 'fan' && titleNorm.indexOf(normalizeText(tipo)) === -1 && normalizeText(title).indexOf(normalizeText(tipo)) === -1) title += ' ' + tipo;
+
+        return title.replace(/\s+/g, ' ').trim();
+    }
+
     function renderCard(item, idx, collectionKey) {
         var imgs = item.imagenes || [];
         var img1 = imgs[0] ? imgs[0].url : '';
@@ -341,17 +402,18 @@
         var nFotos = imgs.length;
         var precio = pvGetPrecio(item.tipo);
         var detailUrl = '/preventa/' + encodeURIComponent(item.slug || item.equipo || '');
+        var displayTitle = getPreventaDisplayTitle(item);
 
         return '<a class="pv-card-item" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
             '<div class="pv-card-img-wrap">' +
-                (img1 ? '<img class="pv-img-main" src="' + img1 + '" alt="' + escHtml(item.equipo) + '" loading="lazy" decoding="async">' : '') +
-                (img2 ? '<img class="pv-img-hover" src="' + img2 + '" alt="' + escHtml(item.equipo) + ' - foto 2" loading="lazy" decoding="async">' : '') +
+                (img1 ? '<img class="pv-img-main" src="' + img1 + '" alt="' + escHtml(displayTitle) + '" loading="lazy" decoding="async">' : '') +
+                (img2 ? '<img class="pv-img-hover" src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" loading="lazy" decoding="async">' : '') +
                 (item.destacado ? '<span class="pv-dest-badge">&#9733; Top</span>' : '') +
                 '<span class="pv-leadtime-badge"><i class="ph-bold ph-clock"></i> 15 d&iacute;as</span>' +
                 (nFotos > 1 ? '<span class="pv-photo-count"><i class="ph-bold ph-images"></i> ' + nFotos + '</span>' : '') +
             '</div>' +
             '<div class="pv-card-info">' +
-                '<div class="pv-card-equipo">' + escHtml(item.equipo) + '</div>' +
+                '<div class="pv-card-equipo">' + escHtml(displayTitle) + '</div>' +
                 '<div class="pv-card-precio">' + precio + '</div>' +
                 '<div class="pv-card-meta">' + escHtml(item.temporada) + ' &middot; ' + escHtml(tipoLabel) + '</div>' +
                 '<div class="pv-card-cta"><i class="ph-bold ph-eye"></i> Ver fotos</div>' +
@@ -720,7 +782,7 @@
             return;
         }
 
-        document.getElementById('pv-lb-equipo').textContent = r.equipo || '';
+        document.getElementById('pv-lb-equipo').textContent = getPreventaDisplayTitle(r);
         document.getElementById('pv-lb-meta').textContent = (r.temporada || '') + ' · ' + (r.tipo || '').replace(/-/g, ' ');
         document.getElementById('pv-lb-precio').textContent = pvGetPrecio(r.tipo);
 
@@ -760,7 +822,7 @@
         imgEl.classList.add('switching');
         setTimeout(function () {
             imgEl.src = imgs[_pvLbIdx].url;
-            imgEl.alt = (_pvLbData.equipo || '') + ' - foto ' + (_pvLbIdx + 1);
+            imgEl.alt = getPreventaDisplayTitle(_pvLbData) + ' - foto ' + (_pvLbIdx + 1);
             imgEl.classList.remove('switching');
         }, 150);
 
