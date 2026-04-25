@@ -20,10 +20,10 @@ Lectura:
 
 - estamos fuertes en retro europeo
 - estamos mejorando Colombia, Real Madrid y Barcelona
-- falta mucho mercado colombiano local
 - faltan selecciones mundialistas muy buscadas
 - faltan clubes globales de rotacion segura: Juventus, Dortmund, Ajax, PSG, Flamengo, Inter Miami
 - faltan recientes 2024-2026 que ayudan por demanda actual
+- decision comercial actual: no incluir clubes colombianos locales. Colombia se trabaja solo como Seleccion Colombia.
 
 ## 2. Regla de entrada para cualquier referencia
 
@@ -43,82 +43,64 @@ Si hay duda, no se sube. Se manda a revision manual.
 
 ## 3. Prioridad A - Agregar primero
 
-Estas son las mas importantes por mezcla de demanda, belleza visual y mercado colombiano.
+Estas son las mas importantes por mezcla de demanda, belleza visual y probabilidad de venta.
 
-### Colombia y mercado colombiano
+### Seleccion Colombia
 
-1. Atletico Nacional 1989 local - iconica, verde fuerte, mercado Medellin.
-2. Atletico Nacional 2001 local - retro vendible, muy pedida en Colombia.
-3. Atletico Nacional 2016 local Libertadores - moderna, emocional, alta recordacion.
-4. Atletico Nacional 2025/2026 local - demanda actual.
-5. Atletico Nacional 2025/2026 visitante - rotacion local.
-6. DIM 2004 local - retro poderosa para Medellin.
-7. DIM 2009 local - referencia campeona, buena nostalgia.
-8. DIM 2016 local - moderna y recordada.
-9. DIM 2025/2026 local - demanda actual.
-10. Millonarios 1987 local - retro nacional fuerte.
-11. Millonarios 2012 local - titulo recordado, buena busqueda.
-12. Millonarios 2025 local - demanda nacional.
-13. America de Cali 1987 local - retro roja muy vendible.
-14. America de Cali 2008 local - roja limpia, mercado grande.
-15. Deportivo Cali 1999 local - retro bonita, nicho colombiano.
-16. Junior 1993 local - buen mercado costa.
-17. Junior 2025 local - demanda actual.
-18. Santa Fe 2015 local - titulo internacional, buena recordacion.
-19. Colombia 1993 local - amarillo clasico, busqueda fuerte.
-20. Colombia 1994 local - mundial USA, visual retro muy vendible.
-21. Colombia 1994 visitante azul - una de las mas bonitas de seleccion.
-22. Colombia 2001 visitante roja - Copa America, faltante logico.
-23. Colombia 2014 visitante roja - Mundial Brasil, muy comercial.
-24. Colombia 2018 local - moderna, facil de vender.
-25. Colombia 2018 visitante azul - bonita y buscada.
-26. Colombia 2026 local hombre - si no esta en preventa, debe estar como ruta SEO fuerte.
-27. Colombia 2026 mujer - demanda actual y diferenciacion.
+1. Colombia 1993 local - amarillo clasico, busqueda fuerte.
+2. Colombia 1994 local - mundial USA, visual retro muy vendible.
+3. Colombia 1994 visitante azul - una de las mas bonitas de seleccion.
+4. Colombia 2001 visitante roja - Copa America, faltante logico.
+5. Colombia 2014 visitante roja - Mundial Brasil, muy comercial.
+6. Colombia 2018 local - moderna, facil de vender.
+7. Colombia 2018 visitante azul - bonita y buscada.
+8. Colombia 2026 local hombre - si no esta en preventa, debe estar como ruta SEO fuerte.
+9. Colombia 2026 mujer - demanda actual y diferenciacion.
 
 ### Clubes globales faltantes de alta rotacion
 
-28. Juventus 1995/1996 visitante azul/amarilla - Kappa, muy llamativa.
-29. Juventus 1997/1998 local - Zidane/Del Piero, clasica.
-30. Juventus 1998/1999 local - muy buscada, estetica limpia.
-31. Juventus 2002/2003 local - final Champions, vendible.
-32. Juventus 2015/2016 visitante rosa - rosa iconica, visual fuerte.
-33. Borussia Dortmund 1995/1996 local neon - retro vistosa.
-34. Borussia Dortmund 1996/1997 Champions local - campeona, amarilla potente.
-35. Borussia Dortmund 2012/2013 local - Klopp, bonita y reconocible.
-36. Ajax 1994/1995 local - campeona Champions, diseno limpio.
-37. Ajax 1995/1996 visitante - retro diferente, buena estetica.
-38. PSG 2001/2002 local Opel - Hechter clasica.
-39. PSG 2006/2007 local - azul/rojo elegante.
-40. PSG 2012/2013 local - inicio era moderna, buena rotacion.
-41. PSG 2021/2022 local Messi - demanda masiva por Messi.
-42. Inter Miami 2023 local Messi - tendencia fuerte por Messi.
-43. Inter Miami 2024/2025 local - rosa, muy comercial.
-44. Flamengo 1981 local - retro sudamericana fuerte.
-45. Flamengo 2019 local - Libertadores, mercado grande.
-46. Corinthians 2012 local - mundial de clubes, nicho fuerte.
-47. Palmeiras 2020 local - reciente y reconocible.
-48. Sao Paulo 1992 local - retro sudamericana bonita.
+1. Juventus 1995/1996 visitante azul/amarilla - Kappa, muy llamativa.
+2. Juventus 1997/1998 local - Zidane/Del Piero, clasica.
+3. Juventus 1998/1999 local - muy buscada, estetica limpia.
+4. Juventus 2002/2003 local - final Champions, vendible.
+5. Juventus 2015/2016 visitante rosa - rosa iconica, visual fuerte.
+6. Borussia Dortmund 1995/1996 local neon - retro vistosa.
+7. Borussia Dortmund 1996/1997 Champions local - campeona, amarilla potente.
+8. Borussia Dortmund 2012/2013 local - Klopp, bonita y reconocible.
+9. Ajax 1994/1995 local - campeona Champions, diseno limpio.
+10. Ajax 1995/1996 visitante - retro diferente, buena estetica.
+11. PSG 2001/2002 local Opel - Hechter clasica.
+12. PSG 2006/2007 local - azul/rojo elegante.
+13. PSG 2012/2013 local - inicio era moderna, buena rotacion.
+14. PSG 2021/2022 local Messi - demanda masiva por Messi.
+15. Inter Miami 2023 local Messi - tendencia fuerte por Messi.
+16. Inter Miami 2024/2025 local - rosa, muy comercial.
+17. Flamengo 1981 local - retro sudamericana fuerte.
+18. Flamengo 2019 local - Libertadores, mercado grande.
+19. Corinthians 2012 local - mundial de clubes, nicho fuerte.
+20. Palmeiras 2020 local - reciente y reconocible.
+21. Sao Paulo 1992 local - retro sudamericana bonita.
 
 ### Selecciones globales muy vendibles
 
-49. Mexico 1998 local Azteca - probablemente una de las retro mas bonitas.
-50. Mexico 2010 visitante negra - visual muy comercial.
-51. Nigeria 1994 local - retro famosa y bonita.
-52. Nigeria 2018 local - una de las camisetas modernas mas deseadas.
-53. Japan 1998 local flames - muy vistosa.
-54. Japan 2022 local origami - moderna y bonita.
-55. Croatia 1998 local - iconica, cuadriculada.
-56. Croatia 2018 local - finalista Mundial, comercial.
-57. Uruguay 2010 local - Forlan/Suarez, limpia.
-58. Cameroon 2002 local - controversial/iconica.
-59. England 1990 local - retro global.
-60. England 1996 local - Euro 96, muy vendible.
-61. France 2000 local - campeona Euro, azul clasica.
-62. France 2002 visitante blanca - Zidane era, bonita.
-63. Brazil 1994 local - mundial USA, faltante fuerte.
-64. Brazil 2004/2005 visitante azul - Ronaldinho, muy vendible.
-65. Argentina 1998 local - Batistuta, rayas clasicas.
-66. Argentina 2006 local - Messi debut mundialista, alta demanda.
+1. Mexico 1998 local Azteca - probablemente una de las retro mas bonitas.
+2. Mexico 2010 visitante negra - visual muy comercial.
+3. Nigeria 1994 local - retro famosa y bonita.
+4. Nigeria 2018 local - una de las camisetas modernas mas deseadas.
+5. Japan 1998 local flames - muy vistosa.
+6. Japan 2022 local origami - moderna y bonita.
+7. Croatia 1998 local - iconica, cuadriculada.
+8. Croatia 2018 local - finalista Mundial, comercial.
+9. Uruguay 2010 local - Forlan/Suarez, limpia.
+10. Cameroon 2002 local - controversial/iconica.
+11. England 1990 local - retro global.
+12. England 1996 local - Euro 96, muy vendible.
+13. France 2000 local - campeona Euro, azul clasica.
+14. France 2002 visitante blanca - Zidane era, bonita.
+15. Brazil 1994 local - mundial USA, faltante fuerte.
+16. Brazil 2004/2005 visitante azul - Ronaldinho, muy vendible.
+17. Argentina 1998 local - Batistuta, rayas clasicas.
+18. Argentina 2006 local - Messi debut mundialista, alta demanda.
 
 ## 4. Prioridad B - Muy buenas para crecer el catalogo
 
@@ -225,31 +207,31 @@ Estas son las mas importantes por mezcla de demanda, belleza visual y mercado co
 
 Si vamos a buscar fotos ya, empezaria con estas 25:
 
-1. Atletico Nacional 1989 local
-2. Atletico Nacional 2001 local
-3. DIM 2004 local
-4. Millonarios 2012 local
-5. Colombia 1994 local
-6. Colombia 1994 visitante azul
-7. Colombia 2014 visitante roja
-8. Juventus 1997/1998 local
-9. Juventus 2015/2016 visitante rosa
-10. Dortmund 1996/1997 Champions local
-11. Ajax 1994/1995 local
-12. PSG 2001/2002 local Opel
-13. Inter Miami 2024/2025 local
-14. Mexico 1998 local
-15. Nigeria 2018 local
-16. Japan 1998 local
-17. Brazil 1994 local
-18. Argentina 2006 local
-19. Real Madrid 2014/2015 tercera negra dragon
-20. Barcelona 2011/2012 visitante negra
-21. Manchester United 1993/1995 visitante negra
-22. Arsenal 2002/2004 local O2
-23. Chelsea 2012/2013 local dorada
-24. Liverpool 2019/2020 local
-25. Fiorentina 1998/1999 local Nintendo
+1. Colombia 1994 local
+2. Colombia 1994 visitante azul
+3. Colombia 2014 visitante roja
+4. Colombia 2018 visitante azul
+5. Juventus 1997/1998 local
+6. Juventus 2015/2016 visitante rosa
+7. Dortmund 1996/1997 Champions local
+8. Ajax 1994/1995 local
+9. PSG 2001/2002 local Opel
+10. Inter Miami 2024/2025 local
+11. Mexico 1998 local
+12. Nigeria 2018 local
+13. Japan 1998 local
+14. Brazil 1994 local
+15. Argentina 2006 local
+16. Real Madrid 2014/2015 tercera negra dragon
+17. Barcelona 2011/2012 visitante negra
+18. Manchester United 1993/1995 visitante negra
+19. Arsenal 2002/2004 local O2
+20. Chelsea 2012/2013 local dorada
+21. Liverpool 2019/2020 local
+22. Fiorentina 1998/1999 local Nintendo
+23. AC Milan 2002/2003 local
+24. Napoli 2022/2023 local
+25. Manchester City 2022/2023 local
 
 ## 7. Como se debe ejecutar
 
@@ -264,4 +246,3 @@ Flujo correcto:
 7. correr generador SEO
 8. correr tests
 9. pedir revision antes de push
-
