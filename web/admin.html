@@ -279,9 +279,43 @@
                                     <label>Detalle</label>
                                     <textarea id="t-desc" rows="2" placeholder="Ej: Compra Cajas o Venta Camiseta" required></textarea>
                                 </div>
-                                <div class="form-group" id="t-costo-group" style="display:none; border-top:1px solid #eee; padding-top:10px;">
-                                    <label style="color:var(--gold)">Costo del producto en USD (Para calcular ganancia real)</label>
-                                    <input type="number" id="t-costo-usd" min="0" step="0.01" placeholder="Ej: 10.44">
+                                <!-- BLOQUE VENTA: aparece solo cuando categoria = Venta de Producto -->
+                                <div id="t-venta-group" style="display:none; border-top:2px solid var(--gold); padding-top:12px; margin-top:8px;">
+                                    <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">🛍️ ¿Qué vendiste?</div>
+
+                                    <div class="form-group" style="margin-bottom:8px;">
+                                        <label style="font-size:11px;">Camiseta</label>
+                                        <select id="t-prod-select" onchange="onProductSelect()">
+                                            <option value="">-- Selecciona la camiseta --</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="display:flex; gap:8px; margin-bottom:6px;">
+                                        <div style="flex:2;">
+                                            <label style="font-size:11px; display:block; margin-bottom:3px;">Talla</label>
+                                            <select id="t-talla-select" onchange="onTallaSelect()">
+                                                <option value="">-- Talla --</option>
+                                            </select>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <label style="font-size:11px; display:block; margin-bottom:3px;">Cantidad</label>
+                                            <input type="number" id="t-cantidad" min="1" value="1" style="text-align:center;" oninput="onTallaSelect()">
+                                        </div>
+                                    </div>
+
+                                    <div id="t-stock-badge" style="font-size:11px; padding:4px 10px; border-radius:20px; display:none; margin-bottom:8px; font-weight:600;"></div>
+
+                                    <div id="t-info-panel" style="background:#fffbf0; border:1px solid #f0d080; padding:10px 12px; border-radius:8px; display:none; font-size:12px; line-height:2;">
+                                        <div>💸 Costo real estimado: <b id="t-costo-cop-display" style="color:#c0392b;">-</b> <span style="color:#999; font-size:10px;">(USD × TRM + $10k envío + $3k caja)</span></div>
+                                        <div style="border-top:1px dashed #f0d080; margin:4px 0;"></div>
+                                        <div>📊 Para <b>50% margen</b>: <b id="t-precio-50" style="color:#2980b9;">-</b></div>
+                                        <div>📊 Para <b>65% margen</b>: <b id="t-precio-65" style="color:#198754;">-</b></div>
+                                        <div style="font-size:11px; color:#888; border-top:1px dashed #f0d080; margin-top:4px; padding-top:4px;">Precio catálogo actual: <b id="t-precio-actual">-</b></div>
+                                    </div>
+
+                                    <input type="hidden" id="t-costo-usd" value="0">
+                                    <input type="hidden" id="t-prod-id" value="">
+                                    <input type="hidden" id="t-prod-talla" value="">
                                 </div>
                                 <!-- Costos rapidos dentro del formulario -->
                                 <div style="border-top:1px dashed #ddd; margin-top:12px; padding-top:12px;">
@@ -683,9 +717,83 @@
 
         function checkVenta() {
             const isVenta = document.getElementById('t-tipo').value === 'ingreso' && document.getElementById('t-categoria').value.includes('Venta');
-            document.getElementById('t-costo-group').style.display = isVenta ? 'block' : 'none';
+            const grp = document.getElementById('t-venta-group');
+            grp.style.display = isVenta ? 'block' : 'none';
+            if (isVenta) populateProductSelect();
         }
         document.getElementById('t-categoria').addEventListener('change', checkVenta);
+
+        function populateProductSelect() {
+            const sel = document.getElementById('t-prod-select');
+            const current = sel.value;
+            sel.innerHTML = '<option value="">-- Selecciona la camiseta --</option>' +
+                productData.map(p => {
+                    const totalStock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
+                    const label = `${p.equipo}${p.descripcion ? ' — ' + p.descripcion : ''} (stock: ${totalStock})`;
+                    return `<option value="${p.id}" ${p.id==current?'selected':''}>${label}</option>`;
+                }).join('');
+        }
+
+        function onProductSelect() {
+            const prodId = document.getElementById('t-prod-select').value;
+            const tallaEl = document.getElementById('t-talla-select');
+            const infoPanel = document.getElementById('t-info-panel');
+            const stockBadge = document.getElementById('t-stock-badge');
+            document.getElementById('t-prod-id').value = prodId;
+            tallaEl.innerHTML = '<option value="">-- Talla --</option>';
+            infoPanel.style.display = 'none';
+            stockBadge.style.display = 'none';
+            document.getElementById('t-prod-talla').value = '';
+            document.getElementById('t-costo-usd').value = '0';
+            if (!prodId) return;
+            const prod = productData.find(p => p.id == prodId);
+            if (!prod) return;
+            const tallas = prod.tallas || {};
+            Object.entries(tallas).forEach(([t, cant]) => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = `${t} — ${cant} unid.`;
+                if (cant === 0) opt.style.color = '#ccc';
+                tallaEl.appendChild(opt);
+            });
+            document.getElementById('t-costo-usd').value = prod.costo_usd || 0;
+        }
+
+        function onTallaSelect() {
+            const prodId = document.getElementById('t-prod-id').value;
+            const talla = document.getElementById('t-talla-select').value;
+            const cantidad = parseInt(document.getElementById('t-cantidad').value) || 1;
+            const stockBadge = document.getElementById('t-stock-badge');
+            const infoPanel = document.getElementById('t-info-panel');
+            document.getElementById('t-prod-talla').value = talla;
+            if (!prodId || !talla) { stockBadge.style.display='none'; infoPanel.style.display='none'; return; }
+            const prod = productData.find(p => p.id == prodId);
+            if (!prod) return;
+            const stock = (prod.tallas||{})[talla] || 0;
+            const ok = stock >= cantidad;
+            stockBadge.style.display = 'block';
+            stockBadge.style.background = ok ? '#d4edda' : '#f8d7da';
+            stockBadge.style.color = ok ? '#155724' : '#721c24';
+            stockBadge.textContent = ok
+                ? `✅ Stock disponible talla ${talla}: ${stock} unid. (vendes ${cantidad})`
+                : `⚠️ Solo hay ${stock} unid. en talla ${talla}`;
+
+            const costoUsd = prod.costo_usd || 0;
+            const costoCOP = costoUsd * GLOBAL_TRM * cantidad;
+            const totalCosto = costoCOP + 10000 + 3000;
+            const p50 = totalCosto / 0.50;
+            const p65 = totalCosto / 0.35;
+            document.getElementById('t-costo-cop-display').textContent = formatter.format(Math.round(totalCosto));
+            document.getElementById('t-precio-50').textContent = formatter.format(Math.round(p50));
+            document.getElementById('t-precio-65').textContent = formatter.format(Math.round(p65));
+            document.getElementById('t-precio-actual').textContent = formatter.format(prod.precio || 0);
+            infoPanel.style.display = 'block';
+
+            // Auto-fill descripcion
+            const desc = document.getElementById('t-desc');
+            const name = prod.equipo + (prod.descripcion ? ' ' + prod.descripcion : '');
+            desc.value = cantidad > 1 ? `${cantidad}x ${name} talla ${talla}` : `${name} talla ${talla}`;
+        }
 
         function calcCOP() {
             const val = parseFloat(document.getElementById('t-monto').value) || 0;
@@ -716,10 +824,27 @@
             if (error) { alert("Error guardando: " + error.message); return; }
             financeData.transacciones.push(saved);
             financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            showToast("Transacción guardada");
+
+            // Descontar inventario si es venta de producto
+            const prodId = document.getElementById('t-prod-id').value;
+            const talla  = document.getElementById('t-prod-talla').value;
+            const cantidad = parseInt(document.getElementById('t-cantidad').value) || 1;
+            if (prodId && talla) {
+                const prodIdx = productData.findIndex(p => p.id == prodId);
+                if (prodIdx !== -1) {
+                    const newStock = Math.max(0, (productData[prodIdx].tallas[talla] || 0) - cantidad);
+                    productData[prodIdx].tallas[talla] = newStock;
+                    await db.from('productos').update({ tallas: productData[prodIdx].tallas }).eq('id', prodId);
+                    renderInventory();
+                    calculateInventoryValuation();
+                }
+            }
+
+            showToast("Transacción guardada ✅");
             document.getElementById('transForm').reset();
             document.getElementById('t-fecha').valueAsDate = new Date();
             updateCategories(); calcCOP(); renderFinance();
+            populateProductSelect();
         }
 
         async function quickAdd(tipo) {
