@@ -283,11 +283,17 @@
                                 <div id="t-venta-group" style="display:none; border-top:2px solid var(--gold); padding-top:12px; margin-top:8px;">
                                     <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">🛍️ ¿Qué vendiste?</div>
 
-                                    <div class="form-group" style="margin-bottom:8px;">
+                                    <div class="form-group" style="margin-bottom:8px; position:relative;">
                                         <label style="font-size:11px;">Camiseta</label>
-                                        <select id="t-prod-select" onchange="onProductSelect()">
-                                            <option value="">-- Selecciona la camiseta --</option>
-                                        </select>
+                                        <div style="position:relative;">
+                                            <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none;">🔍</span>
+                                            <input type="text" id="t-prod-search" autocomplete="off"
+                                                placeholder="Escribe el equipo o descripción..."
+                                                style="padding-left:32px; width:100%; box-sizing:border-box;"
+                                                oninput="filterProductList()" onfocus="showProductList()" onblur="hideProductList()">
+                                        </div>
+                                        <div id="t-prod-dropdown" style="display:none; position:absolute; z-index:1000; background:#fff; border:1px solid #ddd; border-top:none; border-radius:0 0 8px 8px; max-height:200px; overflow-y:auto; width:100%; box-shadow:0 4px 12px rgba(0,0,0,.1); left:0;"></div>
+                                        <input type="hidden" id="t-prod-select" value="">
                                     </div>
 
                                     <div style="display:flex; gap:8px; margin-bottom:6px;">
@@ -724,14 +730,46 @@
         document.getElementById('t-categoria').addEventListener('change', checkVenta);
 
         function populateProductSelect() {
-            const sel = document.getElementById('t-prod-select');
-            const current = sel.value;
-            sel.innerHTML = '<option value="">-- Selecciona la camiseta --</option>' +
-                productData.map(p => {
-                    const totalStock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
-                    const label = `${p.equipo}${p.descripcion ? ' — ' + p.descripcion : ''} (stock: ${totalStock})`;
-                    return `<option value="${p.id}" ${p.id==current?'selected':''}>${label}</option>`;
-                }).join('');
+            document.getElementById('t-prod-search').value = '';
+            document.getElementById('t-prod-select').value = '';
+            document.getElementById('t-prod-id').value = '';
+        }
+
+        let _hideTimer = null;
+        function showProductList() { filterProductList(); }
+        function hideProductList() { _hideTimer = setTimeout(() => { document.getElementById('t-prod-dropdown').style.display = 'none'; }, 200); }
+
+        function filterProductList() {
+            const q = document.getElementById('t-prod-search').value.toLowerCase();
+            const dd = document.getElementById('t-prod-dropdown');
+            const matches = productData.filter(p => {
+                const txt = ((p.equipo||'') + ' ' + (p.descripcion||'')).toLowerCase();
+                return txt.includes(q);
+            });
+            if (!matches.length) { dd.style.display = 'none'; return; }
+            dd.innerHTML = matches.map(p => {
+                const totalStock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
+                const stockColor = totalStock > 5 ? '#198754' : totalStock > 0 ? '#e67e22' : '#c0392b';
+                const name = p.equipo + (p.descripcion ? ' — ' + p.descripcion : '');
+                return `<div data-id="${p.id}" onmousedown="selectProduct(${p.id})"
+                    style="padding:9px 14px; cursor:pointer; border-bottom:1px solid #f5f5f5; font-size:13px;"
+                    onmouseover="this.style.background='#fff8e8'" onmouseout="this.style.background='#fff'">
+                    <span style="font-weight:600;">${name}</span>
+                    <span style="float:right; font-size:11px; font-weight:700; color:${stockColor};">${totalStock} uds</span>
+                </div>`;
+            }).join('');
+            dd.style.display = 'block';
+        }
+
+        function selectProduct(prodId) {
+            clearTimeout(_hideTimer);
+            const prod = productData.find(p => p.id == prodId);
+            if (!prod) return;
+            const name = prod.equipo + (prod.descripcion ? ' — ' + prod.descripcion : '');
+            document.getElementById('t-prod-search').value = name;
+            document.getElementById('t-prod-select').value = prodId;
+            document.getElementById('t-prod-dropdown').style.display = 'none';
+            onProductSelect();
         }
 
         function onProductSelect() {
@@ -749,11 +787,14 @@
             const prod = productData.find(p => p.id == prodId);
             if (!prod) return;
             const tallas = prod.tallas || {};
-            Object.entries(tallas).forEach(([t, cant]) => {
+            const orden = ['S','M','L','XL','XXL'];
+            const tallasSorted = orden.filter(t => tallas[t] !== undefined).concat(Object.keys(tallas).filter(t => !orden.includes(t)));
+            tallasSorted.forEach(t => {
+                const cant = tallas[t] || 0;
                 const opt = document.createElement('option');
                 opt.value = t;
-                opt.textContent = `${t} — ${cant} unid.`;
-                if (cant === 0) opt.style.color = '#ccc';
+                opt.textContent = cant > 0 ? `${t}  —  ${cant} disponibles` : `${t}  —  Agotada`;
+                if (cant === 0) { opt.style.color = '#bbb'; opt.disabled = true; }
                 tallaEl.appendChild(opt);
             });
             document.getElementById('t-costo-usd').value = prod.costo_usd || 0;
@@ -842,9 +883,12 @@
 
             showToast("Transacción guardada ✅");
             document.getElementById('transForm').reset();
+            document.getElementById('t-prod-search').value = '';
+            document.getElementById('t-talla-select').innerHTML = '<option value="">-- Talla --</option>';
+            document.getElementById('t-stock-badge').style.display = 'none';
+            document.getElementById('t-info-panel').style.display = 'none';
             document.getElementById('t-fecha').valueAsDate = new Date();
             updateCategories(); calcCOP(); renderFinance();
-            populateProductSelect();
         }
 
         async function quickAdd(tipo) {
