@@ -702,7 +702,6 @@
             const usdVal = isUSD ? val : (val / GLOBAL_TRM);
 
             const trans = {
-                id: crypto.randomUUID(),
                 tipo: document.getElementById('t-tipo').value,
                 categoria: document.getElementById('t-categoria').value,
                 fecha: document.getElementById('t-fecha').value,
@@ -733,7 +732,7 @@
             const descripcion = (desc ? `${tipo === 'envio' ? 'Envío' : 'Caja'} — ${desc}` : (tipo === 'envio' ? 'Envío' : 'Caja'));
             const today = new Date().toISOString().split('T')[0];
             const trans = {
-                id: crypto.randomUUID(), tipo: 'gasto', categoria,
+                tipo: 'gasto', categoria,
                 fecha: today, monto, usd_amount: monto / GLOBAL_TRM, trm: GLOBAL_TRM,
                 descripcion, costo_usd_asociado: 0
             };
