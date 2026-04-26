@@ -839,6 +839,10 @@
             }
             trans.costo_usd_asociado = totalCostoUsd;
 
+            // Generar ID numerico si la columna no tiene secuencia en Supabase
+            const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+
             const { data: saved, error } = await db.from('transacciones').insert(trans).select().single();
             if (error) { alert("Error guardando: " + error.message); return; }
             financeData.transacciones.push(saved);
