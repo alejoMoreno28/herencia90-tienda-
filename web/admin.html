@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/admin-finance-metrics.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -73,22 +74,46 @@
         .toast { position: fixed; bottom: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-weight: bold; z-index: 9999; }
 
         /* --- DASHBOARD CARDS --- */
-        .finance-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 4px solid #ccc; }
-        .stat-card.caja { border-color: #333; }
-        .stat-card.income { border-color: var(--success); }
-        .stat-card.expense { border-color: var(--danger); }
-        .stat-card.profit { border-color: var(--gold); }
-        .stat-card.stock-val { border-color: var(--info); }
-        .stat-card h4 { margin: 0 0 5px 0; color: #666; font-size: 11px; text-transform: uppercase; font-weight: 700; }
-        .stat-card .value { font-size: 22px; font-weight: 900; color: #111; }
-        .stat-card .sub-value { font-size: 11px; color: #888; margin-top: 5px; }
+        .finance-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 16px; background: #fff; border: 1px solid #e8e3d5; border-radius: 8px; padding: 14px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .finance-toolbar .eyebrow { font-size: 10px; font-weight: 800; color: #8a743f; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 3px; }
+        .finance-toolbar strong { display: block; color: #111; font-size: 15px; }
+        .finance-toolbar span { display: block; color: #777; font-size: 11px; margin-top: 3px; }
+        .finance-period-control { display: flex; align-items: center; gap: 8px; min-width: 220px; }
+        .finance-period-control label { font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; }
+        .finance-period-control select { width: auto; min-width: 150px; }
+        .finance-alert { display: none; margin-bottom: 16px; background: #fff7e6; color: #7a4d00; border: 1px solid #f0cf8a; border-left: 4px solid #f0ad4e; border-radius: 8px; padding: 10px 14px; font-size: 12px; font-weight: 700; }
+        .finance-cards { display: grid; grid-template-columns: repeat(6, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px 18px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; border-top: 4px solid #ccc; min-height: 118px; }
+        .stat-card.primary { grid-column: span 2; background: #111; color: #fff; border-color: var(--gold); }
+        .stat-card.caja { border-top-color: #333; }
+        .stat-card.income { border-top-color: var(--success); }
+        .stat-card.expense { border-top-color: var(--danger); }
+        .stat-card.profit { border-top-color: var(--gold); }
+        .stat-card.stock-val { border-top-color: var(--info); }
+        .stat-card.asset { border-top-color: #6f42c1; }
+        .stat-card h4 { margin: 0 0 7px 0; color: #666; font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: .2px; }
+        .stat-card.primary h4 { color: #d9c391; }
+        .stat-card .value { font-size: 22px; font-weight: 900; color: #111; line-height: 1.1; }
+        .stat-card.primary .value { color: #fff; font-size: 28px; }
+        .stat-card .value.negative { color: var(--danger); }
+        .stat-card .sub-value { font-size: 11px; color: #888; margin-top: 7px; line-height: 1.35; }
+        .stat-card.primary .sub-value { color: #cfc7b5; }
+        .metric-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 11px; color: #555; font-weight: 700; }
+        .stat-card.primary .metric-meta { color: #e8ddb9; }
+        .metric-chip { background: #f6f1e2; color: #5f4b18; border-radius: 999px; padding: 3px 8px; }
+        .stat-card.primary .metric-chip { background: rgba(217,195,145,.18); color: #f5e5b9; }
 
         /* --- GRID FINANZAS --- */
         .finance-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 1000px) { .finance-layout { grid-template-columns: 1fr; } }
+        .chart-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 20px; }
         .chart-container, .form-container, .table-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .chart-container h3, .form-container h3, .table-container h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 10px; text-transform: uppercase;}
+        .chart-caption { margin: -4px 0 12px; color: #777; font-size: 11px; line-height: 1.4; }
+        .chart-canvas-wrap { position: relative; height: 230px; overflow: hidden; }
+        .chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; display: block; }
+        @media (max-width: 1280px) { .finance-cards { grid-template-columns: repeat(3, minmax(180px, 1fr)); } .stat-card.primary { grid-column: span 3; } .chart-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 760px) { .finance-toolbar { align-items: stretch; flex-direction: column; } .finance-period-control { width: 100%; } .finance-period-control select { flex: 1; } .finance-cards { grid-template-columns: 1fr; } .stat-card.primary { grid-column: span 1; } }
         
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #555;}
@@ -176,49 +201,89 @@
             
             <!-- VISTA FINANZAS -->
             <div id="view-dashboard" class="view-section active">
-                
+                <div class="finance-toolbar">
+                    <div>
+                        <div class="eyebrow">Lectura financiera</div>
+                        <strong id="finance-period-label">Todos los meses</strong>
+                        <span>La utilidad realizada no mezcla compra de inventario con pérdida del negocio.</span>
+                    </div>
+                    <div class="finance-period-control">
+                        <label for="t-mes-filtro">Periodo</label>
+                        <select id="t-mes-filtro" onchange="renderFinance()">
+                            <option value="all">Todos los meses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="finance-alert" id="finance-alert" aria-live="polite"></div>
+
                 <div class="finance-cards">
-                    <div class="stat-card caja">
-                        <h4>💵 Caja (Líquido)</h4>
-                        <div class="value" id="stat-caja">$0</div>
+                    <div class="stat-card primary">
+                        <h4>🏆 Ganancia neta realizada</h4>
+                        <div class="value" id="stat-real-profit">$0</div>
+                        <div class="sub-value">Ventas - costo de camisetas vendidas - gastos de venta.</div>
+                        <div class="metric-meta">
+                            <span class="metric-chip" id="stat-net-margin">Margen neto: 0%</span>
+                            <span class="metric-chip" id="stat-sales-count">0 movimientos</span>
+                        </div>
                     </div>
-                    <div class="stat-card stock-val">
-                        <h4>📦 Valorización Inventario</h4>
-                        <div class="value" id="stat-inv-val">$0</div>
-                        <div class="sub-value" title="Ganancia potencial si se vende todo">Proyección Ganancia: <b id="stat-inv-prof">$0</b></div>
-                    </div>
-                    <div class="stat-card profit">
-                        <h4>💎 Ganancia Bruta Ventas</h4>
-                        <div class="value" id="stat-profit">$0</div>
-                        <div class="sub-value">Ventas - Costo de producto (sin gastos op.)</div>
+                    <div class="stat-card income">
+                        <h4>💰 Ventas cobradas</h4>
+                        <div class="value" id="stat-sales">$0</div>
+                        <div class="sub-value">Solo ventas de producto del periodo.</div>
                     </div>
                     <div class="stat-card expense">
-                        <h4>📉 Gastos Operacionales</h4>
-                        <div class="value" id="stat-expense">$0</div>
-                        <div class="sub-value">Envíos, empaques, publicidad, comisiones</div>
+                        <h4>👕 Costo producto vendido</h4>
+                        <div class="value" id="stat-cogs">$0</div>
+                        <div class="sub-value">Usa el costo USD asociado a cada venta.</div>
                     </div>
-                    <div class="stat-card" style="border-left-color:#6f42c1">
-                        <h4>🏆 Ganancia Real</h4>
-                        <div class="value" id="stat-real-profit" style="color:#6f42c1">$0</div>
-                        <div class="sub-value">Ganancia bruta - Todos los gastos</div>
+                    <div class="stat-card profit">
+                        <h4>💎 Ganancia antes de gastos</h4>
+                        <div class="value" id="stat-profit">$0</div>
+                        <div class="sub-value" id="stat-gross-margin">Ventas - costo producto vendido.</div>
+                    </div>
+                    <div class="stat-card expense">
+                        <h4>📉 Gastos de venta</h4>
+                        <div class="value" id="stat-expense">$0</div>
+                        <div class="sub-value">Envíos, empaques, publicidad, comisiones y varios.</div>
+                    </div>
+                    <div class="stat-card asset">
+                        <h4>📦 Compra inventario</h4>
+                        <div class="value" id="stat-inventory-spend">$0</div>
+                        <div class="sub-value">Baja caja, pero no es pérdida hasta vender.</div>
+                    </div>
+                    <div class="stat-card caja">
+                        <h4>💵 Caja disponible</h4>
+                        <div class="value" id="stat-caja">$0</div>
+                        <div class="sub-value" id="stat-cash-detail">Entradas - salidas reales de caja.</div>
+                    </div>
+                    <div class="stat-card stock-val">
+                        <h4>📦 Inventario al costo</h4>
+                        <div class="value" id="stat-inv-val">$0</div>
+                        <div class="sub-value" title="Ganancia potencial si se vende todo">Ganancia potencial no realizada: <b id="stat-inv-prof">$0</b></div>
                     </div>
                 </div>
 
                 <div class="finance-layout">
                     <!-- Izquierda: Gráfico y Transacciones -->
                     <div>
-                        <div class="chart-container" style="height:260px;">
-                            <h3>📊 Flujo Mensual</h3>
-                            <canvas id="financeChart"></canvas>
+                        <div class="chart-grid">
+                            <div class="chart-container" style="height:320px;">
+                                <h3>📊 Ganancia explicada</h3>
+                                <p class="chart-caption">La cascada muestra de dónde sale la utilidad: ventas, costo de producto, gastos y resultado neto.</p>
+                                <div class="chart-canvas-wrap"><canvas id="profitChart"></canvas></div>
+                            </div>
+                            <div class="chart-container" style="height:320px;">
+                                <h3>💵 Caja mensual</h3>
+                                <p class="chart-caption">Entradas y salidas de caja por mes, separado de la utilidad contable.</p>
+                                <div class="chart-canvas-wrap"><canvas id="cashChart"></canvas></div>
+                            </div>
                         </div>
 
                         <div class="table-container">
                             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom:10px;">
                                 <h3 style="margin:0; border:none; padding:0;">📝 Historial de Transacciones</h3>
                                 <div style="display:flex; gap:10px;">
-                                    <select id="t-mes-filtro" onchange="renderFinance()" style="width:auto; padding:4px; font-size:11px;">
-                                        <option value="all">Todos los meses</option>
-                                    </select>
                                     <button class="btn-add" style="background:#198754; font-size:11px; padding:4px 8px;" onclick="exportToExcel()">📥 Exportar Excel (.csv)</button>
                                 </div>
                             </div>
@@ -228,9 +293,9 @@
                                         <th>Fecha</th>
                                         <th>Categoría</th>
                                         <th>Descripción</th>
-                                        <th style="text-align:right" title="Costo producto + envío ($10.000) + caja ($3.000)">Total Costo</th>
-                                        <th style="text-align:right" title="(Precio venta - Total costo) / Precio venta">Margen</th>
-                                        <th style="text-align:right">Precio Venta</th>
+                                        <th style="text-align:right" title="Costo USD asociado a la venta convertido con la TRM guardada">Costo producto</th>
+                                        <th style="text-align:right" title="(Precio venta - costo producto) / precio venta">Margen bruto</th>
+                                        <th style="text-align:right">Precio / Monto</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -654,7 +719,8 @@
         let productData = [];
         let financeData = { transacciones: [] };
         let CATEGORIAS_INV = [];
-        let fChart = null;
+        let profitChart = null;
+        let cashChart = null;
 
         async function init() {
             await fetchTRM();
@@ -974,42 +1040,30 @@
         function renderFinance() {
             const tbody = document.getElementById('transactions-body');
             tbody.innerHTML = '';
-            
+
+            const allTransactions = financeData.transacciones || [];
             const mesSelect = document.getElementById('t-mes-filtro');
-            const mesesStr = [...new Set(financeData.transacciones.map(t => t.fecha.substring(0,7)))].sort().reverse();
-            if(mesSelect.options.length <= 1 && mesesStr.length > 0) {
-                mesesStr.forEach(m => { mesSelect.innerHTML += `<option value="${m}">${m}</option>`; });
-            }
+            const previousPeriod = mesSelect.value || 'all';
+            const mesesStr = [...new Set(allTransactions.map(t => (t.fecha || '').substring(0, 7)).filter(Boolean))].sort().reverse();
+            mesSelect.innerHTML = '<option value="all">Todos los meses</option>' + mesesStr.map(m => `<option value="${m}">${formatMonthLabel(m)}</option>`).join('');
+            mesSelect.value = previousPeriod === 'all' || mesesStr.includes(previousPeriod) ? previousPeriod : 'all';
+
             const filtro = mesSelect.value;
-            
-            let inVentas = 0, gCostoVentas = 0, totalIn = 0, totalOut = 0;
-            const mData = {};
+            const metrics = window.AdminFinance.computeFinanceMetrics(allTransactions, { globalTrm: GLOBAL_TRM, period: filtro });
+            const visibleTransactions = window.AdminFinance.filterByPeriod(allTransactions, filtro);
 
-            financeData.transacciones.forEach(t => {
+            visibleTransactions.forEach(t => {
                 const isIngreso = (t.tipo === 'ingreso');
-                
-                if(isIngreso) totalIn += t.monto; else totalOut += t.monto;
-                if(isIngreso && t.categoria.includes("Venta")) {
-                    inVentas += t.monto;
-                    if(t.costo_usd_asociado) gCostoVentas += (t.costo_usd_asociado * (t.trm || GLOBAL_TRM));
-                }
-
-                const m = t.fecha.substring(0,7);
-                if(!mData[m]) mData[m]={in:0,out:0};
-                mData[m][isIngreso ? 'in' : 'out'] += t.monto;
-
-                if(filtro !== 'all' && m !== filtro) return;
-
+                const isVenta = window.AdminFinance.isSale(t);
                 const bClass = isIngreso ? 'badge-in' : 'badge-out';
                 const s = isIngreso ? '+' : '-';
                 const c = isIngreso ? 'var(--success)' : 'var(--danger)';
 
-                // Columnas de costo, margen y precio venta — solo para ventas
-                let costoTotalStr = '--', margenStr = '--', precioVentaStr = '--', margenColor = '#888';
-                if (isIngreso && t.categoria && t.categoria.includes('Venta')) {
-                    const costoProducto = (t.costo_usd_asociado || 0) * (t.trm || GLOBAL_TRM);
+                let costoProductoStr = '--', margenStr = '--', precioVentaStr = '--', margenColor = '#888';
+                if (isVenta) {
+                    const costoProducto = (parseFloat(t.costo_usd_asociado) || 0) * (parseFloat(t.trm) || GLOBAL_TRM);
                     const margen = t.monto > 0 ? ((t.monto - costoProducto) / t.monto * 100) : 0;
-                    costoTotalStr = formatter.format(costoProducto);
+                    costoProductoStr = formatter.format(costoProducto);
                     margenStr = margen.toFixed(1) + '%';
                     precioVentaStr = formatter.format(t.monto);
                     margenColor = margen >= 40 ? 'var(--success)' : margen >= 20 ? '#fd7e14' : 'var(--danger)';
@@ -1018,8 +1072,8 @@
                 tbody.innerHTML += `<tr>
                     <td>${t.fecha}</td>
                     <td><span class="badge ${bClass}">${t.tipo.substr(0,3).toUpperCase()}</span><br><b>${t.categoria}</b></td>
-                    <td>${t.descripcion} ${t.costo_usd_asociado ? `<br><small style="color:#888">Costo producto: $${t.costo_usd_asociado} USD</small>`:''}</td>
-                    <td style="text-align:right; color:#666">${costoTotalStr}</td>
+                    <td>${t.descripcion || ''} ${t.costo_usd_asociado ? `<br><small style="color:#888">Costo producto: $${t.costo_usd_asociado} USD</small>`:''}</td>
+                    <td style="text-align:right; color:#666">${costoProductoStr}</td>
                     <td style="text-align:right; font-weight:700; color:${margenColor}">${margenStr}</td>
                     <td style="text-align:right; font-weight:900; color:${c}">${precioVentaStr !== '--' ? precioVentaStr : s+formatter.format(t.monto)}</td>
                     <td style="display:flex; gap:4px;">
@@ -1029,16 +1083,64 @@
                 </tr>`;
             });
 
-            const gananciaBruta = inVentas - gCostoVentas;
-            const gananciaReal = gananciaBruta - totalOut;
-            document.getElementById('stat-caja').innerText = formatter.format(totalIn - totalOut);
-            document.getElementById('stat-profit').innerText = formatter.format(gananciaBruta);
-            document.getElementById('stat-expense').innerText = formatter.format(totalOut);
-            const realEl = document.getElementById('stat-real-profit');
-            realEl.innerText = formatter.format(gananciaReal);
-            realEl.style.color = gananciaReal >= 0 ? '#6f42c1' : '#dc3545';
-            
-            drawChart(mData);
+            updateFinanceSummary(metrics, filtro);
+            drawFinanceCharts(metrics);
+        }
+
+        function updateFinanceSummary(metrics, period) {
+            setMoney('stat-real-profit', metrics.netProfitRealized);
+            setMoney('stat-sales', metrics.salesRevenue);
+            setMoney('stat-cogs', metrics.cogs);
+            setMoney('stat-profit', metrics.grossProfit);
+            setMoney('stat-expense', metrics.profitExpenses);
+            setMoney('stat-inventory-spend', metrics.inventoryPurchases);
+            setMoney('stat-caja', metrics.cashAvailable);
+
+            setValueTone('stat-real-profit', metrics.netProfitRealized);
+            setValueTone('stat-caja', metrics.cashAvailable);
+            setValueTone('stat-profit', metrics.grossProfit);
+
+            setText('stat-net-margin', `Margen neto: ${formatPercent(metrics.netMarginPct)}`);
+            setText('stat-sales-count', `${metrics.salesCount} ventas`);
+            setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
+            setText('stat-cash-detail', `Entradas ${formatter.format(metrics.cashInTotal)} · Salidas ${formatter.format(metrics.cashOutTotal)}`);
+            setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
+
+            const alertEl = document.getElementById('finance-alert');
+            if (metrics.uncostedSalesCount > 0) {
+                alertEl.style.display = 'block';
+                alertEl.textContent = `Hay ${metrics.uncostedSalesCount} venta(s) sin costo de producto asociado. La utilidad puede estar inflada hasta corregir ese costo.`;
+            } else {
+                alertEl.style.display = 'none';
+                alertEl.textContent = '';
+            }
+        }
+
+        function setMoney(id, value) {
+            setText(id, formatter.format(value || 0));
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+
+        function setValueTone(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('negative', (value || 0) < 0);
+        }
+
+        function formatPercent(value) {
+            return `${(value || 0).toFixed(1)}%`;
+        }
+
+        function formatMonthLabel(period) {
+            if (!period || period === 'all') return 'Todos los meses';
+            const [year, month] = period.split('-').map(Number);
+            if (!year || !month) return period;
+            const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            return `${months[month - 1]} ${year}`;
         }
 
         function exportToExcel() {
@@ -1065,19 +1167,82 @@
             document.body.removeChild(link);
         }
 
-        function drawChart(mData) {
-            const ctx = document.getElementById('financeChart').getContext('2d');
-            const lbls = Object.keys(mData).sort();
-            if(fChart) fChart.destroy();
-            fChart = new Chart(ctx, {
+        function drawFinanceCharts(metrics) {
+            drawProfitWaterfall(metrics);
+            drawCashChart(metrics.monthly);
+        }
+
+        function drawProfitWaterfall(metrics) {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            const waterfall = window.AdminFinance.buildProfitWaterfall(metrics);
+            const colors = waterfall.kinds.map(kind => {
+                if (kind === 'positive') return '#28a745';
+                if (kind === 'total') return '#6f42c1';
+                if (kind === 'negative-total') return '#dc3545';
+                return '#dc3545';
+            });
+
+            if (profitChart) profitChart.destroy();
+            profitChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: lbls.length ? lbls : ['Sin datos'],
+                    labels: waterfall.labels,
+                    datasets: [{
+                        label: 'COP',
+                        data: waterfall.ranges,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => {
+                                    const value = waterfall.values[context.dataIndex] || 0;
+                                    return formatter.format(value);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { ticks: { callback: value => formatter.format(value) } },
+                        x: { ticks: { maxRotation: 0, minRotation: 0, font: { size: 10, weight: '700' } } }
+                    }
+                }
+            });
+        }
+
+        function drawCashChart(monthly) {
+            const ctx = document.getElementById('cashChart').getContext('2d');
+            const labels = (monthly.labels.length ? monthly.labels : ['Sin datos']).map(formatMonthLabel);
+            const cashIn = monthly.labels.length ? monthly.cashIn : [0];
+            const cashOut = monthly.labels.length ? monthly.cashOut : [0];
+            const netProfit = monthly.labels.length ? monthly.netProfitRealized : [0];
+
+            if (cashChart) cashChart.destroy();
+            cashChart = new Chart(ctx, {
+                data: {
+                    labels,
                     datasets: [
-                        { label: 'Ingresos COP', data: lbls.map(l=>mData[l].in), backgroundColor: '#28a745' },
-                        { label: 'Gastos COP', data: lbls.map(l=>mData[l].out), backgroundColor: '#dc3545' }
+                        { type: 'bar', label: 'Entradas caja', data: cashIn, backgroundColor: '#28a745', borderRadius: 6 },
+                        { type: 'bar', label: 'Salidas caja', data: cashOut, backgroundColor: '#dc3545', borderRadius: 6 },
+                        { type: 'line', label: 'Ganancia neta', data: netProfit, borderColor: '#6f42c1', backgroundColor: '#6f42c1', tension: .25, pointRadius: 4, pointHoverRadius: 5 }
                     ]
-                }, options: { responsive:true, maintainAspectRatio:false }
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ${formatter.format(context.raw || 0)}` } } },
+                    scales: {
+                        y: { ticks: { callback: value => formatter.format(value) } },
+                        x: { ticks: { maxRotation: 0, minRotation: 0, font: { size: 10, weight: '700' } } }
+                    }
+                }
             });
         }
 
