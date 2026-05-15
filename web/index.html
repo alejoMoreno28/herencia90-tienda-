@@ -31,6 +31,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" as="image" href="/img/colombia_2026_1.webp" fetchpriority="high">
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
@@ -142,7 +143,7 @@
     </div>
 
     <section class="hero">
-        <video class="hero-video" muted loop playsinline poster="/img/colombia_2026_1.webp" id="heroVideo">
+        <video class="hero-video" muted loop playsinline preload="none" poster="/img/colombia_2026_1.webp" id="heroVideo" aria-hidden="true">
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
@@ -422,19 +423,29 @@
 
     <!-- UX Libraries -->
     <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-    <script defer src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script defer src="/js/app.js"></script>
     <script>
       window.addEventListener('load', function() {
         var v = document.getElementById('heroVideo');
-        if (v) {
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        var slowNetwork = connection && (connection.saveData || /2g/.test(connection.effectiveType || ''));
+        var canUseVideo = v && window.matchMedia('(min-width: 769px)').matches && !slowNetwork;
+        if (!canUseVideo) return;
+
+        var loadHeroVideo = function() {
           var s = document.createElement('source');
           s.src = '/videos/hero-video3.mp4';
           s.type = 'video/mp4';
           v.appendChild(s);
           v.load();
           v.play().catch(function(){});
+        };
+
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadHeroVideo, { timeout: 1800 });
+        } else {
+          setTimeout(loadHeroVideo, 900);
         }
       });
     </script>

@@ -38,6 +38,12 @@ body {
     overflow-x: hidden;
 }
 
+@media (max-width: 767px) {
+    body {
+        background-attachment: scroll;
+    }
+}
+
 h1, h2, h3, .product-price, .hero-title {
     font-family: 'Oswald', sans-serif;
     text-transform: uppercase;
@@ -341,6 +347,7 @@ h1, h2, h3, .product-price, .hero-title {
 /* ─── HERO ───────────────────────────────────────────────── */
 .hero {
     position: relative;
+    background: #050505 url('../img/colombia_2026_1.webp') center/cover no-repeat;
     height: 70vh;
     min-height: 500px;
     display: flex;
@@ -357,6 +364,17 @@ h1, h2, h3, .product-price, .hero-title {
     object-fit: cover;
     opacity: 0.5;
     z-index: 0;
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: auto;
+        min-height: 460px;
+    }
+
+    .hero-video {
+        display: none;
+    }
 }
 .hero::before {
     content: '';
@@ -2663,6 +2681,55 @@ body.grid-single .product-grid-inner {
 .product-card .js-tilt-glare {
     border-radius: 16px;
     pointer-events: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+    .promo-track {
+        animation-duration: 42s;
+    }
+
+    .header,
+    .trust-item,
+    .product-card,
+    .modal-content,
+    .category-drawer,
+    .cart-drawer,
+    .floating-wsp {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .product-card,
+    .hub-card,
+    .seo-hub-card,
+    .testi-card,
+    .pv-banner-btn,
+    .floating-wsp {
+        transition-duration: 0.16s !important;
+    }
+
+    .product-card:hover,
+    .hub-card:hover,
+    .seo-hub-card:hover,
+    .testi-card:hover {
+        transform: none !important;
+    }
+
+    .product-card:hover .product-image-wrapper::after {
+        left: -100%;
+    }
+
+    .product-card:hover .product-image-wrapper img {
+        transform: none;
+    }
+
+    .img-loading {
+        animation-duration: 2.4s;
+    }
+
+    .scroll-progress {
+        display: none;
+    }
 }
 
 /* ── Reduced Motion ──────────────────────────────────── */

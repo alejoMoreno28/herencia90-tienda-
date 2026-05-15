@@ -2,6 +2,18 @@
   "outputDirectory": "web",
   "headers": [
     {
+      "source": "/(.*)\\.(js|css)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(webp|png|jpg|jpeg|gif|svg|mp4|webm)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }
+      ]
+    },
+    {
       "source": "/(.*).html",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }

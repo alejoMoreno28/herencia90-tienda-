@@ -837,6 +837,16 @@
         }
 
         @media (hover: none) and (pointer: coarse) {
+            .pv-topbar,
+            .pv-wizard,
+            .pv-card-item,
+            .pv-leadtime-badge,
+            .pv-photo-count,
+            .pv-lightbox {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
             .pv-card-item:hover {
                 transform: none;
                 border-color: var(--glass-border);
@@ -855,6 +865,25 @@
             .pv-card-item:hover .pv-card-cta {
                 transform: none;
                 box-shadow: none;
+            }
+
+            .pv-skeleton-img {
+                animation-duration: 2.4s;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce), (hover: none) and (pointer: coarse) {
+            .pv-card-item,
+            .pv-card-img-wrap img,
+            .pv-card-cta,
+            .pv-lightbox,
+            .pv-lb-img,
+            .pv-lb-thumb,
+            .pv-lb-cta,
+            .pv-filtro-btn,
+            .btn-pv-next,
+            .btn-pv-back {
+                transition-duration: 0.01ms !important;
             }
         }
 

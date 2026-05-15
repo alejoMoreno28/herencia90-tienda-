@@ -219,7 +219,7 @@
 (function () {
     var SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-    var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     var _pvAll = [];
     var _pvFiltroType = 'all';
@@ -230,6 +230,7 @@
     var _pvLbIdx = 0;
     var _pvRenderToken = 0;
     var PV_MOBILE_VIEW_KEY = 'pv-mobile-view';
+    var PV_CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     var PV_ICONIC_TEAMS = [
         'real madrid', 'barcelona', 'manchester united', 'ac milan', 'milan', 'inter', 'chelsea',
@@ -397,7 +398,7 @@
     function renderCard(item, idx, collectionKey) {
         var imgs = item.imagenes || [];
         var img1 = imgs[0] ? imgs[0].url : '';
-        var img2 = imgs[1] ? imgs[1].url : img1;
+        var img2 = PV_CAN_HOVER && imgs[1] ? imgs[1].url : '';
         var tipoLabel = (item.tipo || '').replace(/-/g, ' ');
         var nFotos = imgs.length;
         var precio = pvGetPrecio(item.tipo);
@@ -638,6 +639,7 @@
     async function pvCargar() {
         var galSection = document.getElementById('pv-galeria');
         try {
+            if (!db) throw new Error('Supabase no disponible');
             var res = await db.from('preventa_catalogo')
                 .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox')
                 .eq('publicado', true)

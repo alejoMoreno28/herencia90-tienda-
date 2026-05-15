@@ -13,13 +13,45 @@ function displayCategory(name) {
 
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-const { createClient } = window.supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
 
 let allProducts = [];
 
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+const isConstrainedNetwork = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+
+function runWhenIdle(callback, timeout = 1800) {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(callback, { timeout });
+        return;
+    }
+    setTimeout(callback, Math.min(timeout, 1200));
+}
+
+let vanillaTiltPromise = null;
+function loadVanillaTilt() {
+    if (window.VanillaTilt) return Promise.resolve(window.VanillaTilt);
+    if (vanillaTiltPromise) return vanillaTiltPromise;
+
+    vanillaTiltPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js';
+        script.async = true;
+        script.onload = () => resolve(window.VanillaTilt);
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+
+    return vanillaTiltPromise;
+}
+
 async function loadProducts() {
     try {
+        if (!db) throw new Error('Supabase no disponible');
         const { data, error } = await db.from('productos').select('*').order('id');
         if (error) throw error;
         if (Array.isArray(data) && data.length > 0) return data;
@@ -38,6 +70,7 @@ async function loadProducts() {
 
 // ── Analytics ────────────────────────────────────────────────────────────────
 async function trackEvent(eventType, productData = {}) {
+    if (!db) return;
     try {
         await db.from('analytics_events').insert({
             event_type: eventType,
@@ -250,17 +283,22 @@ function closeSearchOverlay() {
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // AOS - Animate On Scroll
-    if (typeof AOS !== 'undefined') {
+    if (typeof AOS !== 'undefined' && !prefersReducedMotion && !isTouchDevice) {
         AOS.init({
-            duration: 600,
+            duration: 420,
             easing: 'ease-out-cubic',
             once: true,
             offset: 60,
         });
+    } else {
+        document.querySelectorAll('[data-aos]').forEach(el => {
+            el.removeAttribute('data-aos');
+            el.removeAttribute('data-aos-delay');
+        });
     }
 
     // Registrar visita a la página
-    trackEvent('page_view', {});
+    runWhenIdle(() => trackEvent('page_view', {}), 2500);
 
     loadProducts().then((products) => {
         allProducts = products;
@@ -268,16 +306,20 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProducts(allProducts);
     });
 
-    // Real-time: actualiza stock cuando cambia un producto
-    db.channel('stock-live')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
-            const idx = allProducts.findIndex(p => p.id === payload.new.id);
-            if (idx !== -1) {
-                allProducts[idx] = payload.new;
-                renderProducts(allProducts);
-            }
-        })
-        .subscribe();
+    // Real-time: se difiere para no competir con el primer render.
+    if (db && !isConstrainedNetwork) {
+        runWhenIdle(() => {
+            db.channel('stock-live')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
+                    const idx = allProducts.findIndex(p => p.id === payload.new.id);
+                    if (idx !== -1) {
+                        allProducts[idx] = payload.new;
+                        renderProducts(allProducts);
+                    }
+                })
+                .subscribe();
+        }, 4500);
+    }
 
     // Modal close
     const modal = document.getElementById('productModal');
@@ -636,7 +678,9 @@ function renderProducts(products) {
 
             const card = document.createElement('div');
             card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
-            card.style.transitionDelay = `${Math.min(i * 65, 260)}ms`;
+            if (!prefersReducedMotion && !isTouchDevice) {
+                card.style.transitionDelay = `${Math.min(i * 45, 180)}ms`;
+            }
             if (!allSoldOut) card.onclick = () => openModal(idx);
 
             card.innerHTML = `
@@ -659,23 +703,35 @@ function renderProducts(products) {
             `;
 
             imgObserver.observe(card.querySelector('.lazy-img'));
-            cardRevealObserver.observe(card);
+            if (!prefersReducedMotion && !isTouchDevice) {
+                cardRevealObserver.observe(card);
+            } else {
+                card.classList.remove('card-hidden');
+            }
             grid.appendChild(card);
         });
 
-        titleRevealObserver.observe(catTitle);
+        if (!prefersReducedMotion && !isTouchDevice) {
+            titleRevealObserver.observe(catTitle);
+        } else {
+            catTitle.classList.add('revealed');
+        }
     }
 
-    // VanillaTilt on desktop only
-    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
-        VanillaTilt.init(document.querySelectorAll('.product-card'), {
-            max: 5,
-            speed: 500,
-            glare: true,
-            'max-glare': 0.07,
-            scale: 1.02,
-            perspective: 900,
-        });
+    // VanillaTilt se carga solo en desktop y despues del render inicial.
+    if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
+        runWhenIdle(() => {
+            loadVanillaTilt().then((VanillaTilt) => {
+                VanillaTilt.init(document.querySelectorAll('.product-card'), {
+                    max: 4,
+                    speed: 400,
+                    glare: true,
+                    'max-glare': 0.05,
+                    scale: 1.01,
+                    perspective: 900,
+                });
+            }).catch(function(){});
+        }, 2500);
     }
 }
 
