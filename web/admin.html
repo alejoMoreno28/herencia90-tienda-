@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-finance-metrics.js"></script>
+    <script src="js/admin-inventory-guard.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -117,6 +118,14 @@
         
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #555;}
+        .movement-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+        .movement-preset {
+            border: 1px solid #e6dfcc; background: #fffaf0; color: #4d3d18;
+            padding: 9px 10px; border-radius: 7px; cursor: pointer; font-weight: 800;
+            font-size: 11px; text-align: left; transition: .15s ease; min-height: 40px;
+        }
+        .movement-preset:hover, .movement-preset.active { border-color: var(--gold); background: #f5ead0; color: #111; }
+        .movement-hint { background:#f8f6ef; border:1px solid #e8dfc9; border-radius:7px; padding:9px 10px; margin-bottom:12px; font-size:11px; color:#6b5b35; font-weight:700; line-height:1.35; }
         
         .fin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .fin-table th, .fin-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
@@ -309,6 +318,13 @@
                         <div class="form-container">
                             <h3>➕ Nuevo Movimiento</h3>
                             <form id="transForm" onsubmit="addTransaction(event)">
+                                <div class="movement-presets" aria-label="Acciones rápidas">
+                                    <button type="button" class="movement-preset" data-preset="venta" onclick="setMovementPreset('venta')">Venta cobrada</button>
+                                    <button type="button" class="movement-preset" data-preset="regalo" onclick="setMovementPreset('regalo')">Regalo / promo</button>
+                                    <button type="button" class="movement-preset" data-preset="retiro" onclick="setMovementPreset('retiro')">Retiro personal</button>
+                                    <button type="button" class="movement-preset" data-preset="defectuoso" onclick="setMovementPreset('defectuoso')">Defectuosa</button>
+                                </div>
+                                <div class="movement-hint" id="movement-hint">Elige una acción para que el admin prepare los campos correctos.</div>
                                 <div class="form-group">
                                     <label>Tipo</label>
                                     <select id="t-tipo" required onchange="updateCategories()">
@@ -341,12 +357,12 @@
                                     <input type="date" id="t-fecha" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Detalle</label>
-                                    <textarea id="t-desc" rows="2" placeholder="Ej: Compra Cajas o Venta Camiseta" required></textarea>
+                                    <label>Nota interna</label>
+                                    <textarea id="t-desc" rows="2" placeholder="Opcional: cliente, comprobante, motivo o contexto"></textarea>
                                 </div>
-                                <!-- BLOQUE VENTA: aparece solo cuando categoria = Venta de Producto -->
+                                <!-- BLOQUE INVENTARIO: aparece para ventas y salidas sin caja -->
                                 <div id="t-venta-group" style="display:none; border-top:2px solid var(--gold); padding-top:12px; margin-top:8px;">
-                                    <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">🛍️ ¿Qué vendiste?</div>
+                                    <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">🛍️ ¿Qué salió del inventario?</div>
                                     <div id="t-items-list"></div>
                                     <button type="button" onclick="addVentaItem()" style="width:100%; padding:7px; background:#f9f3e3; border:1px dashed var(--gold); border-radius:6px; color:var(--gold); font-weight:700; font-size:12px; cursor:pointer; margin-top:4px;">+ Agregar otra camiseta</button>
                                     <input type="hidden" id="t-costo-usd" value="0">
@@ -739,8 +755,34 @@
 
         // --- FINANZAS ---
         const cats = {
-            gasto: ['Compra Inventario', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
+            gasto: ['Compra Inventario', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
             ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso']
+        };
+
+        const movementPresets = {
+            venta: {
+                tipo: 'ingreso',
+                categoria: 'Venta de Producto',
+                hint: 'Venta normal: entra plata, se descuenta inventario y queda costo de producto asociado.'
+            },
+            regalo: {
+                tipo: 'gasto',
+                categoria: 'Regalo / Promoción',
+                monto: 0,
+                hint: 'Regalo o promo: no entra plata, pero la camiseta sale del inventario con trazabilidad.'
+            },
+            retiro: {
+                tipo: 'gasto',
+                categoria: 'Retiro Personal Socio',
+                monto: 0,
+                hint: 'Retiro personal: saca una camiseta del inventario sin mezclarla con ventas.'
+            },
+            defectuoso: {
+                tipo: 'gasto',
+                categoria: 'Producto Defectuoso / Crédito Proveedor',
+                monto: 0,
+                hint: 'Defectuosa: descuenta inventario y deja claro que hay reposición o crédito pendiente.'
+            }
         };
         
         function updateCategories() {
@@ -748,10 +790,38 @@
             const sel = document.getElementById('t-categoria');
             sel.innerHTML = cats[tipo].map(c => `<option value="${c}">${c}</option>`).join('');
             checkVenta();
+            updateMovementHint();
+        }
+
+        function setMovementPreset(kind) {
+            const preset = movementPresets[kind];
+            if (!preset) return;
+
+            document.getElementById('t-tipo').value = preset.tipo;
+            updateCategories();
+            document.getElementById('t-categoria').value = preset.categoria;
+            if (preset.monto !== undefined) {
+                document.getElementById('t-monto').value = preset.monto;
+            } else if (Number(document.getElementById('t-monto').value) === 0) {
+                document.getElementById('t-monto').value = '';
+            }
+            document.getElementById('movement-hint').textContent = preset.hint;
+            document.querySelectorAll('.movement-preset').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === kind);
+            });
+            checkVenta();
+            calcCOP();
+        }
+
+        function updateMovementHint() {
+            const category = document.getElementById('t-categoria').value;
+            const preset = Object.entries(movementPresets).find(([, item]) => item.categoria === category);
+            const hint = document.getElementById('movement-hint');
+            if (hint && preset) hint.textContent = preset[1].hint;
         }
 
         function checkVenta() {
-            const isVenta = document.getElementById('t-tipo').value === 'ingreso' && document.getElementById('t-categoria').value.includes('Venta');
+            const isVenta = window.AdminInventoryGuard.isStockMovementCategory(document.getElementById('t-categoria').value);
             const grp = document.getElementById('t-venta-group');
             grp.style.display = isVenta ? 'block' : 'none';
             if (isVenta) populateProductSelect();
@@ -878,13 +948,21 @@
         async function addTransaction(e) {
             e.preventDefault();
             const val = parseFloat(document.getElementById('t-monto').value);
+            const categoryValue = document.getElementById('t-categoria').value;
+            const isStockMovement = window.AdminInventoryGuard.isStockMovementCategory(categoryValue);
+            const isSaleMovement = categoryValue.includes('Venta');
+            if (!Number.isFinite(val) && (!isStockMovement || isSaleMovement)) {
+                alert('Ingresa un monto válido antes de guardar.');
+                return;
+            }
+            const safeVal = Number.isFinite(val) ? val : 0;
             const isUSD = document.getElementById('t-moneda').value === 'USD';
-            const copVal = isUSD ? val * GLOBAL_TRM : val;
-            const usdVal = isUSD ? val : (val / GLOBAL_TRM);
+            const copVal = isUSD ? safeVal * GLOBAL_TRM : safeVal;
+            const usdVal = isUSD ? safeVal : (safeVal / GLOBAL_TRM);
 
             const trans = {
                 tipo: document.getElementById('t-tipo').value,
-                categoria: document.getElementById('t-categoria').value,
+                categoria: categoryValue,
                 fecha: document.getElementById('t-fecha').value,
                 monto: copVal,
                 usd_amount: usdVal,
@@ -894,16 +972,23 @@
             };
 
             // Calcular costo_usd total de todos los items seleccionados
-            const isVenta = trans.categoria.includes('Venta');
-            let totalCostoUsd = 0;
+            const isVenta = window.AdminInventoryGuard.isStockMovementCategory(trans.categoria);
+            let stockMovement = null;
             if (isVenta) {
-                _ventaItems.filter(Boolean).forEach(item => {
-                    if (!item.prodId || !item.talla) return;
-                    const prod = productData.find(p => p.id == item.prodId);
-                    if (prod) totalCostoUsd += (prod.costo_usd||0) * item.cantidad;
+                stockMovement = window.AdminInventoryGuard.buildStockMovement({
+                    category: trans.categoria,
+                    amountCOP: trans.monto,
+                    note: trans.descripcion,
+                    items: _ventaItems,
+                    products: productData
                 });
+                if (!stockMovement.ok) {
+                    alert('Revisa la venta antes de guardar:\n\n' + stockMovement.errors.join('\n'));
+                    return;
+                }
+                trans.costo_usd_asociado = stockMovement.totalCostUsd;
+                trans.descripcion = stockMovement.description;
             }
-            trans.costo_usd_asociado = totalCostoUsd;
 
             // Generar ID numerico si la columna no tiene secuencia en Supabase
             const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
@@ -916,7 +1001,7 @@
 
             // Descontar inventario por cada item
             if (isVenta) {
-                for (const item of _ventaItems.filter(Boolean)) {
+                for (const item of stockMovement.items) {
                     if (!item.prodId || !item.talla) continue;
                     const prodIdx = productData.findIndex(p => p.id == item.prodId);
                     if (prodIdx === -1) continue;
@@ -931,7 +1016,7 @@
             showToast("Transacción guardada ✅");
             document.getElementById('transForm').reset();
             document.getElementById('t-fecha').valueAsDate = new Date();
-            updateCategories(); calcCOP(); renderFinance();
+            setMovementPreset('venta'); calcCOP(); renderFinance();
             _ventaItems = [];
             document.getElementById('t-items-list').innerHTML = '';
             addVentaItem();
@@ -1369,6 +1454,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('t-fecha').valueAsDate = new Date();
             updateCategories();
+            setMovementPreset('venta');
             init();
         });
 
