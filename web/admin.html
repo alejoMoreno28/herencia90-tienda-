@@ -103,6 +103,7 @@
         .stat-card.primary .metric-meta { color: #e8ddb9; }
         .metric-chip { background: #f6f1e2; color: #5f4b18; border-radius: 999px; padding: 3px 8px; }
         .stat-card.primary .metric-chip { background: rgba(217,195,145,.18); color: #f5e5b9; }
+        .stat-card.technical, .chart-grid { display: none !important; }
 
         /* --- GRID FINANZAS --- */
         .finance-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
@@ -241,35 +242,35 @@
                         <div class="value" id="stat-sales">$0</div>
                         <div class="sub-value">Solo ventas de producto del periodo.</div>
                     </div>
-                    <div class="stat-card expense">
+                    <div class="stat-card expense technical">
                         <h4>👕 Costo producto vendido</h4>
                         <div class="value" id="stat-cogs">$0</div>
                         <div class="sub-value">Usa el costo USD asociado a cada venta.</div>
                     </div>
-                    <div class="stat-card profit">
+                    <div class="stat-card profit technical">
                         <h4>💎 Ganancia antes de gastos</h4>
                         <div class="value" id="stat-profit">$0</div>
                         <div class="sub-value" id="stat-gross-margin">Ventas - costo producto vendido.</div>
                     </div>
-                    <div class="stat-card expense">
+                    <div class="stat-card expense technical">
                         <h4>📉 Gastos de venta</h4>
                         <div class="value" id="stat-expense">$0</div>
                         <div class="sub-value">Envíos, empaques, publicidad, comisiones y varios.</div>
                     </div>
                     <div class="stat-card asset">
-                        <h4>📦 Compra inventario</h4>
+                        <h4>📦 Inversión inventario</h4>
                         <div class="value" id="stat-inventory-spend">$0</div>
-                        <div class="sub-value">Baja caja, pero no es pérdida hasta vender.</div>
+                        <div class="sub-value">Lo pagado por las camisetas del negocio.</div>
                     </div>
                     <div class="stat-card caja">
-                        <h4>💵 Caja disponible</h4>
+                        <h4>💵 Saldo vs inversión</h4>
                         <div class="value" id="stat-caja">$0</div>
-                        <div class="sub-value" id="stat-cash-detail">Entradas - salidas reales de caja.</div>
+                        <div class="sub-value" id="stat-cash-detail">Ventas cobradas - compra inventario - gastos.</div>
                     </div>
                     <div class="stat-card stock-val">
-                        <h4>📦 Inventario al costo</h4>
+                        <h4>📦 Inventario disponible</h4>
                         <div class="value" id="stat-inv-val">$0</div>
-                        <div class="sub-value" title="Ganancia potencial si se vende todo">Ganancia potencial no realizada: <b id="stat-inv-prof">$0</b></div>
+                        <div class="sub-value" title="Ganancia potencial si se vende todo">Costo: <b id="stat-inv-cost">$0</b> · Ganancia potencial: <b id="stat-inv-prof">$0</b></div>
                     </div>
                 </div>
 
@@ -1179,7 +1180,9 @@
             setMoney('stat-profit', metrics.grossProfit);
             setMoney('stat-expense', metrics.profitExpenses);
             setMoney('stat-inventory-spend', metrics.inventoryPurchases);
-            setMoney('stat-caja', metrics.cashAvailable);
+            setText('stat-caja', metrics.cashAvailable < 0
+                ? `Faltan ${formatter.format(Math.abs(metrics.cashAvailable))}`
+                : formatter.format(metrics.cashAvailable));
 
             setValueTone('stat-real-profit', metrics.netProfitRealized);
             setValueTone('stat-caja', metrics.cashAvailable);
@@ -1188,7 +1191,9 @@
             setText('stat-net-margin', `Margen neto: ${formatPercent(metrics.netMarginPct)}`);
             setText('stat-sales-count', `${metrics.salesCount} ventas`);
             setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
-            setText('stat-cash-detail', `Entradas ${formatter.format(metrics.cashInTotal)} · Salidas ${formatter.format(metrics.cashOutTotal)}`);
+            setText('stat-cash-detail', metrics.cashAvailable < 0
+                ? 'Aún falta recuperar compra de inventario y gastos con ventas.'
+                : 'Caja libre después de recuperar compra de inventario y gastos.');
             setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
 
             const alertEl = document.getElementById('finance-alert');
@@ -1333,14 +1338,16 @@
 
         // --- INVENTARIO ---
         function calculateInventoryValuation() {
-            let totalValUSD = 0, totalPotCOP = 0;
+            let totalValUSD = 0, totalPotCOP = 0, totalQty = 0;
             productData.forEach(p => {
                 const q = Object.values(p.tallas || {}).reduce((a,b)=>a+parseInt(b||0),0);
+                totalQty += q;
                 totalValUSD += (q * (parseFloat(p.costo_usd)||0));
                 totalPotCOP += (q * (parseFloat(p.precio)||0));
             });
             const valCOP = totalValUSD * GLOBAL_TRM;
-            document.getElementById('stat-inv-val').innerText = formatter.format(valCOP);
+            document.getElementById('stat-inv-val').innerText = `${totalQty} camisetas`;
+            document.getElementById('stat-inv-cost').innerText = formatter.format(valCOP);
             document.getElementById('stat-inv-prof').innerText = formatter.format(totalPotCOP - valCOP);
         }
 
