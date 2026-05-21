@@ -47,6 +47,8 @@
             cashInTotal: 0,
             cashOutTotal: 0,
             cashAvailable: 0,
+            operatingCash: 0,
+            investmentRecoveryBalance: 0,
             salesRevenue: 0,
             otherIncome: 0,
             cogs: 0,
@@ -89,6 +91,8 @@
         });
 
         metrics.cashAvailable = metrics.cashInTotal - metrics.cashOutTotal;
+        metrics.operatingCash = metrics.cashInTotal - metrics.profitExpenses;
+        metrics.investmentRecoveryBalance = metrics.operatingCash - metrics.inventoryPurchases;
         metrics.grossProfit = metrics.salesRevenue - metrics.cogs;
         metrics.netProfitRealized = metrics.grossProfit - metrics.profitExpenses;
         metrics.grossMarginPct = metrics.salesRevenue ? (metrics.grossProfit / metrics.salesRevenue) * 100 : 0;

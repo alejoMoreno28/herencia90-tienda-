@@ -260,12 +260,12 @@
                     <div class="stat-card asset">
                         <h4>📦 Inversión inventario</h4>
                         <div class="value" id="stat-inventory-spend">$0</div>
-                        <div class="sub-value">Lo pagado por las camisetas del negocio.</div>
+                        <div class="sub-value" id="stat-investment-detail">Lo pagado por las camisetas del negocio.</div>
                     </div>
                     <div class="stat-card caja">
-                        <h4>💵 Saldo vs inversión</h4>
+                        <h4>💵 Caja operativa registrada</h4>
                         <div class="value" id="stat-caja">$0</div>
-                        <div class="sub-value" id="stat-cash-detail">Ventas cobradas - compra inventario - gastos.</div>
+                        <div class="sub-value" id="stat-cash-detail">Plata de ventas disponible para comparar con banco.</div>
                     </div>
                     <div class="stat-card stock-val">
                         <h4>📦 Inventario disponible</h4>
@@ -1180,20 +1180,19 @@
             setMoney('stat-profit', metrics.grossProfit);
             setMoney('stat-expense', metrics.profitExpenses);
             setMoney('stat-inventory-spend', metrics.inventoryPurchases);
-            setText('stat-caja', metrics.cashAvailable < 0
-                ? `Faltan ${formatter.format(Math.abs(metrics.cashAvailable))}`
-                : formatter.format(metrics.cashAvailable));
+            setMoney('stat-caja', metrics.operatingCash);
 
             setValueTone('stat-real-profit', metrics.netProfitRealized);
-            setValueTone('stat-caja', metrics.cashAvailable);
+            setValueTone('stat-caja', metrics.operatingCash);
             setValueTone('stat-profit', metrics.grossProfit);
 
             setText('stat-net-margin', `Margen neto: ${formatPercent(metrics.netMarginPct)}`);
             setText('stat-sales-count', `${metrics.salesCount} ventas`);
             setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
-            setText('stat-cash-detail', metrics.cashAvailable < 0
-                ? 'Aún falta recuperar compra de inventario y gastos con ventas.'
-                : 'Caja libre después de recuperar compra de inventario y gastos.');
+            setText('stat-investment-detail', metrics.investmentRecoveryBalance < 0
+                ? `Recuperación de inversión: pendiente ${formatter.format(Math.abs(metrics.investmentRecoveryBalance))}.`
+                : `Recuperación de inversión: superávit ${formatter.format(metrics.investmentRecoveryBalance)}.`);
+            setText('stat-cash-detail', 'Ventas cobradas + otros ingresos - gastos operativos. No resta la compra inicial.');
             setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
 
             const alertEl = document.getElementById('finance-alert');

@@ -29,6 +29,8 @@ test('inventory purchases affect cash but not realized profit', async () => {
   assert.equal(metrics.inventoryPurchases, 500000);
   assert.equal(metrics.netProfitRealized, 45000);
   assert.equal(metrics.cashAvailable, 585000);
+  assert.equal(metrics.operatingCash, 1085000);
+  assert.equal(metrics.investmentRecoveryBalance, 585000);
 });
 
 test('period filters apply to the full finance summary', async () => {
@@ -44,6 +46,8 @@ test('period filters apply to the full finance summary', async () => {
   assert.equal(metrics.profitExpenses, 20000);
   assert.equal(metrics.netProfitRealized, 40000);
   assert.equal(metrics.cashAvailable, 100000);
+  assert.equal(metrics.operatingCash, 100000);
+  assert.equal(metrics.investmentRecoveryBalance, 100000);
   assert.deepEqual(Array.from(metrics.monthly.labels), ['2026-05']);
 });
 
