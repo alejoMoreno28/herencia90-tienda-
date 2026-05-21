@@ -3,6 +3,10 @@
     var PP_TOTAL = 4;
     var PP_LABELS = ['Camiseta', 'Talla', 'Mis Datos', 'Confirmar'];
 
+    function escHtml(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     function ppRenderProgress() {
         var el = document.getElementById('pp-progress');
         if (!el) return;
@@ -30,6 +34,58 @@
         el.innerHTML = html;
     }
 
+    function ppScrollToWizard(behavior) {
+        var wizard = document.getElementById('pv-wizard-anchor');
+        if (!wizard) return;
+        var topbar = document.querySelector('.pv-topbar');
+        var offset = (topbar ? topbar.getBoundingClientRect().height : 0) + 14;
+        var top = wizard.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top: Math.max(0, top), behavior: behavior || 'smooth' });
+    }
+
+    function ppClearFieldError(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('pv-input-invalid');
+        el.removeAttribute('aria-invalid');
+        var errorId = el.getAttribute('aria-describedby');
+        var error = errorId ? document.getElementById(errorId) : null;
+        if (error) error.textContent = '';
+    }
+
+    function ppSetFieldError(el, message) {
+        el.classList.add('pv-input-invalid');
+        el.setAttribute('aria-invalid', 'true');
+        var errorId = el.getAttribute('aria-describedby');
+        var error = errorId ? document.getElementById(errorId) : null;
+        if (error) error.textContent = message;
+        ppScrollToWizard('smooth');
+        el.focus({ preventScroll: true });
+        return false;
+    }
+
+    function ppClearGroupError(groupId, errorId) {
+        var group = document.getElementById(groupId);
+        var error = document.getElementById(errorId);
+        if (!group) return;
+        group.classList.remove('pv-choice-invalid');
+        group.querySelectorAll('button').forEach(function (b) { b.removeAttribute('aria-invalid'); });
+        if (error) error.textContent = '';
+    }
+
+    function ppSetGroupError(groupId, errorId, message) {
+        var group = document.getElementById(groupId);
+        var error = document.getElementById(errorId);
+        if (!group) return false;
+        group.classList.add('pv-choice-invalid');
+        group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-invalid', 'true'); });
+        if (error) error.textContent = message;
+        ppScrollToWizard('smooth');
+        var first = group.querySelector('button');
+        if (first) first.focus({ preventScroll: true });
+        return false;
+    }
+
     function ppShowSlide(n) {
         for (var i = 1; i <= PP_TOTAL; i++) {
             var s = document.getElementById('pp-slide-' + i);
@@ -46,25 +102,16 @@
         if (ppStep === 1) {
             var eq = document.getElementById('pp-equipo');
             if (!eq.value.trim()) {
-                eq.style.borderColor = '#ff5252';
-                eq.focus();
-                setTimeout(function () { eq.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1800);
-                return false;
+                return ppSetFieldError(eq, 'Escribe el equipo o seleccion que quieres cotizar.');
             }
         }
 
         if (ppStep === 2) {
             if (!document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected')) {
-                var gbns = document.querySelectorAll('#pp-genero-btns .pp-talla-btn');
-                gbns.forEach(function (b) { b.style.borderColor = '#ff5252'; });
-                setTimeout(function () { gbns.forEach(function (b) { b.style.borderColor = ''; }); }, 1800);
-                return false;
+                return ppSetGroupError('pp-genero-btns', 'pp-genero-error', 'Elige si la camiseta es de hombre, mujer o ni\u00f1o.');
             }
             if (!document.querySelector('#pp-talla-btns .pp-talla-btn.pp-selected')) {
-                var tbns = document.querySelectorAll('#pp-talla-btns .pp-talla-btn');
-                tbns.forEach(function (b) { b.style.borderColor = '#ff5252'; });
-                setTimeout(function () { tbns.forEach(function (b) { b.style.borderColor = ''; }); }, 1800);
-                return false;
+                return ppSetGroupError('pp-talla-btns', 'pp-talla-error', 'Selecciona una talla para poder cotizarla.');
             }
         }
 
@@ -73,12 +120,8 @@
             for (var f = 0; f < ids.length; f++) {
                 var el = document.getElementById(ids[f]);
                 if (!el.value.trim()) {
-                    el.style.borderColor = '#ff5252';
-                    el.focus();
-                    (function (target) {
-                        setTimeout(function () { target.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1800);
-                    })(el);
-                    return false;
+                    var msg = ids[f] === 'pp-nombre' ? 'Escribe tu nombre completo.' : ids[f] === 'pp-celular' ? 'Escribe tu celular para contactarte.' : 'Escribe tu ciudad para calcular envio.';
+                    return ppSetFieldError(el, msg);
                 }
             }
         }
@@ -100,6 +143,7 @@
         var celular = document.getElementById('pp-celular').value.trim();
         var ciudad = document.getElementById('pp-ciudad').value.trim();
         var notas = document.getElementById('pp-notas').value.trim();
+        var refInterna = document.getElementById('pp-ref-interna').value.trim();
 
         var patchBtns = document.querySelectorAll('#pp-patches .pp-tipo-btn.pp-selected');
         var patches = [];
@@ -107,9 +151,9 @@
         var patchOtro = document.getElementById('pp-patch-otro').value.trim();
         if (patchOtro) patches.push(patchOtro);
 
-        var personaliz = 'Sin nombre/n&uacute;mero';
+        var personaliz = 'Sin nombre/n\u00famero';
         if (isCustom) {
-            personaliz = 'Con nombre/n&uacute;mero';
+            personaliz = 'Con nombre/n\u00famero';
             if (cNombre) personaliz += ' - ' + cNombre.toUpperCase();
             if (cNum) personaliz += ' #' + cNum;
         }
@@ -118,50 +162,51 @@
         var generoBtn = document.querySelector('#pp-genero-btns .pp-talla-btn.pp-selected');
         var genero = generoBtn ? generoBtn.dataset.val : 'No especificado';
         var rows = [
-            ['Equipo / Selecci&oacute;n', equipo],
+            ['Equipo / Selecci\u00f3n', equipo],
             ['Tipo', tipo],
-            ['Temporada', temporada || 'La m&aacute;s reciente'],
-            ['G&eacute;nero', genero],
+            ['Temporada', temporada || 'La m\u00e1s reciente'],
+            ['G\u00e9nero', genero],
             ['Talla', talla],
             ['divider', ''],
-            ['Nombre/n&uacute;mero', personaliz],
+            ['Nombre/n\u00famero', personaliz],
             ['Parches', patchesStr],
             ['divider', ''],
             ['Tu nombre', nombre],
             ['Celular', celular],
             ['Ciudad', ciudad]
         ];
+        if (refInterna) rows.push(['Ref. interna', 'REF-' + refInterna]);
         if (notas) rows.push(['Notas', notas]);
 
         var box = document.getElementById('pp-summary-box');
         box.innerHTML = rows.map(function (r) {
             if (r[0] === 'divider') return '<div style="border-bottom:1px solid rgba(255,255,255,0.07);margin:7px 0;"></div>';
             return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px;">' +
-                '<span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);min-width:110px;flex-shrink:0;">' + r[0] + '</span>' +
-                '<span style="font-size:0.83rem;font-weight:600;color:#fff;text-align:right;">' + r[1] + '</span>' +
+                '<span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);min-width:110px;flex-shrink:0;">' + escHtml(r[0]) + '</span>' +
+                '<span style="font-size:0.83rem;font-weight:600;color:#fff;text-align:right;">' + escHtml(r[1]) + '</span>' +
                 '</div>';
         }).join('');
 
         var extrasLines = [];
-        if (isCustom) extrasLines.push('  • Nombre/número: ' + personaliz.replace('Con nombre/n&uacute;mero - ', '').replace('Con nombre/n&uacute;mero', '').trim());
-        if (patches.length) extrasLines.push('  • Parches: ' + patches.join(', '));
+        if (isCustom) extrasLines.push('  - Nombre/n\u00famero: ' + personaliz.replace('Con nombre/n\u00famero - ', '').replace('Con nombre/n\u00famero', '').trim());
+        if (patches.length) extrasLines.push('  - Parches: ' + patches.join(', '));
         var extrasStr = extrasLines.length
-            ? '\n\n📋 *Extras a cotizar (costo adicional):*\n' + extrasLines.join('\n')
-            : '\n\n📋 *Extras:* Sin extras adicionales';
+            ? '\n\n*Extras a cotizar (costo adicional):*\n' + extrasLines.join('\n')
+            : '\n\n*Extras:* Sin extras adicionales';
 
-        var notasStr = notas ? '\n📝 *Notas:* ' + notas : '';
-        var msg = '🏷️ *COTIZACIÓN PRE-VENTA - HERENCIA 90*\n\n' +
-            '👕 *Camiseta:* ' + equipo + ' - ' + tipo + ' - ' + (temporada || 'La más reciente') + '\n' +
-            (genero ? '🧍 *Género:* ' + genero + '\n' : '') +
-            '📐 *Talla:* ' + talla +
+        var notasStr = notas ? '\n*Notas:* ' + notas : '';
+        var refStr = refInterna ? '\n*Ref. interna:* REF-' + refInterna : '';
+        var msg = '*COTIZACI\u00d3N PRE-VENTA - HERENCIA 90*\n\n' +
+            '*Camiseta:* ' + equipo + ' - ' + tipo + ' - ' + (temporada || 'La m\u00e1s reciente') + '\n' +
+            (genero ? '*G\u00e9nero:* ' + genero + '\n' : '') +
+            '*Talla:* ' + talla +
             extrasStr + '\n\n' +
-            '👤 *Nombre:* ' + nombre + '\n' +
-            '📱 *Celular:* ' + celular + '\n' +
-            '📍 *Ciudad:* ' + ciudad + notasStr + '\n\n' +
-            '━━━━━━━━━━━━━━━\n' +
-            '¿Me puedes cotizar el total con todo incluido?\n' +
-            '💰 Entiendo que el anticipo es del 20%.\n' +
-            '⏱️ Entrega ~15 días hábiles.';
+            '*Nombre:* ' + nombre + '\n' +
+            '*Celular:* ' + celular + '\n' +
+            '*Ciudad:* ' + ciudad + notasStr + refStr + '\n\n' +
+            'Me puedes cotizar el total con todo incluido?\n' +
+            'Entiendo que el anticipo es del 20%.\n' +
+            'Entrega aproximada: 15 d\u00edas h\u00e1biles.';
 
         document.getElementById('pp-wa-btn').href = 'https://wa.me/573126428153?text=' + encodeURIComponent(msg);
     }
@@ -171,13 +216,14 @@
         if (ppStep === PP_TOTAL - 1) ppBuildSummary();
         ppStep = Math.min(ppStep + 1, PP_TOTAL);
         ppShowSlide(ppStep);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        ppScrollToWizard('smooth');
     };
 
     window.ppBack = function () {
         if (ppStep > 1) {
             ppStep--;
             ppShowSlide(ppStep);
+            ppScrollToWizard('smooth');
         }
     };
 
@@ -193,11 +239,13 @@
     window.ppSelectTalla = function (btn) {
         document.querySelectorAll('#pp-talla-btns .pp-talla-btn').forEach(function (b) { b.classList.remove('pp-selected'); });
         btn.classList.add('pp-selected');
+        ppClearGroupError('pp-talla-btns', 'pp-talla-error');
     };
 
     window.ppSelectGenero = function (btn) {
         document.querySelectorAll('#pp-genero-btns .pp-talla-btn').forEach(function (b) { b.classList.remove('pp-selected'); });
         btn.classList.add('pp-selected');
+        ppClearGroupError('pp-genero-btns', 'pp-genero-error');
     };
 
     window.ppSelectCustom = function (val) {
@@ -208,11 +256,16 @@
     };
 
     window.ppBuildSummary = ppBuildSummary;
+    window.ppScrollToWizard = ppScrollToWizard;
 
     document.addEventListener('DOMContentLoaded', function () {
         ppRenderProgress();
         ppShowSlide(1);
         ppSelectCustom('no');
+        ['pp-equipo', 'pp-nombre', 'pp-celular', 'pp-ciudad'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('input', function () { ppClearFieldError(id); });
+        });
     });
 })();
 
@@ -231,6 +284,25 @@
     var _pvRenderToken = 0;
     var PV_MOBILE_VIEW_KEY = 'pv-mobile-view';
     var PV_CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    function pvScrollToWizard(behavior) {
+        var wizard = document.getElementById('pv-wizard-anchor');
+        if (!wizard) return;
+        var topbar = document.querySelector('.pv-topbar');
+        var offset = (topbar ? topbar.getBoundingClientRect().height : 0) + 14;
+        var top = wizard.getBoundingClientRect().top + window.pageYOffset - offset;
+        if (behavior === 'instant') {
+            window.scrollTo(0, Math.max(0, top));
+        } else {
+            window.scrollTo({ top: Math.max(0, top), behavior: behavior || 'smooth' });
+        }
+    }
+
+    function pvSettleOnWizard() {
+        [0, 250, 700, 1400, 2300].forEach(function (delay) {
+            setTimeout(function () { pvScrollToWizard(delay ? 'instant' : 'smooth'); }, delay);
+        });
+    }
 
     var PV_ICONIC_TEAMS = [
         'real madrid', 'barcelona', 'manchester united', 'ac milan', 'milan', 'inter', 'chelsea',
@@ -728,47 +800,31 @@
         try { r = JSON.parse(rJson); } catch (e) { return; }
 
         var equipoEl = document.getElementById('pp-equipo');
-        if (equipoEl) equipoEl.value = r.equipo || '';
+        if (equipoEl) {
+            equipoEl.value = r.equipo || '';
+            equipoEl.classList.remove('pv-input-invalid');
+            equipoEl.removeAttribute('aria-invalid');
+            var equipoError = document.getElementById('pp-equipo-error');
+            if (equipoError) equipoError.textContent = '';
+        }
 
         var tempEl = document.getElementById('pp-temporada');
         if (tempEl) tempEl.value = r.temporada || '';
 
-        if (r.tipo) {
-            document.querySelectorAll('#pp-slide-1 .pp-tipo-btn').forEach(function (btn) {
-                var match = btn.dataset.val && r.tipo.toLowerCase().indexOf(btn.dataset.val.toLowerCase()) !== -1;
-                btn.classList.toggle('pp-selected', match);
-            });
-        }
+        var typeText = [r.tipo, r.slug, r.descripcion, r.equipo].join(' ').toLowerCase();
+        var selectedType = '';
+        if (typeText.indexOf('visitante') !== -1) selectedType = 'Visitante';
+        else if (typeText.indexOf('tercera') !== -1 || typeText.indexOf('third') !== -1) selectedType = 'Tercera';
+        else if (typeText.indexOf('local') !== -1 || typeText.indexOf('home') !== -1) selectedType = 'Local';
+        document.querySelectorAll('#pp-slide-1 .pp-tipo-btn').forEach(function (btn) {
+            btn.classList.toggle('pp-selected', !!selectedType && btn.dataset.val === selectedType);
+        });
 
         var refEl = document.getElementById('pp-ref-interna');
         if (refEl) refEl.value = r.slug || '';
 
-        var anchor = document.getElementById('pv-wizard-anchor');
-        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        pvSettleOnWizard();
     };
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var originalBuildSummary = window.ppBuildSummary;
-        if (typeof originalBuildSummary === 'function') {
-            window.ppBuildSummary = function () {
-                originalBuildSummary();
-                var btn = document.getElementById('pp-wa-btn');
-                var refEl = document.getElementById('pp-ref-interna');
-                if (!btn || !refEl || !refEl.value) return;
-
-                var href = btn.href;
-                try {
-                    var parts = href.split('?text=');
-                    if (parts.length < 2) return;
-                    var decoded = decodeURIComponent(parts[1]);
-                    var ref = '\n\n🔖 Ref. interna: REF-' + refEl.value;
-                    if (decoded.indexOf('Ref. interna') === -1) {
-                        btn.href = parts[0] + '?text=' + encodeURIComponent(decoded + ref);
-                    }
-                } catch (e) {}
-            };
-        }
-    });
 
     window.pvAbrirLightbox = function (collectionKey, itemIdx) {
         var collection = _pvCollections[collectionKey] || [];
@@ -992,8 +1048,11 @@
         });
         document.getElementById('pv-lb-cta').addEventListener('click', function () {
             if (_pvLbData) {
-                pvSeleccionar(JSON.stringify(_pvLbData));
+                var selected = JSON.stringify(_pvLbData);
                 pvLbCerrar();
+                setTimeout(function () {
+                    pvSeleccionar(selected);
+                }, 180);
             }
         });
 

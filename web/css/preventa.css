@@ -1,4 +1,4 @@
-/* â”€â”€ P&aacute;gina pre-venta â”€â”€ */
+/* Pagina pre-venta */
         .pv-page {
             min-height: 100vh;
             display: flex;
@@ -198,8 +198,117 @@
         }
         .pv-input::placeholder, .pv-textarea::placeholder { color: rgba(255,255,255,0.2); }
         .pv-input:focus, .pv-textarea:focus { border-color: var(--gold); }
+        .pv-input-invalid {
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 0 3px rgba(255,107,107,0.12);
+        }
+        .pv-field-error {
+            min-height: 16px;
+            margin-top: 5px;
+            color: #ff9a9a;
+            font-size: 0.72rem;
+            line-height: 1.35;
+        }
+        .pv-choice-invalid .pp-talla-btn {
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
+        }
         .pv-textarea { resize: vertical; min-height: 68px; }
         .pv-group { margin-bottom: 14px; }
+        .pv-reference-help {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border: 1px solid rgba(217,195,145,0.18);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(217,195,145,0.08), rgba(255,255,255,0.025));
+        }
+        .pv-reference-copy {
+            display: grid;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+        .pv-reference-copy strong {
+            color: #fff;
+            font-size: 0.88rem;
+            line-height: 1.35;
+        }
+        .pv-reference-kicker {
+            color: var(--gold);
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+        .pv-reference-wa {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(37,211,102,0.13);
+            border: 1px solid rgba(37,211,102,0.34);
+            color: #dfffe9;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+        }
+        .pv-reference-wa:hover {
+            transform: translateY(-1px);
+            background: rgba(37,211,102,0.2);
+            border-color: rgba(37,211,102,0.5);
+        }
+        .pv-reference-top {
+            max-width: 940px;
+            margin: 0 auto 20px;
+            border-color: rgba(217,195,145,0.26);
+            background:
+                linear-gradient(135deg, rgba(217,195,145,0.11), rgba(37,211,102,0.055)),
+                rgba(8,8,8,0.82);
+        }
+        .pv-reference-top .pv-reference-copy {
+            font-size: 0.82rem;
+        }
+        .pv-reference-top .pv-reference-copy strong {
+            font-size: 1rem;
+        }
+        .pv-reference-top .pv-reference-wa {
+            min-width: 154px;
+            background: rgba(37,211,102,0.18);
+        }
+        .pv-extra-note {
+            background: rgba(255,100,100,0.05);
+            border: 1px solid rgba(255,100,100,0.15);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 12px;
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .pv-extra-note strong { color: #fff; }
+        .pv-confirm-note {
+            background: rgba(217,195,145,0.07);
+            border: 1px solid rgba(217,195,145,0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
         .btn-pv-back {
             background: transparent;
             border: 1.5px solid rgba(255,255,255,0.15);
@@ -280,6 +389,14 @@
             .btn-pv-back,
             .btn-pv-next {
                 width: 100%;
+            }
+            .pv-reference-help {
+                grid-template-columns: 1fr;
+            }
+            .pv-reference-wa {
+                width: 100%;
+                white-space: normal;
+                text-align: center;
             }
             .pv-progress { padding: 16px 16px 12px; }
             body { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px)); }
