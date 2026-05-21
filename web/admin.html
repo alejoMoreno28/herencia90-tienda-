@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/admin-finance-metrics.js"></script>
+    <script src="js/admin-finance-metrics.js?v=20260521-cash-roi"></script>
     <script src="js/admin-inventory-guard.js"></script>
     <style>
         :root {
@@ -258,14 +258,14 @@
                         <div class="sub-value">Envíos, empaques, publicidad, comisiones y varios.</div>
                     </div>
                     <div class="stat-card asset">
-                        <h4>📦 Inversión inventario</h4>
-                        <div class="value" id="stat-inventory-spend">$0</div>
-                        <div class="sub-value" id="stat-investment-detail">Lo pagado por las camisetas del negocio.</div>
+                        <h4>📈 Retorno de inversión</h4>
+                        <div class="value" id="stat-roi">$0</div>
+                        <div class="sub-value" id="stat-roi-detail">Ventas cobradas - gastos operativos - inversión.</div>
                     </div>
                     <div class="stat-card caja">
-                        <h4>💵 Caja operativa registrada</h4>
+                        <h4>💵 Caja por ventas</h4>
                         <div class="value" id="stat-caja">$0</div>
-                        <div class="sub-value" id="stat-cash-detail">Plata de ventas disponible para comparar con banco.</div>
+                        <div class="sub-value" id="stat-cash-detail">Ventas cobradas - gastos operativos. Compara este dato con banco/caja.</div>
                     </div>
                     <div class="stat-card stock-val">
                         <h4>📦 Inventario disponible</h4>
@@ -1174,25 +1174,32 @@
         }
 
         function updateFinanceSummary(metrics, period) {
+            const salesCash = Number.isFinite(metrics.salesCash) ? metrics.salesCash : (metrics.salesRevenue - metrics.profitExpenses);
+            const roiBalance = Number.isFinite(metrics.roiBalance) ? metrics.roiBalance : (salesCash - metrics.inventoryPurchases);
+            const roiPct = Number.isFinite(metrics.roiPct)
+                ? metrics.roiPct
+                : (metrics.inventoryPurchases ? (salesCash / metrics.inventoryPurchases) * 100 : 0);
+
             setMoney('stat-real-profit', metrics.netProfitRealized);
             setMoney('stat-sales', metrics.salesRevenue);
             setMoney('stat-cogs', metrics.cogs);
             setMoney('stat-profit', metrics.grossProfit);
             setMoney('stat-expense', metrics.profitExpenses);
-            setMoney('stat-inventory-spend', metrics.inventoryPurchases);
-            setMoney('stat-caja', metrics.operatingCash);
+            setText('stat-roi', roiBalance < 0
+                ? `Pendiente ${formatter.format(Math.abs(roiBalance))}`
+                : `Superávit ${formatter.format(roiBalance)}`);
+            setMoney('stat-caja', salesCash);
 
             setValueTone('stat-real-profit', metrics.netProfitRealized);
-            setValueTone('stat-caja', metrics.operatingCash);
+            setValueTone('stat-caja', salesCash);
+            setValueTone('stat-roi', roiBalance);
             setValueTone('stat-profit', metrics.grossProfit);
 
             setText('stat-net-margin', `Margen neto: ${formatPercent(metrics.netMarginPct)}`);
             setText('stat-sales-count', `${metrics.salesCount} ventas`);
             setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
-            setText('stat-investment-detail', metrics.investmentRecoveryBalance < 0
-                ? `Recuperación de inversión: pendiente ${formatter.format(Math.abs(metrics.investmentRecoveryBalance))}.`
-                : `Recuperación de inversión: superávit ${formatter.format(metrics.investmentRecoveryBalance)}.`);
-            setText('stat-cash-detail', 'Ventas cobradas + otros ingresos - gastos operativos. No resta la compra inicial.');
+            setText('stat-roi-detail', `Recuperado: ${formatPercent(roiPct)} · Inversión: ${formatter.format(metrics.inventoryPurchases)}.`);
+            setText('stat-cash-detail', 'Ventas cobradas - gastos operativos. No resta inventario ni utilidad contable.');
             setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
 
             const alertEl = document.getElementById('finance-alert');
