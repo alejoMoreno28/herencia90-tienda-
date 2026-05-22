@@ -312,30 +312,36 @@
     var PV_MEGA_CLUBS = ['real madrid', 'barcelona', 'manchester united', 'ac milan', 'milan', 'inter', 'chelsea', 'arsenal', 'liverpool', 'bayern', 'juventus'];
     var PV_SUDAMERICA_TEAMS = ['boca', 'river', 'santos'];
     var PV_NICHE_HINTS = ['porto', 'roma', 'holanda', 'portugal', 'alemania', 'francia', 'inglaterra'];
-    var PV_FEATURED_SPOTLIGHT = ['colombia', 'real madrid', 'barcelona', 'brasil', 'brazil', 'ac milan', 'milan', 'liverpool', 'bayern', 'argentina'];
+    var PV_FEATURED_SPOTLIGHT = ['barcelona', 'ac milan', 'milan', 'argentina', 'arsenal', 'manchester united', 'liverpool', 'brasil', 'brazil', 'colombia', 'river', 'boca', 'real madrid'];
     var PV_FEATURED_EXCLUDE = ['portugal'];
     var PV_VISUAL_PRIORITY = {
-        'river-plate-2018-local-campeon-copa-libertadores-madrid': 230,
-        'barcelona-2008-2009-local': 220,
-        'argentina-local-2006': 215,
-        'real-madrid-2012-2013-visitante-verde-retro': 210,
-        'manchester-united-2007-2008-local-manga-larga': 205,
-        'manchester-united-2007-2008-local': 200,
-        'ac-milan-2006-2007-local': 195,
-        'milan-2006-local-manga-larga-negra-y-roja': 190,
-        'boca-juniors-1997-1998-retro-azul': 185,
-        'colombia-1990-local': 180,
-        'argentina-1986-local': 175,
-        'brasil-2002-local': 170,
-        'liverpool-2004-2005-local': 165,
-        'barcelona-2010-2011-local': 160,
-        'juventus-2014-local-retro': 150,
-        'fiorentina-1998-local-morada-retro': 145,
-        'real-madrid-2004-2005-local': 140,
-        'arsenal-2005-2006-local-burdeos': 135,
-        'arsenal-2003-2004-local-roja': 130,
-        'inter-2009-2010-local': 125,
-        'colombia-2024-centenary-blanca': 120
+        'barcelona-2008-2009-local': 1000,
+        'ac-milan-2006-2007-visitante': 980,
+        'ac-milan-2006-2007-local': 970,
+        'argentina-1994-visitante': 960,
+        'argentina-local-2006': 950,
+        'brasil-2002-local': 930,
+        'arsenal-2005-2006-local-burdeos': 920,
+        'arsenal-1991-1993-visitante-bruised-banana': 910,
+        'manchester-united-1998-1999-local': 900,
+        'manchester-united-2007-2008-local-manga-larga': 890,
+        'liverpool-2004-2005-local': 880,
+        'river-plate-2018-local-campeon-copa-libertadores-madrid': 870,
+        'colombia-1990-local': 860,
+        'inter-1997-1998-local-ronaldo': 850,
+        'boca-juniors-1997-1998-retro-azul': 840,
+        'juventus-2014-local-retro': 830,
+        'real-madrid-2002-2003-local': 820,
+        'real-madrid-1998-2000-local': 810,
+        'barcelona-2010-2011-local': 800,
+        'argentina-1986-local': 790,
+        'milan-2006-local-manga-larga-negra-y-roja': 780,
+        'manchester-united-2007-2008-local': 770,
+        'liverpool-1998-1999-visitante': 760,
+        'bayern-1998-1999-local': 750,
+        'colombia-1998-local': 740,
+        'real-madrid-2013-2014-local': 700,
+        'colombia-2024-centenary-blanca': 620
     };
 
     function escHtml(s) {
@@ -412,14 +418,29 @@
     }
 
     function getFeaturedTeamCap(teamText) {
-        if (teamText.indexOf('real madrid') !== -1) return 2;
-        if (teamText.indexOf('barcelona') !== -1) return 2;
-        if (teamText.indexOf('milan') !== -1) return 2;
-        if (teamText.indexOf('colombia') !== -1) return 2;
-        if (teamText.indexOf('brasil') !== -1 || teamText.indexOf('brazil') !== -1) return 2;
-        if (teamText.indexOf('liverpool') !== -1) return 2;
-        if (teamText.indexOf('bayern') !== -1) return 2;
         return 1;
+    }
+
+    function getTeamFamily(item) {
+        var text = normalizeText([item.equipo, item.slug].join(' '));
+        var families = [
+            'real madrid', 'barcelona', 'manchester united', 'ac milan', 'milan', 'inter',
+            'arsenal', 'liverpool', 'bayern', 'juventus', 'argentina', 'brasil', 'brazil',
+            'colombia', 'river', 'boca', 'chelsea', 'roma'
+        ];
+
+        for (var i = 0; i < families.length; i++) {
+            if (text.indexOf(families[i]) !== -1) {
+                if (families[i] === 'brazil') return 'brasil';
+                if (families[i] === 'milan') return 'ac milan';
+                return families[i];
+            }
+        }
+
+        return normalizeText(item.equipo || '')
+            .replace(/\b(local|visitante|manga larga|retro|player|portero|arquero)\b/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function compareByScore(a, b) {
@@ -585,8 +606,6 @@
             '<div class="pv-card-img-wrap">' +
                 (img1 ? '<img class="pv-img-main" src="' + img1 + '" alt="' + escHtml(displayTitle) + '" loading="lazy" decoding="async">' : '') +
                 (img2 ? '<img class="pv-img-hover" src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" loading="lazy" decoding="async">' : '') +
-                (item.destacado ? '<span class="pv-dest-badge">&#9733; Top</span>' : '') +
-                '<span class="pv-leadtime-badge"><i class="ph-bold ph-clock"></i> 15 d&iacute;as</span>' +
                 (nFotos > 1 ? '<span class="pv-photo-count"><i class="ph-bold ph-images"></i> ' + nFotos + '</span>' : '') +
             '</div>' +
             '<div class="pv-card-info">' +
@@ -609,7 +628,7 @@
 
         featuredCandidates.forEach(function (item) {
             if (featured.length >= 12) return;
-            var teamText = normalizeText(item.equipo);
+            var teamText = getTeamFamily(item);
             var teamCap = getFeaturedTeamCap(teamText);
             if ((featuredCounts[teamText] || 0) >= teamCap) return;
             if (getFeaturedBoost(item) < 0 && !item.destacado) return;
@@ -666,56 +685,56 @@
         return [
             {
                 key: 'featured',
-                title: 'Iconos Que Entran Solos',
-                kicker: 'Golpe Inicial',
-                subtitle: 'Las que más rápido provocan clic y dejan clara la fuerza del catálogo.',
-                meta: featured.length + ' referencias top',
+                title: 'Populares',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: featured,
                 initialCount: 12,
                 featured: true
             },
             {
                 key: 'clubs-top',
-                title: 'Clubes Top',
-                kicker: 'Ventas Seguras',
-                subtitle: 'Gigantes europeos con camisetas que la gente reconoce de inmediato.',
-                meta: clubsTop.length + ' para explorar',
+                title: 'Clubes',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: clubsTop,
                 initialCount: 6
             },
             {
                 key: 'selecciones-top',
-                title: 'Selecciones Legendarias',
-                kicker: 'Mundiales y Eurocopas',
-                subtitle: 'Referencias con memoria colectiva fuerte y salida muy natural.',
-                meta: seleccionesTop.length + ' disponibles',
+                title: 'Selecciones',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: seleccionesTop,
                 initialCount: 6
             },
             {
                 key: 'sudamerica',
                 title: 'Sudamerica Imprescindible',
-                kicker: 'Pocas y Bien Elegidas',
-                subtitle: 'Boca, River y Santos con referencias que sí vale la pena tener visibles.',
-                meta: sudamerica.length + ' referencias',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: sudamerica,
                 initialCount: 4
             },
             {
                 key: 'joyas',
                 title: 'Joyas Retro',
-                kicker: 'Para Seguir Mirando',
-                subtitle: 'Diseños con más personalidad que enriquecen la exploración sin perder deseo.',
-                meta: joyas.length + ' para descubrir',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: joyas,
                 initialCount: 6
             },
             {
                 key: 'explorar',
-                title: 'Mas Para Explorar',
-                kicker: 'Catálogo Amplio',
-                subtitle: 'El resto del catálogo organizado para que navegar siga siendo fácil.',
-                meta: explorar.length + ' referencias',
+                title: 'Catalogo',
+                kicker: '',
+                subtitle: '',
+                meta: '',
                 items: explorar,
                 initialCount: 8
             }
@@ -730,11 +749,11 @@
         return '<section class="pv-section' + (section.featured ? ' pv-section-featured' : '') + '">' +
             '<div class="pv-section-head">' +
                 '<div>' +
-                    '<div class="pv-section-kicker"><i class="ph-bold ph-lightning"></i> ' + escHtml(section.kicker) + '</div>' +
+                    (section.kicker ? '<div class="pv-section-kicker"><i class="ph-bold ph-lightning"></i> ' + escHtml(section.kicker) + '</div>' : '') +
                     '<h3 class="pv-section-title">' + escHtml(section.title) + '</h3>' +
-                    '<p class="pv-section-sub">' + escHtml(section.subtitle) + '</p>' +
+                    (section.subtitle ? '<p class="pv-section-sub">' + escHtml(section.subtitle) + '</p>' : '') +
                 '</div>' +
-                '<div class="pv-section-meta">' + escHtml(section.meta) + '</div>' +
+                (section.meta ? '<div class="pv-section-meta">' + escHtml(section.meta) + '</div>' : '') +
             '</div>' +
             '<div class="pv-section-grid' + (section.featured ? ' pv-section-grid-featured' : '') + '">' +
                 visibleItems.map(function (item, idx) { return renderCard(item, idx, section.key); }).join('') +
@@ -750,11 +769,8 @@
         return '<section class="pv-section pv-section-featured">' +
             '<div class="pv-section-head">' +
                 '<div>' +
-                    '<div class="pv-section-kicker"><i class="ph-bold ph-magnifying-glass"></i> Resultado actual</div>' +
                     '<h3 class="pv-section-title">' + (searchTerm ? 'Resultados para "' + escHtml(searchTerm) + '"' : 'Referencias filtradas') + '</h3>' +
-                    '<p class="pv-section-sub">Cuando busques o filtres, mostramos la lista directa sin esconder referencias útiles.</p>' +
                 '</div>' +
-                '<div class="pv-section-meta">' + items.length + ' referencias</div>' +
             '</div>' +
             '<div class="pv-grid">' +
                 items.map(function (item, idx) { return renderCard(item, idx, 'search'); }).join('') +

@@ -546,26 +546,23 @@
         .pv-section {
             content-visibility: auto;
             contain-intrinsic-size: 900px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 24px 70px rgba(0,0,0,0.16);
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 10px 0 28px;
+            box-shadow: none;
             width: 100%;
             min-width: 0;
         }
         .pv-section-featured {
-            background:
-                radial-gradient(circle at top left, rgba(217,195,145,0.12), transparent 40%),
-                linear-gradient(145deg, rgba(18,16,12,0.98), rgba(8,8,8,0.96));
-            border-color: rgba(217,195,145,0.18);
+            background: transparent;
         }
         .pv-section-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             width: 100%;
             min-width: 0;
         }
@@ -575,9 +572,9 @@
             align-items: center;
             gap: 8px;
             color: var(--gold);
-            font-size: 0.7rem;
+            font-size: 0.62rem;
             font-weight: 800;
-            letter-spacing: 1.4px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
@@ -585,7 +582,7 @@
             margin: 0;
             color: #fff;
             font-family: 'Oswald', sans-serif;
-            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-size: clamp(1.25rem, 2vw, 1.65rem);
             line-height: 1;
             text-transform: uppercase;
         }
@@ -656,21 +653,24 @@
             background: var(--card-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px;
+            border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms ease, box-shadow 180ms ease;
             cursor: pointer;
-            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.22);
             display: flex;
             flex-direction: column;
             color: inherit;
             text-decoration: none;
         }
         .pv-card-item:hover {
-            transform: translateY(-8px);
+            transform: translateY(-4px);
             border-color: var(--gold);
-            box-shadow: 0 15px 45px rgba(217,195,145,0.15);
+            box-shadow: 0 14px 38px rgba(0,0,0,0.32);
+        }
+        .pv-card-item:active {
+            transform: scale(0.985);
         }
 
         /* Foto principal */
@@ -733,11 +733,11 @@
         .pv-card-cta {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             background: var(--gold); color: var(--bg-dark);
-            padding: 10px 16px; border-radius: 20px;
+            padding: 10px 16px; border-radius: 8px;
             font-size: 0.75rem; font-weight: 700;
             letter-spacing: 1px; text-transform: uppercase;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background 160ms ease, box-shadow 160ms ease;
             margin-top: auto;
         }
         .pv-card-cta:hover {
@@ -748,12 +748,14 @@
 
         /* Badges */
         .pv-dest-badge {
+            display: none;
             position: absolute; top: 10px; left: 10px; z-index: 3;
             background: var(--gold); color: #111;
             font-size: 0.65rem; font-weight: 900; padding: 4px 10px; border-radius: 10px;
             letter-spacing: 0.5px;
         }
         .pv-leadtime-badge {
+            display: none;
             position: absolute;
             left: 10px;
             bottom: 10px;
@@ -876,8 +878,8 @@
                 justify-content: center;
             }
             .pv-section {
-                padding: 18px 14px;
-                border-radius: 18px;
+                padding: 10px 0 24px;
+                border-radius: 0;
             }
             .pv-section-head {
                 flex-direction: row;
@@ -901,7 +903,7 @@
             }
             .pv-grid, .pv-grid-loading, .pv-section-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .pv-card-item {
-                border-radius: 18px;
+                border-radius: 8px;
             }
             .pv-card-equipo { font-size: 0.75rem; }
             .pv-card-precio { font-size: 0.9rem; }
