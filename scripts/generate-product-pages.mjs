@@ -1522,6 +1522,9 @@ function renderProductPage(product) {
       color: var(--text-secondary);
       font-size: 0.82rem;
     }
+    .mobile-buy-bar {
+      display: none;
+    }
     .benefits,
     .related-section {
       margin-top: 26px;
@@ -1577,6 +1580,9 @@ function renderProductPage(product) {
       font-size: 0.86rem;
     }
     @media (max-width: 900px) {
+      body {
+        padding-bottom: 82px;
+      }
       .hero-layout {
         grid-template-columns: 1fr;
       }
@@ -1585,6 +1591,47 @@ function renderProductPage(product) {
       }
       .meta-grid {
         grid-template-columns: 1fr;
+      }
+      .mobile-buy-bar {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px;
+        border: 1px solid rgba(217,195,145,0.28);
+        border-radius: 14px;
+        background: rgba(8,8,8,0.92);
+        box-shadow: 0 16px 36px rgba(0,0,0,0.38);
+        backdrop-filter: blur(14px);
+      }
+      .mobile-buy-copy {
+        min-width: 0;
+      }
+      .mobile-buy-copy strong {
+        display: block;
+        color: #fff;
+        font-size: 0.78rem;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 42vw;
+      }
+      .mobile-buy-copy span {
+        color: var(--gold);
+        font-weight: 800;
+        font-size: 0.9rem;
+      }
+      .mobile-buy-bar .btn {
+        min-height: 44px;
+        padding: 0 16px;
+        font-size: 0.74rem;
+        white-space: nowrap;
       }
     }
   </style>
@@ -1662,6 +1709,14 @@ function renderProductPage(product) {
     </section>
   </main>
 
+  <div class="mobile-buy-bar" aria-label="Compra rapida">
+    <div class="mobile-buy-copy">
+      <strong id="mobileBuyTitle">${escapeHtml(product.equipo)}</strong>
+      <span id="mobileBuyPrice">${escapeHtml(formatPrice(product.precio))}</span>
+    </div>
+    <a id="mobileWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar</a>
+  </div>
+
   <script>
     const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
     const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
@@ -1717,10 +1772,13 @@ function renderProductPage(product) {
       document.getElementById('productCategory').textContent = product.categoria || 'Herencia 90';
       document.getElementById('productTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
       document.getElementById('productPrice').textContent = formatPriceClient(product.precio);
+      document.getElementById('mobileBuyPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('productDescription').textContent = product.descripcion || '';
       document.getElementById('productSizesSummary').textContent = sizes.join(', ') || 'Consultar';
       document.getElementById('productSizeList').innerHTML = (sizes.length ? sizes : ['Consultar']).map((size) => '<span>' + size + '</span>').join('');
       document.getElementById('productWhatsAppBtn').href = buildWhatsAppClient(product);
+      document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
+      document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
 
       const mainImage = document.getElementById('productMainImage');
       if (mainImage) {
@@ -1764,6 +1822,7 @@ function renderProductPage(product) {
     trackEvent('page_view', STATIC_PRODUCT);
     trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
+    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     refreshProductFromSupabase();
     db.channel('seo-product-live-${slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {

@@ -18,6 +18,10 @@ const db = window.supabase
     : null;
 
 let allProducts = [];
+let catalogSearchTerm = '';
+let catalogSort = 'recommended';
+let catalogPage = 1;
+const CATALOG_PAGE_SIZE = 24;
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -30,6 +34,15 @@ function runWhenIdle(callback, timeout = 1800) {
         return;
     }
     setTimeout(callback, Math.min(timeout, 1200));
+}
+
+function byId(id) {
+    return document.getElementById(id);
+}
+
+function onId(id, eventName, handler) {
+    const el = byId(id);
+    if (el) el.addEventListener(eventName, handler);
 }
 
 let vanillaTiltPromise = null;
@@ -145,18 +158,23 @@ function clearCart() {
 
 function openCart() {
     renderCartDrawer();
-    document.getElementById('cartDrawer').classList.add('open');
-    document.getElementById('cartOverlay').classList.add('open');
+    const drawer = byId('cartDrawer');
+    const overlay = byId('cartOverlay');
+    if (drawer) drawer.classList.add('open');
+    if (overlay) overlay.classList.add('open');
 }
 
 function closeCart() {
-    document.getElementById('cartDrawer').classList.remove('open');
-    document.getElementById('cartOverlay').classList.remove('open');
+    const drawer = byId('cartDrawer');
+    const overlay = byId('cartOverlay');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
 }
 
 function renderCartDrawer() {
-    const container = document.getElementById('cartItems');
-    const footer = document.getElementById('cartFooter');
+    const container = byId('cartItems');
+    const footer = byId('cartFooter');
+    if (!container || !footer) return;
     if (cart.length === 0) {
         container.innerHTML = `
             <div class="cart-empty">
@@ -187,7 +205,8 @@ function renderCartDrawer() {
                 <button class="cart-item-remove" onclick="removeFromCart(${item.id}, '${item.talla}')" title="Quitar">×</button>
             </div>`;
     }).join('');
-    document.getElementById('cartTotal').textContent = formatPrice(total);
+    const totalEl = byId('cartTotal');
+    if (totalEl) totalEl.textContent = formatPrice(total);
 }
 
 function checkoutWhatsApp() {
@@ -204,7 +223,8 @@ function checkoutWhatsApp() {
 
 let toastTimer = null;
 function showToast() {
-    const toast = document.getElementById('cartToast');
+    const toast = byId('cartToast');
+    if (!toast) return;
     toast.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
@@ -257,26 +277,38 @@ function toggleGrid() {
 
 // ── Category drawer ───────────────────────────────────────────────────────────
 function openDrawer() {
-    document.getElementById('categoryDrawer').classList.add('open');
-    document.getElementById('drawerOverlay').classList.add('open');
+    const drawer = byId('categoryDrawer');
+    const overlay = byId('drawerOverlay');
+    if (!drawer || !overlay) return;
+    drawer.classList.add('open');
+    overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 }
 
 function closeDrawer() {
-    document.getElementById('categoryDrawer').classList.remove('open');
-    document.getElementById('drawerOverlay').classList.remove('open');
+    const drawer = byId('categoryDrawer');
+    const overlay = byId('drawerOverlay');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
     document.body.style.overflow = '';
 }
 
 // ── Search overlay ────────────────────────────────────────────────────────────
 function openSearchOverlay() {
-    document.getElementById('searchOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('mobileSearchInput').focus(), 300);
+    const overlay = byId('searchOverlay');
+    const input = byId('mobileSearchInput');
+    if (!overlay) return;
+    overlay.classList.add('open');
+    if (input) setTimeout(() => input.focus(), 300);
 }
 
 function closeSearchOverlay() {
-    document.getElementById('searchOverlay').classList.remove('open');
-    document.getElementById('mobileSearchInput').value = '';
+    const overlay = byId('searchOverlay');
+    const input = byId('mobileSearchInput');
+    if (overlay) overlay.classList.remove('open');
+    if (input) input.value = '';
+    catalogSearchTerm = '';
+    catalogPage = 1;
     renderProducts(allProducts);
 }
 
@@ -322,9 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Modal close
-    const modal = document.getElementById('productModal');
-    document.getElementById('closeModal').onclick = () => { modal.style.display = 'none'; };
-    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+    const modal = byId('productModal');
+    onId('closeModal', 'click', () => { if (modal) modal.style.display = 'none'; });
+    window.addEventListener('click', (e) => { if (modal && e.target === modal) modal.style.display = 'none'; });
 
     // Zoom en imagen principal
     const mainImgContainer = document.getElementById('mainImageContainer');
@@ -345,8 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            renderProducts(q ? allProducts.filter(p => p.equipo.toLowerCase().includes(q)) : allProducts);
+            catalogSearchTerm = e.target.value.toLowerCase().trim();
+            catalogPage = 1;
+            renderProducts(allProducts);
         });
     }
 
@@ -354,28 +387,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileSearchInput = document.getElementById('mobileSearchInput');
     if (mobileSearchInput) {
         mobileSearchInput.addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            renderProducts(q ? allProducts.filter(p => p.equipo.toLowerCase().includes(q)) : allProducts);
+            catalogSearchTerm = e.target.value.toLowerCase().trim();
+            catalogPage = 1;
+            renderProducts(allProducts);
         });
     }
 
     // Desktop cart
-    document.getElementById('cartBtn').onclick = openCart;
-    document.getElementById('cartClose').onclick = closeCart;
-    document.getElementById('cartOverlay').onclick = closeCart;
-    document.getElementById('cartCheckout').onclick = checkoutWhatsApp;
-    document.getElementById('cartClear').onclick = clearCart;
+    onId('cartBtn', 'click', openCart);
+    onId('cartClose', 'click', closeCart);
+    onId('cartOverlay', 'click', closeCart);
+    onId('cartCheckout', 'click', checkoutWhatsApp);
+    onId('cartClear', 'click', clearCart);
 
     // Mobile bottom nav
-    document.getElementById('mobileCartBtn').onclick = openCart;
-    document.getElementById('mobileMenuBtn').onclick = openDrawer;
-    document.getElementById('gridToggleBtn').onclick = toggleGrid;
-    document.getElementById('mobileSearchBtn').onclick = openSearchOverlay;
+    onId('mobileCartBtn', 'click', openCart);
+    onId('mobileMenuBtn', 'click', openDrawer);
+    onId('gridToggleBtn', 'click', toggleGrid);
+    onId('mobileSearchBtn', 'click', openSearchOverlay);
 
     // Drawer & search close
-    document.getElementById('categoryDrawerClose').onclick = closeDrawer;
-    document.getElementById('drawerOverlay').onclick = closeDrawer;
-    document.getElementById('searchOverlayClose').onclick = closeSearchOverlay;
+    onId('categoryDrawerClose', 'click', closeDrawer);
+    onId('drawerOverlay', 'click', closeDrawer);
+    onId('searchOverlayClose', 'click', closeSearchOverlay);
 
     // Cerrar drawer al hacer click en un link
     document.querySelectorAll('.category-drawer-link').forEach(link => {
@@ -389,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             closeSearchOverlay();
             closeDrawer();
-            modal.style.display = 'none';
+            if (modal) modal.style.display = 'none';
         }
     });
 
@@ -453,6 +487,139 @@ function makeCategoryId(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+$/, '');
 }
 
+function getCategoryTitle(pageCat) {
+    const labels = {
+        'mundial-2026': 'Mundial 2026',
+        'temporada-25-26': 'Temporada 25/26',
+        'retro': 'Leyendas Retro',
+        'mujer': 'Women Collection',
+        'colombia': 'Colombia',
+        'real-madrid': 'Real Madrid',
+        'barcelona': 'Barcelona',
+        'arsenal': 'Arsenal',
+        'liverpool': 'Liverpool',
+        'manchester-united': 'Manchester United',
+        'bayern-munich': 'Bayern Munich',
+        'psg': 'PSG',
+        'brasil': 'Brasil',
+        'argentina': 'Argentina',
+        'alemania': 'Alemania',
+        'portugal': 'Portugal',
+        'manchester-city': 'Manchester City'
+    };
+    return labels[pageCat] || 'Catalogo';
+}
+
+function getCategoryRank(product) {
+    const text = `${product.equipo || ''} ${product.categoria || ''}`.toLowerCase();
+    const cat = (product.categoria || '').toLowerCase();
+    if (cat.includes('2026') || text.includes('colombia')) return 0;
+    if (text.includes('real madrid') || text.includes('barcelona')) return 1;
+    if (text.includes('argentina') || text.includes('brasil')) return 2;
+    if (cat.includes('retro') || cat.includes('leyendas')) return 3;
+    if (cat.includes('25/26') || cat.includes('temporada')) return 4;
+    return 5;
+}
+
+function getProductPhotoCount(product) {
+    if (Array.isArray(product.imagenes)) return product.imagenes.length;
+    return product.imagen ? 1 : 0;
+}
+
+function getProductPrice(product) {
+    return Number(product.precio || 0);
+}
+
+function compareCatalogProducts(a, b) {
+    let diff = 0;
+    if (catalogSort === 'price-asc') diff = getProductPrice(a) - getProductPrice(b);
+    if (catalogSort === 'price-desc') diff = getProductPrice(b) - getProductPrice(a);
+    if (catalogSort === 'photos') diff = getProductPhotoCount(b) - getProductPhotoCount(a);
+    if (catalogSort === 'az') diff = String(a.equipo || '').localeCompare(String(b.equipo || ''));
+    if (catalogSort === 'popular') {
+        diff = getCategoryRank(a) - getCategoryRank(b);
+        if (diff === 0) diff = getProductPhotoCount(b) - getProductPhotoCount(a);
+    }
+    if (catalogSort === 'recent') diff = Number(b.id || 0) - Number(a.id || 0);
+    if (diff !== 0) return diff;
+    diff = getCategoryRank(a) - getCategoryRank(b);
+    if (diff !== 0) return diff;
+    return Number(a.id || 0) - Number(b.id || 0);
+}
+
+function isProductInPageCategory(product, pageCat) {
+    const cat = (product.categoria || '').toLowerCase();
+    const eq = (product.equipo || '').toLowerCase();
+    if (!pageCat) return true;
+    if (pageCat === 'mundial-2026' && cat.includes('2026')) return true;
+    if (pageCat === 'temporada-25-26' && cat.includes('25/26')) return true;
+    if (pageCat === 'retro' && cat.includes('leyendas')) return true;
+    if (pageCat === 'mujer' && cat.includes('women')) return true;
+    if (pageCat === 'colombia' && eq.includes('colombia')) return true;
+    if (pageCat === 'real-madrid' && eq.includes('real madrid')) return true;
+    if (pageCat === 'barcelona' && eq.includes('barcelona')) return true;
+    if (pageCat === 'arsenal' && eq.includes('arsenal')) return true;
+    if (pageCat === 'liverpool' && eq.includes('liverpool')) return true;
+    if (pageCat === 'manchester-united' && eq.includes('manchester united')) return true;
+    if (pageCat === 'bayern-munich' && eq.includes('bayern')) return true;
+    if (pageCat === 'psg' && eq.includes('psg')) return true;
+    if (pageCat === 'brasil' && eq.includes('brasil')) return true;
+    if (pageCat === 'argentina' && eq.includes('argentina')) return true;
+    if (pageCat === 'alemania' && eq.includes('alemania')) return true;
+    if (pageCat === 'portugal' && eq.includes('portugal')) return true;
+    if (pageCat === 'manchester-city' && eq.includes('manchester city')) return true;
+    return false;
+}
+
+function renderCatalogPagination(page, totalPages) {
+    if (totalPages <= 1) return '';
+    const pages = [];
+    const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+    const end = Math.min(totalPages, Math.max(page + 2, 5));
+    for (let i = start; i <= end; i++) {
+        pages.push(`<button class="catalog-page-btn${i === page ? ' active' : ''}" onclick="catalogGoPage(${i})" aria-label="Ir a pagina ${i}">${i}</button>`);
+    }
+    return `
+        <div class="catalog-pagination" aria-label="Paginacion del catalogo">
+            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.max(1, page - 1)})" ${page === 1 ? 'disabled' : ''} aria-label="Pagina anterior"><i class="ph-bold ph-caret-left"></i></button>
+            ${pages.join('')}
+            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.min(totalPages, page + 1)})" ${page === totalPages ? 'disabled' : ''} aria-label="Pagina siguiente"><i class="ph-bold ph-caret-right"></i></button>
+        </div>`;
+}
+
+function renderCatalogToolbar(total, page, totalPages, start, end) {
+    return `
+        <div class="catalog-toolbar">
+            <div class="catalog-results">${total ? `Mostrando ${start}-${end} de ${total}` : 'Sin resultados'}</div>
+            <label class="catalog-sort-wrap">
+                <span>Ordenar por</span>
+                <select class="catalog-sort" onchange="catalogSetSort(this.value)" aria-label="Ordenar catalogo">
+                    <option value="recommended"${catalogSort === 'recommended' ? ' selected' : ''}>Recomendados</option>
+                    <option value="popular"${catalogSort === 'popular' ? ' selected' : ''}>Popularidad</option>
+                    <option value="recent"${catalogSort === 'recent' ? ' selected' : ''}>Mas recientes</option>
+                    <option value="price-asc"${catalogSort === 'price-asc' ? ' selected' : ''}>Menor precio</option>
+                    <option value="price-desc"${catalogSort === 'price-desc' ? ' selected' : ''}>Mayor precio</option>
+                    <option value="photos"${catalogSort === 'photos' ? ' selected' : ''}>Mas fotos</option>
+                    <option value="az"${catalogSort === 'az' ? ' selected' : ''}>A-Z</option>
+                </select>
+            </label>
+            ${renderCatalogPagination(page, totalPages)}
+        </div>`;
+}
+
+window.catalogSetSort = function (value) {
+    catalogSort = value || 'recommended';
+    catalogPage = 1;
+    renderProducts(allProducts);
+};
+
+window.catalogGoPage = function (page) {
+    catalogPage = Math.max(1, Number(page) || 1);
+    renderProducts(allProducts);
+    const anchor = byId('catalogo') || byId('productGrid');
+    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 function renderNavigation() {
     const desktopNav = document.getElementById('desktopCatNav');
     const mobileNav = document.getElementById('mobileCatNav');
@@ -502,8 +669,7 @@ function renderNavigation() {
 
     if (mobileNav) {
         const closeFn = () => {
-            document.getElementById('categoryDrawer').classList.remove('open');
-            document.getElementById('drawerOverlay').classList.remove('open');
+            closeDrawer();
         };
 
         const mobileHtml = `
@@ -606,119 +772,92 @@ function renderNavigation() {
 
 // ── Render Products ───────────────────────────────────────────────────────────
 function renderProducts(products) {
-    const container = document.getElementById('productGrid');
+    const container = byId('productGrid');
     if (!container) return;
 
-    let displayProducts = products;
     const pageCat = document.body.getAttribute('data-category');
-    if (pageCat) {
-        displayProducts = products.filter(p => {
-            const cat = (p.categoria || '').toLowerCase();
-            const eq = (p.equipo || '').toLowerCase();
-            if (pageCat === 'mundial-2026' && cat.includes('2026')) return true;
-            if (pageCat === 'temporada-25-26' && cat.includes('25/26')) return true;
-            if (pageCat === 'retro' && cat.includes('leyendas')) return true;
-            if (pageCat === 'mujer' && cat.includes('women')) return true;
-            if (pageCat === 'colombia' && eq.includes('colombia')) return true;
-            if (pageCat === 'real-madrid' && eq.includes('real madrid')) return true;
-            if (pageCat === 'barcelona' && eq.includes('barcelona')) return true;
-            if (pageCat === 'arsenal' && eq.includes('arsenal')) return true;
-            if (pageCat === 'liverpool' && eq.includes('liverpool')) return true;
-            if (pageCat === 'manchester-united' && eq.includes('manchester united')) return true;
-            if (pageCat === 'bayern-munich' && eq.includes('bayern')) return true;
-            if (pageCat === 'psg' && eq.includes('psg')) return true;
-            if (pageCat === 'brasil' && eq.includes('brasil')) return true;
-            if (pageCat === 'argentina' && eq.includes('argentina')) return true;
-            if (pageCat === 'alemania' && eq.includes('alemania')) return true;
-            if (pageCat === 'portugal' && eq.includes('portugal')) return true;
-            if (pageCat === 'manchester-city' && eq.includes('manchester city')) return true;
-            return false;
+    let displayProducts = (products || []).filter(p => isProductInPageCategory(p, pageCat));
+    if (catalogSearchTerm) {
+        displayProducts = displayProducts.filter(p => {
+            const haystack = `${p.equipo || ''} ${p.categoria || ''} ${p.descripcion || ''}`.toLowerCase();
+            return haystack.includes(catalogSearchTerm);
         });
     }
+    displayProducts = displayProducts.slice().sort(compareCatalogProducts);
 
     container.innerHTML = '';
 
     if (displayProducts.length === 0) {
-        container.innerHTML = '<p style="text-align:center;margin-top:50px;color:#aaa;">No se encontraron resultados en esta categoría.</p>';
+        container.innerHTML = `
+            ${pageCat ? `<section class="catalog-page-head"><span>Catalogo</span><h1>${getCategoryTitle(pageCat)}</h1></section>` : ''}
+            ${renderCatalogToolbar(0, 1, 1, 0, 0)}
+            <p class="catalog-empty">No se encontraron resultados.</p>`;
         return;
     }
 
-    const uniqueCats = [...new Set(displayProducts.map(p => p.categoria || 'Sin Categoría'))];
-    const categories = {};
-    uniqueCats.forEach(cat => categories[cat] = []);
+    const totalPages = Math.max(1, Math.ceil(displayProducts.length / CATALOG_PAGE_SIZE));
+    catalogPage = Math.min(Math.max(1, catalogPage), totalPages);
+    const startIndex = (catalogPage - 1) * CATALOG_PAGE_SIZE;
+    const visibleProducts = displayProducts.slice(startIndex, startIndex + CATALOG_PAGE_SIZE);
+    const start = startIndex + 1;
+    const end = startIndex + visibleProducts.length;
 
-    displayProducts.forEach(p => {
-        const cat = p.categoria || 'Clubes 25/26';
-        if (!categories[cat]) categories[cat] = [];
-        categories[cat].push(p);
+    if (pageCat) {
+        container.insertAdjacentHTML('beforeend', `<section class="catalog-page-head"><span>Catalogo</span><h1>${getCategoryTitle(pageCat)}</h1></section>`);
+    }
+    container.insertAdjacentHTML('beforeend', renderCatalogToolbar(displayProducts.length, catalogPage, totalPages, start, end));
+
+    const grid = document.createElement('div');
+    grid.className = 'product-grid-inner';
+    container.appendChild(grid);
+
+    visibleProducts.forEach((product, i) => {
+        const idx = allProducts.findIndex(p => p.id === product.id);
+        const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
+            ? product.imagenes[0] : (product.imagen || ''));
+
+        const tallas = Object.entries(product.tallas || {});
+        const allSoldOut = tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+        const sizePills = buildSizePills(product.tallas);
+        const badge = getProductBadge(product);
+
+        const card = document.createElement('div');
+        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
+        if (!prefersReducedMotion && !isTouchDevice) {
+            card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
+        }
+        if (!allSoldOut) card.onclick = () => openModal(idx);
+
+        card.innerHTML = `
+            <div class="product-image-wrapper img-loading">
+                <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
+                ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
+            </div>
+            <div class="product-info">
+                <h3 class="product-title">${product.equipo}</h3>
+                <div class="product-price">${formatPrice(product.precio)}</div>
+                <div class="product-sizes">${sizePills}</div>
+                <div class="product-actions">
+                    ${allSoldOut
+                ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
+                : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver detalles</button>`
+            }
+                </div>
+            </div>
+        `;
+
+        const img = card.querySelector('.lazy-img');
+        if (img) imgObserver.observe(img);
+        if (!prefersReducedMotion && !isTouchDevice) {
+            cardRevealObserver.observe(card);
+        } else {
+            card.classList.remove('card-hidden');
+        }
+        grid.appendChild(card);
     });
 
-    for (const [catName, catProducts] of Object.entries(categories)) {
-        if (catProducts.length === 0) continue;
+    container.insertAdjacentHTML('beforeend', `<div class="catalog-toolbar catalog-toolbar-bottom">${renderCatalogPagination(catalogPage, totalPages)}</div>`);
 
-        const catTitle = document.createElement('h2');
-        catTitle.id = makeCategoryId(catName);
-        catTitle.className = 'category-title';
-        catTitle.innerText = displayCategory(catName);
-        container.appendChild(catTitle);
-
-        const grid = document.createElement('div');
-        grid.className = 'product-grid-inner';
-        container.appendChild(grid);
-
-        catProducts.forEach((product, i) => {
-            const idx = allProducts.findIndex(p => p.id === product.id);
-            let coverImg = toWebp(product.imagenes && product.imagenes.length > 0
-                ? product.imagenes[0] : (product.imagen || ''));
-
-            const tallas = Object.entries(product.tallas || {});
-            const allSoldOut = tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
-            const sizePills = buildSizePills(product.tallas);
-            const badge = getProductBadge(product);
-
-            const card = document.createElement('div');
-            card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
-            if (!prefersReducedMotion && !isTouchDevice) {
-                card.style.transitionDelay = `${Math.min(i * 45, 180)}ms`;
-            }
-            if (!allSoldOut) card.onclick = () => openModal(idx);
-
-            card.innerHTML = `
-                <div class="product-image-wrapper img-loading">
-                    <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
-                    ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">${product.equipo}</h3>
-                    <div class="product-price">${formatPrice(product.precio)}</div>
-                    <div class="product-sizes">${sizePills}</div>
-                    ${product.descripcion ? `<p class="product-description">${product.descripcion}</p>` : ''}
-                    <div class="product-actions">
-                        ${allSoldOut
-                    ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                    : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver Detalles</button>`
-                }
-                    </div>
-                </div>
-            `;
-
-            imgObserver.observe(card.querySelector('.lazy-img'));
-            if (!prefersReducedMotion && !isTouchDevice) {
-                cardRevealObserver.observe(card);
-            } else {
-                card.classList.remove('card-hidden');
-            }
-            grid.appendChild(card);
-        });
-
-        if (!prefersReducedMotion && !isTouchDevice) {
-            titleRevealObserver.observe(catTitle);
-        } else {
-            catTitle.classList.add('revealed');
-        }
-    }
-
-    // VanillaTilt se carga solo en desktop y despues del render inicial.
     if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
         runWhenIdle(() => {
             loadVanillaTilt().then((VanillaTilt) => {
@@ -734,7 +873,6 @@ function renderProducts(products) {
         }, 2500);
     }
 }
-
 // ── Modal ─────────────────────────────────────────────────────────────────────
 function openModal(productIndex) {
     const product = allProducts[productIndex];

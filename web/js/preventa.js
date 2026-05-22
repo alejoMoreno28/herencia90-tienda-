@@ -279,6 +279,9 @@
     var _pvFiltroVal = '';
     var _pvCollections = {};
     var _pvVisibleCounts = {};
+    var _pvSort = 'popular';
+    var _pvPage = 1;
+    var PV_PAGE_SIZE = 24;
     var _pvLbData = null;
     var _pvLbIdx = 0;
     var _pvRenderToken = 0;
@@ -449,6 +452,27 @@
         diff = getPhotoCount(b) - getPhotoCount(a);
         if (diff !== 0) return diff;
         return normalizeText(a.equipo).localeCompare(normalizeText(b.equipo));
+    }
+
+    function getPreventaPriceValue(item) {
+        var direct = Number(item.precio_aprox || 0);
+        if (direct) return direct;
+        var label = pvGetPrecio(item.tipo);
+        return Number(String(label).replace(/[^0-9]/g, '')) || 0;
+    }
+
+    function sortPreventaItems(items) {
+        return items.slice().sort(function (a, b) {
+            var diff = 0;
+            if (_pvSort === 'price-asc') diff = getPreventaPriceValue(a) - getPreventaPriceValue(b);
+            if (_pvSort === 'price-desc') diff = getPreventaPriceValue(b) - getPreventaPriceValue(a);
+            if (_pvSort === 'photos') diff = getPhotoCount(b) - getPhotoCount(a);
+            if (_pvSort === 'az') diff = normalizeText(a.equipo).localeCompare(normalizeText(b.equipo));
+            if (_pvSort === 'newest') diff = Number(b.id || 0) - Number(a.id || 0);
+            if (_pvSort === 'popular') diff = compareByScore(a, b);
+            if (diff !== 0) return diff;
+            return compareByScore(a, b);
+        });
     }
 
     function pvGetPrecio(tipo) {
@@ -764,17 +788,80 @@
         '</section>';
     }
 
+    function renderPvPagination(page, totalPages) {
+        if (totalPages <= 1) return '';
+        var html = '<div class="pv-pagination" aria-label="Paginacion preventa">';
+        var start = Math.max(1, Math.min(page - 2, totalPages - 4));
+        var end = Math.min(totalPages, Math.max(page + 2, 5));
+        html += '<button class="pv-page-btn" onclick="pvGoPage(' + Math.max(1, page - 1) + ')" ' + (page === 1 ? 'disabled' : '') + ' aria-label="Pagina anterior"><i class="ph-bold ph-caret-left"></i></button>';
+        for (var i = start; i <= end; i++) {
+            html += '<button class="pv-page-btn' + (i === page ? ' active' : '') + '" onclick="pvGoPage(' + i + ')" aria-label="Ir a pagina ' + i + '">' + i + '</button>';
+        }
+        html += '<button class="pv-page-btn" onclick="pvGoPage(' + Math.min(totalPages, page + 1) + ')" ' + (page === totalPages ? 'disabled' : '') + ' aria-label="Pagina siguiente"><i class="ph-bold ph-caret-right"></i></button>';
+        html += '</div>';
+        return html;
+    }
+
+    function renderPvToolbar(total, page, totalPages, start, end) {
+        return '<div class="pv-catalog-toolbar">' +
+            '<div class="pv-catalog-results">' + (total ? 'Mostrando ' + start + '-' + end + ' de ' + total : 'Sin resultados') + '</div>' +
+            '<label class="pv-sort-wrap"><span>Ordenar por</span>' +
+                '<select class="pv-sort-select" onchange="pvSetSort(this.value)" aria-label="Ordenar preventa">' +
+                    '<option value="popular"' + (_pvSort === 'popular' ? ' selected' : '') + '>Popularidad</option>' +
+                    '<option value="newest"' + (_pvSort === 'newest' ? ' selected' : '') + '>Mas recientes</option>' +
+                    '<option value="price-asc"' + (_pvSort === 'price-asc' ? ' selected' : '') + '>Menor precio</option>' +
+                    '<option value="price-desc"' + (_pvSort === 'price-desc' ? ' selected' : '') + '>Mayor precio</option>' +
+                    '<option value="photos"' + (_pvSort === 'photos' ? ' selected' : '') + '>Mas fotos</option>' +
+                    '<option value="az"' + (_pvSort === 'az' ? ' selected' : '') + '>A-Z</option>' +
+                '</select>' +
+            '</label>' +
+            renderPvPagination(page, totalPages) +
+        '</div>';
+    }
+
+    function getPagedPreventaItems(items) {
+        var sorted = sortPreventaItems(items);
+        var totalPages = Math.max(1, Math.ceil(sorted.length / PV_PAGE_SIZE));
+        _pvPage = Math.min(Math.max(1, _pvPage), totalPages);
+        var startIndex = (_pvPage - 1) * PV_PAGE_SIZE;
+        return {
+            sorted: sorted,
+            pageItems: sorted.slice(startIndex, startIndex + PV_PAGE_SIZE),
+            page: _pvPage,
+            totalPages: totalPages,
+            start: sorted.length ? startIndex + 1 : 0,
+            end: Math.min(sorted.length, startIndex + PV_PAGE_SIZE)
+        };
+    }
     function renderSearchResults(items, searchTerm) {
-        _pvCollections.search = items;
+        var pageData = getPagedPreventaItems(items);
+        _pvCollections.search = pageData.pageItems;
         return '<section class="pv-section pv-section-featured">' +
             '<div class="pv-section-head">' +
                 '<div>' +
                     '<h3 class="pv-section-title">' + (searchTerm ? 'Resultados para "' + escHtml(searchTerm) + '"' : 'Referencias filtradas') + '</h3>' +
                 '</div>' +
             '</div>' +
+            renderPvToolbar(pageData.sorted.length, pageData.page, pageData.totalPages, pageData.start, pageData.end) +
             '<div class="pv-grid">' +
-                items.map(function (item, idx) { return renderCard(item, idx, 'search'); }).join('') +
+                pageData.pageItems.map(function (item, idx) { return renderCard(item, idx, 'search'); }).join('') +
             '</div>' +
+            '<div class="pv-catalog-toolbar pv-catalog-toolbar-bottom">' + renderPvPagination(pageData.page, pageData.totalPages) + '</div>' +
+        '</section>';
+    }
+
+    function renderCatalogComplete(items) {
+        var pageData = getPagedPreventaItems(items);
+        _pvCollections.catalog = pageData.pageItems;
+        return '<section class="pv-section pv-section-catalogo">' +
+            '<div class="pv-section-head">' +
+                '<div><h3 class="pv-section-title">Catalogo completo</h3></div>' +
+            '</div>' +
+            renderPvToolbar(pageData.sorted.length, pageData.page, pageData.totalPages, pageData.start, pageData.end) +
+            '<div class="pv-grid">' +
+                pageData.pageItems.map(function (item, idx) { return renderCard(item, idx, 'catalog'); }).join('') +
+            '</div>' +
+            '<div class="pv-catalog-toolbar pv-catalog-toolbar-bottom">' + renderPvPagination(pageData.page, pageData.totalPages) + '</div>' +
         '</section>';
     }
 
@@ -782,27 +869,16 @@
         var stage = document.getElementById('pv-grid-stage');
         var intro = document.getElementById('pv-intro-copy');
         var sections = buildSections(items);
-        var renderToken = ++_pvRenderToken;
 
         _pvCollections = {};
         _pvVisibleCounts = {};
         sections.forEach(function (section) {
-            _pvVisibleCounts[section.key] = section.initialCount;
+            _pvVisibleCounts[section.key] = section.key === 'featured' ? Math.min(section.initialCount, section.items.length) : section.initialCount;
         });
 
         if (intro) intro.style.display = '';
-        stage.innerHTML = renderSection(sections[0]);
-
-        var remainingSections = sections.slice(1);
-        if (!remainingSections.length) return;
-
-        var laterRender = function () {
-            if (renderToken !== _pvRenderToken) return;
-            stage.insertAdjacentHTML('beforeend', remainingSections.map(renderSection).join(''));
-        };
-
-        if ('requestIdleCallback' in window) window.requestIdleCallback(laterRender, { timeout: 500 });
-        else setTimeout(laterRender, 60);
+        var featured = sections.filter(function (section) { return section.key === 'featured'; })[0];
+        stage.innerHTML = (featured ? renderSection(featured) : '') + renderCatalogComplete(items);
     }
 
     function renderCurrentView(items, searchTerm, isFiltered) {
@@ -818,8 +894,8 @@
         }
 
         empty.style.display = 'none';
+        _pvRenderToken++;
         if (isFiltered) {
-            _pvRenderToken++;
             if (intro) intro.style.display = 'none';
             stage.innerHTML = renderSearchResults(items, searchTerm);
             return;
@@ -827,7 +903,6 @@
 
         renderDefaultCatalog(items);
     }
-
     async function pvCargar() {
         var galSection = document.getElementById('pv-galeria');
         try {
@@ -890,10 +965,24 @@
 
     window.pvFiltrar = function (btn, type, val) {
         document.querySelectorAll('.pv-filtro-btn').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
         _pvFiltroType = type;
         _pvFiltroVal = val;
+        _pvPage = 1;
         pvApplyFilters();
+    };
+
+    window.pvSetSort = function (value) {
+        _pvSort = value || 'popular';
+        _pvPage = 1;
+        pvApplyFilters();
+    };
+
+    window.pvGoPage = function (page) {
+        _pvPage = Math.max(1, Number(page) || 1);
+        pvApplyFilters();
+        var gal = document.getElementById('pv-galeria');
+        if (gal) gal.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     window.pvReset = function () {
@@ -1069,6 +1158,7 @@
         var mainInput = document.getElementById('pv-search');
         if (!mainInput) return;
         mainInput.value = value;
+        _pvPage = 1;
         pvApplyFilters();
     }
 
@@ -1116,12 +1206,15 @@
         var drawerClose = document.getElementById('categoryDrawerClose');
         var searchClose = document.getElementById('searchOverlayClose');
 
-        searchInput.addEventListener('input', function () {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(function () {
-                pvApplyFilters();
-            }, 220);
-        });
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimer);
+                _pvPage = 1;
+                searchTimer = setTimeout(function () {
+                    pvApplyFilters();
+                }, 220);
+            });
+        }
 
         try {
             pvApplyMobileView(window.localStorage.getItem(PV_MOBILE_VIEW_KEY) || 'compact');
