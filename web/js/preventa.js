@@ -314,6 +314,29 @@
     var PV_NICHE_HINTS = ['porto', 'roma', 'holanda', 'portugal', 'alemania', 'francia', 'inglaterra'];
     var PV_FEATURED_SPOTLIGHT = ['colombia', 'real madrid', 'barcelona', 'brasil', 'brazil', 'ac milan', 'milan', 'liverpool', 'bayern', 'argentina'];
     var PV_FEATURED_EXCLUDE = ['portugal'];
+    var PV_VISUAL_PRIORITY = {
+        'river-plate-2018-local-campeon-copa-libertadores-madrid': 230,
+        'barcelona-2008-2009-local': 220,
+        'argentina-local-2006': 215,
+        'real-madrid-2012-2013-visitante-verde-retro': 210,
+        'manchester-united-2007-2008-local-manga-larga': 205,
+        'manchester-united-2007-2008-local': 200,
+        'ac-milan-2006-2007-local': 195,
+        'milan-2006-local-manga-larga-negra-y-roja': 190,
+        'boca-juniors-1997-1998-retro-azul': 185,
+        'colombia-1990-local': 180,
+        'argentina-1986-local': 175,
+        'brasil-2002-local': 170,
+        'liverpool-2004-2005-local': 165,
+        'barcelona-2010-2011-local': 160,
+        'juventus-2014-local-retro': 150,
+        'fiorentina-1998-local-morada-retro': 145,
+        'real-madrid-2004-2005-local': 140,
+        'arsenal-2005-2006-local-burdeos': 135,
+        'arsenal-2003-2004-local-roja': 130,
+        'inter-2009-2010-local': 125,
+        'colombia-2024-centenary-blanca': 120
+    };
 
     function escHtml(s) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -337,6 +360,10 @@
         return Array.isArray(item.imagenes) ? item.imagenes.length : 0;
     }
 
+    function getVisualPriority(item) {
+        return PV_VISUAL_PRIORITY[item.slug] || 0;
+    }
+
     function getDecadeWeight(decada) {
         if (decada === '2000s') return 10;
         if (decada === '90s') return 8;
@@ -349,6 +376,7 @@
         var text = normalizeText([item.equipo, item.temporada, item.descripcion, item.tipo].join(' '));
         var score = 0;
 
+        score += getVisualPriority(item);
         if (item.destacado) score += 45;
         if (item.categoria === 'clubes') score += 10;
         if (item.categoria === 'selecciones') score += 8;
@@ -366,9 +394,11 @@
     function getFeaturedBoost(item) {
         var text = normalizeText([item.equipo, item.temporada, item.descripcion].join(' '));
         var boost = 0;
+        var visualPriority = getVisualPriority(item);
 
         if (hasAnyKeyword(text, PV_FEATURED_EXCLUDE)) return -9999;
-        if (getPhotoCount(item) < 6) return -500;
+        if (getPhotoCount(item) < 5 && !visualPriority) return -500;
+        boost += visualPriority;
 
         for (var i = 0; i < PV_FEATURED_SPOTLIGHT.length; i++) {
             if (text.indexOf(PV_FEATURED_SPOTLIGHT[i]) !== -1) {
@@ -394,6 +424,8 @@
 
     function compareByScore(a, b) {
         var diff = getItemScore(b) - getItemScore(a);
+        if (diff !== 0) return diff;
+        diff = getPhotoCount(b) - getPhotoCount(a);
         if (diff !== 0) return diff;
         return normalizeText(a.equipo).localeCompare(normalizeText(b.equipo));
     }
@@ -465,6 +497,78 @@
         if (tipo && tipo !== 'fan' && titleNorm.indexOf(normalizeText(tipo)) === -1 && normalizeText(title).indexOf(normalizeText(tipo)) === -1) title += ' ' + tipo;
 
         return title.replace(/\s+/g, ' ').trim();
+    }
+
+    function getDuplicateSeasonKey(temporada) {
+        var years = String(temporada || '').match(/\d{2,4}/g) || [];
+        if (!years.length) return normalizeKey(temporada || 'sin-temporada');
+        years = years.map(function (year) {
+            if (year.length === 2) return (Number(year) > 30 ? '19' : '20') + year;
+            return year;
+        });
+        return years.length > 1 ? years.slice(0, 2).join('-') : years[0];
+    }
+
+    function getDuplicateTeamKey(item) {
+        return normalizeText(item.equipo || '')
+            .replace(/\b(local|visitante|tercera|portero|arquero|manga larga|player|fan|retro|ucl)\b/g, ' ')
+            .replace(/\b(azul|negra|amarilla|roja|verde|blanca|rosa|morado|morada)\b/g, ' ')
+            .replace(/\b(nino|niño|centenario|centenary|aniversario|classic|edicion|especial|100 anos|125 aniversario|2)\b/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function getDuplicateVariantKey(item) {
+        var text = normalizeText([item.slug, item.equipo, item.tipo, item.descripcion].join(' '));
+        var parts = [];
+
+        if (text.indexOf('visitante') !== -1) parts.push('visitante');
+        else if (text.indexOf('tercera') !== -1) parts.push('tercera');
+        else if (text.indexOf('portero') !== -1 || text.indexOf('arquero') !== -1) parts.push('arquero');
+        else parts.push('local');
+
+        if (text.indexOf('manga larga') !== -1 || text.indexOf('manga-larga') !== -1) parts.push('manga-larga');
+        if (text.indexOf('player') !== -1) parts.push('player');
+        if (text.indexOf('nino') !== -1 || text.indexOf('niño') !== -1) parts.push('nino');
+        if (text.indexOf('centenario') !== -1 || text.indexOf('centenary') !== -1 || text.indexOf('125 aniversario') !== -1 || text.indexOf('100 anos') !== -1) parts.push('aniversario');
+        if (text.indexOf('classic') !== -1) parts.push('classic');
+        if (text.indexOf('negra') !== -1) parts.push('negra');
+        if (text.indexOf('verde') !== -1) parts.push('verde');
+        if (text.indexOf('blanca') !== -1) parts.push('blanca');
+        if (text.indexOf('rosa') !== -1) parts.push('rosa');
+
+        return parts.join('+');
+    }
+
+    function getDuplicateKey(item) {
+        return [
+            getDuplicateTeamKey(item),
+            getDuplicateSeasonKey(item.temporada),
+            getDuplicateVariantKey(item)
+        ].join('|');
+    }
+
+    function chooseBetterDuplicate(current, candidate) {
+        if (!current) return candidate;
+        var diff = getItemScore(candidate) - getItemScore(current);
+        if (diff > 0) return candidate;
+        if (diff < 0) return current;
+
+        diff = getPhotoCount(candidate) - getPhotoCount(current);
+        if (diff > 0) return candidate;
+        if (diff < 0) return current;
+
+        if (candidate.destacado && !current.destacado) return candidate;
+        return current;
+    }
+
+    function dedupePreventaItems(items) {
+        var byKey = {};
+        (items || []).forEach(function (item) {
+            var key = getDuplicateKey(item);
+            byKey[key] = chooseBetterDuplicate(byKey[key], item);
+        });
+        return Object.keys(byKey).map(function (key) { return byKey[key]; });
     }
 
     function renderCard(item, idx, collectionKey) {
@@ -718,7 +822,7 @@
                 .order('destacado', { ascending: false });
 
             if (res.error) throw res.error;
-            _pvAll = res.data || [];
+            _pvAll = dedupePreventaItems(res.data || []).sort(compareByScore);
 
             if (!_pvAll.length) {
                 galSection.style.display = 'none';
