@@ -1,5 +1,76 @@
 [
     {
+        "id": "4ae37ea6-1b69-4d65-a903-745f7e3fa281",
+        "slug": "alemania-2014-local-campeon-del-mundo",
+        "equipo": "Alemania",
+        "temporada": "2014",
+        "tipo": "retro",
+        "categoria": "selecciones",
+        "pais_o_club": null,
+        "decada": "2010s",
+        "descripcion": "Alemania 2014 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/alemania-2014-local-campeon-del-mundo/1.webp",
+                "path": "alemania-2014-local-campeon-del-mundo/1.webp"
+            }
+        ],
+        "tags": [
+            "alemania",
+            "2014",
+            "retro",
+            "local",
+            "campeón",
+            "mundo"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-alemania-2014-local-campeon-del-mundo/",
+        "publicado": true,
+        "destacado": true,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:05.746738+00:00",
+        "updated_at": "2026-05-22T15:26:26.282737+00:00"
+    },
+    {
+        "id": "a12d720d-0246-4591-b245-a93175dd527c",
+        "slug": "real-madrid-2012-2013-visitante-verde-retro",
+        "equipo": "Real Madrid Visitante",
+        "temporada": "2012-2013",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2010s",
+        "descripcion": "Real Madrid Visitante 2012-2013 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-2012-2013-visitante-verde-retro/1.webp",
+                "path": "real-madrid-2012-2013-visitante-verde-retro/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-2012-2013-visitante-verde-retro/2.webp",
+                "path": "real-madrid-2012-2013-visitante-verde-retro/2.webp"
+            }
+        ],
+        "tags": [
+            "real madrid visitante",
+            "2012-2013",
+            "retro",
+            "visitante",
+            "verde",
+            "real",
+            "madrid",
+            "2012",
+            "2013"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-real-madrid-2012-2013-visitante-verde-retro/",
+        "publicado": true,
+        "destacado": true,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:56.019508+00:00",
+        "updated_at": "2026-05-22T15:26:15.891345+00:00"
+    },
+    {
         "id": "4e843d67-4a56-471b-bc64-cffc508f659c",
         "slug": "real-madrid-1998-00",
         "equipo": "Real Madrid",
@@ -570,6 +641,54 @@
         "updated_at": "2026-04-17T17:04:11.80442+00:00"
     },
     {
+        "id": "c581aaed-485a-4e5e-a652-42bb582fa9f3",
+        "slug": "river-plate-2018-local-campeon-copa-libertadores-madrid",
+        "equipo": "River Plate",
+        "temporada": "2018",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2010s",
+        "descripcion": "River Plate 2018 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-2018-local-campeon-copa-libertadores-madrid/1.webp",
+                "path": "river-plate-2018-local-campeon-copa-libertadores-madrid/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-2018-local-campeon-copa-libertadores-madrid/2.webp",
+                "path": "river-plate-2018-local-campeon-copa-libertadores-madrid/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-2018-local-campeon-copa-libertadores-madrid/3.webp",
+                "path": "river-plate-2018-local-campeon-copa-libertadores-madrid/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-2018-local-campeon-copa-libertadores-madrid/4.webp",
+                "path": "river-plate-2018-local-campeon-copa-libertadores-madrid/4.webp"
+            }
+        ],
+        "tags": [
+            "river plate",
+            "2018",
+            "retro",
+            "local",
+            "river",
+            "plate",
+            "campeón",
+            "copa",
+            "libertadores",
+            "madrid"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-river-plate-2018-local-campeon-copa-libertadores-madrid/",
+        "publicado": true,
+        "destacado": true,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:37.584873+00:00",
+        "updated_at": "2026-05-22T15:25:55.601712+00:00"
+    },
+    {
         "id": "99269f57-b83d-489f-8886-5b36f3bdd307",
         "slug": "santos-2011-local-neymar",
         "equipo": "Santos",
@@ -955,6 +1074,49 @@
         "orden": 0,
         "created_at": "2026-04-17T17:08:04.701475+00:00",
         "updated_at": "2026-04-17T17:08:04.701475+00:00"
+    },
+    {
+        "id": "d9a56619-4f27-40c6-935c-6d7ca8244efe",
+        "slug": "argentina-2006-visitante",
+        "equipo": "Argentina Visitante",
+        "temporada": "2006",
+        "tipo": "retro",
+        "categoria": "selecciones",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "Argentina Visitante 2006 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-2006-visitante/1.webp",
+                "path": "argentina-2006-visitante/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-2006-visitante/2.webp",
+                "path": "argentina-2006-visitante/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-2006-visitante/3.webp",
+                "path": "argentina-2006-visitante/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-2006-visitante/4.webp",
+                "path": "argentina-2006-visitante/4.webp"
+            }
+        ],
+        "tags": [
+            "argentina visitante",
+            "2006",
+            "retro",
+            "visitante",
+            "argentina"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-argentina-2006-visitante/",
+        "publicado": true,
+        "destacado": true,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:46.883653+00:00",
+        "updated_at": "2026-05-22T15:26:07.091528+00:00"
     },
     {
         "id": "82c83d88-722a-494d-96d5-050631b3aa56",
@@ -1998,6 +2160,48 @@
         "updated_at": "2026-04-24T22:18:18.304678+00:00"
     },
     {
+        "id": "64a3a8ac-8f17-4a36-818d-76ac927ffaaa",
+        "slug": "argentina-local-2006",
+        "equipo": "Argentina",
+        "temporada": "2006",
+        "tipo": "retro",
+        "categoria": "selecciones",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "Argentina 2006 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-local-2006/1.webp",
+                "path": "argentina-local-2006/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-local-2006/2.webp",
+                "path": "argentina-local-2006/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-local-2006/3.webp",
+                "path": "argentina-local-2006/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-local-2006/4.webp",
+                "path": "argentina-local-2006/4.webp"
+            }
+        ],
+        "tags": [
+            "argentina",
+            "2006",
+            "retro",
+            "local"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-argentina-2006/",
+        "publicado": true,
+        "destacado": true,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:42.302477+00:00",
+        "updated_at": "2026-05-22T15:26:01.551397+00:00"
+    },
+    {
         "id": "70fe550d-4413-4b11-8c83-476de2d5d5f4",
         "slug": "seleccion-brasil-2004",
         "equipo": "Selección Brasil",
@@ -2110,6 +2314,283 @@
         "orden": 0,
         "created_at": "2026-04-17T17:30:08.020475+00:00",
         "updated_at": "2026-04-17T17:30:08.020475+00:00"
+    },
+    {
+        "id": "8f09682e-671d-441a-9a83-c6b9d4900862",
+        "slug": "boca-juniors-1997-1998-retro-blanca",
+        "equipo": "Boca Juniors Visitante",
+        "temporada": "1997-1998",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "90s",
+        "descripcion": "Boca Juniors Visitante 1997-1998 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-blanca/1.webp",
+                "path": "boca-juniors-1997-1998-retro-blanca/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-blanca/2.webp",
+                "path": "boca-juniors-1997-1998-retro-blanca/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-blanca/3.webp",
+                "path": "boca-juniors-1997-1998-retro-blanca/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-blanca/4.webp",
+                "path": "boca-juniors-1997-1998-retro-blanca/4.webp"
+            }
+        ],
+        "tags": [
+            "boca juniors visitante",
+            "1997-1998",
+            "retro",
+            "blanco",
+            "boca",
+            "juniors",
+            "1997",
+            "1998",
+            "blanca"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-boca-juniors-1997-1998-retro-blanca/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:52.857179+00:00",
+        "updated_at": "2026-05-22T15:26:12.534617+00:00"
+    },
+    {
+        "id": "7a3f7c5e-85cb-472e-95ac-d27159095777",
+        "slug": "arsenal-2003-2004-local-roja",
+        "equipo": "Arsenal",
+        "temporada": "2003-2004",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "Arsenal 2003-2004 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/arsenal-2003-2004-local-roja/1.webp",
+                "path": "arsenal-2003-2004-local-roja/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/arsenal-2003-2004-local-roja/2.webp",
+                "path": "arsenal-2003-2004-local-roja/2.webp"
+            }
+        ],
+        "tags": [
+            "arsenal",
+            "2003-2004",
+            "retro",
+            "local",
+            "rojo",
+            "2003",
+            "2004",
+            "roja"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-arsenal-2003-2004-local-roja/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:54.96585+00:00",
+        "updated_at": "2026-05-22T15:26:14.738512+00:00"
+    },
+    {
+        "id": "b1d91f08-098d-4da2-b437-c600ec98ba5a",
+        "slug": "juventus-2014-local-retro",
+        "equipo": "Juventus",
+        "temporada": "2014",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2010s",
+        "descripcion": "Juventus 2014 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/juventus-2014-local-retro/1.webp",
+                "path": "juventus-2014-local-retro/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/juventus-2014-local-retro/2.webp",
+                "path": "juventus-2014-local-retro/2.webp"
+            }
+        ],
+        "tags": [
+            "juventus",
+            "2014",
+            "retro",
+            "local"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-juventus-2014-local-retro/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:00.6036+00:00",
+        "updated_at": "2026-05-22T15:26:20.661804+00:00"
+    },
+    {
+        "id": "af473cb5-1599-4cc0-a0c0-15924d73b2cf",
+        "slug": "seleccion-colombia-1994-amarilla",
+        "equipo": "Colombia",
+        "temporada": "1994",
+        "tipo": "retro",
+        "categoria": "selecciones",
+        "pais_o_club": null,
+        "decada": "90s",
+        "descripcion": "Colombia 1994 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/seleccion-colombia-1994-amarilla/1.webp",
+                "path": "seleccion-colombia-1994-amarilla/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/seleccion-colombia-1994-amarilla/2.webp",
+                "path": "seleccion-colombia-1994-amarilla/2.webp"
+            }
+        ],
+        "tags": [
+            "colombia",
+            "1994",
+            "retro",
+            "amarillo",
+            "selección",
+            "amarilla"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-seleccion-colombia-1994-amarilla/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:04.124068+00:00",
+        "updated_at": "2026-05-22T15:26:24.161857+00:00"
+    },
+    {
+        "id": "df23f9cb-18cf-4ea5-96bb-a7f350d4d901",
+        "slug": "boca-juniors-2006-2007-local-azul-retro",
+        "equipo": "Boca Juniors",
+        "temporada": "2006-2007",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "Boca Juniors 2006-2007 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-2006-2007-local-azul-retro/1.webp",
+                "path": "boca-juniors-2006-2007-local-azul-retro/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-2006-2007-local-azul-retro/2.webp",
+                "path": "boca-juniors-2006-2007-local-azul-retro/2.webp"
+            }
+        ],
+        "tags": [
+            "boca juniors",
+            "2006-2007",
+            "retro",
+            "local",
+            "boca",
+            "juniors",
+            "2006",
+            "2007",
+            "azúl"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-boca-juniors-2006-2007-local-azul-retro/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:53.833907+00:00",
+        "updated_at": "2026-05-22T15:26:13.5725+00:00"
+    },
+    {
+        "id": "830b2e76-04c0-49f7-838f-992f8f7fbb7d",
+        "slug": "milan-2006-local-manga-larga-negra-y-roja",
+        "equipo": "AC Milan Manga Larga",
+        "temporada": "2006",
+        "tipo": "manga-larga",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "AC Milan Manga Larga 2006 - manga-larga",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-local-manga-larga-negra-y-roja/1.webp",
+                "path": "milan-2006-local-manga-larga-negra-y-roja/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-local-manga-larga-negra-y-roja/2.webp",
+                "path": "milan-2006-local-manga-larga-negra-y-roja/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-local-manga-larga-negra-y-roja/3.webp",
+                "path": "milan-2006-local-manga-larga-negra-y-roja/3.webp"
+            }
+        ],
+        "tags": [
+            "ac milan manga larga",
+            "2006",
+            "manga-larga",
+            "local manga larga",
+            "rojo",
+            "negro",
+            "milan",
+            "local",
+            "manga",
+            "larga",
+            "negra",
+            "roja"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-milan-2006-local-manga-larga-negra-y-roja/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:59.283267+00:00",
+        "updated_at": "2026-05-22T15:26:19.214371+00:00"
+    },
+    {
+        "id": "2f1c8bb3-7e16-4abf-b750-bf7bc6d40ca4",
+        "slug": "milan-2006-visitante-negra",
+        "equipo": "AC Milan Visitante",
+        "temporada": "2006",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "AC Milan Visitante 2006 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-visitante-negra/1.webp",
+                "path": "milan-2006-visitante-negra/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-visitante-negra/2.webp",
+                "path": "milan-2006-visitante-negra/2.webp"
+            }
+        ],
+        "tags": [
+            "ac milan visitante",
+            "2006",
+            "retro",
+            "visitante",
+            "negro",
+            "milan",
+            "negra"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-milan-2006-visitante-negra/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:05.180149+00:00",
+        "updated_at": "2026-05-22T15:26:25.667519+00:00"
     },
     {
         "id": "b2db70e5-9993-4e45-b4e6-b723bf85cb1b",
@@ -4574,6 +5055,44 @@
         "updated_at": "2026-04-17T17:11:01.277997+00:00"
     },
     {
+        "id": "dc670b50-7792-4f8b-b875-3e5327d90fee",
+        "slug": "napoli-1988-visitante-blanca-version-fan",
+        "equipo": "Napoli Visitante",
+        "temporada": "1988",
+        "tipo": "fan",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "80s",
+        "descripcion": "Napoli Visitante 1988 - fan",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/napoli-1988-visitante-blanca-version-fan/1.webp",
+                "path": "napoli-1988-visitante-blanca-version-fan/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/napoli-1988-visitante-blanca-version-fan/2.webp",
+                "path": "napoli-1988-visitante-blanca-version-fan/2.webp"
+            }
+        ],
+        "tags": [
+            "napoli visitante",
+            "1988",
+            "fan",
+            "visitante",
+            "blanco",
+            "napoli",
+            "blanca",
+            "versión"
+        ],
+        "precio_aprox": 99000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-napoli-1988-visitante-blanca-version-fan/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:43.562585+00:00",
+        "updated_at": "2026-05-22T15:26:03.169407+00:00"
+    },
+    {
         "id": "e88472a4-cf41-40c8-a868-4a06cebbc194",
         "slug": "barcelona-2000-2001-skeleton",
         "equipo": "Barcelona",
@@ -5024,6 +5543,49 @@
         "orden": 0,
         "created_at": "2026-04-17T17:12:15.804317+00:00",
         "updated_at": "2026-04-17T17:12:15.804317+00:00"
+    },
+    {
+        "id": "3fac221c-2734-4b57-ac8b-216ae1e088e9",
+        "slug": "manchester-united-2007-2008-local-cristiano-ronaldo-para-nino",
+        "equipo": "Manchester United Niño",
+        "temporada": "2007-2008",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "Manchester United Niño 2007-2008 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/manchester-united-2007-2008-local-cristiano-ronaldo-para-nino/1.webp",
+                "path": "manchester-united-2007-2008-local-cristiano-ronaldo-para-nino/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/manchester-united-2007-2008-local-cristiano-ronaldo-para-nino/2.webp",
+                "path": "manchester-united-2007-2008-local-cristiano-ronaldo-para-nino/2.webp"
+            }
+        ],
+        "tags": [
+            "manchester united niño",
+            "2007-2008",
+            "retro",
+            "local niño",
+            "manchester",
+            "united",
+            "2007",
+            "2008",
+            "local",
+            "cristiano",
+            "ronaldo",
+            "para",
+            "niño"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/uniforme-manchester-united-2007-2008-local-cristiano-ronaldo-para-nino/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:44.733098+00:00",
+        "updated_at": "2026-05-22T15:26:04.456053+00:00"
     },
     {
         "id": "30e324df-a624-4769-bc2c-f7a474c0ce92",
@@ -8310,6 +8872,168 @@
         "updated_at": "2026-04-23T15:32:38.34531+00:00"
     },
     {
+        "id": "bb6a6a36-532b-409e-bebd-1406672cb5e1",
+        "slug": "fiorentina-1998-local-morada-retro",
+        "equipo": "Fiorentina",
+        "temporada": "1998",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "90s",
+        "descripcion": "Fiorentina 1998 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-local-morada-retro/1.webp",
+                "path": "fiorentina-1998-local-morada-retro/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-local-morada-retro/2.webp",
+                "path": "fiorentina-1998-local-morada-retro/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-local-morada-retro/3.webp",
+                "path": "fiorentina-1998-local-morada-retro/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-local-morada-retro/4.webp",
+                "path": "fiorentina-1998-local-morada-retro/4.webp"
+            }
+        ],
+        "tags": [
+            "fiorentina",
+            "1998",
+            "retro",
+            "local",
+            "morado",
+            "morada"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-fiorentina-1998-local-morada-retro/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:50.750532+00:00",
+        "updated_at": "2026-05-22T15:26:10.013595+00:00"
+    },
+    {
+        "id": "650933da-b238-48db-a2d9-bd08da0f12f4",
+        "slug": "milan-2006-manga-larga-visitante-blanca",
+        "equipo": "AC Milan Visitante Manga Larga",
+        "temporada": "2006",
+        "tipo": "manga-larga",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "2000s",
+        "descripcion": "AC Milan Visitante Manga Larga 2006 - manga-larga",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-manga-larga-visitante-blanca/1.webp",
+                "path": "milan-2006-manga-larga-visitante-blanca/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-manga-larga-visitante-blanca/2.webp",
+                "path": "milan-2006-manga-larga-visitante-blanca/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/milan-2006-manga-larga-visitante-blanca/3.webp",
+                "path": "milan-2006-manga-larga-visitante-blanca/3.webp"
+            }
+        ],
+        "tags": [
+            "ac milan visitante manga larga",
+            "2006",
+            "manga-larga",
+            "visitante manga larga",
+            "blanco",
+            "milan",
+            "manga",
+            "larga",
+            "visitante",
+            "blanca"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-milan-2006-manga-larga-visitante-blanca/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:02.623801+00:00",
+        "updated_at": "2026-05-22T15:26:22.698976+00:00"
+    },
+    {
+        "id": "baa713e8-e67d-4f15-823f-647059c0a69b",
+        "slug": "fiorentina-1998-visitante-blanca-retro",
+        "equipo": "Fiorentina Visitante",
+        "temporada": "1998",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "90s",
+        "descripcion": "Fiorentina Visitante 1998 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-visitante-blanca-retro/1.webp",
+                "path": "fiorentina-1998-visitante-blanca-retro/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/fiorentina-1998-visitante-blanca-retro/2.webp",
+                "path": "fiorentina-1998-visitante-blanca-retro/2.webp"
+            }
+        ],
+        "tags": [
+            "fiorentina visitante",
+            "1998",
+            "retro",
+            "visitante",
+            "blanco",
+            "fiorentina",
+            "blanca"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-fiorentina-1998-visitante-blanca-retro/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:25:06.988064+00:00",
+        "updated_at": "2026-05-22T15:26:27.68133+00:00"
+    },
+    {
+        "id": "ab546d25-6edc-4315-bf8b-ec9ca4a59b08",
+        "slug": "argentina-1978",
+        "equipo": "Argentina",
+        "temporada": "1978",
+        "tipo": "retro",
+        "categoria": "selecciones",
+        "pais_o_club": null,
+        "decada": null,
+        "descripcion": "Argentina 1978 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-1978/1.webp",
+                "path": "argentina-1978/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-1978/2.webp",
+                "path": "argentina-1978/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/argentina-1978/3.webp",
+                "path": "argentina-1978/3.webp"
+            }
+        ],
+        "tags": [
+            "argentina",
+            "1978",
+            "retro"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-retro-argentina-1978/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:26:17.305379+00:00",
+        "updated_at": "2026-05-22T15:26:17.305379+00:00"
+    },
+    {
         "id": "c235e530-c27b-4b05-81e5-5e2efc263bfa",
         "slug": "real-madrid-2011-2012-local-manga-larga",
         "equipo": "Real Madrid Local Manga Larga",
@@ -8551,6 +9275,44 @@
         "updated_at": "2026-04-24T22:18:10.210707+00:00"
     },
     {
+        "id": "7ce7471e-dc10-4669-965f-4152fd2c66ef",
+        "slug": "river-plate-arquero-verde-original",
+        "equipo": "River Plate Arquero",
+        "temporada": "Original",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": null,
+        "descripcion": "River Plate Arquero Original - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-arquero-verde-original/1.webp",
+                "path": "river-plate-arquero-verde-original/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/river-plate-arquero-verde-original/2.webp",
+                "path": "river-plate-arquero-verde-original/2.webp"
+            }
+        ],
+        "tags": [
+            "river plate arquero",
+            "Original",
+            "retro",
+            "arquero",
+            "verde",
+            "river",
+            "plate",
+            "original"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-river-plate-arquero-verde-original/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:26:28.859299+00:00",
+        "updated_at": "2026-05-22T15:26:28.859299+00:00"
+    },
+    {
         "id": "808f148b-b904-488a-bc65-7f4fec356390",
         "slug": "barcelona-2001-2003-visitante",
         "equipo": "Barcelona Visitante",
@@ -8602,5 +9364,51 @@
         "orden": 0,
         "created_at": "2026-04-24T22:18:13.49839+00:00",
         "updated_at": "2026-04-24T22:18:13.49839+00:00"
+    },
+    {
+        "id": "602ff260-5d69-4b39-9d6a-fcaadd23a9f5",
+        "slug": "boca-juniors-1997-1998-retro-azul",
+        "equipo": "Boca Juniors",
+        "temporada": "1997-1998",
+        "tipo": "retro",
+        "categoria": "clubes",
+        "pais_o_club": null,
+        "decada": "90s",
+        "descripcion": "Boca Juniors 1997-1998 - retro",
+        "imagenes": [
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-azul/1.webp",
+                "path": "boca-juniors-1997-1998-retro-azul/1.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-azul/2.webp",
+                "path": "boca-juniors-1997-1998-retro-azul/2.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-azul/3.webp",
+                "path": "boca-juniors-1997-1998-retro-azul/3.webp"
+            },
+            {
+                "url": "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/boca-juniors-1997-1998-retro-azul/4.webp",
+                "path": "boca-juniors-1997-1998-retro-azul/4.webp"
+            }
+        ],
+        "tags": [
+            "boca juniors",
+            "1997-1998",
+            "retro",
+            "boca",
+            "juniors",
+            "1997",
+            "1998",
+            "azúl"
+        ],
+        "precio_aprox": 120000,
+        "yupoo_origen": "https://futboldeprimera.com.co/producto/camiseta-boca-juniors-1997-1998-retro-azul/",
+        "publicado": true,
+        "destacado": false,
+        "orden": 0,
+        "created_at": "2026-05-22T15:24:40.155907+00:00",
+        "updated_at": "2026-05-22T15:25:59.042872+00:00"
     }
 ]
