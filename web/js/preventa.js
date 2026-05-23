@@ -868,17 +868,12 @@
     function renderDefaultCatalog(items) {
         var stage = document.getElementById('pv-grid-stage');
         var intro = document.getElementById('pv-intro-copy');
-        var sections = buildSections(items);
 
         _pvCollections = {};
         _pvVisibleCounts = {};
-        sections.forEach(function (section) {
-            _pvVisibleCounts[section.key] = section.key === 'featured' ? Math.min(section.initialCount, section.items.length) : section.initialCount;
-        });
 
         if (intro) intro.style.display = '';
-        var featured = sections.filter(function (section) { return section.key === 'featured'; })[0];
-        stage.innerHTML = (featured ? renderSection(featured) : '') + renderCatalogComplete(items);
+        stage.innerHTML = renderCatalogComplete(items);
     }
 
     function renderCurrentView(items, searchTerm, isFiltered) {
