@@ -196,7 +196,7 @@
 
         var notasStr = notas ? '\n*Notas:* ' + notas : '';
         var refStr = refInterna ? '\n*Ref. interna:* REF-' + refInterna : '';
-        var msg = '*COTIZACI\u00d3N PRE-VENTA - HERENCIA 90*\n\n' +
+        var msg = '*COTIZACI\u00d3N BAJO PEDIDO - HERENCIA 90*\n\n' +
             '*Camiseta:* ' + equipo + ' - ' + tipo + ' - ' + (temporada || 'La m\u00e1s reciente') + '\n' +
             (genero ? '*G\u00e9nero:* ' + genero + '\n' : '') +
             '*Talla:* ' + talla +
@@ -318,33 +318,36 @@
     var PV_FEATURED_SPOTLIGHT = ['barcelona', 'ac milan', 'milan', 'argentina', 'arsenal', 'manchester united', 'liverpool', 'brasil', 'brazil', 'colombia', 'river', 'boca', 'real madrid'];
     var PV_FEATURED_EXCLUDE = ['portugal'];
     var PV_VISUAL_PRIORITY = {
-        'barcelona-2008-2009-local': 1000,
-        'ac-milan-2006-2007-visitante': 980,
-        'ac-milan-2006-2007-local': 970,
-        'argentina-1994-visitante': 960,
-        'argentina-local-2006': 950,
-        'brasil-2002-local': 930,
-        'arsenal-2005-2006-local-burdeos': 920,
-        'arsenal-1991-1993-visitante-bruised-banana': 910,
-        'manchester-united-1998-1999-local': 900,
-        'manchester-united-2007-2008-local-manga-larga': 890,
-        'liverpool-2004-2005-local': 880,
-        'river-plate-2018-local-campeon-copa-libertadores-madrid': 870,
-        'colombia-1990-local': 860,
-        'inter-1997-1998-local-ronaldo': 850,
-        'boca-juniors-1997-1998-retro-azul': 840,
-        'juventus-2014-local-retro': 830,
-        'real-madrid-2002-2003-local': 820,
-        'real-madrid-1998-2000-local': 810,
-        'barcelona-2010-2011-local': 800,
-        'argentina-1986-local': 790,
-        'milan-2006-local-manga-larga-negra-y-roja': 780,
-        'manchester-united-2007-2008-local': 770,
-        'liverpool-1998-1999-visitante': 760,
-        'bayern-1998-1999-local': 750,
-        'colombia-1998-local': 740,
-        'real-madrid-2013-2014-local': 700,
-        'colombia-2024-centenary-blanca': 620
+        'barcelona-2008-2009-local': 1400,
+        'ac-milan-2006-2007-local': 1390,
+        'brasil-2002-local': 1380,
+        'real-madrid-2006-2007-local': 1370,
+        'real-madrid-1998-2000-local': 1360,
+        'barcelona-1999-2000-local-centenario': 1350,
+        'real-madrid-2002-2003-local': 1340,
+        'liverpool-2004-2005-local': 1330,
+        'inter-1997-1998-local-ronaldo': 1320,
+        'river-plate-2018-local-campeon-copa-libertadores-madrid': 1310,
+        'ac-milan-2006-2007-visitante': 1300,
+        'milan-2006-local-manga-larga-negra-y-roja': 1290,
+        'manchester-united-2007-2008-local-manga-larga': 1280,
+        'manchester-united-2007-2008-local': 1270,
+        'barcelona-2008-2009-local-manga-larga': 1260,
+        'argentina-1986-local': 1250,
+        'argentina-1994-visitante': 1240,
+        'colombia-1990-local': 1230,
+        'boca-juniors-1997-1998-retro-azul': 1220,
+        'juventus-2014-local-retro': 1210,
+        'barcelona-2010-2011-local': 1200,
+        'arsenal-2005-2006-local-burdeos': 1190,
+        'arsenal-1991-1993-visitante-bruised-banana': 1180,
+        'manchester-united-1998-1999-local': 1170,
+        'bayern-1998-1999-local': 1160,
+        'colombia-1998-local': 1150,
+        'real-madrid-2013-2014-local': 1140,
+        'liverpool-1998-1999-visitante': 1130,
+        'argentina-local-2006': 1120,
+        'colombia-2024-centenary-blanca': 900
     };
 
     function escHtml(s) {
@@ -447,6 +450,9 @@
     }
 
     function compareByScore(a, b) {
+        var priorityDiff = getVisualPriority(b) - getVisualPriority(a);
+        if (priorityDiff !== 0) return priorityDiff;
+
         var diff = getItemScore(b) - getItemScore(a);
         if (diff !== 0) return diff;
         diff = getPhotoCount(b) - getPhotoCount(a);
@@ -461,6 +467,26 @@
         return Number(String(label).replace(/[^0-9]/g, '')) || 0;
     }
 
+    function normalizeSeasonYear(year) {
+        var value = Number(year || 0);
+        if (!value) return 0;
+        if (value < 100) return value >= 70 ? 1900 + value : 2000 + value;
+        return value;
+    }
+
+    function getRecentSortValue(item) {
+        var text = [item.temporada, item.slug, item.descripcion, item.equipo].join(' ');
+        var best = 0;
+        var matches = String(text).match(/\b(\d{2,4})\b/g) || [];
+
+        matches.forEach(function (match) {
+            var year = normalizeSeasonYear(match);
+            if (year >= 1970 && year <= 2035) best = Math.max(best, year);
+        });
+
+        return best;
+    }
+
     function sortPreventaItems(items) {
         return items.slice().sort(function (a, b) {
             var diff = 0;
@@ -468,7 +494,7 @@
             if (_pvSort === 'price-desc') diff = getPreventaPriceValue(b) - getPreventaPriceValue(a);
             if (_pvSort === 'photos') diff = getPhotoCount(b) - getPhotoCount(a);
             if (_pvSort === 'az') diff = normalizeText(a.equipo).localeCompare(normalizeText(b.equipo));
-            if (_pvSort === 'newest') diff = Number(b.id || 0) - Number(a.id || 0);
+            if (_pvSort === 'newest') diff = getRecentSortValue(b) - getRecentSortValue(a);
             if (_pvSort === 'popular') diff = compareByScore(a, b);
             if (diff !== 0) return diff;
             return compareByScore(a, b);
@@ -709,7 +735,7 @@
         return [
             {
                 key: 'featured',
-                title: 'Populares',
+                title: 'Recomendadas',
                 kicker: '',
                 subtitle: '',
                 meta: '',
@@ -808,7 +834,7 @@
             '<label class="pv-sort-wrap"><span>Ordenar por</span>' +
                 '<select class="pv-sort-select" onchange="pvSetSort(this.value)" aria-label="Ordenar preventa">' +
                     '<option value="popular"' + (_pvSort === 'popular' ? ' selected' : '') + '>Popularidad</option>' +
-                    '<option value="newest"' + (_pvSort === 'newest' ? ' selected' : '') + '>Mas recientes</option>' +
+                    '<option value="newest"' + (_pvSort === 'newest' ? ' selected' : '') + '>Temporada reciente</option>' +
                     '<option value="price-asc"' + (_pvSort === 'price-asc' ? ' selected' : '') + '>Menor precio</option>' +
                     '<option value="price-desc"' + (_pvSort === 'price-desc' ? ' selected' : '') + '>Mayor precio</option>' +
                     '<option value="photos"' + (_pvSort === 'photos' ? ' selected' : '') + '>Mas fotos</option>' +
