@@ -1,0 +1,14 @@
+node_modules
+.git
+.codex-scratch
+.codex-temp
+.codex_tmp
+.pedido-imagenes-cache
+VIDEOS REFERENCIA EDICION
+EQUIPOS_CENSURADOS
+EQUIPOS_CON_FONDO
+*.mp4
+*.mov
+*.m4v
+*.avi
+*.webm
