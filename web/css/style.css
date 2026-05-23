@@ -2901,6 +2901,126 @@ body.grid-single .product-grid-inner {
 .hub-card span { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; display: inline-flex; align-items: center; transition: color 0.3s ease; }
 .hub-card:hover span { color: var(--gold); }
 
+.buy-paths {
+    padding: 54px 16px 18px;
+    scroll-margin-top: 180px;
+}
+.buy-paths-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+.buy-paths-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.buy-paths-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.buy-path {
+    position: relative;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    padding: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(217,195,145,0.18);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+    color: var(--text-primary);
+    text-decoration: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+    transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+.buy-path::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.72) 100%);
+    pointer-events: none;
+}
+.buy-path:hover {
+    transform: translateY(-4px);
+    border-color: rgba(217,195,145,0.42);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.38);
+}
+.buy-path-stock {
+    background: linear-gradient(135deg, rgba(18,22,20,0.95), rgba(8,8,8,0.96));
+}
+.buy-path-order {
+    background: linear-gradient(135deg, rgba(26,22,14,0.96), rgba(7,7,7,0.98));
+}
+.buy-path-copy,
+.buy-path-action,
+.buy-path-strip {
+    position: relative;
+    z-index: 1;
+}
+.buy-path-badge {
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 16px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(217,195,145,0.13);
+    border: 1px solid rgba(217,195,145,0.22);
+    color: var(--gold);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+}
+.buy-path h3 {
+    margin: 0 0 10px;
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.35rem);
+    line-height: 0.98;
+    text-transform: uppercase;
+}
+.buy-path p {
+    max-width: 520px;
+    margin: 0;
+    color: rgba(255,255,255,0.72);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+.buy-path-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+.buy-path-strip img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #111;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.34);
+}
+.buy-path-strip img:nth-child(2) {
+    transform: translateY(-18px);
+}
+.buy-path-action {
+    display: inline-flex;
+    align-items: center;
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.buy-path:hover .buy-path-action {
+    color: var(--gold);
+}
+
 /* ─── PRE-VENTA BANNER (homepage) ───────────────────────── */
 .pv-banner {
     padding: 0 20px 60px;
@@ -3027,6 +3147,78 @@ body.grid-single .product-grid-inner {
     .pv-banner-btn { width: 100%; text-align: center; padding: 14px; }
 }
 /* ── Floating WhatsApp (Global) ─────────────────── */
+.pv-banner-inner {
+    align-items: stretch;
+    gap: 42px;
+}
+.pv-rare-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    flex-shrink: 0;
+    width: min(470px, 42vw);
+}
+.pv-rare-card {
+    position: relative;
+    min-height: 190px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(217,195,145,0.12);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+}
+.pv-rare-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 0.35s ease;
+}
+.pv-rare-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.88) 100%);
+}
+.pv-rare-card span {
+    position: relative;
+    z-index: 1;
+    padding: 14px;
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.pv-banner-inner:hover .pv-rare-card img {
+    transform: scale(1.035);
+}
+@media (max-width: 768px) {
+    .buy-paths { padding: 42px 12px 20px; }
+    .hero-mobile-cta { display: none !important; }
+    .hero-ctas .btn-hero,
+    .hero-ctas .btn-hero-pp {
+        width: min(280px, calc(100vw - 56px));
+    }
+    .buy-paths-grid { grid-template-columns: 1fr; gap: 14px; }
+    .buy-path { min-height: auto; padding: 22px; gap: 22px; }
+    .buy-path p { font-size: 0.88rem; }
+    .buy-path-strip { gap: 8px; }
+    .buy-path-strip img { border-radius: 10px; }
+    .buy-path-strip img:nth-child(2) { transform: translateY(-10px); }
+    .pv-banner-inner { gap: 24px; }
+    .pv-rare-grid {
+        width: 100%;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .pv-rare-card { min-height: 170px; }
+}
+
 .floating-wsp {
     position: fixed;
     bottom: 30px;
