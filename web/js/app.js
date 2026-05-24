@@ -68,7 +68,7 @@ async function loadProducts() {
         const { data, error } = await db.from('productos').select('*').order('id');
         if (error) throw error;
         if (Array.isArray(data) && data.length > 0) return data;
-        throw new Error('Catalogo vacio desde Supabase');
+        throw new Error('Cat&aacute;logo vac&iacute;o desde Supabase');
     } catch (error) {
         try {
             const response = await fetch('/productos.json', { cache: 'no-store' });
@@ -507,7 +507,7 @@ function getCategoryTitle(pageCat) {
         'portugal': 'Portugal',
         'manchester-city': 'Manchester City'
     };
-    return labels[pageCat] || 'Catalogo';
+    return labels[pageCat] || 'Cat&aacute;logo';
 }
 
 function getCategoryRank(product) {
@@ -577,13 +577,13 @@ function renderCatalogPagination(page, totalPages) {
     const start = Math.max(1, Math.min(page - 2, totalPages - 4));
     const end = Math.min(totalPages, Math.max(page + 2, 5));
     for (let i = start; i <= end; i++) {
-        pages.push(`<button class="catalog-page-btn${i === page ? ' active' : ''}" onclick="catalogGoPage(${i})" aria-label="Ir a pagina ${i}">${i}</button>`);
+        pages.push(`<button class="catalog-page-btn${i === page ? ' active' : ''}" onclick="catalogGoPage(${i})" aria-label="Ir a p&aacute;gina ${i}">${i}</button>`);
     }
     return `
-        <div class="catalog-pagination" aria-label="Paginacion del catalogo">
-            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.max(1, page - 1)})" ${page === 1 ? 'disabled' : ''} aria-label="Pagina anterior"><i class="ph-bold ph-caret-left"></i></button>
+        <div class="catalog-pagination" aria-label="Paginaci&oacute;n del cat&aacute;logo">
+            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.max(1, page - 1)})" ${page === 1 ? 'disabled' : ''} aria-label="P&aacute;gina anterior"><i class="ph-bold ph-caret-left"></i></button>
             ${pages.join('')}
-            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.min(totalPages, page + 1)})" ${page === totalPages ? 'disabled' : ''} aria-label="Pagina siguiente"><i class="ph-bold ph-caret-right"></i></button>
+            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.min(totalPages, page + 1)})" ${page === totalPages ? 'disabled' : ''} aria-label="P&aacute;gina siguiente"><i class="ph-bold ph-caret-right"></i></button>
         </div>`;
 }
 
@@ -593,13 +593,13 @@ function renderCatalogToolbar(total, page, totalPages, start, end) {
             <div class="catalog-results">${total ? `Mostrando ${start}-${end} de ${total}` : 'Sin resultados'}</div>
             <label class="catalog-sort-wrap">
                 <span>Ordenar por</span>
-                <select class="catalog-sort" onchange="catalogSetSort(this.value)" aria-label="Ordenar catalogo">
+                <select class="catalog-sort" onchange="catalogSetSort(this.value)" aria-label="Ordenar cat&aacute;logo">
                     <option value="recommended"${catalogSort === 'recommended' ? ' selected' : ''}>Recomendados</option>
                     <option value="popular"${catalogSort === 'popular' ? ' selected' : ''}>Popularidad</option>
-                    <option value="recent"${catalogSort === 'recent' ? ' selected' : ''}>Mas recientes</option>
+                    <option value="recent"${catalogSort === 'recent' ? ' selected' : ''}>M&aacute;s recientes</option>
                     <option value="price-asc"${catalogSort === 'price-asc' ? ' selected' : ''}>Menor precio</option>
                     <option value="price-desc"${catalogSort === 'price-desc' ? ' selected' : ''}>Mayor precio</option>
-                    <option value="photos"${catalogSort === 'photos' ? ' selected' : ''}>Mas fotos</option>
+                    <option value="photos"${catalogSort === 'photos' ? ' selected' : ''}>M&aacute;s fotos</option>
                     <option value="az"${catalogSort === 'az' ? ' selected' : ''}>A-Z</option>
                 </select>
             </label>
@@ -789,7 +789,7 @@ function renderProducts(products) {
 
     if (displayProducts.length === 0) {
         container.innerHTML = `
-            ${pageCat ? `<section class="catalog-page-head"><span>Catalogo</span><h1>${getCategoryTitle(pageCat)}</h1></section>` : ''}
+            ${pageCat ? `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>` : ''}
             ${renderCatalogToolbar(0, 1, 1, 0, 0)}
             <p class="catalog-empty">No se encontraron resultados.</p>`;
         return;
@@ -803,7 +803,7 @@ function renderProducts(products) {
     const end = startIndex + visibleProducts.length;
 
     if (pageCat) {
-        container.insertAdjacentHTML('beforeend', `<section class="catalog-page-head"><span>Catalogo</span><h1>${getCategoryTitle(pageCat)}</h1></section>`);
+        container.insertAdjacentHTML('beforeend', `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>`);
     }
     container.insertAdjacentHTML('beforeend', renderCatalogToolbar(displayProducts.length, catalogPage, totalPages, start, end));
 
