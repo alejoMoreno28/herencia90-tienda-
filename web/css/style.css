@@ -2918,128 +2918,117 @@ body.grid-single .product-grid-inner {
 .hub-card:hover span { color: var(--gold); }
 
 .buy-paths {
-    padding: 54px 16px 18px;
+    padding: 60px 16px;
     scroll-margin-top: 180px;
 }
 .buy-paths-inner {
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
-}
-.buy-paths-header {
-    text-align: center;
-    margin-bottom: 28px;
 }
 .buy-paths-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 24px;
 }
 .buy-path {
     position: relative;
-    min-height: 360px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 28px;
-    padding: 28px;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 24px;
     overflow: hidden;
-    border: 1px solid rgba(217,195,145,0.18);
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+    border: 1px solid rgba(217, 195, 145, 0.12);
+    border-radius: 12px !important;
+    background: rgba(10, 10, 10, 0.4);
     color: var(--text-primary);
     text-decoration: none;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.28);
-    transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
 }
 .buy-path::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.72) 100%);
+    background: radial-gradient(circle at 50% 50%, rgba(217, 195, 145, 0.01), transparent 70%);
     pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 .buy-path:hover {
-    transform: translateY(-4px);
-    border-color: rgba(217,195,145,0.42);
-    box-shadow: 0 24px 70px rgba(0,0,0,0.38);
+    transform: translateY(-8px);
+    border-color: rgba(217, 195, 145, 0.35);
+    background: rgba(15, 15, 15, 0.65);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
 }
-.buy-path-stock {
-    background: linear-gradient(135deg, rgba(18,22,20,0.95), rgba(8,8,8,0.96));
-}
-.buy-path-order {
-    background: linear-gradient(135deg, rgba(26,22,14,0.96), rgba(7,7,7,0.98));
-}
-.buy-path-copy,
-.buy-path-action,
-.buy-path-strip {
-    position: relative;
-    z-index: 1;
-}
-.buy-path-badge {
-    display: inline-flex;
-    width: fit-content;
-    margin-bottom: 16px;
-    padding: 6px 13px;
-    border-radius: 999px;
-    background: rgba(217,195,145,0.13);
-    border: 1px solid rgba(217,195,145,0.22);
-    color: var(--gold);
-    font-size: 0.67rem;
-    font-weight: 800;
-    letter-spacing: 1.7px;
-    text-transform: uppercase;
-}
-.buy-path h3 {
-    margin: 0 0 10px;
-    color: #fff;
-    font-family: 'Oswald', sans-serif;
-    font-size: clamp(2rem, 4vw, 3.35rem);
-    line-height: 0.98;
-    text-transform: uppercase;
-}
-.buy-path p {
-    max-width: 520px;
-    margin: 0;
-    color: rgba(255,255,255,0.72);
-    font-size: 0.95rem;
-    line-height: 1.55;
+.buy-path:hover::before {
+    background: radial-gradient(circle at 50% 50%, rgba(217, 195, 145, 0.04), transparent 70%);
 }
 .buy-path-showcase {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 180px;
+    height: 220px;
     position: relative;
-    background: radial-gradient(circle, rgba(217, 195, 145, 0.03) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(217, 195, 145, 0.02) 0%, transparent 70%);
     transition: background 0.3s ease;
     overflow: hidden;
     border-radius: 12px;
 }
 .buy-path:hover .buy-path-showcase {
-    background: radial-gradient(circle, rgba(217, 195, 145, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(217, 195, 145, 0.06) 0%, transparent 70%);
 }
 .buy-path-image {
-    max-height: 160px;
+    max-height: 200px;
     object-fit: contain;
     filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.55));
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .buy-path:hover .buy-path-image {
-    transform: scale(1.06) rotate(1deg);
+    transform: scale(1.08) rotate(1deg);
+}
+.buy-path-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+.buy-path-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.buy-path h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.65rem;
+    text-transform: uppercase;
+    color: #fff;
+    margin: 4px 0 16px;
+    letter-spacing: 1px;
 }
 .buy-path-action {
     display: inline-flex;
     align-items: center;
-    color: #fff;
+    justify-content: center;
+    padding: 10px 28px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 30px;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    font-size: 0.8rem;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 .buy-path:hover .buy-path-action {
-    color: var(--gold);
+    background: var(--gold);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px rgba(217, 195, 145, 0.35);
 }
 
 /* ─── PRE-VENTA BANNER (homepage) ───────────────────────── */
@@ -3268,53 +3257,41 @@ body.grid-single .product-grid-inner {
         margin: 0 auto;
         box-sizing: border-box;
         min-height: auto;
-        padding: 18px;
-        gap: 18px;
-        border-radius: 18px;
+        padding: 32px 20px;
+        gap: 16px;
+        border-radius: 12px !important;
         border-color: rgba(217,195,145,0.22);
-        background:
-            radial-gradient(circle at 85% 16%, rgba(217,195,145,0.12), transparent 36%),
-            linear-gradient(145deg, rgba(14,14,12,0.98), rgba(3,3,3,0.98));
+        background: rgba(10, 10, 10, 0.5);
         box-shadow: 0 18px 42px rgba(0,0,0,0.34);
     }
     .buy-path::before {
-        background:
-            linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(0,0,0,0) 42%),
-            linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.34) 100%);
+        background: radial-gradient(circle at 50% 50%, rgba(217, 195, 145, 0.02), transparent 70%);
     }
     .buy-path-badge {
-        margin-bottom: 10px;
-        padding: 5px 10px;
-        font-size: 0.58rem;
-        letter-spacing: 1.4px;
+        margin-bottom: 4px;
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
     }
     .buy-path h3 {
-        max-width: 8.8ch;
-        margin-bottom: 7px;
-        font-size: clamp(1.95rem, 9.5vw, 2.65rem);
-        line-height: 0.95;
-    }
-    .buy-path p {
-        max-width: 30ch;
-        font-size: 0.86rem;
-        line-height: 1.42;
+        margin-bottom: 12px;
+        font-size: 1.35rem;
+        line-height: 1.1;
     }
     .buy-path-showcase {
-        height: 140px;
+        height: 160px;
     }
     .buy-path-image {
-        max-height: 120px;
+        max-height: 140px;
     }
     .buy-path-action {
-        width: 100%;
-        min-height: 42px;
-        justify-content: center;
-        border-radius: 999px;
-        background: rgba(217,195,145,0.1);
-        border: 1px solid rgba(217,195,145,0.22);
+        width: auto;
+        padding: 8px 24px;
+        font-size: 0.75rem;
+        letter-spacing: 1.2px;
+        border-radius: 30px !important;
+        background: transparent;
+        border: 1px solid var(--gold);
         color: var(--gold);
-        font-size: 0.78rem;
-        letter-spacing: 1.4px;
     }
     .pv-banner-inner { gap: 24px; }
     .pv-rare-grid {
