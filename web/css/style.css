@@ -2918,11 +2918,11 @@ body.grid-single .product-grid-inner {
 .hub-card:hover span { color: var(--gold); }
 
 .buy-paths {
-    padding: 60px 16px;
+    padding: 40px 16px;
     scroll-margin-top: 180px;
 }
 .buy-paths-inner {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 .buy-paths-grid {
@@ -2935,8 +2935,8 @@ body.grid-single .product-grid-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    padding: 40px 24px;
+    gap: 14px;
+    padding: 24px 20px;
     overflow: hidden;
     border: 1px solid rgba(217, 195, 145, 0.12);
     border-radius: 12px !important;
@@ -2955,7 +2955,7 @@ body.grid-single .product-grid-inner {
     transition: opacity 0.3s ease;
 }
 .buy-path:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     border-color: rgba(217, 195, 145, 0.35);
     background: rgba(15, 15, 15, 0.65);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
@@ -2968,7 +2968,7 @@ body.grid-single .product-grid-inner {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 220px;
+    height: 160px;
     position: relative;
     background: radial-gradient(circle, rgba(217, 195, 145, 0.02) 0%, transparent 70%);
     transition: background 0.3s ease;
@@ -2979,7 +2979,7 @@ body.grid-single .product-grid-inner {
     background: radial-gradient(circle, rgba(217, 195, 145, 0.06) 0%, transparent 70%);
 }
 .buy-path-image {
-    max-height: 200px;
+    max-height: 145px;
     object-fit: contain;
     filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.55));
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2991,7 +2991,7 @@ body.grid-single .product-grid-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
 }
 .buy-path-badge {
@@ -3003,17 +3003,17 @@ body.grid-single .product-grid-inner {
 }
 .buy-path h3 {
     font-family: 'Oswald', sans-serif;
-    font-size: 1.65rem;
+    font-size: 1.35rem;
     text-transform: uppercase;
     color: #fff;
-    margin: 4px 0 16px;
+    margin: 4px 0 12px;
     letter-spacing: 1px;
 }
 .buy-path-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 28px;
+    padding: 8px 24px;
     background: transparent;
     border: 1px solid var(--gold);
     color: var(--gold);
@@ -3257,8 +3257,8 @@ body.grid-single .product-grid-inner {
         margin: 0 auto;
         box-sizing: border-box;
         min-height: auto;
-        padding: 32px 20px;
-        gap: 16px;
+        padding: 24px 20px;
+        gap: 12px;
         border-radius: 12px !important;
         border-color: rgba(217,195,145,0.22);
         background: rgba(10, 10, 10, 0.5);
@@ -3268,24 +3268,24 @@ body.grid-single .product-grid-inner {
         background: radial-gradient(circle at 50% 50%, rgba(217, 195, 145, 0.02), transparent 70%);
     }
     .buy-path-badge {
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         font-size: 0.6rem;
         letter-spacing: 1.5px;
     }
     .buy-path h3 {
-        margin-bottom: 12px;
-        font-size: 1.35rem;
+        margin-bottom: 8px;
+        font-size: 1.15rem;
         line-height: 1.1;
     }
     .buy-path-showcase {
-        height: 160px;
+        height: 120px;
     }
     .buy-path-image {
-        max-height: 140px;
+        max-height: 105px;
     }
     .buy-path-action {
         width: auto;
-        padding: 8px 24px;
+        padding: 6px 20px;
         font-size: 0.75rem;
         letter-spacing: 1.2px;
         border-radius: 30px !important;
@@ -3581,3 +3581,47 @@ body.grid-single .product-grid-inner {
     padding-bottom: 5px;
 }
 
+
+
+/* ─── MINIMAL TRUST STRIP ─────────────────────────────────── */
+.minimal-trust-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px 16px;
+    background: rgba(10, 10, 10, 0.6);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+    z-index: 10;
+    position: relative;
+}
+.minimal-trust-strip span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+.minimal-trust-strip .trust-dot {
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 0.8rem;
+    pointer-events: none;
+    user-select: none;
+}
+@media (max-width: 768px) {
+    .minimal-trust-strip {
+        gap: 12px;
+        padding: 16px 10px;
+    }
+    .minimal-trust-strip span {
+        font-size: 0.62rem;
+        letter-spacing: 1px;
+    }
+    .minimal-trust-strip .trust-dot {
+        font-size: 0.7rem;
+    }
+}
