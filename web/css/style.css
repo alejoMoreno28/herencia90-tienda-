@@ -347,7 +347,7 @@ h1, h2, h3, .product-price, .hero-title {
 /* ─── HERO ───────────────────────────────────────────────── */
 .hero {
     position: relative;
-    background: #050505 url('../img/colombia_2026_1.webp') center/cover no-repeat;
+    background: #050505;
     height: 70vh;
     min-height: 500px;
     display: flex;
