@@ -661,7 +661,7 @@ function renderNavigation() {
                 </div>
             </div>
         </li>
-        <li><a href="/preventa" style="color:var(--gold);display:flex;align-items:center;gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Bajo pedido</a></li>
+        <li><a href="/preventa" style="color:var(--gold);display:flex;align-items:center;gap:6px;"><i class="ph ph-tag" style="font-size:1.1em;"></i> Pre-orden</a></li>
         <li><a href="/nosotros" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-info" style="font-size:1.1em;"></i> Nosotros</a></li>
         <li><a href="/preguntas-frecuentes" style="display:flex;align-items:center;gap:6px;"><i class="ph ph-question" style="font-size:1.1em;"></i> Preguntas Frecuentes</a></li>`;
         desktopNav.innerHTML = megaHtml;
@@ -742,7 +742,7 @@ function renderNavigation() {
             </a>
             <a href="/preventa" class="category-drawer-link">
                 <span class="drawer-link-icon" style="color:var(--gold);"><i class="ph-bold ph-tag"></i></span>
-                <span style="color:var(--gold);">Bajo pedido</span>
+                <span style="color:var(--gold);">Pre-orden</span>
             </a>
         `;
         mobileNav.innerHTML = mobileHtml;
