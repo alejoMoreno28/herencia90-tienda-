@@ -915,12 +915,18 @@ function openModal(productIndex) {
     const wsBtn = document.getElementById('modalWsBtn');
     const addCartBtn = document.getElementById('modalAddCartBtn');
 
+    // Estado inicial deshabilitado unificado
+    wsBtn.style.display = 'inline-flex';
     wsBtn.style.pointerEvents = 'none';
-    wsBtn.style.opacity = '0.5';
+    wsBtn.style.opacity = '0.4';
+    wsBtn.className = 'btn-whatsapp';
     wsBtn.innerHTML = `
         <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
         Selecciona una talla`;
-    addCartBtn.style.display = 'none';
+
+    addCartBtn.style.display = 'inline-flex';
+    addCartBtn.style.pointerEvents = 'none';
+    addCartBtn.style.opacity = '0.4';
     addCartBtn.onclick = null;
 
     Object.entries(product.tallas || {}).forEach(([size, stock]) => {
@@ -935,6 +941,8 @@ function openModal(productIndex) {
                 Array.from(sizeContainer.children).forEach(c => c.classList.remove('selected'));
                 btn.classList.add('selected');
                 trackEvent('whatsapp_click', { ...product, extra: { talla: size } });
+                
+                // Habilitar y actualizar WhatsApp
                 const msg = encodeURIComponent(`Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`);
                 wsBtn.href = `https://wa.me/573126428153?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';
@@ -943,7 +951,10 @@ function openModal(productIndex) {
                 wsBtn.innerHTML = `
                     <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
                     Comprar Talla ${size}`;
-                addCartBtn.style.display = 'inline-flex';
+                
+                // Habilitar y actualizar Carrito
+                addCartBtn.style.pointerEvents = 'auto';
+                addCartBtn.style.opacity = '1';
                 addCartBtn.onclick = () => {
                     addToCart(product, size);
                     modal.style.display = 'none';
@@ -956,12 +967,42 @@ function openModal(productIndex) {
     modal.style.display = 'block';
 }
 
-// Inject Global Floating WhatsApp Button
+// Inject Global Floating WhatsApp Button & FAQ Accordion Listener
 document.addEventListener('DOMContentLoaded', () => {
     const floatingWspHtml = `
-    <a href="https://wa.me/573126428153" target="_blank" rel="noopener noreferrer" class="floating-wsp" aria-label="Escríbenos por WhatsApp">
+    <a href="https://wa.me/573126428153" target="_blank" rel="noopener noreferrer" class="floating-wsp" aria-label="Escr&iacute;benos por WhatsApp">
         <i class="ph-fill ph-whatsapp-logo"></i>
     </a>
     `;
     document.body.insertAdjacentHTML('beforeend', floatingWspHtml);
+
+    // Lógica del Acordeón de FAQs
+    const faqTriggers = document.querySelectorAll('.faq-trigger');
+    faqTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const item = trigger.parentElement;
+            const content = trigger.nextElementSibling;
+            const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+            
+            // Cerrar otros acordeones
+            document.querySelectorAll('.faq-item').forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                    otherItem.querySelector('.faq-trigger').setAttribute('aria-expanded', 'false');
+                    otherItem.querySelector('.faq-content').style.maxHeight = null;
+                }
+            });
+            
+            // Alternar el actual
+            if (!isExpanded) {
+                item.classList.add('active');
+                trigger.setAttribute('aria-expanded', 'true');
+                content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+                item.classList.remove('active');
+                trigger.setAttribute('aria-expanded', 'false');
+                content.style.maxHeight = null;
+            }
+        });
+    });
 });
