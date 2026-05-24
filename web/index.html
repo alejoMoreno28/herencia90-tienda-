@@ -211,7 +211,7 @@
                     </div>
                     <div class="buy-path-strip" aria-hidden="true">
                         <img src="/img/real_majdrid_retro_1999-00_home_fan_1.webp" alt="">
-                        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/barcelona-125-aniversario/sportshirts-1777069069595-01.webp" alt="">
+                        <img class="shirt-cutout" src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/barcelona-125-aniversario/sportshirts-1777069069595-01.webp" alt="">
                         <img src="/img/man_ud_retro_98_home_1.webp" alt="">
                     </div>
                     <span class="buy-path-action">Solicitar pre-orden &rarr;</span>
@@ -403,7 +403,7 @@
         var v = document.getElementById('heroVideo');
         var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         var slowNetwork = connection && (connection.saveData || /2g/.test(connection.effectiveType || ''));
-        var canUseVideo = v && window.matchMedia('(min-width: 769px)').matches && !slowNetwork;
+        var canUseVideo = v && !slowNetwork;
         if (!canUseVideo) return;
 
         var loadHeroVideo = function() {

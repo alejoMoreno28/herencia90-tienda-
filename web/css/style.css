@@ -373,7 +373,7 @@ h1, h2, h3, .product-price, .hero-title {
     }
 
     .hero-video {
-        display: none;
+        display: block;
     }
 }
 .hero::before {
@@ -3007,6 +3007,9 @@ body.grid-single .product-grid-inner {
 .buy-path-strip img:nth-child(2) {
     transform: translateY(-18px);
 }
+.buy-path-strip img.shirt-cutout {
+    clip-path: polygon(34% 5%, 43% 0, 50% 8%, 57% 0, 66% 5%, 98% 24%, 90% 54%, 72% 48%, 72% 100%, 28% 100%, 28% 48%, 10% 54%, 2% 24%);
+}
 .buy-path-action {
     display: inline-flex;
     align-items: center;
@@ -3198,15 +3201,45 @@ body.grid-single .product-grid-inner {
     transform: scale(1.035);
 }
 @media (max-width: 768px) {
-    .buy-paths { padding: 42px 12px 20px; }
+    .trust-strip,
+    .mini-stats {
+        display: none !important;
+    }
+    .hero {
+        height: 58vh;
+        min-height: 360px;
+    }
+    .hero::before {
+        opacity: 0.03;
+    }
+    .buy-paths { padding: 32px 14px 72px; }
+    .buy-paths-header {
+        margin-bottom: 18px;
+    }
+    .buy-paths-header .section-eyebrow {
+        display: none;
+    }
+    .buy-paths-header .section-title {
+        font-size: clamp(1.75rem, 8vw, 2.4rem);
+        line-height: 1.05;
+    }
     .hero-mobile-cta { display: none !important; }
     .hero-ctas .btn-hero,
     .hero-ctas .btn-hero-pp {
         width: min(280px, calc(100vw - 56px));
     }
     .buy-paths-grid { grid-template-columns: 1fr; gap: 14px; }
-    .buy-path { min-height: auto; padding: 22px; gap: 22px; }
-    .buy-path p { font-size: 0.88rem; }
+    .buy-path { min-height: auto; padding: 20px; gap: 16px; }
+    .buy-path-badge { display: none; }
+    .buy-path h3 {
+        margin-bottom: 8px;
+        font-size: clamp(2.05rem, 11vw, 3rem);
+    }
+    .buy-path p {
+        max-width: 28ch;
+        font-size: 0.88rem;
+        line-height: 1.45;
+    }
     .buy-path-strip { gap: 8px; }
     .buy-path-strip img { border-radius: 10px; }
     .buy-path-strip img:nth-child(2) { transform: translateY(-10px); }
