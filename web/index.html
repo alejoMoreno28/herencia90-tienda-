@@ -142,7 +142,7 @@
     </div>
 
     <section class="hero">
-        <video class="hero-video" muted loop playsinline autoplay preload="metadata" id="heroVideo" aria-hidden="true">
+        <video class="hero-video" muted loop playsinline webkit-playsinline autoplay preload="auto" id="heroVideo" aria-hidden="true">
             <source src="/videos/hero-video3.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
@@ -400,14 +400,37 @@
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script defer src="/js/app.js?v=20260523-buy-paths"></script>
     <script>
-      window.addEventListener('load', function() {
+      (function() {
         var v = document.getElementById('heroVideo');
-        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        var slowNetwork = connection && (connection.saveData || /2g/.test(connection.effectiveType || ''));
-        var canUseVideo = v && !slowNetwork;
-        if (!canUseVideo) return;
-        v.play().catch(function(){});
-      });
+        if (!v) return;
+
+        var startHeroVideo = function() {
+          v.muted = true;
+          v.defaultMuted = true;
+          v.playsInline = true;
+          v.setAttribute('muted', '');
+          v.setAttribute('playsinline', '');
+          v.setAttribute('webkit-playsinline', '');
+          if (v.readyState < 2) v.load();
+          v.play().catch(function(){});
+        };
+
+        window.addEventListener('load', startHeroVideo, { once: true });
+        window.addEventListener('pageshow', startHeroVideo);
+        document.addEventListener('visibilitychange', function() {
+          if (!document.hidden) startHeroVideo();
+        });
+        document.addEventListener('touchstart', startHeroVideo, { once: true, passive: true });
+
+        if ('IntersectionObserver' in window) {
+          var observer = new IntersectionObserver(function(entries) {
+            if (entries[0] && entries[0].isIntersecting) startHeroVideo();
+          }, { threshold: 0.2 });
+          observer.observe(v);
+        } else {
+          startHeroVideo();
+        }
+      })();
     </script>
 </body>
 </html>
