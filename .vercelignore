@@ -8,6 +8,9 @@ VIDEOS REFERENCIA EDICION
 EQUIPOS_CENSURADOS
 EQUIPOS_CON_FONDO
 *.mp4
+!web/videos/hero-video.mp4
+!web/videos/hero-video2.mp4
+!web/videos/hero-video3.mp4
 *.mov
 *.m4v
 *.avi
