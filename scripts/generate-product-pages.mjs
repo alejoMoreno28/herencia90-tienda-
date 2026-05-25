@@ -489,7 +489,7 @@ function renderCollectionPage(collection) {
       --text-primary: #ffffff;
       --text-secondary: #a9a9a9;
       --glass-border: rgba(217, 195, 145, 0.16);
-      --whatsapp: #25d366;
+      --whatsapp: #0f7a41;
     }
     * { box-sizing: border-box; }
     body {
@@ -1127,7 +1127,7 @@ function renderPreventaPage(item) {
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
-    :root { --bg:#050505; --panel:rgba(20,20,20,.84); --gold:#d9c391; --text:#fff; --muted:#aaa; --line:rgba(217,195,145,.16); --wa:#25d366; }
+    :root { --bg:#050505; --panel:rgba(20,20,20,.84); --gold:#d9c391; --text:#fff; --muted:#aaa; --line:rgba(217,195,145,.16); --wa:#0f7a41; }
     * { box-sizing: border-box; }
     body { margin:0; font-family:'Montserrat',sans-serif; color:var(--text); background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%); }
     h1,h2,.price { font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; }
@@ -1289,7 +1289,7 @@ function renderProductPage(product) {
       --text-primary: #ffffff;
       --text-secondary: #a9a9a9;
       --glass-border: rgba(217, 195, 145, 0.16);
-      --whatsapp: #25d366;
+      --whatsapp: #0f7a41;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }

@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=20260525-usability">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -94,7 +94,8 @@
             <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo"></a>
 
             <div class="header-right">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar equipo, ej. Real Madrid...">
+                <label class="sr-only" for="searchInput">Buscar camisetas</label>
+                <input type="text" id="searchInput" class="search-input" name="q" autocomplete="off" placeholder="Buscar equipo, ej. Real Madrid...">
                 <button class="cart-btn" id="cartBtn" aria-label="Ver carrito">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -151,7 +152,7 @@
             <div class="modal-body">
                 <div class="modal-gallery">
                     <div id="mainImageContainer" class="main-image-container">
-                        <img id="mainImage" src="" alt="Product Image">
+                        <img id="mainImage" src="/img/logo.webp" alt="Vista de producto seleccionado">
                     </div>
                     <div class="thumbnails" id="thumbnailsContainer"></div>
                 </div>

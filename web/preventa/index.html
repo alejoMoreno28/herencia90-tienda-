@@ -48,8 +48,8 @@
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     </noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260525-light">
-    <link rel="stylesheet" href="/css/preventa.css?v=20260525-light">
+    <link rel="stylesheet" href="/css/style.css?v=20260525-usability">
+    <link rel="stylesheet" href="/css/preventa.css?v=20260525-usability">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     
@@ -70,14 +70,15 @@
     <section class="pv-galeria" id="pv-galeria">
         <div class="pv-galeria-inner">
             <div class="pv-galeria-header">
-                <h2 class="pv-galeria-title pv-galeria-title-minimal">Bajo pedido</h2>
+                <h1 class="pv-galeria-title pv-galeria-title-minimal">Bajo pedido</h1>
             </div>
 
             <!-- Buscador -->
             <div class="pv-search-wrap">
                 <div class="pv-search-container">
                     <i class="ph-bold ph-magnifying-glass pv-search-icon"></i>
-                    <input type="text" class="pv-search" id="pv-search" placeholder="Buscar: Colombia, Real Madrid, Brasil">
+                    <label class="sr-only" for="pv-search">Buscar referencias bajo pedido</label>
+                    <input type="text" class="pv-search" id="pv-search" name="q" autocomplete="off" placeholder="Buscar: Colombia, Real Madrid, Brasil">
                 </div>
             </div>
 
@@ -307,7 +308,7 @@
         <div class="pv-lb-content">
             <div class="pv-lb-carousel" id="pv-lb-carousel">
                 <button class="pv-lb-arrow left" id="pv-lb-prev" aria-label="Anterior">&#8249;</button>
-                <img class="pv-lb-img" id="pv-lb-img" src="" alt="">
+                <img class="pv-lb-img" id="pv-lb-img" src="/img/logo.webp" alt="Vista de referencia seleccionada">
                 <button class="pv-lb-arrow right" id="pv-lb-next" aria-label="Siguiente">&#8250;</button>
             </div>
             <div class="pv-lb-thumbs" id="pv-lb-thumbs"></div>

@@ -34,7 +34,7 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260525-video-fix">
+    <link rel="stylesheet" href="/css/style.css?v=20260525-usability">
     <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
@@ -118,7 +118,8 @@
             <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo" width="120" height="42" fetchpriority="high"></a>
 
             <div class="header-right">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar equipo, ej. Real Madrid...">
+                <label class="sr-only" for="searchInput">Buscar camisetas</label>
+                <input type="text" id="searchInput" class="search-input" name="q" autocomplete="off" placeholder="Buscar equipo, ej. Real Madrid...">
                 <button class="cart-btn" id="cartBtn" aria-label="Ver carrito">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -188,15 +189,15 @@
                         <span class="mosaic-link">Explorar Stock &rarr;</span>
                     </div>
                 </a>
-                <!-- Categoría 2: Pre-orden Retro (Pre-orden) -->
-                <a href="/preventa" class="category-mosaic-card card-medium" data-aos="fade-up" data-aos-delay="50">
+                <!-- Categoría 2: Retro (Stock) -->
+                <a href="/categorias/retro" class="category-mosaic-card card-medium" data-aos="fade-up" data-aos-delay="50">
                     <div class="category-mosaic-bg" style="background-image: url('/img/man_ud_retro_98_home_1.webp');"></div>
                     <div class="category-mosaic-overlay"></div>
                     <div class="category-mosaic-content">
-                        <span class="mosaic-badge" style="background: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">Bajo Pedido</span>
-                        <h3>Pre-orden Retro</h3>
-                        <p>Consigue camisetas legendarias, históricas y clásicos retro raros de los 80s, 90s y 2000s.</p>
-                        <span class="mosaic-link">Encargar Retro &rarr;</span>
+                        <span class="mosaic-badge">Stock Disponible</span>
+                        <h3>Leyendas Retro</h3>
+                        <p>Camisetas legendarias, históricas y clásicos retro disponibles para envío inmediato.</p>
+                        <span class="mosaic-link">Explorar Retro &rarr;</span>
                     </div>
                 </a>
                 <!-- Categoría 3: Temporada 25/26 (Stock) -->
@@ -282,7 +283,7 @@
             <div class="modal-body">
                 <div class="modal-gallery">
                     <div id="mainImageContainer" class="main-image-container">
-                        <img id="mainImage" src="" alt="Product Image">
+                        <img id="mainImage" src="/img/logo.webp" alt="Vista de producto seleccionado">
                     </div>
                     <div class="thumbnails" id="thumbnailsContainer"></div>
                 </div>

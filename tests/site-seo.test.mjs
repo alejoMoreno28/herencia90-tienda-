@@ -42,7 +42,7 @@ check('homepage catalog CTA points to an existing catalog section', () => {
 });
 
 check('pre-sale page uses the current whatsapp number and has SEO metadata', () => {
-  const html = read('web/preventa.html');
+  const html = read('web/preventa/index.html');
 
   assert.match(html, /3126428153/);
   assert.match(html, /<meta\s+name="description"/i);
