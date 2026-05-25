@@ -324,6 +324,36 @@ function closeSearchOverlay() {
 
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // Forzar la reproducción del video de fondo en móviles (iOS/Android y Modo Ahorro)
+    const heroVideo = document.getElementById('heroVideo');
+    if (heroVideo) {
+        heroVideo.muted = true;
+        heroVideo.setAttribute('muted', '');
+        heroVideo.setAttribute('playsinline', '');
+        heroVideo.playsInline = true;
+        
+        const playVideo = () => {
+            heroVideo.play().then(() => {
+                cleanupListeners();
+            }).catch(e => console.warn("Video playback prevented, waiting for interaction:", e));
+        };
+        
+        const cleanupListeners = () => {
+            document.removeEventListener('click', playVideo);
+            document.removeEventListener('touchstart', playVideo);
+            document.removeEventListener('scroll', playVideo);
+        };
+        
+        // Intentar reproducir inmediatamente
+        heroVideo.play().catch(() => {
+            // Si el navegador bloquea la reproducción por políticas o ahorro de batería,
+            // agregamos listeners en la primera interacción (click, scroll, touch) del usuario.
+            document.addEventListener('click', playVideo, { passive: true });
+            document.addEventListener('touchstart', playVideo, { passive: true });
+            document.addEventListener('scroll', playVideo, { passive: true });
+        });
+    }
+
     // AOS - Animate On Scroll
     if (typeof AOS !== 'undefined' && !prefersReducedMotion && !isTouchDevice) {
         AOS.init({
