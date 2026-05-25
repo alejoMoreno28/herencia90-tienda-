@@ -102,6 +102,17 @@ check('preventa search has an accessible name and stable form attributes', () =>
   assert.match(html, /<input type="text" class="pv-search" id="pv-search" name="q" autocomplete="off"/i);
 });
 
+check('homepage retro card is marked as pre-order and routes to preventa', () => {
+  const html = read('web/index.html');
+  const card = html.match(/<a href="\/preventa" class="category-mosaic-card card-medium"[\s\S]*?<h3>Leyendas Retro<\/h3>[\s\S]*?<\/a>/i);
+
+  assert.ok(card, 'retro card should link to the pre-order page');
+  assert.match(card[0], /<span class="mosaic-badge"[^>]*>Bajo Pedido<\/span>/i);
+  assert.match(card[0], /disponibles bajo pedido/i);
+  assert.match(card[0], /<span class="mosaic-link">Ver Pre-orden &rarr;<\/span>/i);
+  assert.doesNotMatch(html, /<a href="\/categorias\/retro" class="category-mosaic-card card-medium"/i);
+});
+
 check('modal image placeholders use real fallback images', () => {
   const pages = [
     'web/index.html',

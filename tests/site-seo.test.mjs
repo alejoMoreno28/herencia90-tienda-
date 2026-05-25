@@ -38,7 +38,7 @@ check('homepage catalog CTA points to an existing catalog section', () => {
   assert.match(html, /href="\/catalogo\.html"/i);
   assert.match(html, /\/categorias\/mundial-2026/i);
   assert.match(html, /\/categorias\/temporada-25-26/i);
-  assert.match(html, /\/categorias\/retro/i);
+  assert.match(html, /href="\/preventa"/i);
 });
 
 check('pre-sale page uses the current whatsapp number and has SEO metadata', () => {
