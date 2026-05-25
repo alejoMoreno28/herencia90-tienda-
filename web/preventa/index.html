@@ -48,17 +48,17 @@
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     </noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260522bajo5">
-    <link rel="stylesheet" href="/css/preventa.css?v=20260522bajo5">
+    <link rel="stylesheet" href="/css/style.css?v=20260525-light">
+    <link rel="stylesheet" href="/css/preventa.css?v=20260525-light">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     
 </head>
-<body style="background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%);background-attachment:fixed;">
+<body>
 
     <!-- Top bar -->
     <div class="pv-topbar">
-        <a href="index.html" class="pv-back">
+        <a href="/" class="pv-back">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Cat&aacute;logo
         </a>
@@ -266,6 +266,10 @@
                         <label class="pv-label">Ciudad *</label>
                         <input type="text" id="pp-ciudad" class="pv-input" required aria-describedby="pp-ciudad-error" placeholder="Ej: Medell&iacute;n, Bogot&aacute;, Cali...">
                         <div class="pv-field-error" id="pp-ciudad-error" aria-live="polite"></div>
+                        <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:5px; line-height:1.4; display:flex; align-items:center; gap:6px;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2.5" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                            <span>Env&iacute;o nacional: <strong>$15.000 COP</strong> (Gratis si pides 3 o m&aacute;s camisetas).</span>
+                        </div>
                     </div>
                     <div class="pv-group" style="margin-bottom:0;">
                         <label class="pv-label">Notas <span style="font-weight:400;text-transform:none;font-size:0.68rem;">(opcional)</span></label>
@@ -415,7 +419,7 @@
 
     <!-- Galería pre-venta — Supabase + filtros + prefill -->
     
-    <script src="/js/preventa.js?v=20260522bajo5" defer></script>
+    <script src="/js/preventa.js?v=20260525-light" defer></script>
 </body>
 </html>
 

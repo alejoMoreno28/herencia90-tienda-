@@ -34,7 +34,7 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260523-buy-paths">
+    <link rel="stylesheet" href="/css/style.css?v=20260525-preorder-redirect">
     <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
@@ -169,29 +169,90 @@
         <span>Garant&iacute;a de Cambios</span>
     </div>
 
-    <section class="buy-paths" aria-labelledby="buyPathsTitle">
-        <div class="buy-paths-inner">
-            <div class="buy-paths-grid">
-                <a class="buy-path buy-path-stock" href="/catalogo.html" data-aos="fade-up">
-                    <div class="buy-path-showcase" aria-hidden="true">
-                        <img class="buy-path-image" src="/img/colombia_2026_1.webp" alt="Colombia Local 2026">
-                    </div>
-                    <div class="buy-path-content">
-                        <span class="buy-path-badge">Disponible Hoy</span>
-                        <h3>Camisetas en Stock</h3>
-                        <span class="buy-path-action">Ver disponibles &rarr;</span>
-                    </div>
-                </a>
-                <a class="buy-path buy-path-order" href="/preventa" data-aos="fade-up" data-aos-delay="80">
-                    <div class="buy-path-showcase" aria-hidden="true">
-                        <img class="buy-path-image shirt-cutout" src="/img/barcelona_125_aniversario_sin_fondo.png" alt="Barcelona 125 Aniversario sin fondo">
-                    </div>
-                    <div class="buy-path-content">
-                        <span class="buy-path-badge">Bajo Pedido</span>
-                        <h3>Pre-orden Personalizada</h3>
-                        <span class="buy-path-action">Iniciar solicitud &rarr;</span>
+    <!-- Mosaico de Categorías -->
+    <section class="home-categories" aria-labelledby="categoriesTitle">
+        <div class="container-home">
+            <span class="section-subtitle" data-aos="fade-up">Colecciones Exclusivas</span>
+            <h2 id="categoriesTitle" class="section-title" data-aos="fade-up">Explora por Categor&iacute;a</h2>
+            <div class="categories-mosaic">
+                <!-- Categoría 1: Mundial 2026 (Stock) -->
+                <a href="/categorias/mundial-2026" class="category-mosaic-card card-large" data-aos="fade-up">
+                    <div class="category-mosaic-bg" style="background-image: url('/img/brasil_2026_version_fan_1.webp');"></div>
+                    <div class="category-mosaic-overlay"></div>
+                    <div class="category-mosaic-content">
+                        <span class="mosaic-badge">Stock Disponible</span>
+                        <h3>Colecci&oacute;n Mundial</h3>
+                        <p>Las camisetas de la Selección Colombia y selecciones internacionales listas para envío inmediato.</p>
+                        <span class="mosaic-link">Explorar Stock &rarr;</span>
                     </div>
                 </a>
+                <!-- Categoría 2: Pre-orden Retro (Pre-orden) -->
+                <a href="/preventa" class="category-mosaic-card card-medium" data-aos="fade-up" data-aos-delay="50">
+                    <div class="category-mosaic-bg" style="background-image: url('/img/man_ud_retro_98_home_1.webp');"></div>
+                    <div class="category-mosaic-overlay"></div>
+                    <div class="category-mosaic-content">
+                        <span class="mosaic-badge" style="background: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">Bajo Pedido</span>
+                        <h3>Pre-orden Retro</h3>
+                        <p>Consigue camisetas legendarias, históricas y clásicos retro raros de los 80s, 90s y 2000s.</p>
+                        <span class="mosaic-link">Encargar Retro &rarr;</span>
+                    </div>
+                </a>
+                <!-- Categoría 3: Temporada 25/26 (Stock) -->
+                <a href="/categorias/temporada-25-26" class="category-mosaic-card card-small" data-aos="fade-up" data-aos-delay="100">
+                    <div class="category-mosaic-bg" style="background-image: url('/img/barcelona_25-26_home_fan_1.webp');"></div>
+                    <div class="category-mosaic-overlay"></div>
+                    <div class="category-mosaic-content">
+                        <span class="mosaic-badge">Stock Disponible</span>
+                        <h3>Temporada 25/26</h3>
+                        <span class="mosaic-link">Ver Equipos &rarr;</span>
+                    </div>
+                </a>
+                <!-- Categoría 4: Pre-orden Especial (Pre-orden) -->
+                <a href="/preventa" class="category-mosaic-card card-small" data-aos="fade-up" data-aos-delay="150">
+                    <div class="category-mosaic-bg" style="background-image: url('/img/real_madrid_special_stly_black_fan_1.webp');"></div>
+                    <div class="category-mosaic-overlay"></div>
+                    <div class="category-mosaic-content">
+                        <span class="mosaic-badge" style="background: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">Bajo Pedido</span>
+                        <h3>Ediciones Especiales</h3>
+                        <span class="mosaic-link">Ver Raras &rarr;</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camisetas Destacadas (Dinamicas) -->
+    <section class="featured-section" aria-labelledby="featuredTitle">
+        <div class="container-home">
+            <span class="section-subtitle" data-aos="fade-up">Las M&aacute;s Buscadas</span>
+            <h2 id="featuredTitle" class="section-title" data-aos="fade-up">Camisetas Destacadas</h2>
+            <div class="product-grid-inner" id="featuredProductGrid" data-aos="fade-up">
+                <!-- Se inyectan dinámicamente desde app.js -->
+            </div>
+            <div class="featured-more-btn-wrap" data-aos="fade-up">
+                <a href="/catalogo.html" class="btn-secondary-home">Ver Todo el Cat&aacute;logo &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner Pre-orden Premium -->
+    <section class="preorder-banner-section" data-aos="fade-up">
+        <div class="container-home">
+            <div class="preorder-banner-card">
+                <div class="preorder-banner-content">
+                    <span class="preorder-badge">Servicio Personalizado</span>
+                    <h2>¿Buscas una Camiseta Especial?</h2>
+                    <p>Si no encuentras el modelo de tu equipo, selecci&oacute;n o temporada en nuestro stock, nosotros lo buscamos para ti. Pre-ordena de forma personalizada con nombres, n&uacute;meros y parches oficiales.</p>
+                    <div class="preorder-features">
+                        <span class="preorder-feat-item"><i class="ph-bold ph-check-circle"></i> Estampados oficiales</span>
+                        <span class="preorder-feat-item"><i class="ph-bold ph-check-circle"></i> Tallas S hasta XXL</span>
+                        <span class="preorder-feat-item"><i class="ph-bold ph-check-circle"></i> Calidad premium garantizada</span>
+                    </div>
+                    <a href="/preventa" class="btn-preorder-action">Iniciar Pre-orden &rarr;</a>
+                </div>
+                <div class="preorder-banner-image">
+                    <img src="/img/man_ud_retro_98_home_1.webp" alt="Camiseta Pre-orden" class="preorder-img-highlight">
+                </div>
             </div>
         </div>
     </section>
@@ -242,6 +303,7 @@
                         </svg>
                         Agregar al Carrito
                     </button>
+                    <div id="modalPreorderLinkContainer"></div>
                     <div class="modal-trust-strip">
                         <span><i class="ph-bold ph-hand-coins"></i> Contra entrega disponible</span>
                         <span><i class="ph-bold ph-package"></i> Env&iacute;o a toda Colombia</span>
@@ -344,7 +406,7 @@
     <!-- UX Libraries -->
     <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script defer src="/js/app.js?v=20260523-buy-paths"></script>
+    <script defer src="/js/app.js?v=20260525-preorder-redirect"></script>
     <script>
       (function() {
         var v = document.getElementById('heroVideo');

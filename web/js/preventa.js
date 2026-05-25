@@ -14,13 +14,13 @@
         for (var i = 1; i <= PP_TOTAL; i++) {
             var done = i < ppStep;
             var active = i === ppStep;
-            var connColor = i < ppStep ? 'var(--gold-dark)' : 'rgba(255,255,255,0.1)';
-            var numBg = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(255,255,255,0.04)';
-            var numBorder = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(255,255,255,0.15)';
-            var numColor = done ? '#fff' : active ? '#111' : 'var(--text-secondary)';
+            var connColor = i < ppStep ? 'var(--gold-dark)' : 'rgba(0,0,0,0.08)';
+            var numBg = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(0,0,0,0.03)';
+            var numBorder = done ? 'var(--gold-dark)' : active ? 'var(--gold)' : 'rgba(0,0,0,0.12)';
+            var numColor = done ? '#fff' : active ? '#ffffff' : 'var(--text-secondary)';
             var labelColor = active ? 'var(--gold)' : 'var(--text-secondary)';
-            var labelWeight = active ? '700' : '400';
-            var glow = active ? 'box-shadow:0 0 0 4px rgba(217,195,145,0.15);' : '';
+            var labelWeight = active ? '700' : '500';
+            var glow = active ? 'box-shadow:0 0 0 4px rgba(179,151,93,0.12);' : '';
             var connector = i < PP_TOTAL
                 ? '<div style="position:absolute;top:13px;left:calc(50% + 15px);right:calc(-50% + 15px);height:1px;background:' + connColor + ';z-index:0;"></div>'
                 : '';
@@ -180,10 +180,10 @@
 
         var box = document.getElementById('pp-summary-box');
         box.innerHTML = rows.map(function (r) {
-            if (r[0] === 'divider') return '<div style="border-bottom:1px solid rgba(255,255,255,0.07);margin:7px 0;"></div>';
-            return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px;">' +
+            if (r[0] === 'divider') return '<div style="border-bottom:1px solid rgba(0,0,0,0.08);margin:7px 0;"></div>';
+            return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.04);gap:12px;">' +
                 '<span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);min-width:110px;flex-shrink:0;">' + escHtml(r[0]) + '</span>' +
-                '<span style="font-size:0.83rem;font-weight:600;color:#fff;text-align:right;">' + escHtml(r[1]) + '</span>' +
+                '<span style="font-size:0.83rem;font-weight:600;color:#121214;text-align:right;">' + escHtml(r[1]) + '</span>' +
                 '</div>';
         }).join('');
 
@@ -1025,6 +1025,34 @@
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
+    function pvMostrarToast(message) {
+        var existing = document.getElementById('pv-toast-notification');
+        if (existing) existing.remove();
+
+        var toast = document.createElement('div');
+        toast.id = 'pv-toast-notification';
+        toast.style.cssText = 'position:fixed; top:24px; right:24px; background:rgba(255,255,255,0.9); border:1px solid rgba(179,151,93,0.3); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:16px 20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:flex; align-items:center; gap:12px; z-index:10000; transform:translateX(120%); transition:transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; opacity:0; font-family:"Montserrat",sans-serif; max-width:340px;';
+        
+        toast.innerHTML = '<span style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:rgba(179,151,93,0.1); border:1px solid rgba(179,151,93,0.3); color:#b3975d; flex-shrink:0;"><i class="ph-bold ph-check" style="font-size:0.9rem;"></i></span>' +
+            '<div style="display:flex; flex-direction:column; gap:2px;">' +
+                '<strong style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.8px; color:#121214;">¡Camiseta cargada!</strong>' +
+                '<span style="font-size:0.74rem; color:#556070; line-height:1.35;">' + message + '</span>' +
+            '</div>';
+
+        document.body.appendChild(toast);
+        toast.offsetHeight; // force layout
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+
+        setTimeout(function () {
+            toast.style.transform = 'translateX(120%)';
+            toast.style.opacity = '0';
+            setTimeout(function () {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 400);
+        }, 3500);
+    }
+
     window.pvSeleccionar = function (rJson) {
         var r;
         try { r = JSON.parse(rJson); } catch (e) { return; }
@@ -1054,6 +1082,7 @@
         if (refEl) refEl.value = r.slug || '';
 
         pvSettleOnWizard();
+        pvMostrarToast('Se cargaron los detalles de ' + (r.equipo || 'la camiseta') + ' en el cotizador.');
     };
 
     window.pvAbrirLightbox = function (collectionKey, itemIdx) {

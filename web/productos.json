@@ -527,5 +527,73 @@
             "img/real_madrid_special_stly_black_fan_5.webp",
             "img/real_madrid_special_stly_black_fan_6.webp"
         ]
+    },
+    {
+        "id": 27,
+        "categoria": "Leyendas Clásicas",
+        "equipo": "Camiseta local Retro Barcelona 2008/09",
+        "descripcion": "La legendaria camiseta local del FC Barcelona de la temporada del histórico Triplete 2008-09 de Guardiola y Messi. El diseño clásico azul y grana dividido a la mitad con acabados retro de época. Una joya de colección bajo pedido.",
+        "precio": 120000,
+        "costo_usd": 15.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/barcelona-2008-2009-local/1.webp"
+        ]
+    },
+    {
+        "id": 28,
+        "categoria": "Leyendas Clásicas",
+        "equipo": "Barcelona 125 Aniversario 2024/2025 Retro",
+        "descripcion": "Edición retro conmemorativa del 125 Aniversario del FC Barcelona. Diseño de franjas verticales clásicas azul y grana con patrocinio especial, cuello polo en color crema y escudo vintage bordado en oro. Una obra de arte bajo pedido.",
+        "precio": 120000,
+        "costo_usd": 15.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/barcelona_125_aniversario_sin_fondo.png"
+        ]
+    },
+    {
+        "id": 29,
+        "categoria": "Leyendas Clásicas",
+        "equipo": "Real Madrid Visitante 1999 Retro",
+        "descripcion": "La mítica camiseta visitante del Real Madrid para la temporada 1999-00 en elegante color negro brillante con las clásicas tres rayas en amarillo/oro y el legendario sponsor de Teka. Camiseta de la octava Champions League bajo pedido.",
+        "precio": 120000,
+        "costo_usd": 15.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-1999-visitante/1.webp"
+        ]
+    },
+    {
+        "id": 30,
+        "categoria": "Leyendas Clásicas",
+        "equipo": "AC Milan Visitante 2006/2007 Retro",
+        "descripcion": "La icónica camiseta visitante blanca del AC Milan de la histórica final de la Champions League 2006-07 en Atenas, recordada por los goles de Inzaghi y Kaká. Elegancia italiana clásica con el sponsor de bwin bajo pedido.",
+        "precio": 120000,
+        "costo_usd": 15.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ac-milan-2006-2007-visitante/1.webp"
+        ]
     }
 ]

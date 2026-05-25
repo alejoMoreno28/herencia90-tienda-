@@ -63,21 +63,31 @@ function loadVanillaTilt() {
 }
 
 async function loadProducts() {
+    let localProducts = [];
+    try {
+        const response = await fetch('/productos.json', { cache: 'no-store' });
+        if (response.ok) localProducts = await response.json();
+    } catch (e) {
+        console.warn('No se pudo cargar productos.json local', e);
+    }
+
     try {
         if (!db) throw new Error('Supabase no disponible');
         const { data, error } = await db.from('productos').select('*').order('id');
         if (error) throw error;
-        if (Array.isArray(data) && data.length > 0) return data;
-        throw new Error('Cat&aacute;logo vac&iacute;o desde Supabase');
-    } catch (error) {
-        try {
-            const response = await fetch('/productos.json', { cache: 'no-store' });
-            if (!response.ok) throw new Error(`Fallback local fallo: ${response.status}`);
-            return await response.json();
-        } catch (fallbackError) {
-            console.error('No fue posible cargar productos', error, fallbackError);
-            return [];
+        if (Array.isArray(data) && data.length > 0) {
+            const merged = [...data];
+            localProducts.forEach(lp => {
+                if (!merged.some(sp => sp.id === lp.id)) {
+                    merged.push(lp);
+                }
+            });
+            return merged;
         }
+        throw new Error('Catálogo vacío desde Supabase');
+    } catch (error) {
+        console.warn('Fallo Supabase, usando productos locales', error);
+        return localProducts;
     }
 }
 
@@ -336,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allProducts = products;
         renderNavigation();
         renderProducts(allProducts);
+        renderFeaturedProducts();
     });
 
     // Real-time: se difiere para no competir con el primer render.
@@ -450,9 +461,9 @@ function getProductBadge(product) {
 }
 
 // ── Size pills ────────────────────────────────────────────────────────────────
-function buildSizePills(tallas) {
+function buildSizePills(tallas, isBajoPedido = false) {
     return Object.entries(tallas || {}).map(([s, qty]) =>
-        `<span class="size-pill ${qty > 0 ? 'available' : 'unavailable'}">${s}</span>`
+        `<span class="size-pill ${(qty > 0 || isBajoPedido) ? 'available' : 'unavailable'}">${s}</span>`
     ).join('');
 }
 
@@ -463,6 +474,12 @@ function formatPrice(price) {
 
 function toWebp(src) {
     if (!src) return src;
+    if (src.includes('barcelona_125_aniversario_sin_fondo.png')) {
+        if (!src.startsWith('/') && !src.startsWith('http')) {
+            src = '/' + src;
+        }
+        return src;
+    }
     let newSrc = src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
     if (!newSrc.startsWith('/') && !newSrc.startsWith('http')) {
         newSrc = '/' + newSrc;
@@ -816,17 +833,21 @@ function renderProducts(products) {
         const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
             ? product.imagenes[0] : (product.imagen || ''));
 
+        const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
+                             (product.categoria || '').toLowerCase().includes('leyendas') || 
+                             product.bajo_pedido === true;
+
         const tallas = Object.entries(product.tallas || {});
-        const allSoldOut = tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
-        const sizePills = buildSizePills(product.tallas);
+        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+        const sizePills = buildSizePills(product.tallas, isBajoPedido);
         const badge = getProductBadge(product);
 
         const card = document.createElement('div');
-        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '');
+        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
         if (!prefersReducedMotion && !isTouchDevice) {
             card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
         }
-        if (!allSoldOut) card.onclick = () => openModal(idx);
+        if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
 
         card.innerHTML = `
             <div class="product-image-wrapper img-loading">
@@ -840,7 +861,7 @@ function renderProducts(products) {
                 <div class="product-actions">
                     ${allSoldOut
                 ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">Ver detalles</button>`
+                : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
             }
                 </div>
             </div>
@@ -873,6 +894,88 @@ function renderProducts(products) {
         }, 2500);
     }
 }
+
+// ── Render Featured Products (HOME) ───────────────────────────────────────────
+function renderFeaturedProducts() {
+    const container = byId('featuredProductGrid');
+    if (!container) return;
+
+    // Seleccionar algunas camisetas específicas para destacar (3 de stock, 3 de pre-orden retro)
+    const idsToFeature = [1, 2, 10, 28, 29, 30]; // Alemania, Argentina, Colombia, Barcelona 125, Real Madrid 99, Milan 06/07
+    let featured = idsToFeature.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+    
+    // Si no hay suficientes por alguna razón, tomar los primeros 6 del catálogo
+    if (featured.length < 3) {
+        featured = allProducts.slice(0, 6);
+    }
+
+    container.innerHTML = '';
+
+    featured.forEach((product, i) => {
+        const idx = allProducts.findIndex(p => p.id === product.id);
+        const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
+            ? product.imagenes[0] : (product.imagen || ''));
+
+        const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
+                             (product.categoria || '').toLowerCase().includes('leyendas') || 
+                             product.bajo_pedido === true;
+
+        const tallas = Object.entries(product.tallas || {});
+        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+        const sizePills = buildSizePills(product.tallas, isBajoPedido);
+        const badge = getProductBadge(product);
+
+        const card = document.createElement('div');
+        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
+        if (!prefersReducedMotion && !isTouchDevice) {
+            card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
+        }
+        if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
+
+        card.innerHTML = `
+            <div class="product-image-wrapper img-loading">
+                <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
+                ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
+            </div>
+            <div class="product-info">
+                <h3 class="product-title">${product.equipo}</h3>
+                <div class="product-price">${formatPrice(product.precio)}</div>
+                <div class="product-sizes">${sizePills}</div>
+                <div class="product-actions">
+                    ${allSoldOut
+                        ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
+                        : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
+                    }
+                </div>
+            </div>
+        `;
+
+        const img = card.querySelector('.lazy-img');
+        if (img) imgObserver.observe(img);
+        if (!prefersReducedMotion && !isTouchDevice) {
+            cardRevealObserver.observe(card);
+        } else {
+            card.classList.remove('card-hidden');
+        }
+        container.appendChild(card);
+    });
+
+    if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
+        runWhenIdle(() => {
+            loadVanillaTilt().then((VanillaTilt) => {
+                VanillaTilt.init(container.querySelectorAll('.product-card'), {
+                    max: 4,
+                    speed: 400,
+                    glare: true,
+                    'max-glare': 0.05,
+                    scale: 1.01,
+                    perspective: 900,
+                });
+            }).catch(function(){});
+        }, 2500);
+    }
+}
+
 // ── Modal ─────────────────────────────────────────────────────────────────────
 function openModal(productIndex) {
     const product = allProducts[productIndex];
@@ -883,10 +986,18 @@ function openModal(productIndex) {
     document.getElementById('modalTitle').innerText = product.equipo;
     document.getElementById('modalPrice').innerText = formatPrice(product.precio);
 
-    // Descripción
+    const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
+                         (product.categoria || '').toLowerCase().includes('leyendas') || 
+                         product.bajo_pedido === true;
+
+    // Descripción con aviso de preventa
     const descEl = document.getElementById('modalDescription');
-    descEl.textContent = product.descripcion || '';
-    descEl.style.display = product.descripcion ? 'block' : 'none';
+    let descText = product.descripcion || '';
+    if (isBajoPedido) {
+        descText = `✈️ BAJO PEDIDO: Tiempo de entrega estimado de 15 a 20 días hábiles.\n\n` + descText;
+    }
+    descEl.textContent = descText;
+    descEl.style.display = descText ? 'block' : 'none';
 
     const mainImg = document.getElementById('mainImage');
     const thumbContainer = document.getElementById('thumbnailsContainer');
@@ -922,7 +1033,7 @@ function openModal(productIndex) {
     wsBtn.className = 'btn-whatsapp';
     wsBtn.innerHTML = `
         <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-        Selecciona una talla`;
+        ${isBajoPedido ? 'Selecciona una talla (Bajo pedido)' : 'Selecciona una talla'}`;
 
     addCartBtn.style.display = 'inline-flex';
     addCartBtn.style.pointerEvents = 'none';
@@ -932,7 +1043,8 @@ function openModal(productIndex) {
     Object.entries(product.tallas || {}).forEach(([size, stock]) => {
         const btn = document.createElement('button');
         btn.innerText = size;
-        if (stock <= 0) {
+        const available = isBajoPedido || stock > 0;
+        if (!available) {
             btn.className = 'size-btn out-of-stock';
             btn.title = 'Agotada';
         } else {
@@ -942,15 +1054,17 @@ function openModal(productIndex) {
                 btn.classList.add('selected');
                 trackEvent('whatsapp_click', { ...product, extra: { talla: size } });
                 
-                // Habilitar y actualizar WhatsApp
-                const msg = encodeURIComponent(`Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`);
+                const msgText = isBajoPedido
+                    ? `Hola Herencia 90, me interesa pre-ordenar la camiseta: ${product.equipo} en Talla ${size}. Entiendo que tiene un tiempo de espera de 15 a 20 días hábiles aprox.`
+                    : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`;
+                const msg = encodeURIComponent(msgText);
                 wsBtn.href = `https://wa.me/573126428153?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';
                 wsBtn.style.opacity = '1';
                 wsBtn.className = 'btn-whatsapp green';
                 wsBtn.innerHTML = `
                     <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-                    Comprar Talla ${size}`;
+                    ${isBajoPedido ? 'Pre-ordenar Talla ' + size : 'Comprar Talla ' + size}`;
                 
                 // Habilitar y actualizar Carrito
                 addCartBtn.style.pointerEvents = 'auto';
@@ -963,6 +1077,21 @@ function openModal(productIndex) {
         }
         sizeContainer.appendChild(btn);
     });
+
+    const preorderLinkContainer = document.getElementById('modalPreorderLinkContainer');
+    if (preorderLinkContainer) {
+        if (isBajoPedido) {
+            preorderLinkContainer.innerHTML = `
+                <a href="/preventa" class="btn-secondary-preorder">
+                    <i class="ph ph-tag"></i> Ver Catálogo Completo de Pre-Orden →
+                </a>
+            `;
+            preorderLinkContainer.style.display = 'block';
+        } else {
+            preorderLinkContainer.innerHTML = '';
+            preorderLinkContainer.style.display = 'none';
+        }
+    }
 
     modal.style.display = 'block';
 }
