@@ -419,16 +419,31 @@
           v.setAttribute('muted', '');
           v.setAttribute('playsinline', '');
           v.setAttribute('webkit-playsinline', '');
-          if (v.readyState < 2) v.load();
-          v.play().catch(function(){});
+          v.play().then(function() {
+            cleanupListeners();
+          }).catch(function(){});
         };
+
+        var forcePlay = function() {
+          startHeroVideo();
+        };
+
+        var cleanupListeners = function() {
+          document.removeEventListener('click', forcePlay);
+          document.removeEventListener('touchstart', forcePlay);
+          document.removeEventListener('scroll', forcePlay);
+        };
+
+        // Escuchar la primera interacción del usuario para reproducir (crítico en móviles y ahorro de batería)
+        document.addEventListener('click', forcePlay, { passive: true });
+        document.addEventListener('touchstart', forcePlay, { passive: true });
+        document.addEventListener('scroll', forcePlay, { passive: true });
 
         window.addEventListener('load', startHeroVideo, { once: true });
         window.addEventListener('pageshow', startHeroVideo);
         document.addEventListener('visibilitychange', function() {
           if (!document.hidden) startHeroVideo();
         });
-        document.addEventListener('touchstart', startHeroVideo, { once: true, passive: true });
 
         if ('IntersectionObserver' in window) {
           var observer = new IntersectionObserver(function(entries) {
