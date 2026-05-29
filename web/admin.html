@@ -904,7 +904,7 @@
         let cashChart = null;
 
         async function init() {
-            await fetchTRM();
+            fetchTRM(); // No blockear carga inicial si la API del gobierno está lenta
             try {
                 const { data: prods } = await db.from('productos').select('*').order('id');
                 if (prods) productData = prods;
@@ -2645,12 +2645,6 @@
                 btnSave.disabled = false;
                 btnSave.innerText = '🚀 Procesar y Guardar Lote Completo';
             }
-        }
-
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 3000);
         }
     </script>
 </body>
