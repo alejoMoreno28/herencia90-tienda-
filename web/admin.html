@@ -2291,7 +2291,15 @@
                 const descVal = cols[2] ? cols[2].trim() : '';
                 const extrasVal = cols[3] ? cols[3].trim() : '';
                 const qtyVal  = parseInt(cols[5]) || 1;
-                const costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
+                
+                let costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
+                // El costo real incluye el valor de los extras. El Subtotal está en la columna 7 (índice 7)
+                if (cols[7]) {
+                    const subtotal = cleanNumber(cols[7]);
+                    if (subtotal > 0 && qtyVal > 0) {
+                        costVal = subtotal / qtyVal; // Ej: $18 Subtotal / 1 Qty = $18 Costo Real
+                    }
+                }
                 
                 // Construir descripción completa agregando tipo (si no es FAN básico) y extras
                 let finalDesc = descVal;
@@ -2320,12 +2328,12 @@
 
                 const match = findBestProductMatch(finalDesc) || findBestProductMatch(descVal);
 
-                // Regla de precios por costo (USD)
+                // Regla de precios por costo (USD) incluyendo parches y dorsales
                 let defaultPrecio = 99000;
-                if (costVal == 11) defaultPrecio = 99000;
+                if (costVal <= 11) defaultPrecio = 99000;
                 else if (costVal == 14) defaultPrecio = 110000;
-                else if (costVal == 15) defaultPrecio = 120000;
-                else if (costVal == 18) defaultPrecio = 130000;
+                else if (costVal >= 15 && costVal < 18) defaultPrecio = 120000;
+                else if (costVal >= 18) defaultPrecio = 130000;
 
                 processedItems.push({
                     id: Date.now() + Math.random(),
@@ -2337,7 +2345,7 @@
                     destino: destinoVal,
                     cliente: '',
                     canal: 'Amigos/Confianza',
-                    precioVenta: match ? match.precio : defaultPrecio,
+                    precioVenta: defaultPrecio, // Obligar a usar la regla por encima del catálogo viejo
                     abono: 0
                 });
             });
