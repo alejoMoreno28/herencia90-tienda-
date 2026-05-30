@@ -2412,6 +2412,29 @@
                     }
                 }
                 
+                if (btn) btn.innerText = '📸 Buscando fotos en proveedores...';
+                showToast(`Buscando fotos HD para ${unoptimizedStrings.length} camisetas nuevas...`);
+                
+                for (const raw of unoptimizedStrings) {
+                    const optimizedName = aiResults[raw] ? aiResults[raw].nombre_oficial : raw;
+                    try {
+                        const res = await fetch('/api/search-provider-images', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ query: optimizedName })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.images && data.images.length > 0) {
+                                if (!aiResults[raw]) aiResults[raw] = {};
+                                aiResults[raw].imagenes_extraidas = data.images;
+                            }
+                        }
+                    } catch(e) {
+                        console.error('Error buscando fotos:', e);
+                    }
+                }
+                
                 processedItems.forEach(item => {
                     if (!item.prodId && aiResults[item.queryStr]) {
                         const ai = aiResults[item.queryStr];
@@ -2532,9 +2555,12 @@
                             oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
                     </td>
                     <!-- Col 9: Acciones (Remover) -->
-                    <td style="text-align:center;">
-                        <button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; margin-right:4px;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>
-                        <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold;" onclick="removerFilaLote(${idx})">✕</button>
+                    <td style="text-align:center; min-width: 60px;">
+                        ${item.aiData && item.aiData.imagenes_extraidas && item.aiData.imagenes_extraidas.length > 0 
+                            ? `<img src="${item.aiData.imagenes_extraidas[0]}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; margin-right:4px; vertical-align:middle; cursor:pointer;" onclick="window.open('${item.aiData.imagenes_extraidas[0]}', '_blank')" title="Foto extraída">`
+                            : `<button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; margin-right:4px; vertical-align:middle;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>`
+                        }
+                        <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2635,7 +2661,7 @@
                         precio: uItem.precioVenta, 
                         costo_usd: uItem.costUsd, 
                         tallas: {S:0, M:0, L:0, XL:0}, 
-                        imagenes: [],
+                        imagenes: (uItem.aiData && uItem.aiData.imagenes_extraidas) ? uItem.aiData.imagenes_extraidas : [],
                         pais_o_club: uItem.aiData ? uItem.aiData.pais_o_club : '',
                         decada: uItem.aiData ? uItem.aiData.decada : ''
                     };
