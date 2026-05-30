@@ -2585,8 +2585,8 @@
                             oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
                     </td>
                     <!-- Col 9: Acciones (Remover e Imagen) -->
-                    <td style="text-align:center; min-width: 120px;">
-                        <div id="lote-img-container-${idx}" style="display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; margin-right:6px;">
+                    <td style="text-align:center; min-width: 140px;">
+                        <div id="lote-img-container-${idx}" style="display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; margin-bottom:4px;">
                             ${(function() {
                                 if (item.aiData && item.aiData.imagenes_extraidas && item.aiData.imagenes_extraidas.length > 0) {
                                     const selectedIdx = item.selectedImageIndex || 0;
@@ -2597,11 +2597,19 @@
                                             onclick="selectLoteImage(${idx}, ${imgIdx})" title="Clic para usar como foto principal">`;
                                     }).join('');
                                 } else {
-                                    return `<button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; vertical-align:middle;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>`;
+                                    return `
+                                        <div style="display:flex; flex-direction:column; gap:2px; align-items:center;">
+                                            <button type="button" class="btn-save" style="background:#4285f4; padding:2px 4px; font-size:9px; width:100%;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos en Google">🔍 Buscar en Google</button>
+                                            <input type="text" id="lote-url-${idx}" placeholder="Pegar URL exacta..." style="font-size:9px; padding:2px; width:100px; text-align:center;" title="Pega el link del producto del proveedor aquí">
+                                            <button type="button" onclick="extraerManual(${idx})" style="background:#f39c12; color:white; border:none; border-radius:4px; padding:2px 4px; font-size:9px; cursor:pointer; width:100%;">⚡ Extraer</button>
+                                        </div>
+                                    `;
                                 }
                             })()}
                         </div>
-                        <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕</button>
+                        <div style="text-align:center;">
+                            <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕ Eliminar Fila</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2629,6 +2637,58 @@
                 imgs.unshift(selected); // Poner al inicio
                 loteItems[loteIdx].selectedImageIndex = 0; // Ahora el indice es 0
                 renderLotePreview();
+            }
+        }
+
+        async function extraerManual(idx) {
+            const inputUrl = document.getElementById(`lote-url-${idx}`);
+            if (!inputUrl || !inputUrl.value.trim()) {
+                showToast("Por favor pega un link válido de la tienda.");
+                return;
+            }
+            
+            const url = inputUrl.value.trim();
+            const item = loteItems[idx];
+            const btn = inputUrl.nextElementSibling;
+            btn.innerText = "⏳...";
+            btn.disabled = true;
+
+            try {
+                let data = { images: [] };
+                // Intentar local primero
+                try {
+                    let resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ exactUrl: url, query: item.queryStr })
+                    });
+                    if (resLocal.ok) data = await resLocal.json();
+                } catch (e) {
+                    // Fallback nube
+                    let resCloud = await fetch('/api/search-provider-images', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ exactUrl: url, query: item.queryStr })
+                    });
+                    if (resCloud.ok) data = await resCloud.json();
+                }
+
+                if (data.images && data.images.length > 0) {
+                    if (!item.aiData) item.aiData = {};
+                    item.aiData.imagenes_extraidas = data.images;
+                    item.selectedImageIndex = 0;
+                    showToast("¡Fotos extraídas con éxito!");
+                    renderLotePreview();
+                } else {
+                    showToast("No se encontraron fotos en ese enlace.", true);
+                    btn.innerText = "⚡ Extraer";
+                    btn.disabled = false;
+                }
+            } catch(err) {
+                console.error("Error manual:", err);
+                showToast("Error extrayendo foto manual.", true);
+                btn.innerText = "⚡ Extraer";
+                btn.disabled = false;
             }
         }
 

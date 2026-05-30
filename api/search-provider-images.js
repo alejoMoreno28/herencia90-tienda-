@@ -233,13 +233,70 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     
     const debugLogs = [];
-    const { query, longName } = req.body || {};
-    if (!query) return res.status(400).json({ error: 'query requerido' });
+    const { query, longName, exactUrl } = req.body || {};
+    
+    // Si se pasa exactUrl, el query puede ser usado solo para el slug de guardado
+    if (!query && !exactUrl) return res.status(400).json({ error: 'query o exactUrl requerido' });
 
-    console.log(`Buscando imagenes para: ${query} (longName: ${longName})`);
+    console.log(`Buscando imagenes para: ${query || exactUrl} (longName: ${longName})`);
     const supabase = getSupabase();
-    const slug = slugify(query) || crypto.randomBytes(8).toString('hex');
+    const slug = slugify(query || 'manual') || crypto.randomBytes(8).toString('hex');
     const timestamp = Date.now();
+
+    // === MODO HIBRIDO: EXTRACCION POR URL DIRECTA ===
+    if (exactUrl) {
+        console.log(`Extrayendo directamente de URL: ${exactUrl}`);
+        let candidateImages = [];
+        
+        try {
+            if (exactUrl.includes('panitastienda.com')) {
+                // Tratar como shopify
+                const jsonUrl = exactUrl.split('?')[0] + '.js';
+                const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+                if (pReq.ok) {
+                    const pData = await pReq.json();
+                    candidateImages = pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);
+                }
+            }
+            
+            if (candidateImages.length === 0) {
+                // Scraper HTML generico
+                candidateImages = await scrapeImages(exactUrl);
+            }
+        } catch(e) {
+            console.error('Error extrayendo URL exacta:', e);
+        }
+
+        if (candidateImages.length > 0) {
+            // Filtrar basura
+            candidateImages = candidateImages.filter(src => {
+                const low = src.toLowerCase();
+                return !low.includes('logo') && !low.includes('tallas') && !low.includes('size') && !low.includes('icon');
+            });
+
+            const toDownload = [...new Set(candidateImages)].slice(0, 4);
+            const uploadedUrls = [];
+
+            for (let i = 0; i < toDownload.length; i++) {
+                const storagePath = `ia-scraper/${slug}-${timestamp}-${i+1}.webp`;
+                try {
+                    const finalUrl = await downloadAndUpload(supabase, toDownload[i], storagePath);
+                    uploadedUrls.push(finalUrl);
+                } catch (err) {
+                    console.warn(`Error subiendo imagen ${i}:`, err.message);
+                }
+            }
+
+            return res.status(200).json({ 
+                source: 'Manual URL',
+                productUrl: exactUrl,
+                images: uploadedUrls,
+                debug: debugLogs 
+            });
+        }
+        return res.status(200).json({ images: [], debug: debugLogs });
+    }
+    // === FIN MODO HIBRIDO ===
 
     for (const domain of PROVIDERS) {
         console.log(`Buscando en ${domain}...`);
