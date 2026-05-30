@@ -27,7 +27,7 @@ function slugify(str) {
         .trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
-async function searchDDG(query, domain) {
+async function searchDDG(query, domain, longName) {
     const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('site:' + domain + ' ' + query)}`;
     try {
         const res = await fetch(searchUrl, {
@@ -39,21 +39,40 @@ async function searchDDG(query, domain) {
         const html = await res.text();
         const $ = cheerioLoad(html);
         
-        let foundLink = null;
+        let validLinks = [];
         $('.result__url').each((i, el) => {
-            if (foundLink) return;
             const link = $(el).text().trim();
             // Asegurar que el link pertenezca al dominio buscado y no sea un anuncio
             if (link.includes(domain)) {
                 if (link.includes('/productos/') || link.includes('/producto/') || link.includes('/products/') || link.includes('/product/') || link.includes('/collections/') || link.includes('/tienda/')) {
-                    foundLink = 'https://' + link;
-                } else if (!foundLink) {
-                    foundLink = 'https://' + link;
+                    validLinks.push('https://' + link);
+                } else if (validLinks.length === 0) {
+                    validLinks.push('https://' + link);
                 }
             }
         });
-        if (foundLink && foundLink !== 'https://') return foundLink;
-        return null;
+        
+        if (validLinks.length === 0) return null;
+        if (validLinks.length === 1 || !longName) return validLinks[0];
+
+        // Tenemos múltiples links, usar longName para decidir el mejor (Ej: Home vs Away)
+        const keywords = slugify(longName).split('-').filter(w => w.length > 2);
+        
+        let bestLink = validLinks[0];
+        let maxScore = -1;
+
+        for (const link of validLinks) {
+            let score = 0;
+            const linkSlug = link.toLowerCase();
+            for (const kw of keywords) {
+                if (linkSlug.includes(kw)) score++;
+            }
+            if (score > maxScore) {
+                maxScore = score;
+                bestLink = link;
+            }
+        }
+        return bestLink;
     } catch (e) {
         console.error('Error DDG:', e);
         return null;
@@ -121,17 +140,17 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     
     const debugLogs = [];
-    const { query } = req.body || {};
+    const { query, longName } = req.body || {};
     if (!query) return res.status(400).json({ error: 'query requerido' });
 
-    console.log(`Buscando imagenes para: ${query}`);
+    console.log(`Buscando imagenes para: ${query} (longName: ${longName})`);
     const supabase = getSupabase();
     const slug = slugify(query) || crypto.randomBytes(8).toString('hex');
     const timestamp = Date.now();
 
     for (const domain of PROVIDERS) {
         console.log(`Buscando en ${domain}...`);
-        const productUrl = await searchDDG(query, domain);
+        const productUrl = await searchDDG(query, domain, longName);
         if (!productUrl) continue;
         
         console.log(`Encontrado link en ${domain}: ${productUrl}`);

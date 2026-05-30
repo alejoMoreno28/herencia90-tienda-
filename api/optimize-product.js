@@ -21,6 +21,7 @@ Tu objetivo es analizarlo y devolver un JSON estrictamente estructurado (sin for
 3. "categoria": "Equipos Europeos", "Selecciones Nacionales", "Equipos Sudamericanos", "Retro", o "Nueva Colección".
 4. "pais_o_club": El nombre del club o país (Ej. "Barcelona").
 5. "decada": Si es retro, pon la década (Ej. "90s", "2000s"). Si es reciente, pon "Actual".
+6. "termino_busqueda": Un término de búsqueda CORTO y preciso (Máximo 3 palabras: País/Club + Año). Ej: "Brasil 2004", "Arsenal 2003", "Real Madrid 2012". No pongas "Home", "Retro" ni colores.
 
 Devuelve SOLO el JSON válido.`;
 

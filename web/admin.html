@@ -2416,12 +2416,15 @@
                 showToast(`Buscando fotos HD para ${unoptimizedStrings.length} camisetas nuevas...`);
                 
                 for (const raw of unoptimizedStrings) {
-                    const optimizedName = aiResults[raw] ? aiResults[raw].nombre_oficial : raw;
+                    const aiData = aiResults[raw] || {};
+                    const optimizedName = aiData.nombre_oficial || raw;
+                    const searchTerm = aiData.termino_busqueda || raw;
+                    
                     try {
                         let res = await fetch('/api/search-provider-images', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ query: optimizedName })
+                            body: JSON.stringify({ query: searchTerm, longName: optimizedName })
                         });
                         let data = res.ok ? await res.json() : { images: [] };
                         
@@ -2431,7 +2434,7 @@
                             const resFallback = await fetch('/api/search-provider-images', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ query: raw })
+                                body: JSON.stringify({ query: raw, longName: optimizedName })
                             });
                             data = resFallback.ok ? await resFallback.json() : { images: [] };
                         }
