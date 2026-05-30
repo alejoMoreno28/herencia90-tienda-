@@ -2305,12 +2305,13 @@
             return best || null;
         }
 
-        function procesarPegadoExcel() {
+        async function procesarPegadoExcel() {
             const rawText = document.getElementById('lote-excel-paste').value;
             if (!rawText.trim()) { alert('Pega celdas válidas de Excel primero'); return; }
 
             const lines = rawText.split('\n');
             const processedItems = [];
+            let unoptimizedStrings = [];
 
             lines.forEach(line => {
                 const cols = line.split('\t');
@@ -2323,15 +2324,13 @@
                 const qtyVal  = parseInt(cols[5]) || 1;
                 
                 let costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
-                // El costo real incluye el valor de los extras. El Subtotal está en la columna 7 (índice 7)
                 if (cols[7]) {
                     const subtotal = cleanNumber(cols[7]);
                     if (subtotal > 0 && qtyVal > 0) {
-                        costVal = subtotal / qtyVal; // Ej: $18 Subtotal / 1 Qty = $18 Costo Real
+                        costVal = subtotal / qtyVal;
                     }
                 }
                 
-                // Construir descripción completa agregando tipo (si no es FAN básico) y extras
                 let finalDesc = descVal;
                 if (typeVal && typeVal.toUpperCase() !== 'FAN') {
                     finalDesc = `[${typeVal}] ` + finalDesc;
@@ -2340,7 +2339,6 @@
                     finalDesc = finalDesc + ` (+ ${extrasVal})`;
                 }
 
-                // Mapear destino buscando las palabras clave en cualquier columna del final para robustez
                 let destinoVal = 'STOCK';
                 for (let i = cols.length - 1; i >= 0; i--) {
                     const text = String(cols[i]).toUpperCase();
@@ -2358,7 +2356,6 @@
 
                 const match = findBestProductMatch(finalDesc) || findBestProductMatch(descVal);
 
-                // Regla de precios por costo (USD) incluyendo parches y dorsales
                 let defaultPrecio = 99000;
                 if (costVal <= 11) defaultPrecio = 99000;
                 else if (costVal == 14) defaultPrecio = 110000;
@@ -2375,14 +2372,58 @@
                     destino: destinoVal,
                     cliente: '',
                     canal: 'Amigos/Confianza',
-                    precioVenta: defaultPrecio, // Obligar a usar la regla por encima del catálogo viejo
-                    abono: 0
+                    precioVenta: defaultPrecio,
+                    abono: 0,
+                    aiData: null
                 });
+
+                if (!match && !unoptimizedStrings.includes(finalDesc)) {
+                    unoptimizedStrings.push(finalDesc);
+                }
             });
 
             if (processedItems.length === 0) {
                 alert('No se detectaron filas válidas de camisetas. Revisa que hayas copiado el bloque correcto del Excel.');
                 return;
+            }
+
+            if (unoptimizedStrings.length > 0) {
+                const btn = document.querySelector('button[onclick="procesarPegadoExcel()"]');
+                if (btn) {
+                    btn.innerText = '✨ Optimizando con IA...';
+                    btn.disabled = true;
+                }
+                showToast(`Optimizando ${unoptimizedStrings.length} camisetas nuevas con IA...`);
+                
+                const aiResults = {};
+                for (const raw of unoptimizedStrings) {
+                    try {
+                        const res = await fetch('/api/optimize-product', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ rawName: raw })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            aiResults[raw] = data;
+                        }
+                    } catch(e) {
+                        console.error('Error llamando IA:', e);
+                    }
+                }
+                
+                processedItems.forEach(item => {
+                    if (!item.prodId && aiResults[item.queryStr]) {
+                        const ai = aiResults[item.queryStr];
+                        item.queryStr = ai.nombre_oficial || item.queryStr;
+                        item.aiData = ai;
+                    }
+                });
+                
+                if (btn) {
+                    btn.innerText = '⚡ Procesar Celdas de Excel';
+                    btn.disabled = false;
+                }
             }
 
             loteItems = processedItems;
@@ -2492,6 +2533,7 @@
                     </td>
                     <!-- Col 9: Acciones (Remover) -->
                     <td style="text-align:center;">
+                        <button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; margin-right:4px;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>
                         <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold;" onclick="removerFilaLote(${idx})">✕</button>
                     </td>
                 `;
@@ -2587,13 +2629,15 @@
 
                     const newP = { 
                         id: newIdCounter++, 
-                        categoria: 'Nueva Colección', 
-                        equipo: uItem.queryStr, 
-                        descripcion: '', 
+                        categoria: uItem.aiData ? uItem.aiData.categoria : 'Nueva Colección', 
+                        equipo: uItem.aiData ? uItem.aiData.nombre_oficial : uItem.queryStr, 
+                        descripcion: uItem.aiData ? uItem.aiData.descripcion : '', 
                         precio: uItem.precioVenta, 
                         costo_usd: uItem.costUsd, 
                         tallas: {S:0, M:0, L:0, XL:0}, 
-                        imagenes: [] 
+                        imagenes: [],
+                        pais_o_club: uItem.aiData ? uItem.aiData.pais_o_club : '',
+                        decada: uItem.aiData ? uItem.aiData.decada : ''
                     };
                     const { error } = await db.from('productos').insert(newP);
                     if (error) {
