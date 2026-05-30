@@ -2592,8 +2592,14 @@
                 // Crear los productos faltantes en Supabase
                 const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
                 let newIdCounter = mx + 1;
+                let createdProductsMap = {};
                 
                 for (let uItem of unmatchedItems) {
+                    if (createdProductsMap[uItem.queryStr]) {
+                        uItem.prodId = createdProductsMap[uItem.queryStr].id;
+                        continue;
+                    }
+
                     const newP = { 
                         id: newIdCounter++, 
                         categoria: 'Nueva Colección', 
@@ -2611,7 +2617,7 @@
                         return;
                     }
                     productData.unshift(newP);
-                    // Actualizar el prodId en el item del lote para que se guarde correctamente
+                    createdProductsMap[uItem.queryStr] = newP;
                     uItem.prodId = newP.id;
                 }
             }
