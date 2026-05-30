@@ -18,6 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-finance-metrics.js?v=20260521-cash-roi"></script>
     <script src="js/admin-inventory-guard.js"></script>
+    <script src="js/admin-lote-photo-review.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -167,6 +168,30 @@
         .badge-pub { background:#28a745; color:white; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
         .badge-draft { background:#6c757d; color:white; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
         .badge-dest { background:#d9c391; color:#111; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+
+        /* --- REVISION DE FOTOS DEL LOTE --- */
+        .lote-photo-panel { border-top:4px solid #495057; }
+        .lote-photo-summary { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px; }
+        .lote-photo-chip { background:#f5f1e6; border:1px solid #e2d7b6; color:#604d1b; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:800; }
+        .lote-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+        .lote-photo-card { border:1px solid #e8e8e8; border-radius:8px; background:#fff; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.03); }
+        .lote-photo-card.approved { border-color:#b7dfc4; background:#fbfffc; }
+        .lote-photo-card.error { border-color:#f3b3b3; background:#fffafa; }
+        .lote-photo-title { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:8px; }
+        .lote-photo-title strong { font-size:13px; color:#111; line-height:1.3; }
+        .lote-photo-status { flex:0 0 auto; border-radius:999px; padding:4px 8px; font-size:10px; font-weight:900; text-transform:uppercase; }
+        .lote-photo-status.pending { background:#fff3cd; color:#765500; }
+        .lote-photo-status.ready { background:#d1e7dd; color:#0f5132; }
+        .lote-photo-status.error { background:#f8d7da; color:#842029; }
+        .lote-photo-meta { display:flex; flex-wrap:wrap; gap:6px; color:#666; font-size:11px; font-weight:700; margin-bottom:10px; }
+        .lote-photo-card input { font-size:12px; }
+        .lote-photo-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .lote-photo-thumbs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:10px; }
+        .lote-photo-thumb { position:relative; border:2px solid #ddd; border-radius:7px; overflow:hidden; aspect-ratio:1/1; cursor:pointer; background:#f3f3f3; }
+        .lote-photo-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+        .lote-photo-thumb.selected { border-color:#28a745; box-shadow:0 0 0 2px rgba(40,167,69,.15); }
+        .lote-photo-thumb:not(.selected) { opacity:.42; }
+        .lote-photo-note { margin-top:8px; color:#666; font-size:11px; line-height:1.35; }
     </style>
 </head>
 <body>
@@ -800,6 +825,22 @@
                                     <tr><td colspan="9" style="text-align:center; color:#aaa; padding:25px;">El lote está vacío. Pega tus celdas de Excel o agrega una fila manual para comenzar.</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="form-container lote-photo-panel" id="lote-photo-review-panel" style="display:none; margin-top:20px; margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:12px;">
+                                <div>
+                                    <h3 style="margin:0; border:none; padding:0;">5. Revision de fotos por referencia</h3>
+                                    <p style="font-size:12px; color:#666; margin:6px 0 0; line-height:1.4;">
+                                        Pega el link interno del proveedor para cada referencia nueva. El Excel del proveedor no cambia; estos links solo se usan aqui para traer fotos correctas.
+                                    </p>
+                                </div>
+                                <button type="button" class="btn-add" id="btn-extraer-links-lote" style="background:#0d6efd; white-space:nowrap;" onclick="extraerFotosDesdeLinksLote()">
+                                    Extraer fotos desde links
+                                </button>
+                            </div>
+                            <div id="lote-photo-summary" class="lote-photo-summary"></div>
+                            <div id="lote-photo-review-list" class="lote-photo-grid"></div>
                         </div>
 
                         <!-- Botón de Guardado -->
@@ -1991,6 +2032,7 @@
         // ============================================================
         let pedidosData = [];
         let loteItems = [];
+        let lotePhotoGroups = [];
         let _loteHideTimers = {};
 
         function setPedidosSubTab(sub) {
@@ -2281,7 +2323,9 @@
         function limpiarPegadoExcel() {
             document.getElementById('lote-excel-paste').value = '';
             loteItems = [];
+            lotePhotoGroups = [];
             renderLotePreview();
+            renderLotePhotoReview();
         }
 
         function cleanNumber(val) {
@@ -2412,58 +2456,7 @@
                     }
                 }
                 
-                if (btn) btn.innerText = '📸 Buscando fotos en proveedores...';
-                showToast(`Buscando fotos HD para ${unoptimizedStrings.length} camisetas nuevas...`);
-                
-                for (const raw of unoptimizedStrings) {
-                    const aiData = aiResults[raw] || {};
-                    const optimizedName = aiData.nombre_oficial || raw;
-                    const searchTerm = aiData.termino_busqueda || raw;
-                    
-                    try {
-                        let data = { images: [] };
-                        let localRobotActive = true;
-                        
-                        // 1. Intentar primero con el Robot Local (para saltar Cloudflare)
-                        try {
-                            let resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ query: searchTerm, longName: optimizedName })
-                            });
-                            data = resLocal.ok ? await resLocal.json() : { images: [] };
-                        } catch (errLocal) {
-                            localRobotActive = false;
-                            console.warn("Robot local apagado, intentando con la nube...");
-                            // 2. Si el robot local está apagado, intentar con la nube
-                            let res = await fetch('/api/search-provider-images', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ query: searchTerm, longName: optimizedName })
-                            });
-                            data = res.ok ? await res.json() : { images: [] };
-                        }
-                        
-                        // Fallback: Si la búsqueda muy específica falló, intentar con el nombre corto original
-                        if (!data.images || data.images.length === 0) {
-                            console.log(`Fallback de fotos para: ${raw}`);
-                            let endpoint = localRobotActive ? 'http://localhost:3001/api/search-provider-images' : '/api/search-provider-images';
-                            const resFallback = await fetch(endpoint, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ query: raw, longName: optimizedName })
-                            });
-                            data = resFallback.ok ? await resFallback.json() : { images: [] };
-                        }
-
-                        if (data.images && data.images.length > 0) {
-                            if (!aiResults[raw]) aiResults[raw] = {};
-                            aiResults[raw].imagenes_extraidas = data.images;
-                        }
-                    } catch(e) {
-                        console.error('Error buscando fotos:', e);
-                    }
-                }
+                showToast('Nombres y precios listos. Ahora pega los links de fotos por referencia.');
                 
                 processedItems.forEach(item => {
                     if (!item.prodId && aiResults[item.queryStr]) {
@@ -2480,7 +2473,9 @@
             }
 
             loteItems = processedItems;
+            refreshLotePhotoGroups();
             renderLotePreview();
+            renderLotePhotoReview();
             showToast(`${loteItems.length} camisetas importadas del Excel`);
         }
 
@@ -2496,14 +2491,210 @@
                 cliente: '',
                 canal: 'Amigos/Confianza',
                 precioVenta: 99000,
-                abono: 0
+                abono: 0,
+                aiData: null
             });
+            refreshLotePhotoGroups();
             renderLotePreview();
+            renderLotePhotoReview();
         }
 
         function removerFilaLote(idx) {
             loteItems.splice(idx, 1);
+            refreshLotePhotoGroups();
             renderLotePreview();
+            renderLotePhotoReview();
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function refreshLotePhotoGroups() {
+            lotePhotoGroups = window.AdminLotePhotoReview.buildPhotoReferenceGroups(loteItems, lotePhotoGroups);
+        }
+
+        function syncLotePhotoInputs() {
+            lotePhotoGroups.forEach((group, idx) => {
+                const input = document.getElementById(`lote-photo-url-${idx}`);
+                if (!input) return;
+                const nextUrl = input.value.trim();
+                if (group.providerUrl !== nextUrl) {
+                    group.providerUrl = nextUrl;
+                    group.approved = false;
+                    group.error = '';
+                }
+            });
+        }
+
+        function renderLotePhotoReview() {
+            const panel = document.getElementById('lote-photo-review-panel');
+            const summary = document.getElementById('lote-photo-summary');
+            const list = document.getElementById('lote-photo-review-list');
+            const btnSave = document.getElementById('btn-guardar-lote');
+            if (!panel || !summary || !list) return;
+
+            refreshLotePhotoGroups();
+            if (!lotePhotoGroups.length) {
+                panel.style.display = 'none';
+                if (btnSave) btnSave.disabled = false;
+                return;
+            }
+
+            const validation = window.AdminLotePhotoReview.validatePhotoReferenceGroups(lotePhotoGroups);
+            const approvedCount = lotePhotoGroups.filter(group => group.approved).length;
+            panel.style.display = 'block';
+            summary.innerHTML = `
+                <span class="lote-photo-chip">${lotePhotoGroups.length} referencias nuevas</span>
+                <span class="lote-photo-chip">${approvedCount} aprobadas</span>
+                <span class="lote-photo-chip">${validation.missingLinks} sin link</span>
+                <span class="lote-photo-chip">${validation.missingApprovals} sin aprobar</span>
+            `;
+
+            if (btnSave) {
+                btnSave.disabled = !validation.ok;
+                btnSave.title = validation.ok ? '' : 'Aprueba las fotos de todas las referencias nuevas antes de guardar.';
+            }
+
+            list.innerHTML = lotePhotoGroups.map((group, idx) => {
+                const statusClass = group.error ? 'error' : group.approved ? 'ready' : 'pending';
+                const statusText = group.error ? 'Corregir' : group.approved ? 'Aprobada' : 'Pendiente';
+                const destinations = group.destinations.join(' + ') || 'Sin destino';
+                const thumbs = group.images && group.images.length
+                    ? `<div class="lote-photo-thumbs">${group.images.map((src, imgIdx) => {
+                        const selected = group.selectedImages.includes(imgIdx);
+                        return `<button type="button" class="lote-photo-thumb ${selected ? 'selected' : ''}" onclick="toggleLotePhotoImage(${idx}, ${imgIdx})" title="${selected ? 'Incluida' : 'Excluida'}">
+                            <img src="${escapeHtml(src)}" alt="Foto ${imgIdx + 1}">
+                        </button>`;
+                    }).join('')}</div>`
+                    : `<div class="lote-photo-note">Pega el link y presiona "Extraer" para ver las fotos grandes aqui.</div>`;
+
+                return `
+                    <div class="lote-photo-card ${group.approved ? 'approved' : ''} ${group.error ? 'error' : ''}">
+                        <div class="lote-photo-title">
+                            <strong>${escapeHtml(group.title)}</strong>
+                            <span class="lote-photo-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="lote-photo-meta">
+                            <span>${escapeHtml(group.sizes.join(', '))}</span>
+                            <span>${group.totalQty} uds</span>
+                            <span>${escapeHtml(destinations)}</span>
+                        </div>
+                        <input type="url" id="lote-photo-url-${idx}" value="${escapeHtml(group.providerUrl)}" placeholder="Pega aqui el link exacto del proveedor">
+                        ${group.error ? `<div class="lote-photo-note" style="color:#842029;font-weight:700;">${escapeHtml(group.error)}</div>` : ''}
+                        ${thumbs}
+                        <div class="lote-photo-actions">
+                            <button type="button" class="btn-save" style="background:#0d6efd;color:white;padding:7px 10px;font-size:11px;" onclick="extraerFotosDeReferencia(${idx})">Extraer</button>
+                            <button type="button" class="btn-add" style="padding:7px 10px;font-size:11px;" onclick="aprobarFotosDeReferencia(${idx})" ${group.images && group.images.length ? '' : 'disabled'}>Aprobar fotos</button>
+                        </div>
+                        <div class="lote-photo-note">Clic sobre una foto para incluirla o excluirla. Las fotos aprobadas se copian a todas las filas de esta referencia.</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleLotePhotoImage(groupIdx, imgIdx) {
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+            const selected = new Set(group.selectedImages || []);
+            if (selected.has(imgIdx)) selected.delete(imgIdx);
+            else selected.add(imgIdx);
+            group.selectedImages = Array.from(selected).sort((a, b) => a - b);
+            group.approved = false;
+            renderLotePhotoReview();
+        }
+
+        function aprobarFotosDeReferencia(groupIdx) {
+            syncLotePhotoInputs();
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+            const selectedImages = window.AdminLotePhotoReview.approvedImagesForGroup(group);
+            if (!selectedImages.length) {
+                showToast('Selecciona al menos una foto para aprobar.', true);
+                return;
+            }
+            group.approved = true;
+            group.error = '';
+            window.AdminLotePhotoReview.applyApprovedPhotosToItems(loteItems, [group]);
+            renderLotePreview();
+            renderLotePhotoReview();
+        }
+
+        async function extraerFotosDesdeLinksLote() {
+            syncLotePhotoInputs();
+            const missingLinks = lotePhotoGroups.filter(group => !group.providerUrl).length;
+            if (missingLinks) {
+                showToast(`Faltan ${missingLinks} link(s) de proveedor.`, true);
+                renderLotePhotoReview();
+                return;
+            }
+
+            const btn = document.getElementById('btn-extraer-links-lote');
+            if (btn) { btn.disabled = true; btn.innerText = 'Extrayendo fotos...'; }
+            for (let i = 0; i < lotePhotoGroups.length; i++) {
+                await extraerFotosDeReferencia(i, { silent: true });
+            }
+            if (btn) { btn.disabled = false; btn.innerText = 'Extraer fotos desde links'; }
+            showToast('Extraccion terminada. Revisa y aprueba las fotos correctas.');
+            renderLotePhotoReview();
+        }
+
+        async function extraerFotosDeReferencia(groupIdx, opts = {}) {
+            syncLotePhotoInputs();
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+            if (!group.providerUrl) {
+                showToast('Pega un link valido antes de extraer.', true);
+                return;
+            }
+
+            group.error = '';
+            group.approved = false;
+            renderLotePhotoReview();
+
+            try {
+                let data = { images: [] };
+                try {
+                    const resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
+                    });
+                    if (resLocal.ok) data = await resLocal.json();
+                } catch (errLocal) {
+                    const resCloud = await fetch('/api/search-provider-images', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
+                    });
+                    if (resCloud.ok) data = await resCloud.json();
+                }
+
+                if (!data.images || !data.images.length) {
+                    group.images = [];
+                    group.selectedImages = [];
+                    group.error = 'No se encontraron fotos en ese link.';
+                    if (!opts.silent) showToast('No se encontraron fotos en ese link.', true);
+                    return;
+                }
+
+                group.images = data.images;
+                group.selectedImages = data.images.map((_, index) => index);
+                group.error = '';
+                if (!opts.silent) showToast('Fotos extraidas. Revisa y aprueba.');
+            } catch (err) {
+                group.images = [];
+                group.selectedImages = [];
+                group.error = err.message || 'Error extrayendo fotos.';
+                if (!opts.silent) showToast('Error extrayendo fotos.', true);
+            } finally {
+                renderLotePhotoReview();
+            }
         }
 
         function renderLotePreview() {
@@ -2543,7 +2734,7 @@
                     <td style="position:relative; overflow:visible;">
                         <input type="text" id="lote-search-${idx}" value="${item.queryStr}" placeholder="Escribe y selecciona la camiseta..." 
                             style="font-size:12px; padding:6px; ${isError ? 'border-color:red; background:#fff8f8;' : ''}"
-                            oninput="filterLoteProd(${idx})" onfocus="filterLoteProd(${idx})" onblur="hideLoteProd(${idx})">
+                            oninput="updateLoteItem(${idx}, 'queryStr', this.value); filterLoteProd(${idx})" onfocus="filterLoteProd(${idx})" onblur="hideLoteProd(${idx})">
                         <div id="lote-dd-${idx}" style="display:none; position:absolute; left:0; right:0; z-index:9000; background:white; border:1px solid #ddd; max-height:150px; overflow-y:auto; box-shadow:0 4px 8px rgba(0,0,0,0.1);"></div>
                     </td>
                     <!-- Col 2: Talla -->
@@ -2584,28 +2775,10 @@
                             ${!isPreventa ? 'disabled style="background:#e9ecef;"' : ''}
                             oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
                     </td>
-                    <!-- Col 9: Acciones (Remover e Imagen) -->
+                    <!-- Col 9: Estado fotos y remover -->
                     <td style="text-align:center; min-width: 140px;">
-                        <div id="lote-img-container-${idx}" style="display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; margin-bottom:4px;">
-                            ${(function() {
-                                if (item.aiData && item.aiData.imagenes_extraidas && item.aiData.imagenes_extraidas.length > 0) {
-                                    const selectedIdx = item.selectedImageIndex || 0;
-                                    return item.aiData.imagenes_extraidas.map((imgSrc, imgIdx) => {
-                                        const isSelected = selectedIdx === imgIdx;
-                                        const border = isSelected ? 'border:2px solid #28a745;' : 'border:1px solid #ddd; opacity:0.5;';
-                                        return `<img src="${imgSrc}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; cursor:pointer; ${border} transition:0.2s;" 
-                                            onclick="selectLoteImage(${idx}, ${imgIdx})" title="Clic para usar como foto principal">`;
-                                    }).join('');
-                                } else {
-                                    return `
-                                        <div style="display:flex; flex-direction:column; gap:2px; align-items:center;">
-                                            <button type="button" class="btn-save" style="background:#4285f4; padding:2px 4px; font-size:9px; width:100%;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos en Google">🔍 Buscar en Google</button>
-                                            <input type="text" id="lote-url-${idx}" placeholder="Pegar URL exacta..." style="font-size:9px; padding:2px; width:100px; text-align:center;" title="Pega el link del producto del proveedor aquí">
-                                            <button type="button" onclick="extraerManual(${idx})" style="background:#f39c12; color:white; border:none; border-radius:4px; padding:2px 4px; font-size:9px; cursor:pointer; width:100%;">⚡ Extraer</button>
-                                        </div>
-                                    `;
-                                }
-                            })()}
+                        <div style="font-size:10px; font-weight:800; margin-bottom:6px; color:${!item.prodId ? ((item.aiData && item.aiData.imagenes_aprobadas) ? '#198754' : '#b02a37') : '#666'};">
+                            ${!item.prodId ? ((item.aiData && item.aiData.imagenes_aprobadas) ? 'Fotos aprobadas' : 'Fotos pendientes') : 'En catalogo'}
                         </div>
                         <div style="text-align:center;">
                             <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕ Eliminar Fila</button>
@@ -2621,6 +2794,10 @@
         function updateLoteItem(idx, field, value) {
             if (loteItems[idx]) {
                 loteItems[idx][field] = value;
+                if (['queryStr', 'size', 'qty', 'destino'].includes(field)) {
+                    refreshLotePhotoGroups();
+                    renderLotePhotoReview();
+                }
                 if (field === 'destino') {
                     // Refrescar para deshabilitar/habilitar columnas específicas de preventa
                     renderLotePreview();
@@ -2720,8 +2897,10 @@
             loteItems[idx].prodId = prod.id;
             loteItems[idx].queryStr = prod.equipo;
             loteItems[idx].precioVenta = prod.precio || 99000;
-            
+
+            refreshLotePhotoGroups();
             renderLotePreview();
+            renderLotePhotoReview();
         }
 
         function hideLoteProd(idx) {
@@ -2740,6 +2919,18 @@
             if (!loteNombre) { alert('Ingresa un nombre para identificar este Lote.'); return; }
             if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
             if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
+            syncLotePhotoInputs();
+            refreshLotePhotoGroups();
+            const photoValidation = window.AdminLotePhotoReview.validatePhotoReferenceGroups(lotePhotoGroups);
+            if (!photoValidation.ok) {
+                alert(`Faltan fotos por aprobar antes de guardar.\n\n- Links pendientes: ${photoValidation.missingLinks}\n- Referencias sin aprobar: ${photoValidation.missingApprovals}\n\nPega los links, extrae las fotos y aprueba cada referencia nueva.`);
+                renderLotePhotoReview();
+                return;
+            }
+            window.AdminLotePhotoReview.applyApprovedPhotosToItems(loteItems, lotePhotoGroups);
+            renderLotePreview();
+            renderLotePhotoReview();
+
             // Validar errores
             let unmatchedItems = loteItems.filter(item => !item.prodId);
 
@@ -2761,8 +2952,9 @@
                 let createdProductsMap = {};
                 
                 for (let uItem of unmatchedItems) {
-                    if (createdProductsMap[uItem.queryStr]) {
-                        uItem.prodId = createdProductsMap[uItem.queryStr].id;
+                    const creationKey = window.AdminLotePhotoReview.normalizeReferenceKey(uItem.queryStr) || uItem.queryStr;
+                    if (createdProductsMap[creationKey]) {
+                        uItem.prodId = createdProductsMap[creationKey].id;
                         continue;
                     }
 
@@ -2785,7 +2977,7 @@
                         return;
                     }
                     productData.unshift(newP);
-                    createdProductsMap[uItem.queryStr] = newP;
+                    createdProductsMap[creationKey] = newP;
                     uItem.prodId = newP.id;
                 }
             }
