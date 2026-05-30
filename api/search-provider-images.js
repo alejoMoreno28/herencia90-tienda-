@@ -176,6 +176,59 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
     return data.publicUrl;
 }
 
+async function searchShopifyApi(query, domain, longName) {
+    try {
+        const url = `https://${domain}/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product`;
+        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (!r.ok) return [];
+        const data = await r.json();
+        const products = data.resources?.results?.products || [];
+        if (products.length === 0) return [];
+        
+        let bestProduct = products[0];
+        if (products.length > 1 && longName) {
+            const keywords = slugify(longName).split('-').filter(w => w.length > 2);
+            let maxScore = -1;
+            for (const p of products) {
+                let score = 0;
+                const pSlug = slugify(p.title);
+                for (const kw of keywords) if (pSlug.includes(kw)) score++;
+                if (score > maxScore) { maxScore = score; bestProduct = p; }
+            }
+        }
+        
+        const jsonUrl = `https://${domain}${bestProduct.url.split('?')[0]}.js`;
+        const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (!pReq.ok) return [];
+        const pData = await pReq.json();
+        return pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);
+    } catch(e) { return []; }
+}
+
+async function searchWooApi(query, domain, longName) {
+    try {
+        const url = `https://${domain}/wp-json/wc/store/products?search=${encodeURIComponent(query)}`;
+        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (!r.ok) return [];
+        const products = await r.json();
+        if (products.length === 0) return [];
+        
+        let bestProduct = products[0];
+        if (products.length > 1 && longName) {
+            const keywords = slugify(longName).split('-').filter(w => w.length > 2);
+            let maxScore = -1;
+            for (const p of products) {
+                let score = 0;
+                const pSlug = slugify(p.name);
+                for (const kw of keywords) if (pSlug.includes(kw)) score++;
+                if (score > maxScore) { maxScore = score; bestProduct = p; }
+            }
+        }
+        
+        return bestProduct.images.map(img => img.src);
+    } catch(e) { return []; }
+}
+
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     
@@ -190,15 +243,34 @@ module.exports = async function handler(req, res) {
 
     for (const domain of PROVIDERS) {
         console.log(`Buscando en ${domain}...`);
-        const productUrl = await searchNative(query, domain, longName);
-        if (!productUrl) continue;
-        
-        console.log(`Encontrado link en ${domain}: ${productUrl}`);
-        const candidateImages = await scrapeImages(productUrl);
+        let candidateImages = [];
+        let productUrl = `https://${domain}`;
+
+        if (domain.includes('panitas')) {
+            candidateImages = await searchShopifyApi(query, domain, longName);
+        } else if (domain.includes('futboldeprimera')) {
+            candidateImages = await searchWooApi(query, domain, longName);
+        }
+
+        if (candidateImages.length === 0) {
+            // HTML Scraper Fallback
+            productUrl = await searchNative(query, domain, longName);
+            if (productUrl) {
+                console.log(`Encontrado link HTML en ${domain}: ${productUrl}`);
+                candidateImages = await scrapeImages(productUrl);
+            }
+        }
+
         if (candidateImages.length === 0) continue;
 
+        // Filtrar basura adicional de candidateImages
+        candidateImages = candidateImages.filter(src => {
+            const low = src.toLowerCase();
+            return !low.includes('logo') && !low.includes('tallas') && !low.includes('size') && !low.includes('icon');
+        });
+
         // Limitar a las primeras 4 imagenes buenas
-        const toDownload = candidateImages.slice(0, 4);
+        const toDownload = [...new Set(candidateImages)].slice(0, 4);
         const uploadedUrls = [];
 
         for (let i = 0; i < toDownload.length; i++) {
@@ -213,7 +285,7 @@ module.exports = async function handler(req, res) {
         }
 
         if (uploadedUrls.length > 0) {
-            // Se encontraron fotos, retornamos y rompemos el loop
+            // Retornamos TODAS las fotos descargadas, el front decidirá
             return res.status(200).json({ 
                 source: domain,
                 productUrl,
