@@ -52,7 +52,8 @@ Devuelve SOLO el JSON válido.`;
         
         let jsonResult;
         try {
-            jsonResult = JSON.parse(textResponse);
+            const cleanText = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+            jsonResult = JSON.parse(cleanText);
         } catch(e) {
             console.error("Error parseando JSON de Gemini:", textResponse);
             throw new Error('La IA no devolvió un JSON válido');
