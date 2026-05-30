@@ -2318,19 +2318,26 @@
 
                 if (!descVal) return;
 
-                const match = findBestProductMatch(descVal);
+                const match = findBestProductMatch(finalDesc) || findBestProductMatch(descVal);
+
+                // Regla de precios por costo (USD)
+                let defaultPrecio = 99000;
+                if (costVal == 11) defaultPrecio = 99000;
+                else if (costVal == 14) defaultPrecio = 110000;
+                else if (costVal == 15) defaultPrecio = 120000;
+                else if (costVal == 18) defaultPrecio = 130000;
 
                 processedItems.push({
                     id: Date.now() + Math.random(),
                     prodId: match ? match.id : null,
-                    queryStr: descVal,
+                    queryStr: finalDesc,
                     size: sizeVal,
                     qty: qtyVal,
                     costUsd: costVal,
                     destino: destinoVal,
                     cliente: '',
                     canal: 'Amigos/Confianza',
-                    precioVenta: match ? match.precio : 99000,
+                    precioVenta: match ? match.precio : defaultPrecio,
                     abono: 0
                 });
             });
@@ -2515,22 +2522,47 @@
             if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
             if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
 
-            // Validar errores
-            let hasUnmatched = false;
+            let unmatchedItems = loteItems.filter(item => !item.prodId);
             let hasEmptyClients = false;
 
             loteItems.forEach((item, ix) => {
-                if (!item.prodId) hasUnmatched = true;
                 if (item.destino === 'PREVENTA' && !item.cliente.trim()) hasEmptyClients = true;
             });
 
-            if (hasUnmatched) {
-                alert('⚠️ Tienes camisetas en la lista que no están vinculadas a ninguna referencia de tu catálogo (resaltadas en rojo). Vincúlalas antes de continuar.');
-                return;
-            }
             if (hasEmptyClients) {
                 alert('⚠️ Tienes camisetas de PREVENTA sin el nombre del cliente. Escribe el nombre de tu amigo en cada una antes de guardar.');
                 return;
+            }
+
+            if (unmatchedItems.length > 0) {
+                const conf = confirm(`⚠️ Tienes ${unmatchedItems.length} camisetas en rojo que no existen en tu catálogo.\n\n¿Deseas que el sistema las agregue automáticamente al catálogo de Inventario con sus precios asignados para poder guardar el lote completo?`);
+                if (!conf) return;
+
+                // Crear los productos faltantes en Supabase
+                const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
+                let newIdCounter = mx + 1;
+                
+                for (let uItem of unmatchedItems) {
+                    const newP = { 
+                        id: newIdCounter++, 
+                        categoria: 'Nueva Colección', 
+                        equipo: uItem.queryStr, 
+                        descripcion: '', 
+                        precio: uItem.precioVenta, 
+                        costo_usd: uItem.costUsd, 
+                        tallas: {S:0, M:0, L:0, XL:0}, 
+                        imagenes: [] 
+                    };
+                    const { error } = await db.from('productos').insert(newP);
+                    if (error) {
+                        console.error('Error auto-creando producto:', error);
+                        alert('Hubo un error guardando el nuevo producto en el catálogo. Intenta de nuevo.');
+                        return;
+                    }
+                    productData.unshift(newP);
+                    // Actualizar el prodId en el item del lote para que se guarde correctamente
+                    uItem.prodId = newP.id;
+                }
             }
 
             if (!confirm(`¿Procesar y guardar el lote completo?\n\n- Total camisetas: ${loteItems.reduce((a,b)=>a+b.qty, 0)} uds\n- TRM: ${formatter.format(trm)}\n\nEsta operación actualizará stocks de la web y registrará las reservas al instante.`)) return;
