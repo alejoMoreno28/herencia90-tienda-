@@ -2088,7 +2088,10 @@
                 tr.innerHTML = `
                     <td>${p.fecha_pedido || ''}</td>
                     <td><small style="color:#666; font-weight:700;">${p.lote_codigo || 'Manual'}</small></td>
-                    <td style="font-weight:700;">👤 ${p.cliente}</td>
+                    <td style="font-weight:700;">
+                        👤 ${p.cliente}
+                        <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarClientePedido(${p.id}, '${p.cliente.replace(/'/g, "\\'")}')" title="Editar Nombre del Cliente">✏️</span>
+                    </td>
                     <td><span class="badge" style="background:#555;">${p.canal}</span></td>
                     <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.equipo}">👕 ${p.equipo}</td>
                     <td style="text-align:center; font-weight:700;">${p.talla}</td>
@@ -2136,6 +2139,20 @@
                 loadPedidos();
             } catch (e) {
                 alert("Error actualizando precio: " + e.message);
+            }
+        }
+
+        async function editarClientePedido(id, currentName) {
+            const nuevoNombre = prompt("Ingresa el nombre del cliente para esta preventa:", currentName);
+            if (nuevoNombre === null || !nuevoNombre.trim()) return;
+            
+            try {
+                const { error } = await db.from('pedidos').update({ cliente: nuevoNombre.trim() }).eq('id', id);
+                if (error) throw error;
+                showToast("Nombre del cliente actualizado");
+                loadPedidos();
+            } catch (e) {
+                alert("Error actualizando cliente: " + e.message);
             }
         }
 
@@ -2557,19 +2574,14 @@
             if (!loteNombre) { alert('Ingresa un nombre para identificar este Lote.'); return; }
             if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
             if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
-
-            let unmatchedItems = loteItems.filter(item => !item.prodId);
-            let hasEmptyClients = false;
-
+            // Asignar nombre por defecto si dejaron vacíos los de preventa
             loteItems.forEach((item, ix) => {
-                if (item.destino === 'PREVENTA' && !item.cliente.trim()) hasEmptyClients = true;
+                if (item.destino === 'PREVENTA' && !item.cliente.trim()) {
+                    item.cliente = 'Pendiente por Asignar';
+                }
             });
 
-            if (hasEmptyClients) {
-                alert('⚠️ Tienes camisetas de PREVENTA sin el nombre del cliente. Escribe el nombre de tu amigo en cada una antes de guardar.');
-                return;
-            }
-
+            // unmatch validation happens below
             if (unmatchedItems.length > 0) {
                 const conf = confirm(`⚠️ Tienes ${unmatchedItems.length} camisetas en rojo que no existen en tu catálogo.\n\n¿Deseas que el sistema las agregue automáticamente al catálogo de Inventario con sus precios asignados para poder guardar el lote completo?`);
                 if (!conf) return;
