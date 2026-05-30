@@ -2282,14 +2282,22 @@
                 const cols = line.split('\t');
                 if (cols.length < 3) return; // Línea vacía o inválida
 
-                // Estructura Excel del usuario: Size (B), Type (C), Description (D), Extras (E), Extras Cost (F), Qty (G), Unit Price (H), Subtotal (I), Running Total (J), Destino (K)
-                // En pegados de Excel directo, los índices son secuenciales:
                 const sizeVal = cols[0] ? cols[0].trim() : 'M';
                 const typeVal = cols[1] ? cols[1].trim() : 'FAN';
                 const descVal = cols[2] ? cols[2].trim() : '';
+                const extrasVal = cols[3] ? cols[3].trim() : '';
                 const qtyVal  = parseInt(cols[5]) || 1;
                 const costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
                 
+                // Construir descripción completa agregando tipo (si no es FAN básico) y extras
+                let finalDesc = descVal;
+                if (typeVal && typeVal.toUpperCase() !== 'FAN') {
+                    finalDesc = `[${typeVal}] ` + finalDesc;
+                }
+                if (extrasVal && extrasVal !== '-') {
+                    finalDesc = finalDesc + ` (+ ${extrasVal})`;
+                }
+
                 // Mapear destino buscando las palabras clave en cualquier columna del final para robustez
                 let destinoVal = 'STOCK';
                 for (let i = cols.length - 1; i >= 0; i--) {
