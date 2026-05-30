@@ -2574,6 +2574,9 @@
             if (!loteNombre) { alert('Ingresa un nombre para identificar este Lote.'); return; }
             if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
             if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
+            // Validar errores
+            let unmatchedItems = loteItems.filter(item => !item.prodId);
+
             // Asignar nombre por defecto si dejaron vacíos los de preventa
             loteItems.forEach((item, ix) => {
                 if (item.destino === 'PREVENTA' && !item.cliente.trim()) {
