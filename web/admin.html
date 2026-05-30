@@ -2092,7 +2092,10 @@
                     <td><span class="badge" style="background:#555;">${p.canal}</span></td>
                     <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.equipo}">👕 ${p.equipo}</td>
                     <td style="text-align:center; font-weight:700;">${p.talla}</td>
-                    <td style="text-align:right; font-weight:700;">${formatter.format(totalVal)}</td>
+                    <td style="text-align:right; font-weight:700;">
+                        ${formatter.format(totalVal)}
+                        <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarPrecioPedido(${p.id}, ${totalVal})" title="Editar Precio Total (Descuentos)">✏️</span>
+                    </td>
                     <td style="text-align:center;">
                         <span class="badge ${bPago}" style="${bPagoStyle}">${infoPago}</span>
                     </td>
@@ -2109,6 +2112,31 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        async function editarPrecioPedido(id, currentPrice) {
+            const nuevoPrecio = prompt("Ingresa el nuevo PRECIO FINAL para este pedido (Si le hiciste rebaja a tu amigo):", currentPrice);
+            if (nuevoPrecio === null) return;
+            const precioVenta = parseFloat(nuevoPrecio);
+            if (isNaN(precioVenta) || precioVenta < 0) { alert('Precio inválido'); return; }
+
+            try {
+                const { error } = await db.from('pedidos').update({ precio_venta: precioVenta }).eq('id', id);
+                if (error) throw error;
+                
+                // Reevaluar estado de pago
+                const p = pedidosData.find(x => x.id == id);
+                if (p) {
+                    const abono = parseFloat(p.abono) || 0;
+                    const estado_pago = abono >= precioVenta ? 'Pagado' : (abono > 0 ? 'Abonado' : 'Pendiente');
+                    await db.from('pedidos').update({ estado_pago }).eq('id', id);
+                }
+                
+                showToast("Precio actualizado correctamente");
+                loadPedidos();
+            } catch (e) {
+                alert("Error actualizando precio: " + e.message);
+            }
         }
 
         async function registrarPagoPedido(id) {
