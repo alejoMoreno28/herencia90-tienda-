@@ -2302,23 +2302,7 @@
             best = productData.find(p => (p.equipo || '').toLowerCase().includes(query) || query.includes((p.equipo || '').toLowerCase()));
             if (best) return best;
 
-            // 2. Coincidencia por palabras clave (peso)
-            const queryWords = query.split(/[\s_-]+/).filter(w => w.length > 2);
-            if (!queryWords.length) return null;
-
-            let maxMatches = 0;
-            productData.forEach(p => {
-                const pText = ((p.equipo || '') + ' ' + (p.descripcion || '')).toLowerCase();
-                let matches = 0;
-                queryWords.forEach(w => {
-                    if (pText.includes(w)) matches++;
-                });
-                if (matches > maxMatches) {
-                    maxMatches = matches;
-                    best = p;
-                }
-            });
-            return maxMatches > 0 ? best : null;
+            return best || null;
         }
 
         function procesarPegadoExcel() {
