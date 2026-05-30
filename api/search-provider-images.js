@@ -27,30 +27,38 @@ function slugify(str) {
         .trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
-async function searchDDG(query, domain, longName) {
-    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('site:' + domain + ' ' + query)}`;
+async function searchNative(query, domain, longName) {
+    let searchUrl = `https://${domain}/?s=${encodeURIComponent(query)}&post_type=product`;
+    let isShopify = domain.includes('panitas');
+    if (isShopify) {
+        searchUrl = `https://${domain}/search?q=${encodeURIComponent(query)}`;
+    }
+
     try {
         const res = await fetch(searchUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
         });
         if (!res.ok) return null;
         const html = await res.text();
         const $ = cheerioLoad(html);
         
         let validLinks = [];
-        $('.result__url').each((i, el) => {
-            const link = $(el).text().trim();
-            // Asegurar que el link pertenezca al dominio buscado y no sea un anuncio
-            if (link.includes(domain)) {
-                if (link.includes('/productos/') || link.includes('/producto/') || link.includes('/products/') || link.includes('/product/') || link.includes('/collections/') || link.includes('/tienda/')) {
-                    validLinks.push('https://' + link);
-                } else if (validLinks.length === 0) {
-                    validLinks.push('https://' + link);
-                }
+        $('a').each((i, el) => {
+            let link = $(el).attr('href');
+            if (!link) return;
+            if (link.startsWith('/')) link = `https://${domain}${link}`;
+            
+            // Ignorar links de admin o carritos
+            if (link.includes('add-to-cart') || link.includes('?add-to-cart=')) return;
+
+            if (isShopify && link.includes('/products/')) {
+                validLinks.push(link.split('?')[0]); // Quitar params raros de shopify
+            } else if (!isShopify && (link.includes('/producto/') || link.includes('/product/'))) {
+                validLinks.push(link.split('#')[0]); // Quitar anchors
             }
         });
+        
+        validLinks = [...new Set(validLinks)]; // Remover duplicados
         
         if (validLinks.length === 0) return null;
         if (validLinks.length === 1 || !longName) return validLinks[0];
@@ -74,7 +82,7 @@ async function searchDDG(query, domain, longName) {
         }
         return bestLink;
     } catch (e) {
-        console.error('Error DDG:', e);
+        console.error('Error Native Search:', e);
         return null;
     }
 }
@@ -89,16 +97,48 @@ async function scrapeImages(url) {
         const $ = cheerioLoad(html);
         
         const images = new Set();
-        $('img').each((i, el) => {
-            let src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-origin-src');
-            if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('.svg') && !src.includes('placeholder')) {
+        
+        // Enfoque en contenedores de producto para ignorar logos, banners y footers
+        let container = $('.woocommerce-product-gallery, .product__media-wrapper, .product-single__media-group, #product-photos, .product-gallery');
+        if (container.length === 0) container = $('main, #main, .site-main, .product');
+        if (container.length === 0) container = $('body');
+
+        container.find('img').each((i, el) => {
+            let src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-origin-src') || $(el).attr('data-large_image');
+            if (src && typeof src === 'string') {
+                const lowerSrc = src.toLowerCase();
+                // Filtros estrictos para ignorar basura
+                if (lowerSrc.includes('logo') || lowerSrc.includes('icon') || lowerSrc.includes('.svg') || 
+                    lowerSrc.includes('placeholder') || lowerSrc.includes('banner') || lowerSrc.includes('footer') ||
+                    lowerSrc.includes('payment') || lowerSrc.includes('stars') || lowerSrc.includes('avatar') ||
+                    lowerSrc.includes('guia-de-tallas') || lowerSrc.includes('size-chart') || lowerSrc.includes('whatsapp')) {
+                    return;
+                }
+                
                 if (src.startsWith('//')) src = 'https:' + src;
                 if (src.startsWith('http')) {
-                    // Limpiar params de CDN si es necesario
-                    images.add(src.split('?')[0]); 
+                    // Limpiar params de CDN si es necesario, excepto si es de shopify que los necesita a veces, 
+                    // pero para imagenes limpias mejor sin params
+                    let cleanSrc = src.split('?')[0];
+                    // Validar extensiones de imagen
+                    if (cleanSrc.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
+                        images.add(cleanSrc);
+                    }
                 }
             }
         });
+        
+        // Fallback: si no encontro nada en el contenedor, buscar links directos a imagenes (suele pasar en galerias Lightbox)
+        if (images.size === 0) {
+            $('a').each((i, el) => {
+                let href = $(el).attr('href');
+                if (href && href.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
+                    if (href.startsWith('//')) href = 'https:' + href;
+                    if (href.startsWith('http')) images.add(href.split('?')[0]);
+                }
+            });
+        }
+
         return Array.from(images);
     } catch(e) {
         console.error('Error scraping:', e);
@@ -150,7 +190,7 @@ module.exports = async function handler(req, res) {
 
     for (const domain of PROVIDERS) {
         console.log(`Buscando en ${domain}...`);
-        const productUrl = await searchDDG(query, domain, longName);
+        const productUrl = await searchNative(query, domain, longName);
         if (!productUrl) continue;
         
         console.log(`Encontrado link en ${domain}: ${productUrl}`);
