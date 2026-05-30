@@ -738,7 +738,7 @@
                             Aquí puedes registrar el pedido que acabas de recibir de tu proveedor. Sigue las instrucciones paso a paso.
                         </p>
 
-                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-bottom:15px;">
+                        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:20px; margin-bottom:15px;">
                             <div class="form-group">
                                 <label style="font-weight:700;">1. Nombre del Lote / Pedido</label>
                                 <input type="text" id="lote-nombre" placeholder="Ej: Lote Mayo 2026 - Snake" style="font-size:13px;" required>
@@ -746,6 +746,10 @@
                             <div class="form-group">
                                 <label style="font-weight:700;">2. TRM de Compra</label>
                                 <input type="number" id="lote-trm" placeholder="Ej: 3714" style="font-size:13px; font-weight:700; color:#198754;" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:700; color:#b02a37;" title="Descuento global aplicado por el proveedor">3. Descuento (USD)</label>
+                                <input type="number" id="lote-descuento" value="0" placeholder="Ej: 50" style="font-size:13px; font-weight:700; color:#b02a37;">
                             </div>
                         </div>
 
@@ -2504,6 +2508,8 @@
         async function guardarLoteCompleto() {
             const loteNombre = document.getElementById('lote-nombre').value.trim();
             const trm = parseFloat(document.getElementById('lote-trm').value) || 0;
+            const loteDescInput = document.getElementById('lote-descuento');
+            const descuentoUsd = loteDescInput ? (parseFloat(loteDescInput.value) || 0) : 0;
 
             if (!loteNombre) { alert('Ingresa un nombre para identificar este Lote.'); return; }
             if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
@@ -2600,15 +2606,18 @@
                 // 3. Registrar Transacciones Financieras
                 
                 // Transacción A: Gasto por compra de lote
-                const totalMontoCOP = totalCostUsd * trm;
+                const totalCostUsdConDescuento = totalCostUsd - descuentoUsd;
+                const totalMontoCOP = totalCostUsdConDescuento * trm;
+                const descDescuentoStr = descuentoUsd > 0 ? ` (Incluye descuento de $${descuentoUsd} USD)` : '';
+                
                 const gastoTrans = {
                     tipo: 'gasto',
                     categoria: 'Compra Inventario (Camisetas)',
                     fecha: new Date().toISOString().split('T')[0],
                     monto: totalMontoCOP,
-                    usd_amount: totalCostUsd,
+                    usd_amount: totalCostUsdConDescuento,
                     trm: trm,
-                    descripcion: `[Compra Lote] ${loteNombre} - Total ${totalQty} camisetas (Stock: ${stockQty}, Preventas: ${preventaQty})`,
+                    descripcion: `[Compra Lote] ${loteNombre} - Total ${totalQty} camisetas (Stock: ${stockQty}, Preventas: ${preventaQty})${descDescuentoStr}`,
                     costo_usd_asociado: 0
                 };
 
