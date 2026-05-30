@@ -2418,17 +2418,27 @@
                 for (const raw of unoptimizedStrings) {
                     const optimizedName = aiResults[raw] ? aiResults[raw].nombre_oficial : raw;
                     try {
-                        const res = await fetch('/api/search-provider-images', {
+                        let res = await fetch('/api/search-provider-images', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ query: optimizedName })
                         });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data.images && data.images.length > 0) {
-                                if (!aiResults[raw]) aiResults[raw] = {};
-                                aiResults[raw].imagenes_extraidas = data.images;
-                            }
+                        let data = res.ok ? await res.json() : { images: [] };
+                        
+                        // Fallback: Si la búsqueda muy específica falló, intentar con el nombre corto original
+                        if (!data.images || data.images.length === 0) {
+                            console.log(`Fallback de fotos para: ${raw}`);
+                            const resFallback = await fetch('/api/search-provider-images', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ query: raw })
+                            });
+                            data = resFallback.ok ? await resFallback.json() : { images: [] };
+                        }
+
+                        if (data.images && data.images.length > 0) {
+                            if (!aiResults[raw]) aiResults[raw] = {};
+                            aiResults[raw].imagenes_extraidas = data.images;
                         }
                     } catch(e) {
                         console.error('Error buscando fotos:', e);

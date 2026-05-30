@@ -43,15 +43,15 @@ async function searchDDG(query, domain) {
         $('.result__url').each((i, el) => {
             if (foundLink) return;
             const link = $(el).text().trim();
-            // Filtrar links basura, buscar paginas de producto
-            if (link.includes('/productos/') || link.includes('/products/') || link.includes('/collections/') || link.includes('/tienda/')) {
-                foundLink = 'https://' + link;
+            // Asegurar que el link pertenezca al dominio buscado y no sea un anuncio
+            if (link.includes(domain)) {
+                if (link.includes('/productos/') || link.includes('/producto/') || link.includes('/products/') || link.includes('/product/') || link.includes('/collections/') || link.includes('/tienda/')) {
+                    foundLink = 'https://' + link;
+                } else if (!foundLink) {
+                    foundLink = 'https://' + link;
+                }
             }
         });
-        // Fallback si no hay path evidente de producto
-        if (!foundLink) {
-            foundLink = 'https://' + $('.result__url').first().text().trim();
-        }
         if (foundLink && foundLink !== 'https://') return foundLink;
         return null;
     } catch (e) {
@@ -120,6 +120,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     
+    const debugLogs = [];
     const { query } = req.body || {};
     if (!query) return res.status(400).json({ error: 'query requerido' });
 
@@ -148,6 +149,7 @@ module.exports = async function handler(req, res) {
                 uploadedUrls.push(finalUrl);
             } catch (err) {
                 console.warn(`Error subiendo imagen ${i}:`, err.message);
+                debugLogs.push(`Upload err: ${err.message}`);
             }
         }
 
@@ -156,10 +158,11 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ 
                 source: domain,
                 productUrl,
-                images: uploadedUrls 
+                images: uploadedUrls,
+                debug: debugLogs 
             });
         }
     }
 
-    return res.status(200).json({ images: [] });
+    return res.status(200).json({ images: [], debug: debugLogs });
 };
