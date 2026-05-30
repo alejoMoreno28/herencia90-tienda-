@@ -2421,17 +2421,34 @@
                     const searchTerm = aiData.termino_busqueda || raw;
                     
                     try {
-                        let res = await fetch('/api/search-provider-images', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ query: searchTerm, longName: optimizedName })
-                        });
-                        let data = res.ok ? await res.json() : { images: [] };
+                        let data = { images: [] };
+                        let localRobotActive = true;
+                        
+                        // 1. Intentar primero con el Robot Local (para saltar Cloudflare)
+                        try {
+                            let resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ query: searchTerm, longName: optimizedName })
+                            });
+                            data = resLocal.ok ? await resLocal.json() : { images: [] };
+                        } catch (errLocal) {
+                            localRobotActive = false;
+                            console.warn("Robot local apagado, intentando con la nube...");
+                            // 2. Si el robot local está apagado, intentar con la nube
+                            let res = await fetch('/api/search-provider-images', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ query: searchTerm, longName: optimizedName })
+                            });
+                            data = res.ok ? await res.json() : { images: [] };
+                        }
                         
                         // Fallback: Si la búsqueda muy específica falló, intentar con el nombre corto original
                         if (!data.images || data.images.length === 0) {
                             console.log(`Fallback de fotos para: ${raw}`);
-                            const resFallback = await fetch('/api/search-provider-images', {
+                            let endpoint = localRobotActive ? 'http://localhost:3001/api/search-provider-images' : '/api/search-provider-images';
+                            const resFallback = await fetch(endpoint, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ query: raw, longName: optimizedName })
