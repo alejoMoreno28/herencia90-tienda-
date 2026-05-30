@@ -2584,12 +2584,23 @@
                             ${!isPreventa ? 'disabled style="background:#e9ecef;"' : ''}
                             oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
                     </td>
-                    <!-- Col 9: Acciones (Remover) -->
-                    <td style="text-align:center; min-width: 60px;">
-                        ${item.aiData && item.aiData.imagenes_extraidas && item.aiData.imagenes_extraidas.length > 0 
-                            ? `<img src="${item.aiData.imagenes_extraidas[0]}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; margin-right:4px; vertical-align:middle; cursor:pointer;" onclick="window.open('${item.aiData.imagenes_extraidas[0]}', '_blank')" title="Foto extraída">`
-                            : `<button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; margin-right:4px; vertical-align:middle;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>`
-                        }
+                    <!-- Col 9: Acciones (Remover e Imagen) -->
+                    <td style="text-align:center; min-width: 120px;">
+                        <div id="lote-img-container-${idx}" style="display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; margin-right:6px;">
+                            ${(function() {
+                                if (item.aiData && item.aiData.imagenes_extraidas && item.aiData.imagenes_extraidas.length > 0) {
+                                    const selectedIdx = item.selectedImageIndex || 0;
+                                    return item.aiData.imagenes_extraidas.map((imgSrc, imgIdx) => {
+                                        const isSelected = selectedIdx === imgIdx;
+                                        const border = isSelected ? 'border:2px solid #28a745;' : 'border:1px solid #ddd; opacity:0.5;';
+                                        return `<img src="${imgSrc}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; cursor:pointer; ${border} transition:0.2s;" 
+                                            onclick="selectLoteImage(${idx}, ${imgIdx})" title="Clic para usar como foto principal">`;
+                                    }).join('');
+                                } else {
+                                    return `<button type="button" class="btn-save" style="background:#4285f4; padding:4px 6px; font-size:10px; vertical-align:middle;" onclick="window.open('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent('${item.queryStr} camiseta de futbol'), '_blank')" title="Buscar Fotos">📸</button>`;
+                                }
+                            })()}
+                        </div>
                         <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕</button>
                     </td>
                 `;
@@ -2606,6 +2617,18 @@
                     // Refrescar para deshabilitar/habilitar columnas específicas de preventa
                     renderLotePreview();
                 }
+            }
+        }
+
+        function selectLoteImage(loteIdx, imgIdx) {
+            if (loteItems[loteIdx]) {
+                loteItems[loteIdx].selectedImageIndex = imgIdx;
+                // Reordenar las fotos para que la seleccionada quede de primera
+                const imgs = loteItems[loteIdx].aiData.imagenes_extraidas;
+                const selected = imgs.splice(imgIdx, 1)[0];
+                imgs.unshift(selected); // Poner al inicio
+                loteItems[loteIdx].selectedImageIndex = 0; // Ahora el indice es 0
+                renderLotePreview();
             }
         }
 
