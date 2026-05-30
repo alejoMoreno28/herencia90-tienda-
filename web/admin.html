@@ -204,6 +204,7 @@
             <div class="trm-module">
                 <div><b>🇨🇴 TRM Oficial:</b> <span id="trm-api">Consultando...</span></div>
                 <div><b>⚙️ TRM Aplicada:</b> <input type="number" id="trm-custom" value="3714" onchange="updateCustomTRM()"></div>
+                <button class="btn-danger" id="panicBtn" style="padding: 6px 12px; background: #dc3545;" onclick="limpiarDesastre()">🧹 LIMPIAR DESASTRE DE HOY</button>
                 <button class="btn-save" id="globalSaveBtn" style="display:none; padding: 6px 12px;" onclick="saveInventory()">Guardar Inventario</button>
             </div>
         </header>
@@ -2750,6 +2751,25 @@
             } finally {
                 btnSave.disabled = false;
                 btnSave.innerText = '🚀 Procesar y Guardar Lote Completo';
+            }
+        }
+
+        async function limpiarDesastre() {
+            if (!confirm("⚠️ ¿Estás totalmente seguro de borrar TODO el Lote 2026-05-30 (pedidos, finanzas y stock) para empezar limpio hoy?")) return;
+            try {
+                // Borrar pedidos de hoy (Lote 2026-05-30)
+                await db.from('pedidos').delete().eq('lote_codigo', 'Lote 2026-05-30');
+                
+                // Borrar transacciones de compra de lote de hoy
+                await db.from('transacciones').delete().like('descripcion', '%[Compra Lote]%').eq('fecha', new Date().toISOString().split('T')[0]);
+                
+                // Borrar abonos de hoy
+                await db.from('transacciones').delete().like('descripcion', '%[Bajo Pedido] Anticipo%').eq('fecha', new Date().toISOString().split('T')[0]);
+
+                alert("✅ Todo el desastre de hoy ha sido borrado. La base de datos está limpia. Puedes pegar tu Excel real con tranquilidad.");
+                window.location.reload();
+            } catch(e) {
+                alert("Error limpiando: " + e.message);
             }
         }
     </script>
