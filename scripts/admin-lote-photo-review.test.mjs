@@ -72,6 +72,31 @@ test('applies approved photos and source url to every row in the grouped referen
   assert.equal(items[1].aiData.fuente_imagenes, groups[0].providerUrl);
 });
 
+test('keeps extracted photos visible when groups are rebuilt from lote items', async () => {
+  const { buildPhotoReferenceGroups, normalizeImageList } = await loadPhotoReview();
+  const items = [
+    loteItem({
+      queryStr: 'Brasil 2004 Ronaldo',
+      aiData: {
+        imagenes_extraidas: [
+          { url: 'https://cdn.test/brasil-front.webp' },
+          'https://cdn.test/brasil-back.webp',
+        ],
+        imagenes_aprobadas: false,
+      },
+    }),
+  ];
+
+  const groups = buildPhotoReferenceGroups(items, []);
+
+  assert.deepEqual(asPlain(groups[0].images), [
+    'https://cdn.test/brasil-front.webp',
+    'https://cdn.test/brasil-back.webp',
+  ]);
+  assert.deepEqual(asPlain(groups[0].selectedImages), [0, 1]);
+  assert.deepEqual(asPlain(normalizeImageList(items[0].aiData.imagenes_extraidas)), groups[0].images);
+});
+
 function loteItem(overrides = {}) {
   return {
     prodId: null,

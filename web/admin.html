@@ -2675,7 +2675,8 @@
                     if (resCloud.ok) data = await resCloud.json();
                 }
 
-                if (!data.images || !data.images.length) {
+                const extractedImages = window.AdminLotePhotoReview.normalizeImageList(data.images);
+                if (!extractedImages.length) {
                     group.images = [];
                     group.selectedImages = [];
                     group.error = 'No se encontraron fotos en ese link.';
@@ -2683,9 +2684,19 @@
                     return;
                 }
 
-                group.images = data.images;
-                group.selectedImages = data.images.map((_, index) => index);
+                group.images = extractedImages;
+                group.selectedImages = extractedImages.map((_, index) => index);
                 group.error = '';
+                group.itemIndexes.forEach((itemIndex) => {
+                    const item = loteItems[itemIndex];
+                    if (!item) return;
+                    item.aiData = item.aiData || {};
+                    item.aiData.imagenes_extraidas = extractedImages.slice();
+                    item.aiData.imagenes_aprobadas = false;
+                    item.aiData.fuente_imagenes = group.providerUrl;
+                    item.providerPhotoUrl = group.providerUrl;
+                    item.selectedImageIndex = 0;
+                });
                 if (!opts.silent) showToast('Fotos extraidas. Revisa y aprueba.');
             } catch (err) {
                 group.images = [];

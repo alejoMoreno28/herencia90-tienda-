@@ -24,6 +24,21 @@
         return Array.from(counts.entries()).map(([size, qty]) => `${size} x${qty}`);
     }
 
+    function normalizeImageList(images) {
+        return (Array.isArray(images) ? images : [])
+            .map((image) => {
+                if (typeof image === 'string') return image;
+                if (!image || typeof image !== 'object') return '';
+                return image.url || image.publicUrl || image.src || image.path || '';
+            })
+            .map((image) => String(image || '').trim())
+            .filter(Boolean);
+    }
+
+    function itemExtractedImages(item) {
+        return normalizeImageList(item && item.aiData && item.aiData.imagenes_extraidas);
+    }
+
     function buildPhotoReferenceGroups(items, previousGroups) {
         const previousByKey = new Map((previousGroups || []).map((group) => [group.key, group]));
         const grouped = new Map();
@@ -35,13 +50,16 @@
 
             if (!grouped.has(key)) {
                 const previous = previousByKey.get(key) || {};
+                const extractedImages = itemExtractedImages(item);
                 grouped.set(key, {
                     key,
                     title: item.queryStr || 'Referencia nueva',
                     itemIndexes: [],
                     rows: [],
                     providerUrl: previous.providerUrl || item.providerPhotoUrl || '',
-                    images: Array.isArray(previous.images) ? previous.images.slice() : [],
+                    images: normalizeImageList(previous.images).length
+                        ? normalizeImageList(previous.images)
+                        : extractedImages,
                     selectedImages: Array.isArray(previous.selectedImages) ? previous.selectedImages.slice() : [],
                     approved: !!previous.approved,
                     extracting: false,
@@ -61,7 +79,7 @@
 
         return Array.from(grouped.values()).map((group) => {
             const destinations = Array.from(new Set(group.rows.map((row) => row.destino).filter(Boolean)));
-            const images = Array.isArray(group.images) ? group.images : [];
+            const images = normalizeImageList(group.images);
             const selectedImages = group.selectedImages.length
                 ? group.selectedImages.filter((index) => images[index])
                 : images.map((_, index) => index);
@@ -90,7 +108,7 @@
     }
 
     function approvedImagesForGroup(group) {
-        const images = Array.isArray(group.images) ? group.images : [];
+        const images = normalizeImageList(group.images);
         const selected = Array.isArray(group.selectedImages) && group.selectedImages.length
             ? group.selectedImages
             : images.map((_, index) => index);
@@ -122,5 +140,6 @@
         validatePhotoReferenceGroups,
         applyApprovedPhotosToItems,
         approvedImagesForGroup,
+        normalizeImageList,
     };
 }());
