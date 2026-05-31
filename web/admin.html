@@ -2977,14 +2977,12 @@
                         precio: uItem.precioVenta, 
                         costo_usd: uItem.costUsd, 
                         tallas: {S:0, M:0, L:0, XL:0}, 
-                        imagenes: (uItem.aiData && uItem.aiData.imagenes_extraidas) ? uItem.aiData.imagenes_extraidas : [],
-                        pais_o_club: uItem.aiData ? uItem.aiData.pais_o_club : '',
-                        decada: uItem.aiData ? uItem.aiData.decada : ''
+                        imagenes: window.AdminLotePhotoReview.normalizeImageList(uItem.aiData && uItem.aiData.imagenes_extraidas)
                     };
                     const { error } = await db.from('productos').insert(newP);
                     if (error) {
                         console.error('Error auto-creando producto:', error);
-                        alert('Hubo un error guardando el nuevo producto en el catálogo. Intenta de nuevo.');
+                        alert('Hubo un error guardando el nuevo producto en el catálogo: ' + (error.message || 'Intenta de nuevo.'));
                         return;
                     }
                     productData.unshift(newP);

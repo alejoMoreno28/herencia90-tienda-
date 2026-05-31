@@ -97,6 +97,44 @@ test('keeps extracted photos visible when groups are rebuilt from lote items', a
   assert.deepEqual(asPlain(normalizeImageList(items[0].aiData.imagenes_extraidas)), groups[0].images);
 });
 
+test('builds a catalog product payload with only inventory table columns', async () => {
+  const { buildCatalogProductFromLoteItem } = await loadPhotoReview();
+  const product = buildCatalogProductFromLoteItem(loteItem({
+    queryStr: '[RETRO] Real madrid 99 NEGRA',
+    precioVenta: 120000,
+    costUsd: 15,
+    aiData: {
+      categoria: 'RETRO',
+      nombre_oficial: '[RETRO] Real madrid 99 NEGRA',
+      descripcion: 'Tercera equipacion 99/00',
+      pais_o_club: 'Real Madrid',
+      decada: '1990s',
+      imagenes_extraidas: [
+        { url: 'https://cdn.test/real-front.webp' },
+        'https://cdn.test/real-back.webp',
+      ],
+    },
+  }), 777);
+
+  assert.deepEqual(Object.keys(product).sort(), [
+    'categoria',
+    'costo_usd',
+    'descripcion',
+    'equipo',
+    'id',
+    'imagenes',
+    'precio',
+    'tallas',
+  ]);
+  assert.equal(product.id, 777);
+  assert.deepEqual(product.imagenes, [
+    'https://cdn.test/real-front.webp',
+    'https://cdn.test/real-back.webp',
+  ]);
+  assert.equal(product.pais_o_club, undefined);
+  assert.equal(product.decada, undefined);
+});
+
 function loteItem(overrides = {}) {
   return {
     prodId: null,

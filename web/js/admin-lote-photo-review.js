@@ -134,6 +134,20 @@
         });
     }
 
+    function buildCatalogProductFromLoteItem(item, id) {
+        const aiData = (item && item.aiData) || {};
+        return {
+            id,
+            categoria: aiData.categoria || 'Nueva Coleccion',
+            equipo: aiData.nombre_oficial || (item && item.queryStr) || 'Nueva referencia',
+            descripcion: aiData.descripcion || '',
+            precio: (item && item.precioVenta) || 99000,
+            costo_usd: (item && item.costUsd) || 0,
+            tallas: { S: 0, M: 0, L: 0, XL: 0 },
+            imagenes: normalizeImageList(aiData.imagenes_extraidas),
+        };
+    }
+
     window.AdminLotePhotoReview = {
         normalizeReferenceKey,
         buildPhotoReferenceGroups,
@@ -141,5 +155,6 @@
         applyApprovedPhotosToItems,
         approvedImagesForGroup,
         normalizeImageList,
+        buildCatalogProductFromLoteItem,
     };
 }());
