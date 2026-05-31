@@ -527,5 +527,228 @@
             "img/real_madrid_special_stly_black_fan_5.webp",
             "img/real_madrid_special_stly_black_fan_6.webp"
         ]
+    },
+    {
+        "id": 27,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Brasil Local 2004 - Ronaldo",
+        "descripcion": "Revive la época dorada del fútbol brasileño con la mítica camiseta local de Brasil de la temporada 2004, personalizada con el dorsal del legendario Ronaldo \"El Fenómeno\". Este diseño clásico evoca la magia del \"Jogo Bonito\" de una selección plagada de estrellas que maravilló al mundo entero con su alegría, regates y goles inolvidables.\n\nFabricada con tejido técnico de alta calidad, transpirable y ligero, esta prenda retro ofrece una comodidad excepcional tanto para lucir en el campo como en el día a día. Presenta un corte clásico y detalles bordados de alta precisión que garantizan la máxima durabilidad para los coleccionistas y aficionados más exigentes.",
+        "precio": 130000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-3.webp"
+        ]
+    },
+    {
+        "id": 28,
+        "categoria": "Nueva Coleccion",
+        "equipo": "[RETRO] Brasil 2004 Home",
+        "descripcion": "",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-6.webp"
+        ]
+    },
+    {
+        "id": 29,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Roma 25/26 BLANCA",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-8.webp"
+        ]
+    },
+    {
+        "id": 30,
+        "categoria": "Nueva Coleccion",
+        "equipo": "[RETRO] Milán 2008 Home (Dorsal: Ronaldinho) (+ Dorsal / Personalization)",
+        "descripcion": "",
+        "precio": 130000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-2.webp"
+        ]
+    },
+    {
+        "id": 31,
+        "categoria": "Nueva Coleccion",
+        "equipo": "[RETRO] COLOMBIA 90 AÑOS AMARILLA",
+        "descripcion": "",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 3,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-colombia-90-anos-amarilla-1780256111287-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-colombia-90-anos-amarilla-1780256111287-2.webp"
+        ]
+    },
+    {
+        "id": 32,
+        "categoria": "Nueva Coleccion",
+        "equipo": "[RETRO WOMAN] COLOMBIA 90 AÑOS ROJA",
+        "descripcion": "",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-4.webp"
+        ]
+    },
+    {
+        "id": 33,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Colombia azul 2026",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-3.webp"
+        ]
+    },
+    {
+        "id": 34,
+        "categoria": "Nueva Coleccion",
+        "equipo": "colombia 100 Años NEGRA",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 2,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-6.webp"
+        ]
+    },
+    {
+        "id": 35,
+        "categoria": "Nueva Coleccion",
+        "equipo": "ESPAÑA 26 BLANCA",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-7.webp"
+        ]
+    },
+    {
+        "id": 36,
+        "categoria": "Nueva Coleccion",
+        "equipo": "arsenal local 25/26",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/arsenal-local-2526-1780256309358-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/arsenal-local-2526-1780256309358-4.webp"
+        ]
+    },
+    {
+        "id": 37,
+        "categoria": "Nueva Coleccion",
+        "equipo": "colombia 100 Años blanca",
+        "descripcion": "",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 0,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-8.webp"
+        ]
     }
 ]
