@@ -2966,6 +2966,71 @@
             return true;
         }
 
+        function parseLotePurchaseTotals(description) {
+            const match = String(description || '').match(/Total\s+(\d+)\s+camisetas\s+\(Stock:\s+(\d+),\s*Preventas:\s+(\d+)\)/i);
+            if (!match) return { totalQty: 0, stockQty: 0, preventaQty: 0 };
+            return {
+                totalQty: parseInt(match[1], 10) || 0,
+                stockQty: parseInt(match[2], 10) || 0,
+                preventaQty: parseInt(match[3], 10) || 0,
+            };
+        }
+
+        function buildLotePurchaseDescription(loteNombre, totals, descuentoUsd = 0) {
+            const descDescuentoStr = descuentoUsd > 0 ? ` (Incluye descuento de $${descuentoUsd} USD)` : '';
+            return `[Compra Lote] ${loteNombre} - Total ${totals.totalQty} camisetas (Stock: ${totals.stockQty}, Preventas: ${totals.preventaQty})${descDescuentoStr}`;
+        }
+
+        async function upsertLotePurchaseTransaction(basics, totals, descuentoUsd = 0) {
+            const deltaUsd = (parseFloat(totals.totalCostUsd) || 0) - (parseFloat(descuentoUsd) || 0);
+            const deltaCop = deltaUsd * basics.trm;
+            const matchPrefix = `[Compra Lote] ${basics.loteNombre}%`;
+            const { data: existingRows, error: lookupError } = await db.from('transacciones')
+                .select('id,monto,usd_amount,descripcion')
+                .eq('tipo', 'gasto')
+                .eq('categoria', 'Compra Inventario (Camisetas)')
+                .ilike('descripcion', matchPrefix)
+                .order('id', { ascending: true })
+                .limit(1);
+            if (lookupError) throw lookupError;
+
+            const existing = existingRows && existingRows[0];
+            if (existing) {
+                const existingTotals = parseLotePurchaseTotals(existing.descripcion);
+                const nextTotals = {
+                    totalQty: existingTotals.totalQty + totals.totalQty,
+                    stockQty: existingTotals.stockQty + totals.stockQty,
+                    preventaQty: existingTotals.preventaQty + totals.preventaQty,
+                };
+                const payload = {
+                    monto: (parseFloat(existing.monto) || 0) + deltaCop,
+                    usd_amount: (parseFloat(existing.usd_amount) || 0) + deltaUsd,
+                    trm: basics.trm,
+                    descripcion: buildLotePurchaseDescription(basics.loteNombre, nextTotals, descuentoUsd),
+                };
+                const { error: updateError } = await db.from('transacciones').update(payload).eq('id', existing.id);
+                if (updateError) throw updateError;
+                return;
+            }
+
+            const gastoTrans = {
+                tipo: 'gasto',
+                categoria: 'Compra Inventario (Camisetas)',
+                fecha: new Date().toISOString().split('T')[0],
+                monto: deltaCop,
+                usd_amount: deltaUsd,
+                trm: basics.trm,
+                descripcion: buildLotePurchaseDescription(basics.loteNombre, totals, descuentoUsd),
+                costo_usd_asociado: 0
+            };
+
+            const { data: maxRowG } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            gastoTrans.id = (maxRowG && maxRowG[0] && maxRowG[0].id) ? maxRowG[0].id + 1 : 1;
+
+            const { error: errGasto } = await db.from('transacciones').insert(gastoTrans);
+            if (errGasto) throw errGasto;
+        }
+
         async function persistLoteItems(itemsToProcess, basics, opts = {}) {
             let stockUpdates = {};
             let newPedidos = [];
@@ -3032,25 +3097,7 @@
             }
 
             const descuentoUsd = parseFloat(opts.descuentoUsd) || 0;
-            const totalCostUsdConDescuento = totalCostUsd - descuentoUsd;
-            const descDescuentoStr = descuentoUsd > 0 ? ` (Incluye descuento de $${descuentoUsd} USD)` : '';
-            const descripcionPrefix = opts.partialLabel ? `[Compra Referencia] ${basics.loteNombre} - ${opts.partialLabel}` : `[Compra Lote] ${basics.loteNombre}`;
-            const gastoTrans = {
-                tipo: 'gasto',
-                categoria: 'Compra Inventario (Camisetas)',
-                fecha: new Date().toISOString().split('T')[0],
-                monto: totalCostUsdConDescuento * basics.trm,
-                usd_amount: totalCostUsdConDescuento,
-                trm: basics.trm,
-                descripcion: `${descripcionPrefix} - Total ${totalQty} camisetas (Stock: ${stockQty}, Preventas: ${preventaQty})${descDescuentoStr}`,
-                costo_usd_asociado: 0
-            };
-
-            const { data: maxRowG } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
-            gastoTrans.id = (maxRowG && maxRowG[0] && maxRowG[0].id) ? maxRowG[0].id + 1 : 1;
-
-            const { error: errGasto } = await db.from('transacciones').insert(gastoTrans);
-            if (errGasto) throw errGasto;
+            await upsertLotePurchaseTransaction(basics, { totalQty, stockQty, preventaQty, totalCostUsd }, descuentoUsd);
 
             for (const p of newPedidos) {
                 if (p.abono > 0) {
