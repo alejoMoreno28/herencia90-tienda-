@@ -125,35 +125,60 @@ async function scrapeImages(url) {
             }
         }
         
-        // Enfoque en contenedores de producto para ignorar logos, banners y footers
-        let container = $('.woocommerce-product-gallery, .product__media-wrapper, .product-single__media-group, #product-photos, .product-gallery, .product-info, .product-images, .product-image, #content');
-        if (container.length === 0) container = $('main, #main, .site-main, .product');
-        if (container.length === 0) container = $('body');
+        function collectImagesFrom(container) {
+            container.find('img').each((i, el) => {
+                const $img = $(el);
+                [
+                    'src',
+                    'data-src',
+                    'data-original',
+                    'data-origin-src',
+                    'data-large_image',
+                    'data-zoom-image',
+                    'data-image',
+                    'data-full',
+                    'data-full-size-image-url',
+                    'srcset',
+                    'data-srcset',
+                ].forEach(attr => addImageCandidate($img.attr(attr)));
+            });
 
-        container.find('img').each((i, el) => {
-            const $img = $(el);
-            [
-                'src',
-                'data-src',
-                'data-original',
-                'data-origin-src',
-                'data-large_image',
-                'data-zoom-image',
-                'data-image',
-                'data-full',
-                'data-full-size-image-url',
-                'srcset',
-                'data-srcset',
-            ].forEach(attr => addImageCandidate($img.attr(attr)));
-        });
+            container.find('a[href]').each((i, el) => {
+                const href = $(el).attr('href') || '';
+                if (href.match(/\.(jpg|jpeg|png|webp|avif)(\?|$)/i)) addImageCandidate(href);
+            });
 
-        container.find('[style]').each((i, el) => {
-            const style = $(el).attr('style') || '';
-            const matches = style.match(/url\((['"]?)(.*?)\1\)/gi) || [];
-            matches.forEach(match => addImageCandidate(match.replace(/^url\((['"]?)/i, '').replace(/(['"]?)\)$/i, '')));
-        });
+            container.find('[style]').each((i, el) => {
+                const style = $(el).attr('style') || '';
+                const matches = style.match(/url\((['"]?)(.*?)\1\)/gi) || [];
+                matches.forEach(match => addImageCandidate(match.replace(/^url\((['"]?)/i, '').replace(/(['"]?)\)$/i, '')));
+            });
+        }
 
-        container.find('meta[property="og:image"], meta[name="twitter:image"], link[rel="image_src"]').each((i, el) => {
+        const productSelectors = [
+            '#pb-right-column',
+            '#image-block, #views_block, #thumbs_list, .thumbnail-list',
+            '.woocommerce-product-gallery',
+            '.product__media-wrapper',
+            '.product-single__media-group',
+            '#product-photos',
+            '.product-gallery',
+            '.product-images',
+            '.product-image-main',
+            '.product-image',
+            '.product-info',
+            'main .product, #main .product, .site-main .product',
+        ];
+
+        for (const selector of productSelectors) {
+            const before = images.size;
+            const container = $(selector);
+            if (!container.length) continue;
+            collectImagesFrom(container);
+            if (images.size > before) break;
+        }
+
+        $('meta[property="og:image"], meta[name="twitter:image"], link[rel="image_src"]').each((i, el) => {
             addImageCandidate($(el).attr('content') || $(el).attr('href'));
         });
         

@@ -11,11 +11,19 @@ test('scrapeImages extracts relative and lazy product image urls', async () => {
     ok: true,
     text: async () => `
       <main id="content">
-        <img src="/image/cache/catalog/product/spain-2026-front-800x800.jpg">
-        <img data-zoom-image="image/cache/catalog/product/spain-2026-back-800x800.jpg">
-        <img srcset="/image/cache/catalog/product/spain-2026-detail-400x400.webp 400w, /image/cache/catalog/product/spain-2026-detail-900x900.webp 900w">
-        <img src="/catalog/view/theme/logo.png">
-        <a href="/image/cache/catalog/product/spain-2026-extra.png">zoom</a>
+        <aside>
+          <img src="/includes/templates/masmodas/images/1.jpg">
+          <img src="/images/related/wrong-shirt.jpg">
+        </aside>
+        <div id="pb-right-column">
+          <div id="image-block">
+            <img src="/image/cache/catalog/product/spain-2026-front-800x800.jpg">
+          </div>
+          <ul class="thumbnail-list">
+            <li><a href="image/cache/catalog/product/spain-2026-back-800x800.jpg"><img src="image/cache/catalog/product/spain-2026-back-800x800.jpg"></a></li>
+            <li><img srcset="/image/cache/catalog/product/spain-2026-detail-400x400.webp 400w, /image/cache/catalog/product/spain-2026-detail-900x900.webp 900w"></li>
+          </ul>
+        </div>
       </main>
     `,
   });
