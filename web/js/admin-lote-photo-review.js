@@ -148,6 +148,20 @@
         };
     }
 
+    function groupIndexSet(group) {
+        return new Set((group && group.itemIndexes) || []);
+    }
+
+    function itemsForPhotoGroup(items, group) {
+        const indexes = groupIndexSet(group);
+        return (items || []).filter((_, index) => indexes.has(index));
+    }
+
+    function removePhotoGroupItems(items, group) {
+        const indexes = groupIndexSet(group);
+        return (items || []).filter((_, index) => !indexes.has(index));
+    }
+
     window.AdminLotePhotoReview = {
         normalizeReferenceKey,
         buildPhotoReferenceGroups,
@@ -156,5 +170,7 @@
         approvedImagesForGroup,
         normalizeImageList,
         buildCatalogProductFromLoteItem,
+        itemsForPhotoGroup,
+        removePhotoGroupItems,
     };
 }());

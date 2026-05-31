@@ -135,6 +135,19 @@ test('builds a catalog product payload with only inventory table columns', async
   assert.equal(product.decada, undefined);
 });
 
+test('selects and removes only the rows that belong to one approved reference group', async () => {
+  const { itemsForPhotoGroup, removePhotoGroupItems } = await loadPhotoReview();
+  const items = [
+    loteItem({ queryStr: 'Brasil 2004 Ronaldo', size: 'L', qty: 1 }),
+    loteItem({ queryStr: 'Roma 25/26 blanca', size: 'M', qty: 1 }),
+    loteItem({ queryStr: 'Brasil 2004 Ronaldo', size: 'XL', qty: 2 }),
+  ];
+  const group = { itemIndexes: [0, 2] };
+
+  assert.deepEqual(asPlain(itemsForPhotoGroup(items, group)).map((item) => item.size), ['L', 'XL']);
+  assert.deepEqual(asPlain(removePhotoGroupItems(items, group)).map((item) => item.queryStr), ['Roma 25/26 blanca']);
+});
+
 function loteItem(overrides = {}) {
   return {
     prodId: null,

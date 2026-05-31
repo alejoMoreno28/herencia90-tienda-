@@ -2591,8 +2591,9 @@
                         <div class="lote-photo-actions">
                             <button type="button" class="btn-save" style="background:#0d6efd;color:white;padding:7px 10px;font-size:11px;" onclick="extraerFotosDeReferencia(${idx})">Extraer</button>
                             <button type="button" class="btn-add" style="padding:7px 10px;font-size:11px;" onclick="aprobarFotosDeReferencia(${idx})" ${group.images && group.images.length ? '' : 'disabled'}>Aprobar fotos</button>
+                            <button type="button" class="btn-add" style="padding:7px 10px;font-size:11px;background:#198754;" onclick="guardarReferenciaLote(${idx})" ${group.approved ? '' : 'disabled'}>Guardar referencia</button>
                         </div>
-                        <div class="lote-photo-note">Clic sobre una foto para incluirla o excluirla. Las fotos aprobadas se copian a todas las filas de esta referencia.</div>
+                        <div class="lote-photo-note">Clic sobre una foto para incluirla o excluirla. Puedes guardar esta referencia apenas este lista.</div>
                     </div>
                 `;
             }).join('');
@@ -2919,6 +2920,202 @@
                 const dd = document.getElementById(`lote-dd-${idx}`);
                 if (dd) dd.style.display = 'none';
             }, 250);
+        }
+
+        function getLoteSaveBasics() {
+            const loteNombre = document.getElementById('lote-nombre').value.trim();
+            const trm = parseFloat(document.getElementById('lote-trm').value) || 0;
+            if (!loteNombre) {
+                alert('Ingresa un nombre para identificar este Lote.');
+                return null;
+            }
+            if (trm <= 0) {
+                alert('Ingresa una TRM de compra valida (mayor a 0).');
+                return null;
+            }
+            return { loteNombre, trm };
+        }
+
+        async function ensureCatalogProductsForLoteItems(itemsToProcess) {
+            const unmatchedItems = itemsToProcess.filter(item => !item.prodId);
+            if (!unmatchedItems.length) return true;
+
+            const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
+            let newIdCounter = mx + 1;
+            const createdProductsMap = {};
+
+            for (const uItem of unmatchedItems) {
+                const creationKey = window.AdminLotePhotoReview.normalizeReferenceKey(uItem.queryStr) || uItem.queryStr;
+                if (createdProductsMap[creationKey]) {
+                    uItem.prodId = createdProductsMap[creationKey].id;
+                    continue;
+                }
+
+                const newP = window.AdminLotePhotoReview.buildCatalogProductFromLoteItem(uItem, newIdCounter++);
+                const { error } = await db.from('productos').insert(newP);
+                if (error) {
+                    console.error('Error auto-creando producto:', error);
+                    alert('Hubo un error guardando el nuevo producto en el catalogo: ' + (error.message || 'Intenta de nuevo.'));
+                    return false;
+                }
+                productData.unshift(newP);
+                createdProductsMap[creationKey] = newP;
+                uItem.prodId = newP.id;
+            }
+
+            return true;
+        }
+
+        async function persistLoteItems(itemsToProcess, basics, opts = {}) {
+            let stockUpdates = {};
+            let newPedidos = [];
+            let totalCostUsd = 0;
+            let totalQty = 0;
+            let stockQty = 0;
+            let preventaQty = 0;
+
+            itemsToProcess.forEach((item) => {
+                if (item.destino === 'PREVENTA' && !String(item.cliente || '').trim()) {
+                    item.cliente = 'Pendiente por Asignar';
+                }
+            });
+
+            for (const item of itemsToProcess) {
+                const prod = productData.find(x => x.id == item.prodId);
+                if (!prod) continue;
+
+                const qty = parseInt(item.qty, 10) || 1;
+                totalQty += qty;
+                totalCostUsd += ((parseFloat(item.costUsd) || 0) * qty);
+
+                if (item.destino === 'STOCK') {
+                    stockQty += qty;
+                    if (!stockUpdates[item.prodId]) {
+                        stockUpdates[item.prodId] = { ...(prod.tallas || {}) };
+                    }
+                    stockUpdates[item.prodId][item.size] = (parseInt(stockUpdates[item.prodId][item.size]) || 0) + qty;
+                } else {
+                    preventaQty += qty;
+                    const costoLandedCop = (parseFloat(item.costUsd) || 0) * basics.trm;
+                    for (let k = 0; k < qty; k++) {
+                        newPedidos.push({
+                            cliente: item.cliente,
+                            canal: item.canal,
+                            producto_id: item.prodId,
+                            equipo: prod.equipo,
+                            talla: item.size,
+                            cantidad: 1,
+                            precio_venta: item.precioVenta,
+                            costo_usd: item.costUsd,
+                            costo_landed_cop: costoLandedCop,
+                            trm: basics.trm,
+                            estado_pago: item.abono >= item.precioVenta ? 'Pagado' : item.abono > 0 ? 'Abonado' : 'Pendiente',
+                            abono: item.abono,
+                            estado_entrega: 'Pendiente',
+                            lote_codigo: basics.loteNombre,
+                            fecha_pedido: new Date().toISOString().split('T')[0]
+                        });
+                    }
+                }
+            }
+
+            for (const prodId of Object.keys(stockUpdates)) {
+                const { error: errStock } = await db.from('productos').update({ tallas: stockUpdates[prodId] }).eq('id', prodId);
+                if (errStock) throw errStock;
+                const prod = productData.find(x => x.id == prodId);
+                if (prod) prod.tallas = stockUpdates[prodId];
+            }
+
+            if (newPedidos.length > 0) {
+                const { error: errPeds } = await db.from('pedidos').insert(newPedidos);
+                if (errPeds) throw errPeds;
+            }
+
+            const descuentoUsd = parseFloat(opts.descuentoUsd) || 0;
+            const totalCostUsdConDescuento = totalCostUsd - descuentoUsd;
+            const descDescuentoStr = descuentoUsd > 0 ? ` (Incluye descuento de $${descuentoUsd} USD)` : '';
+            const descripcionPrefix = opts.partialLabel ? `[Compra Referencia] ${basics.loteNombre} - ${opts.partialLabel}` : `[Compra Lote] ${basics.loteNombre}`;
+            const gastoTrans = {
+                tipo: 'gasto',
+                categoria: 'Compra Inventario (Camisetas)',
+                fecha: new Date().toISOString().split('T')[0],
+                monto: totalCostUsdConDescuento * basics.trm,
+                usd_amount: totalCostUsdConDescuento,
+                trm: basics.trm,
+                descripcion: `${descripcionPrefix} - Total ${totalQty} camisetas (Stock: ${stockQty}, Preventas: ${preventaQty})${descDescuentoStr}`,
+                costo_usd_asociado: 0
+            };
+
+            const { data: maxRowG } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            gastoTrans.id = (maxRowG && maxRowG[0] && maxRowG[0].id) ? maxRowG[0].id + 1 : 1;
+
+            const { error: errGasto } = await db.from('transacciones').insert(gastoTrans);
+            if (errGasto) throw errGasto;
+
+            for (const p of newPedidos) {
+                if (p.abono > 0) {
+                    const abonoTrans = {
+                        tipo: 'ingreso',
+                        categoria: 'Venta de Producto',
+                        fecha: new Date().toISOString().split('T')[0],
+                        monto: p.abono,
+                        usd_amount: p.abono / basics.trm,
+                        trm: basics.trm,
+                        descripcion: `[Bajo Pedido] Anticipo - Cliente: ${p.cliente} | Prenda: ${p.equipo} (${p.talla})`,
+                        costo_usd_asociado: p.costo_usd * (p.abono / p.precio_venta)
+                    };
+
+                    const { data: maxRowA } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+                    abonoTrans.id = (maxRowA && maxRowA[0] && maxRowA[0].id) ? maxRowA[0].id + 1 : 1;
+
+                    const { error: errAbono } = await db.from('transacciones').insert(abonoTrans);
+                    if (errAbono) console.error("Error guardando abono en finanzas:", errAbono.message);
+                }
+            }
+
+            return { totalQty, stockQty, preventaQty };
+        }
+
+        async function guardarReferenciaLote(groupIdx) {
+            const basics = getLoteSaveBasics();
+            if (!basics) return;
+
+            syncLotePhotoInputs();
+            refreshLotePhotoGroups();
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+            if (!group.approved) {
+                alert('Aprueba las fotos de esta referencia antes de guardarla.');
+                return;
+            }
+
+            window.AdminLotePhotoReview.applyApprovedPhotosToItems(loteItems, [group]);
+            const itemsToProcess = window.AdminLotePhotoReview.itemsForPhotoGroup(loteItems, group);
+            if (!itemsToProcess.length) return;
+
+            if (!confirm(`Guardar solo esta referencia?\n\n- ${group.title}\n- ${group.totalQty} uds\n- Destino: ${group.destinations.join(' + ') || 'Sin destino'}\n\nSe actualizara stock/preventa y finanzas solo para estas filas.`)) return;
+
+            const cardBtn = document.querySelectorAll('.lote-photo-card')[groupIdx]?.querySelector('button[onclick^="guardarReferenciaLote"]');
+            if (cardBtn) { cardBtn.disabled = true; cardBtn.innerText = 'Guardando...'; }
+
+            try {
+                const okProducts = await ensureCatalogProductsForLoteItems(itemsToProcess);
+                if (!okProducts) return;
+
+                await persistLoteItems(itemsToProcess, basics, { partialLabel: group.title });
+                loteItems = window.AdminLotePhotoReview.removePhotoGroupItems(loteItems, group);
+                refreshLotePhotoGroups();
+                renderLotePreview();
+                renderLotePhotoReview();
+                showToast(`Referencia guardada: ${group.title}`);
+                await loadPedidos();
+                if (window.init) window.init();
+            } catch (e) {
+                console.error(e);
+                alert("Error guardando esta referencia: " + e.message);
+            } finally {
+                if (cardBtn) { cardBtn.disabled = false; cardBtn.innerText = 'Guardar referencia'; }
+            }
         }
 
         async function guardarLoteCompleto() {
