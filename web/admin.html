@@ -1327,8 +1327,8 @@
         async function delTrans(id) {
             if(!confirm("¿Borrar transacción?")) return;
             const { error } = await db.from('transacciones').delete().eq('id', id);
-            if (error) { alert("Error borrando"); return; }
-            financeData.transacciones = financeData.transacciones.filter(t => t.id !== id);
+            if (error) { alert("Error borrando: " + (error.message || "Intenta de nuevo.")); return; }
+            financeData.transacciones = financeData.transacciones.filter(t => String(t.id) !== String(id));
             renderFinance();
             showToast("Transacción eliminada");
         }
