@@ -89,6 +89,7 @@ async function searchNative(query, domain, longName) {
 
 async function scrapeImages(url) {
     try {
+        const baseUrl = new URL(url);
         const res = await fetch(url, {
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
         });
@@ -97,45 +98,69 @@ async function scrapeImages(url) {
         const $ = cheerioLoad(html);
         
         const images = new Set();
+
+        function addImageCandidate(raw) {
+            if (!raw || typeof raw !== 'string') return;
+            const candidates = raw.split(',').map(part => part.trim().split(/\s+/)[0]).filter(Boolean);
+            for (let candidate of candidates) {
+                if (!candidate || candidate.startsWith('data:')) continue;
+                const lowerSrc = candidate.toLowerCase();
+                if (lowerSrc.includes('logo') || lowerSrc.includes('icon') || lowerSrc.includes('.svg') ||
+                    lowerSrc.includes('placeholder') || lowerSrc.includes('banner') || lowerSrc.includes('footer') ||
+                    lowerSrc.includes('payment') || lowerSrc.includes('stars') || lowerSrc.includes('avatar') ||
+                    lowerSrc.includes('guia-de-tallas') || lowerSrc.includes('size-chart') || lowerSrc.includes('whatsapp')) {
+                    continue;
+                }
+
+                try {
+                    candidate = new URL(candidate, baseUrl.origin).href;
+                } catch {
+                    continue;
+                }
+
+                const cleanSrc = candidate.split('?')[0];
+                if (cleanSrc.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
+                    images.add(cleanSrc);
+                }
+            }
+        }
         
         // Enfoque en contenedores de producto para ignorar logos, banners y footers
-        let container = $('.woocommerce-product-gallery, .product__media-wrapper, .product-single__media-group, #product-photos, .product-gallery');
+        let container = $('.woocommerce-product-gallery, .product__media-wrapper, .product-single__media-group, #product-photos, .product-gallery, .product-info, .product-images, .product-image, #content');
         if (container.length === 0) container = $('main, #main, .site-main, .product');
         if (container.length === 0) container = $('body');
 
         container.find('img').each((i, el) => {
-            let src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-origin-src') || $(el).attr('data-large_image');
-            if (src && typeof src === 'string') {
-                const lowerSrc = src.toLowerCase();
-                // Filtros estrictos para ignorar basura
-                if (lowerSrc.includes('logo') || lowerSrc.includes('icon') || lowerSrc.includes('.svg') || 
-                    lowerSrc.includes('placeholder') || lowerSrc.includes('banner') || lowerSrc.includes('footer') ||
-                    lowerSrc.includes('payment') || lowerSrc.includes('stars') || lowerSrc.includes('avatar') ||
-                    lowerSrc.includes('guia-de-tallas') || lowerSrc.includes('size-chart') || lowerSrc.includes('whatsapp')) {
-                    return;
-                }
-                
-                if (src.startsWith('//')) src = 'https:' + src;
-                if (src.startsWith('http')) {
-                    // Limpiar params de CDN si es necesario, excepto si es de shopify que los necesita a veces, 
-                    // pero para imagenes limpias mejor sin params
-                    let cleanSrc = src.split('?')[0];
-                    // Validar extensiones de imagen
-                    if (cleanSrc.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
-                        images.add(cleanSrc);
-                    }
-                }
-            }
+            const $img = $(el);
+            [
+                'src',
+                'data-src',
+                'data-original',
+                'data-origin-src',
+                'data-large_image',
+                'data-zoom-image',
+                'data-image',
+                'data-full',
+                'data-full-size-image-url',
+                'srcset',
+                'data-srcset',
+            ].forEach(attr => addImageCandidate($img.attr(attr)));
+        });
+
+        container.find('[style]').each((i, el) => {
+            const style = $(el).attr('style') || '';
+            const matches = style.match(/url\((['"]?)(.*?)\1\)/gi) || [];
+            matches.forEach(match => addImageCandidate(match.replace(/^url\((['"]?)/i, '').replace(/(['"]?)\)$/i, '')));
+        });
+
+        container.find('meta[property="og:image"], meta[name="twitter:image"], link[rel="image_src"]').each((i, el) => {
+            addImageCandidate($(el).attr('content') || $(el).attr('href'));
         });
         
         // Fallback: si no encontro nada en el contenedor, buscar links directos a imagenes (suele pasar en galerias Lightbox)
         if (images.size === 0) {
             $('a').each((i, el) => {
-                let href = $(el).attr('href');
-                if (href && href.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
-                    if (href.startsWith('//')) href = 'https:' + href;
-                    if (href.startsWith('http')) images.add(href.split('?')[0]);
-                }
+                addImageCandidate($(el).attr('href'));
             });
         }
 
@@ -353,4 +378,8 @@ module.exports = async function handler(req, res) {
     }
 
     return res.status(200).json({ images: [], debug: debugLogs });
+};
+
+module.exports._private = {
+    scrapeImages,
 };
