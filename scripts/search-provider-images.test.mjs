@@ -5,6 +5,10 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { _private } = require('../api/search-provider-images.js');
 
+test('provider image extraction exposes up to 8 review photos', () => {
+  assert.equal(_private.MAX_PROVIDER_IMAGES, 8);
+});
+
 test('scrapeImages extracts relative and lazy product image urls', async () => {
   const previousFetch = global.fetch;
   global.fetch = async () => ({

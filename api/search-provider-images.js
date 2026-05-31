@@ -6,6 +6,7 @@ const sharp = require('sharp');
 const crypto = require('crypto');
 
 const BUCKET = 'preventa-images'; // Reutilizamos el bucket existente
+const MAX_PROVIDER_IMAGES = 8;
 const PROVIDERS = [
     'futboldeprimera.com.co',
     'sportshirts.co',
@@ -210,11 +211,11 @@ async function scrapeImages(url) {
         ];
 
         for (const selector of productSelectors) {
-            const before = images.size;
+            const before = images.length;
             const container = $(selector);
             if (!container.length) continue;
             collectImagesFrom(container);
-            if (images.size > before) break;
+            if (images.length > before) break;
         }
 
         $('meta[property="og:image"], meta[name="twitter:image"], link[rel="image_src"]').each((i, el) => {
@@ -222,7 +223,7 @@ async function scrapeImages(url) {
         });
         
         // Fallback: si no encontro nada en el contenedor, buscar links directos a imagenes (suele pasar en galerias Lightbox)
-        if (images.size === 0) {
+        if (images.length === 0) {
             $('a').each((i, el) => {
                 addImageCandidate($(el).attr('href'));
             });
@@ -363,7 +364,7 @@ module.exports = async function handler(req, res) {
                 return !low.includes('logo') && !low.includes('tallas') && !low.includes('size') && !low.includes('icon');
             });
 
-            const toDownload = [...new Set(candidateImages)].slice(0, 4);
+            const toDownload = [...new Set(candidateImages)].slice(0, MAX_PROVIDER_IMAGES);
             const uploadedUrls = [];
 
             for (let i = 0; i < toDownload.length; i++) {
@@ -415,8 +416,8 @@ module.exports = async function handler(req, res) {
             return !low.includes('logo') && !low.includes('tallas') && !low.includes('size') && !low.includes('icon');
         });
 
-        // Limitar a las primeras 4 imagenes buenas
-        const toDownload = [...new Set(candidateImages)].slice(0, 4);
+        // Limitar a una cantidad revisable de imagenes buenas.
+        const toDownload = [...new Set(candidateImages)].slice(0, MAX_PROVIDER_IMAGES);
         const uploadedUrls = [];
 
         for (let i = 0; i < toDownload.length; i++) {
@@ -445,5 +446,6 @@ module.exports = async function handler(req, res) {
 };
 
 module.exports._private = {
+    MAX_PROVIDER_IMAGES,
     scrapeImages,
 };
