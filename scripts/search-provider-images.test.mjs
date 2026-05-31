@@ -34,8 +34,37 @@ test('scrapeImages extracts relative and lazy product image urls', async () => {
     assert.deepEqual(images, [
       'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-front-800x800.jpg',
       'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-back-800x800.jpg',
-      'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-detail-400x400.webp',
       'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-detail-900x900.webp',
+    ]);
+  } finally {
+    global.fetch = previousFetch;
+  }
+});
+
+test('scrapeImages keeps only one size variant for the same gallery photo', async () => {
+  const previousFetch = global.fetch;
+  global.fetch = async () => ({
+    ok: true,
+    text: async () => `
+      <main>
+        <div class="woocommerce-product-gallery">
+          <img
+            src="/wp-content/uploads/2026/05/brasil-front-300x300.jpg"
+            srcset="/wp-content/uploads/2026/05/brasil-front-300x300.jpg 300w, /wp-content/uploads/2026/05/brasil-front-600x600.jpg 600w, /wp-content/uploads/2026/05/brasil-front.jpg 1000w">
+          <img
+            src="/wp-content/uploads/2026/05/brasil-back-300x300.jpg"
+            srcset="/wp-content/uploads/2026/05/brasil-back-300x300.jpg 300w, /wp-content/uploads/2026/05/brasil-back.jpg 1000w">
+        </div>
+      </main>
+    `,
+  });
+
+  try {
+    const images = await _private.scrapeImages('https://futboldeprimera.com.co/producto/brasil-2004');
+
+    assert.deepEqual(images, [
+      'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-front.jpg',
+      'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-back.jpg',
     ]);
   } finally {
     global.fetch = previousFetch;

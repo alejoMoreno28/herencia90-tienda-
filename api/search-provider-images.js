@@ -97,7 +97,46 @@ async function scrapeImages(url) {
         const html = await res.text();
         const $ = cheerioLoad(html);
         
-        const images = new Set();
+        const images = [];
+        const seenImages = new Set();
+
+        function imageVariantKey(src) {
+            try {
+                const parsed = new URL(src);
+                parsed.search = '';
+                parsed.hash = '';
+                parsed.pathname = parsed.pathname
+                    .replace(/[-_]\d{2,5}x\d{2,5}(?=\.(?:jpg|jpeg|png|webp|avif)$)/i, '')
+                    .replace(/-\d{2,5}x(?=\.(?:jpg|jpeg|png|webp|avif)$)/i, '');
+                return parsed.href.toLowerCase();
+            } catch {
+                return String(src || '').toLowerCase();
+            }
+        }
+
+        function imageVariantScore(src) {
+            const lower = String(src || '').toLowerCase();
+            if (!/[-_]\d{2,5}x\d{2,5}(?=\.(?:jpg|jpeg|png|webp|avif)$)/i.test(lower)) return 1000000000;
+            const match = lower.match(/[-_](\d{2,5})x(\d{2,5})(?=\.(?:jpg|jpeg|png|webp|avif)$)/i);
+            if (!match) return 0;
+            return (parseInt(match[1], 10) || 0) * (parseInt(match[2], 10) || 0);
+        }
+
+        function addCleanImage(src) {
+            const key = imageVariantKey(src);
+            const existingIndex = images.findIndex(image => imageVariantKey(image) === key);
+            if (existingIndex >= 0) {
+                if (imageVariantScore(src) > imageVariantScore(images[existingIndex])) {
+                    seenImages.delete(images[existingIndex]);
+                    images[existingIndex] = src;
+                    seenImages.add(src);
+                }
+                return;
+            }
+            if (seenImages.has(src)) return;
+            images.push(src);
+            seenImages.add(src);
+        }
 
         function addImageCandidate(raw) {
             if (!raw || typeof raw !== 'string') return;
@@ -120,7 +159,7 @@ async function scrapeImages(url) {
 
                 const cleanSrc = candidate.split('?')[0];
                 if (cleanSrc.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
-                    images.add(cleanSrc);
+                    addCleanImage(cleanSrc);
                 }
             }
         }
