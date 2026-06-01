@@ -1939,17 +1939,51 @@
             });
         }
 
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function uploadProductImage(filename, optimized) {
+            const { data: sessionData } = await db.auth.getSession();
+            const token = sessionData && sessionData.session && sessionData.session.access_token;
+            if (!token) throw new Error('Sesion de admin expirada. Vuelve a iniciar sesion.');
+
+            const response = await fetch('/api/admin-upload-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    filename,
+                    contentType: optimized.type || 'image/webp',
+                    data: await blobToBase64(optimized.blob)
+                })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || 'Error subiendo imagen.');
+            return result.url;
+        }
+
         async function addImg(e, pI) {
             const f = e.target.files[0]; if (!f) return;
-            const optimized = await optimizeImageForUpload(f);
-            const filename = safeStorageFilename(f.name, optimized.ext);
-            const { error } = await db.storage.from('product-images').upload(filename, optimized.blob, { upsert: true, contentType: optimized.type });
-            if (error) { e.target.value = ''; alert("Error subiendo imagen: " + error.message); return; }
-            const { data: urlData } = db.storage.from('product-images').getPublicUrl(filename);
-            productData[pI].imagenes.push(urlData.publicUrl);
-            renderInventory();
-            await saveInventory(true);
-            e.target.value = '';
+            try {
+                const optimized = await optimizeImageForUpload(f);
+                const filename = safeStorageFilename(f.name, optimized.ext);
+                const publicUrl = await uploadProductImage(filename, optimized);
+                productData[pI].imagenes.push(publicUrl);
+                renderInventory();
+                await saveInventory(true);
+            } catch (error) {
+                alert("Error subiendo imagen: " + error.message);
+            } finally {
+                e.target.value = '';
+            }
         }
 
         async function saveInventory(silent=false) {
