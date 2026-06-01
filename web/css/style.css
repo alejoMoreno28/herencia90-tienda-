@@ -586,7 +586,36 @@ h1, h2, h3, .product-price, .hero-title {
     margin: 0 auto;
     padding: 40px 16px 60px;
 }
-.product-grid { display: block; }
+.product-grid {
+    display: block;
+    min-height: 80vh;
+}
+
+.catalog-skeleton-toolbar {
+    width: 100%;
+    height: 62px;
+    margin: 0 0 22px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(30,30,30,0.08) 25%, rgba(179,151,93,0.12) 50%, rgba(30,30,30,0.08) 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.6s infinite linear;
+}
+
+.catalog-skeleton-grid {
+    min-height: 80vh;
+}
+
+.catalog-card-skeleton {
+    min-height: 420px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        linear-gradient(90deg, rgba(235,238,242,0.72) 25%, rgba(248,249,250,0.98) 50%, rgba(235,238,242,0.72) 75%) border-box;
+    background-size: 100% 100%, 600px 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    animation: shimmer 1.6s infinite linear;
+}
 
 .category-title {
     margin-top: 40px;
@@ -608,6 +637,7 @@ h1, h2, h3, .product-price, .hero-title {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 20px;
+    min-height: 80vh;
 }
 /* Toggle 1 columna (solo móvil) */
 body.grid-single .product-grid-inner {

@@ -24,6 +24,9 @@ let catalogSearchTerm = '';
 let catalogSort = 'recommended';
 let catalogPage = 1;
 const CATALOG_PAGE_SIZE = 24;
+const CATALOG_INITIAL_RENDER_COUNT = 8;
+const CATALOG_RENDER_BATCH_SIZE = 8;
+let catalogRenderToken = 0;
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -972,9 +975,89 @@ function renderNavigation() {
 }
 
 // ── Render Products ───────────────────────────────────────────────────────────
+function createCatalogProductCard(product, i, productIndexById) {
+    const idx = productIndexById.get(product.id) ?? allProducts.findIndex(p => p.id === product.id);
+    const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
+        ? product.imagenes[0] : (product.imagen || ''));
+    const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
+        ? product.imagenes[0] : (product.imagen || ''));
+
+    const isBajoPedido = isProductBajoPedido(product);
+    const tallas = Object.entries(product.tallas || {});
+    const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+    const sizePills = buildSizePills(product.tallas, isBajoPedido);
+    const badge = getProductBadge(product);
+
+    const card = document.createElement('div');
+    card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
+    if (!prefersReducedMotion && !isTouchDevice) {
+        card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
+    }
+    if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
+
+    const imageAttrs = i < 3
+        ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"`
+        : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`;
+
+    card.innerHTML = `
+        <div class="product-image-wrapper img-loading">
+            <img ${imageAttrs} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
+            ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
+        </div>
+        <div class="product-info">
+            <h3 class="product-title">${product.equipo}</h3>
+            <div class="product-price">${formatPrice(product.precio)}</div>
+            <div class="product-sizes">${sizePills}</div>
+            <div class="product-actions">
+                ${allSoldOut
+                    ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
+                    : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
+                }
+            </div>
+        </div>
+    `;
+
+    const img = card.querySelector('.lazy-img');
+    if (img && img.dataset.src) {
+        bindProductImageFallback(img);
+        imgObserver.observe(img);
+    } else if (img) {
+        bindProductImageFallback(img);
+    }
+
+    if (!prefersReducedMotion && !isTouchDevice) {
+        cardRevealObserver.observe(card);
+    } else {
+        card.classList.remove('card-hidden');
+    }
+
+    return card;
+}
+
+function appendCatalogProductBatch(grid, visibleProducts, start, end, productIndexById, renderToken) {
+    if (renderToken !== catalogRenderToken) return;
+    const fragment = document.createDocumentFragment();
+    for (let i = start; i < end; i++) {
+        fragment.appendChild(createCatalogProductCard(visibleProducts[i], i, productIndexById));
+    }
+    grid.appendChild(fragment);
+}
+
+function renderDeferredCatalogProducts(grid, visibleProducts, start, productIndexById, renderToken) {
+    if (renderToken !== catalogRenderToken || start >= visibleProducts.length) return;
+    const end = Math.min(start + CATALOG_RENDER_BATCH_SIZE, visibleProducts.length);
+    requestAnimationFrame(() => {
+        appendCatalogProductBatch(grid, visibleProducts, start, end, productIndexById, renderToken);
+        setTimeout(() => renderDeferredCatalogProducts(grid, visibleProducts, end, productIndexById, renderToken), 0);
+    });
+}
+
 function renderProducts(products) {
     const container = byId('productGrid');
     if (!container) return;
+
+    const renderToken = ++catalogRenderToken;
+    container.setAttribute('aria-busy', 'true');
 
     const pageCat = document.body.getAttribute('data-category');
     let displayProducts = (products || []).filter(p => isProductInPageCategory(p, pageCat));
@@ -986,13 +1069,15 @@ function renderProducts(products) {
     }
     displayProducts = displayProducts.slice().sort(compareCatalogProducts);
 
-    container.innerHTML = '';
+    container.replaceChildren();
+    container.classList.remove('catalog-skeleton-active');
 
     if (displayProducts.length === 0) {
         container.innerHTML = `
             ${pageCat ? `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>` : ''}
             ${renderCatalogToolbar(0, 1, 1, 0, 0)}
             <p class="catalog-empty">No se encontraron resultados.</p>`;
+        container.setAttribute('aria-busy', 'false');
         return;
     }
 
@@ -1002,6 +1087,7 @@ function renderProducts(products) {
     const visibleProducts = displayProducts.slice(startIndex, startIndex + CATALOG_PAGE_SIZE);
     const start = startIndex + 1;
     const end = startIndex + visibleProducts.length;
+    const productIndexById = new Map(allProducts.map((product, index) => [product.id, index]));
 
     if (pageCat) {
         container.insertAdjacentHTML('beforeend', `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>`);
@@ -1012,61 +1098,15 @@ function renderProducts(products) {
     grid.className = 'product-grid-inner';
     container.appendChild(grid);
 
-    visibleProducts.forEach((product, i) => {
-        const idx = allProducts.findIndex(p => p.id === product.id);
-        const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
-            ? product.imagenes[0] : (product.imagen || ''));
-        const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
-            ? product.imagenes[0] : (product.imagen || ''));
-
-        const isBajoPedido = isProductBajoPedido(product);
-
-        const tallas = Object.entries(product.tallas || {});
-        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
-        const sizePills = buildSizePills(product.tallas, isBajoPedido);
-        const badge = getProductBadge(product);
-
-        const card = document.createElement('div');
-        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
-        if (!prefersReducedMotion && !isTouchDevice) {
-            card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
-        }
-        if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
-
-        card.innerHTML = `
-            <div class="product-image-wrapper img-loading">
-                <img ${i < 3 ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"` : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
-                ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
-            </div>
-            <div class="product-info">
-                <h3 class="product-title">${product.equipo}</h3>
-                <div class="product-price">${formatPrice(product.precio)}</div>
-                <div class="product-sizes">${sizePills}</div>
-                <div class="product-actions">
-                    ${allSoldOut
-                ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
-            }
-                </div>
-            </div>
-        `;
-
-        const img = card.querySelector('.lazy-img');
-        if (img && img.dataset.src) {
-            bindProductImageFallback(img);
-            imgObserver.observe(img);
-        } else if (img) {
-            bindProductImageFallback(img);
-        }
-        if (!prefersReducedMotion && !isTouchDevice) {
-            cardRevealObserver.observe(card);
-        } else {
-            card.classList.remove('card-hidden');
-        }
-        grid.appendChild(card);
-    });
+    const initialEnd = Math.min(CATALOG_INITIAL_RENDER_COUNT, visibleProducts.length);
+    appendCatalogProductBatch(grid, visibleProducts, 0, initialEnd, productIndexById, renderToken);
 
     container.insertAdjacentHTML('beforeend', `<div class="catalog-toolbar catalog-toolbar-bottom">${renderCatalogPagination(catalogPage, totalPages)}</div>`);
+    container.setAttribute('aria-busy', 'false');
+
+    if (initialEnd < visibleProducts.length) {
+        renderDeferredCatalogProducts(grid, visibleProducts, initialEnd, productIndexById, renderToken);
+    }
 
     if (false && !prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
         runAfterIdleDelay(() => {
@@ -1084,7 +1124,7 @@ function renderProducts(products) {
     }
 }
 
-// ── Render Featured Products (HOME) ───────────────────────────────────────────
+// â”€â”€ Render Featured Products (HOME) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderFeaturedProducts() {
     const container = byId('featuredProductGrid');
     if (!container) return;

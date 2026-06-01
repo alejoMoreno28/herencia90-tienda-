@@ -42,6 +42,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preload" href="/productos.json" as="fetch" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/style.css?v=20260601-properf">
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -145,7 +146,19 @@
     
 
     <main class="container" id="catalogo">
-        <div class="product-grid" id="productGrid"></div>
+        <div class="product-grid catalog-skeleton-active" id="productGrid" aria-busy="true">
+            <div class="catalog-skeleton-toolbar" aria-hidden="true"></div>
+            <div class="product-grid-inner catalog-skeleton-grid" aria-hidden="true">
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+                <div class="catalog-card-skeleton"></div>
+            </div>
+        </div>
     </main>
 
     
