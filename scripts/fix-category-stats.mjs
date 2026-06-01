@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+﻿import { readFileSync, writeFileSync } from 'fs';
 import { readdirSync } from 'fs';
 
 const BASE = 'C:/Users/PC/Desktop/HERENCIA90';
@@ -23,7 +23,7 @@ for (const file of files) {
         </div>
         <div class="stat-box">
           <strong class="stat-number">2 x 180</strong>
-          <span>promo vigente para impulsar ticket promedio</span>
+          <span>promo solo refs seleccionadas de $99.000</span>
         </div>`;
 
   const goodStats = `        <div class="stat-box">

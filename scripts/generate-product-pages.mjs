@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -845,7 +845,7 @@ function renderCollectionPage(collection) {
         </div>
         <div class="stat-box">
           <strong class="stat-number">2 x 180</strong>
-          <span>promo vigente para impulsar ticket promedio</span>
+          <span>promo solo refs seleccionadas de $99.000</span>
         </div>
       </div>
     </section>
@@ -1668,7 +1668,7 @@ function renderProductPage(product) {
           </div>
           <div class="meta-box">
             <strong>Promo vigente</strong>
-            <span>2 x $180.000</span>
+            <span>Solo refs $99.000</span>
           </div>
           <div class="meta-box">
             <strong>Entrega</strong>
@@ -1696,7 +1696,7 @@ function renderProductPage(product) {
       <ul>
         <li>Calidad importada, referencias retro y de temporada con enfoque en buenos acabados.</li>
         <li>Atencion rapida por WhatsApp para confirmar talla, disponibilidad y forma de pago.</li>
-        <li>Promo 2 x $180.000 en referencias seleccionadas para impulsar ticket promedio.</li>
+        <li>Promo 2 x $180.000 solo aplica en referencias seleccionadas de $99.000.</li>
         <li>Compras desde 2 unidades pueden entregarse con caja para mejorar presentacion.</li>
       </ul>
     </section>
