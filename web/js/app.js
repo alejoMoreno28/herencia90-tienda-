@@ -132,6 +132,42 @@ function onId(id, eventName, handler) {
     if (el) el.addEventListener(eventName, handler);
 }
 
+function normalizeSearchTerm(value) {
+    return String(value || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function isCatalogSearchPage() {
+    return Boolean(byId('productGrid'));
+}
+
+function syncSearchInputs(value) {
+    const raw = String(value || '');
+    const desktopInput = byId('searchInput');
+    const mobileInput = byId('mobileSearchInput');
+    if (desktopInput && desktopInput.value !== raw) desktopInput.value = raw;
+    if (mobileInput && mobileInput.value !== raw) mobileInput.value = raw;
+}
+
+function catalogSearchUrl(value) {
+    const query = String(value || '').trim();
+    return query ? `/catalogo.html?q=${encodeURIComponent(query)}` : '/catalogo.html';
+}
+
+function runCatalogSearch(value) {
+    const raw = String(value || '').trim();
+    if (!isCatalogSearchPage()) {
+        if (raw) window.location.href = catalogSearchUrl(raw);
+        return;
+    }
+    catalogSearchTerm = normalizeSearchTerm(raw);
+    catalogPage = 1;
+    syncSearchInputs(raw);
+    renderProducts(allProducts);
+}
+
 let vanillaTiltPromise = null;
 function loadVanillaTilt() {
     if (window.VanillaTilt) return Promise.resolve(window.VanillaTilt);
@@ -418,6 +454,16 @@ function closeSearchOverlay() {
     renderProducts(allProducts);
 }
 
+function applySearchFromUrl() {
+    if (!isCatalogSearchPage()) return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') || '';
+    if (!q) return;
+    catalogSearchTerm = normalizeSearchTerm(q);
+    catalogPage = 1;
+    syncSearchInputs(q);
+}
+
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // Forzar la reproducción del video de fondo en móviles (iOS/Android y Modo Ahorro)
@@ -488,6 +534,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Registrar visita a la página
     runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);
 
+    applySearchFromUrl();
+
     loadProducts().then((products) => {
         allProducts = products;
         renderNavigation();
@@ -549,9 +597,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            catalogSearchTerm = e.target.value.toLowerCase().trim();
-            catalogPage = 1;
-            renderProducts(allProducts);
+            if (isCatalogSearchPage()) runCatalogSearch(e.target.value);
+        });
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runCatalogSearch(e.currentTarget.value);
+            }
         });
     }
 
@@ -559,9 +611,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileSearchInput = document.getElementById('mobileSearchInput');
     if (mobileSearchInput) {
         mobileSearchInput.addEventListener('input', (e) => {
-            catalogSearchTerm = e.target.value.toLowerCase().trim();
-            catalogPage = 1;
-            renderProducts(allProducts);
+            if (isCatalogSearchPage()) runCatalogSearch(e.target.value);
+        });
+        mobileSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runCatalogSearch(e.currentTarget.value);
+            }
+        });
+        mobileSearchInput.addEventListener('search', (e) => {
+            runCatalogSearch(e.currentTarget.value);
         });
     }
 
@@ -1070,7 +1129,7 @@ function renderProducts(products) {
     let displayProducts = (products || []).filter(p => isProductInPageCategory(p, pageCat));
     if (catalogSearchTerm) {
         displayProducts = displayProducts.filter(p => {
-            const haystack = `${p.equipo || ''} ${p.categoria || ''} ${p.descripcion || ''}`.toLowerCase();
+            const haystack = normalizeSearchTerm(`${p.equipo || ''} ${p.categoria || ''} ${p.descripcion || ''}`);
             return haystack.includes(catalogSearchTerm);
         });
     }

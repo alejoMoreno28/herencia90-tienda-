@@ -1113,11 +1113,12 @@
             if (!passFilter) return false;
 
             if (searchTerm) {
+                var searchNeedle = normalizeText(searchTerm);
                 var haystack = [
                     r.equipo, r.temporada, r.tipo, r.categoria,
                     r.pais_o_club, r.descripcion, (r.tags || []).join(' ')
-                ].join(' ').toLowerCase();
-                return haystack.indexOf(searchTerm) !== -1;
+                ].join(' ');
+                return normalizeText(haystack).indexOf(searchNeedle) !== -1;
             }
 
             return true;
@@ -1125,7 +1126,7 @@
     }
 
     function pvApplyFilters() {
-        var searchTerm = (document.getElementById('pv-search').value || '').trim().toLowerCase();
+        var searchTerm = (document.getElementById('pv-search').value || '').trim();
         var filtered = getFilteredItems(searchTerm);
         renderCurrentView(filtered, searchTerm, !!searchTerm || _pvFiltroType !== 'all');
     }
@@ -1379,6 +1380,24 @@
         pvApplyFilters();
     }
 
+    function pvApplySearchFromUrl() {
+        var mainInput = document.getElementById('pv-search');
+        if (!mainInput) return;
+        var params = new URLSearchParams(window.location.search);
+        var q = params.get('q') || '';
+        if (!q) return;
+        mainInput.value = q;
+        var mobileInput = document.getElementById('mobileSearchInput');
+        if (mobileInput) mobileInput.value = q;
+        _pvPage = 1;
+    }
+
+    function pvSubmitMobileSearch() {
+        pvCloseSearchOverlay();
+        var gal = document.getElementById('pv-galeria');
+        if (gal) gal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function pvUpdateViewButton() {
         var body = document.body;
         var btn = document.getElementById('gridToggleBtn');
@@ -1431,6 +1450,14 @@
                     pvApplyFilters();
                 }, 220);
             });
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimer);
+                    _pvPage = 1;
+                    pvApplyFilters();
+                }
+            });
         }
 
         try {
@@ -1442,6 +1469,17 @@
         if (mobileSearchInput) {
             mobileSearchInput.addEventListener('input', function () {
                 pvSyncSearchFromMobile(this.value);
+            });
+            mobileSearchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    pvSyncSearchFromMobile(this.value);
+                    pvSubmitMobileSearch();
+                }
+            });
+            mobileSearchInput.addEventListener('search', function () {
+                pvSyncSearchFromMobile(this.value);
+                pvSubmitMobileSearch();
             });
         }
 
@@ -1511,6 +1549,7 @@
             }
         }, { passive: true });
 
+        pvApplySearchFromUrl();
         pvCargar();
     });
 })();
