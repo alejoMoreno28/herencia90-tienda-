@@ -497,6 +497,17 @@ function buildSizePills(tallas, isBajoPedido = false) {
     ).join('');
 }
 
+function getAvailableStock(product) {
+    return Object.values(product.tallas || {}).reduce((total, qty) => total + (parseInt(qty, 10) || 0), 0);
+}
+
+function isProductBajoPedido(product) {
+    const hasStock = getAvailableStock(product) > 0;
+    if (hasStock) return false;
+    const cat = (product.categoria || '').toLowerCase();
+    return product.bajo_pedido === true || cat.includes('retro') || cat.includes('leyendas');
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatPrice(price) {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(price);
@@ -863,9 +874,7 @@ function renderProducts(products) {
         const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
             ? product.imagenes[0] : (product.imagen || ''));
 
-        const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
-                             (product.categoria || '').toLowerCase().includes('leyendas') || 
-                             product.bajo_pedido === true;
+        const isBajoPedido = isProductBajoPedido(product);
 
         const tallas = Object.entries(product.tallas || {});
         const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
@@ -946,9 +955,7 @@ function renderFeaturedProducts() {
         const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
             ? product.imagenes[0] : (product.imagen || ''));
 
-        const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
-                             (product.categoria || '').toLowerCase().includes('leyendas') || 
-                             product.bajo_pedido === true;
+        const isBajoPedido = isProductBajoPedido(product);
 
         const tallas = Object.entries(product.tallas || {});
         const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
@@ -1016,9 +1023,7 @@ function openModal(productIndex) {
     document.getElementById('modalTitle').innerText = product.equipo;
     document.getElementById('modalPrice').innerText = formatPrice(product.precio);
 
-    const isBajoPedido = (product.categoria || '').toLowerCase().includes('retro') || 
-                         (product.categoria || '').toLowerCase().includes('leyendas') || 
-                         product.bajo_pedido === true;
+    const isBajoPedido = isProductBajoPedido(product);
 
     // Descripción con aviso de preventa
     const descEl = document.getElementById('modalDescription');
