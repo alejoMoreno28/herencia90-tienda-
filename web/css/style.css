@@ -4346,3 +4346,59 @@ body.grid-single .product-grid-inner {
         padding: 0px 20px 40px;
     }
 }
+
+/* Contrast guardrails for the light storefront theme */
+.catalog-page-head span,
+.category-title span,
+.preorder-badge {
+    color: #8a6a25;
+}
+
+.catalog-page-head h1,
+.category-title,
+.section-title,
+.product-title,
+.modal-title,
+.cart-header h3 {
+    color: #172033;
+}
+
+.catalog-results,
+.catalog-sort-wrap,
+.catalog-empty,
+.product-description,
+.cart-empty,
+.cart-total span:first-child,
+.btn-clear-cart {
+    color: #48566d;
+}
+
+.catalog-sort,
+.catalog-page-btn,
+.size-pill,
+.category-drawer-link,
+.cart-item-title,
+.cart-item-size {
+    color: #253247;
+}
+
+.catalog-page-btn:hover,
+.catalog-page-btn.active,
+.size-btn.selected,
+.btn-preorder-action,
+.btn-secondary-preorder:hover {
+    color: #111827;
+}
+
+.product-card.soldout .product-title,
+.product-card.soldout .product-price,
+.product-card.soldout .product-sizes {
+    color: #64748b;
+}
+
+.btn-whatsapp[style*="opacity:0.4"],
+.product-card.soldout .btn-whatsapp {
+    color: #8a8173 !important;
+    border-color: #d8cbb2 !important;
+    background: #fbfaf7 !important;
+}
