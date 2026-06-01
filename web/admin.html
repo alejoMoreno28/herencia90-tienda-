@@ -137,18 +137,55 @@
         .badge-out { background: var(--danger); }
 
         /* --- INVENTARIO --- */
-        .category-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 30px; overflow-x: auto; }
-        .category-section h3 { margin-top: 0; color: #111; border-bottom: 2px solid var(--gold); padding-bottom: 10px; text-transform: uppercase; font-size: 14px;}
-        .inv-table { width: 100%; border-collapse: collapse; min-width: 1200px; font-size: 12px; }
-        .inv-table th, .inv-table td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .inv-table th { background: #fafafa; text-transform: uppercase; font-size: 10px; color: #666; }
-        .low-stock { background-color: #fff3f3; border-left: 3px solid #dc3545; }
-        .stock-input { width: 45px !important; text-align: center; }
-        .cost-input { width: 65px !important; font-weight: 700; color: #007bff; border:1px solid #b8daff; background: #f8fbff; }
-        .price-input { width: 85px !important; font-weight: bold; color: #111; }
-        .photo-list { list-style:none; padding:0; margin:0; }
-        .photo-list li { background:#f9f9f9; padding:4px; margin-bottom:4px; border-radius:3px; display:flex; justify-content:space-between; align-items:center; border:1px solid #ddd; font-size:10px; }
-        .remove-img { color:red; font-weight:bold; cursor:pointer; }
+        .inventory-shell { display:flex; flex-direction:column; gap:16px; }
+        .inventory-toolbar {
+            display:grid; grid-template-columns:minmax(260px,1.1fr) repeat(3,minmax(150px,.45fr)) auto;
+            gap:10px; align-items:end; background:#fff; border:1px solid #eee7d8; border-radius:8px;
+            padding:14px; box-shadow:0 2px 10px rgba(0,0,0,.03);
+        }
+        .inventory-field label { display:block; margin-bottom:5px; color:#6f6248; font-size:10px; font-weight:900; text-transform:uppercase; }
+        .inventory-field input, .inventory-field select { width:100%; min-height:38px; font-size:13px; border-radius:6px; }
+        .inventory-search { position:relative; }
+        .inventory-search span { position:absolute; left:11px; bottom:10px; color:#9b8a61; pointer-events:none; }
+        .inventory-search input { padding-left:34px; }
+        .inventory-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        .inventory-actions button { min-height:38px; white-space:nowrap; }
+        .inventory-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+        .inventory-metric {
+            background:#fff; border:1px solid #eee; border-top:3px solid var(--gold); border-radius:8px;
+            padding:12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.025);
+        }
+        .inventory-metric strong { display:block; font-size:22px; line-height:1; color:#111; margin-bottom:5px; }
+        .inventory-metric span { color:#777; font-size:11px; font-weight:800; text-transform:uppercase; }
+        .inventory-metric.warning { border-top-color:#dc3545; }
+        .inventory-metric.good { border-top-color:#198754; }
+        .category-section { background:white; border:1px solid #ececec; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.03); margin-bottom:18px; overflow:hidden; }
+        .category-section h3 { margin:0; color:#111; background:#fcfbf7; border-bottom:1px solid #eee7d8; padding:14px 18px; text-transform:uppercase; font-size:13px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+        .category-section h3 small { color:#806a33; background:#f5ead0; border:1px solid #e3d1a8; border-radius:999px; padding:4px 9px; font-size:10px; font-weight:900; }
+        .inventory-table-wrap { overflow-x:auto; }
+        .inv-table { width:100%; border-collapse:separate; border-spacing:0; min-width:1320px; font-size:12px; }
+        .inv-table th, .inv-table td { text-align:left; padding:10px 9px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
+        .inv-table th { position:sticky; top:0; z-index:1; background:#fff; text-transform:uppercase; font-size:10px; color:#706a5d; font-weight:900; letter-spacing:.2px; }
+        .inv-table tbody tr:hover { background:#fffdf7; }
+        .low-stock { background-color:#fff7f7; }
+        .stock-pill { display:inline-flex; align-items:center; justify-content:center; min-width:58px; border-radius:999px; padding:5px 8px; font-size:11px; font-weight:900; }
+        .stock-pill.ok { background:#e9f7ef; color:#126c35; }
+        .stock-pill.low { background:#fff4de; color:#8a5a00; }
+        .stock-pill.empty { background:#fdecee; color:#b42335; }
+        .inv-ref-input { min-width:250px; font-weight:700; }
+        .stock-input { width:48px !important; text-align:center; font-weight:800; }
+        .cost-input { width:72px !important; font-weight:800; color:#0d6efd; border:1px solid #b8daff; background:#f8fbff; }
+        .price-input { width:92px !important; font-weight:900; color:#111; }
+        .inventory-desc textarea { width:180px; min-height:42px; resize:vertical; font-size:11px; line-height:1.25; }
+        .photo-list { list-style:none; padding:0; margin:5px 0 0; display:flex; flex-wrap:wrap; gap:4px; }
+        .photo-list li { background:#f9f9f9; padding:3px 5px; border-radius:5px; display:flex; gap:6px; align-items:center; border:1px solid #ddd; font-size:10px; }
+        .remove-img { color:#dc3545; font-weight:900; cursor:pointer; }
+        .inventory-empty { background:#fff; border:1px dashed #d9c391; border-radius:8px; padding:34px; text-align:center; color:#7a6a47; font-weight:800; }
+        @media (max-width:1200px) {
+            .inventory-toolbar { grid-template-columns:1fr 1fr; }
+            .inventory-actions { grid-column:1 / -1; }
+            .inventory-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
 
         /* --- PREVENTA ADMIN --- */
         .pv-admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -426,16 +463,79 @@
 
             <!-- VISTA INVENTARIO -->
             <div id="view-inventario" class="view-section">
-                <div style="margin-bottom: 20px; display: flex; gap: 15px;">
-                    <button class="btn-add" onclick="addProduct()">+ Nueva Referencia</button>
-                    <button class="btn-save" onclick="saveInventory()">Guardar Inventario Completo</button>
-                    <div style="margin-left:auto; display:flex; gap:10px; align-items:center; font-size:12px;">
-                        <select id="renameCatSelect"></select>
-                        <input type="text" id="renameCatInput" placeholder="Renombrar...">
-                        <button class="btn-save" style="padding:6px" onclick="renameCategory()">Renombrar Cat.</button>
+                <div class="inventory-shell">
+                    <div class="inventory-summary">
+                        <div class="inventory-metric good">
+                            <strong id="inv-summary-units">0</strong>
+                            <span>Unidades disponibles</span>
+                        </div>
+                        <div class="inventory-metric">
+                            <strong id="inv-summary-refs">0</strong>
+                            <span>Referencias visibles</span>
+                        </div>
+                        <div class="inventory-metric warning">
+                            <strong id="inv-summary-empty">0</strong>
+                            <span>Agotadas</span>
+                        </div>
+                        <div class="inventory-metric">
+                            <strong id="inv-summary-value">$0</strong>
+                            <span>Valor potencial</span>
+                        </div>
                     </div>
+
+                    <div class="inventory-toolbar">
+                        <div class="inventory-field inventory-search">
+                            <label for="invSearchInput">Buscar referencia</label>
+                            <span>🔍</span>
+                            <input id="invSearchInput" type="search" placeholder="Nombre, categoría, descripción o ID..." oninput="renderInventory()">
+                        </div>
+                        <div class="inventory-field">
+                            <label for="invCategoryFilter">Categoría</label>
+                            <select id="invCategoryFilter" onchange="renderInventory()">
+                                <option value="all">Todas</option>
+                            </select>
+                        </div>
+                        <div class="inventory-field">
+                            <label for="invStockFilter">Estado</label>
+                            <select id="invStockFilter" onchange="renderInventory()">
+                                <option value="all">Todo el inventario</option>
+                                <option value="available">Con stock</option>
+                                <option value="low">Bajo stock (1-2)</option>
+                                <option value="empty">Agotadas</option>
+                            </select>
+                        </div>
+                        <div class="inventory-field">
+                            <label for="invSortSelect">Ordenar</label>
+                            <select id="invSortSelect" onchange="renderInventory()">
+                                <option value="category">Categoría</option>
+                                <option value="name">Nombre A-Z</option>
+                                <option value="stockDesc">Más stock</option>
+                                <option value="stockAsc">Menos stock</option>
+                                <option value="idDesc">Más recientes</option>
+                            </select>
+                        </div>
+                        <div class="inventory-actions">
+                            <button class="btn-add" onclick="addProduct()">+ Nueva Referencia</button>
+                            <button class="btn-save" onclick="saveInventory()">Guardar Inventario</button>
+                        </div>
+                    </div>
+
+                    <div class="inventory-toolbar" style="grid-template-columns:minmax(180px,.5fr) minmax(220px,.6fr) auto;">
+                        <div class="inventory-field">
+                            <label for="renameCatSelect">Categoría actual</label>
+                            <select id="renameCatSelect"></select>
+                        </div>
+                        <div class="inventory-field">
+                            <label for="renameCatInput">Nuevo nombre</label>
+                            <input type="text" id="renameCatInput" placeholder="Renombrar categoría...">
+                        </div>
+                        <div class="inventory-actions">
+                            <button class="btn-save" onclick="renameCategory()">Renombrar categoría</button>
+                        </div>
+                    </div>
+
+                    <div id="tablesContainer"></div>
                 </div>
-                <div id="tablesContainer"></div>
             </div>
 
             <!-- VISTA ANALYTICS -->
@@ -1622,6 +1722,129 @@
 
         function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
         function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); calculateInventoryValuation(); }
+
+        function getProductStock(p) {
+            return Object.values(p.tallas || {}).reduce((a,b)=>a+(parseInt(b||0) || 0),0);
+        }
+
+        function updateInventorySummary(items) {
+            const refs = items.length;
+            const units = items.reduce((sum, item) => sum + item.stock, 0);
+            const empty = items.filter(item => item.stock === 0).length;
+            const potential = items.reduce((sum, item) => sum + (item.stock * (parseFloat(item.p.precio) || 0)), 0);
+            setText('inv-summary-units', units);
+            setText('inv-summary-refs', refs);
+            setText('inv-summary-empty', empty);
+            setText('inv-summary-value', formatter.format(potential));
+        }
+
+        function renderInventory() {
+            const cnt = document.getElementById('tablesContainer');
+            cnt.innerHTML = '';
+            CATEGORIAS_INV = [...new Set(productData.map(p=>p.categoria||'Otras'))];
+            if(!CATEGORIAS_INV.length) CATEGORIAS_INV=['Nueva'];
+            
+            const renameSel = document.getElementById('renameCatSelect');
+            if(renameSel) renameSel.innerHTML = CATEGORIAS_INV.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+
+            const catFilter = document.getElementById('invCategoryFilter');
+            if (catFilter) {
+                const current = catFilter.value || 'all';
+                catFilter.innerHTML = '<option value="all">Todas</option>' + CATEGORIAS_INV.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+                catFilter.value = current === 'all' || CATEGORIAS_INV.includes(current) ? current : 'all';
+            }
+
+            const query = (document.getElementById('invSearchInput')?.value || '').toLowerCase().trim();
+            const categoryFilter = document.getElementById('invCategoryFilter')?.value || 'all';
+            const stockFilter = document.getElementById('invStockFilter')?.value || 'all';
+            const sortMode = document.getElementById('invSortSelect')?.value || 'category';
+
+            const allItems = productData.map((p, i) => {
+                if(!p.tallas) p.tallas={S:0,M:0,L:0,XL:0};
+                const stock = getProductStock(p);
+                const searchable = `${p.id || ''} ${p.categoria || ''} ${p.equipo || ''} ${p.descripcion || ''}`.toLowerCase();
+                return { p, i, stock, searchable };
+            });
+
+            updateInventorySummary(allItems);
+
+            let visibleItems = allItems.filter(item => {
+                const matchesQuery = !query || item.searchable.includes(query);
+                const matchesCategory = categoryFilter === 'all' || item.p.categoria === categoryFilter;
+                const matchesStock = stockFilter === 'all'
+                    || (stockFilter === 'available' && item.stock > 0)
+                    || (stockFilter === 'low' && item.stock > 0 && item.stock <= 2)
+                    || (stockFilter === 'empty' && item.stock === 0);
+                return matchesQuery && matchesCategory && matchesStock;
+            });
+
+            visibleItems.sort((a, b) => {
+                if (sortMode === 'name') return String(a.p.equipo || '').localeCompare(String(b.p.equipo || ''), 'es');
+                if (sortMode === 'stockDesc') return b.stock - a.stock;
+                if (sortMode === 'stockAsc') return a.stock - b.stock;
+                if (sortMode === 'idDesc') return (b.p.id || 0) - (a.p.id || 0);
+                return String(a.p.categoria || '').localeCompare(String(b.p.categoria || ''), 'es')
+                    || String(a.p.equipo || '').localeCompare(String(b.p.equipo || ''), 'es');
+            });
+
+            if (!visibleItems.length) {
+                cnt.innerHTML = '<div class="inventory-empty">No encontré referencias con esos filtros.</div>';
+                calculateInventoryValuation();
+                return;
+            }
+
+            const grouped = visibleItems.reduce((acc, item) => {
+                const cat = item.p.categoria || 'Otras';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(item);
+                return acc;
+            }, {});
+
+            Object.keys(grouped).forEach(cat => {
+                const items = grouped[cat];
+                const catUnits = items.reduce((sum, item) => sum + item.stock, 0);
+                let html = `<div class="category-section"><h3>${escapeHtml(cat)} <small>${items.length} ref · ${catUnits} uds</small></h3>
+                    <div class="inventory-table-wrap"><table class="inv-table"><thead><tr>
+                        <th>ID</th><th>Estado</th><th>Categoría</th><th>Referencia</th>
+                        <th title="En USD basado en facturas">Costo USD</th><th title="Valor base COP con TRM actual">Costo COP</th>
+                        <th>Precio</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+                        <th>Descripción y fotos</th><th></th>
+                    </tr></thead><tbody>`;
+                
+                items.forEach(({p,i,stock}) => {
+                    const stockCls = stock === 0 ? 'low-stock' : '';
+                    const stockTone = stock === 0 ? 'empty' : stock <= 2 ? 'low' : 'ok';
+                    const stockLabel = stock === 0 ? 'Agotada' : `${stock} uds`;
+                    const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
+                    const imageList = Array.isArray(p.imagenes) ? p.imagenes : [];
+                    const photos = `<ul class="photo-list">` + imageList.map((img, ix)=>`<li><a href="${escapeHtml(img)}" target="_blank" rel="noopener">Foto ${ix + 1}</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#f3f0e8;border:1px solid #e3d6b6;border-radius:5px;padding:4px 6px;display:inline-block;margin-top:5px;font-weight:800;">+ Foto<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
+
+                    html += `<tr class="${stockCls}">
+                        <td><b>#${p.id}</b></td>
+                        <td><span class="stock-pill ${stockTone}">${stockLabel}</span></td>
+                        <td><select onchange="uD(${i},'categoria',this.value)">${CATEGORIAS_INV.map(c=>`<option value="${escapeHtml(c)}" ${c===p.categoria?'selected':''}>${escapeHtml(c)}</option>`).join('')}</select></td>
+                        <td><input class="inv-ref-input" type="text" value="${escapeHtml(p.equipo)}" onchange="uD(${i},'equipo',this.value)"></td>
+                        <td><input type="number" class="cost-input" step="0.01" value="${p.costo_usd||''}" onchange="uD(${i},'costo_usd',this.value)"></td>
+                        <td style="color:#777; font-weight:800;">${formatter.format(pCOP)}</td>
+                        <td><input type="number" class="price-input" value="${p.precio}" onchange="uD(${i},'precio',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="uS(${i},'S',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="uS(${i},'M',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="uS(${i},'L',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="uS(${i},'XL',this.value)"></td>
+                        <td class="inventory-desc">
+                            <textarea onchange="uD(${i},'descripcion',this.value)" rows="2">${escapeHtml(p.descripcion||'')}</textarea>
+                            ${photos}
+                        </td>
+                        <td><button class="btn-danger" onclick="delP(${i})">Borrar</button></td>
+                    </tr>`;
+                });
+                cnt.innerHTML += html + `</tbody></table></div></div>`;
+            });
+            calculateInventoryValuation();
+        }
+
+        function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria'||f==='precio') renderInventory(); else calculateInventoryValuation(); }
+        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); renderInventory(); }
         
         async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
