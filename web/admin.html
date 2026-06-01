@@ -1896,15 +1896,31 @@
             renderInventory();
             await saveInventory(true);
         }
+        function safeStorageFilename(name) {
+            const raw = String(name || 'imagen');
+            const dot = raw.lastIndexOf('.');
+            const base = dot > 0 ? raw.slice(0, dot) : raw;
+            const ext = dot > 0 ? raw.slice(dot + 1) : 'webp';
+            const safeBase = base
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .slice(0, 80) || 'imagen';
+            const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'webp';
+            return `${Date.now()}_${safeBase}.${safeExt}`;
+        }
+
         async function addImg(e, pI) {
             const f = e.target.files[0]; if (!f) return;
-            const filename = `${Date.now()}_${f.name.replace(/\s+/g,'_')}`;
-            const { error } = await db.storage.from('product-images').upload(filename, f, { upsert: true });
+            const filename = safeStorageFilename(f.name);
+            const { error } = await db.storage.from('product-images').upload(filename, f, { upsert: true, contentType: f.type || undefined });
             if (error) { alert("Error subiendo imagen: " + error.message); return; }
             const { data: urlData } = db.storage.from('product-images').getPublicUrl(filename);
             productData[pI].imagenes.push(urlData.publicUrl);
             renderInventory();
             await saveInventory(true);
+            e.target.value = '';
         }
 
         async function saveInventory(silent=false) {
