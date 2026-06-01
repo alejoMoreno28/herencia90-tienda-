@@ -272,7 +272,10 @@
 (function () {
     var SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-    var db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    var SUPABASE_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+    var PV_LIST_URL = '/preventa-catalogo-list.json';
+    var PV_FULL_CATALOG_URL = '/preventa-catalogo.json';
+    var db = null;
 
     var _pvAll = [];
     var _pvFiltroType = 'all';
@@ -285,6 +288,9 @@
     var _pvLbData = null;
     var _pvLbIdx = 0;
     var _pvRenderToken = 0;
+    var _pvImgObserver = null;
+    var _pvFullCatalogPromise = null;
+    var _pvFullBySlug = {};
     var PV_MOBILE_VIEW_KEY = 'pv-mobile-view';
     var PV_CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -369,7 +375,7 @@
     }
 
     function getPhotoCount(item) {
-        return Array.isArray(item.imagenes) ? item.imagenes.length : 0;
+        return item && item.photo_count ? item.photo_count : (Array.isArray(item.imagenes) ? item.imagenes.length : 0);
     }
 
     function getVisualPriority(item) {
@@ -642,20 +648,76 @@
         return Object.keys(byKey).map(function (key) { return byKey[key]; });
     }
 
+    function pvLoadImage(img) {
+        if (!img || !img.dataset || !img.dataset.src) return;
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+    }
+
+    function pvObserveLazyImages(root) {
+        var scope = root || document;
+        var imgs = scope.querySelectorAll('img.pv-lazy-img[data-src]');
+        if (!imgs.length) return;
+
+        if (!('IntersectionObserver' in window)) {
+            imgs.forEach(pvLoadImage);
+            return;
+        }
+
+        if (!_pvImgObserver) {
+            _pvImgObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    _pvImgObserver.unobserve(entry.target);
+                    pvLoadImage(entry.target);
+                });
+            }, { rootMargin: '180px 0px', threshold: 0.01 });
+        }
+
+        imgs.forEach(function (img) { _pvImgObserver.observe(img); });
+    }
+
+    function pvBindHoverImages(root) {
+        if (!PV_CAN_HOVER) return;
+        (root || document).querySelectorAll('.pv-card-item').forEach(function (card) {
+            var loadHover = function () {
+                var hoverImg = card.querySelector('.pv-img-hover[data-src]');
+                if (!hoverImg) return;
+                hoverImg.addEventListener('load', function () {
+                    card.classList.add('pv-hover-ready');
+                }, { once: true });
+                pvLoadImage(hoverImg);
+            };
+            card.addEventListener('mouseenter', loadHover, { once: true, passive: true });
+            card.addEventListener('focusin', loadHover, { once: true });
+        });
+    }
+
+    function pvHydrateRenderedImages(root) {
+        pvObserveLazyImages(root);
+        pvBindHoverImages(root);
+    }
+
     function renderCard(item, idx, collectionKey) {
         var imgs = item.imagenes || [];
         var img1 = imgs[0] ? imgs[0].url : '';
         var img2 = PV_CAN_HOVER && imgs[1] ? imgs[1].url : '';
         var tipoLabel = (item.tipo || '').replace(/-/g, ' ');
-        var nFotos = imgs.length;
+        var nFotos = getPhotoCount(item);
         var precio = pvGetPrecio(item.tipo);
         var detailUrl = '/preventa/' + encodeURIComponent(item.slug || item.equipo || '');
         var displayTitle = getPreventaDisplayTitle(item);
+        var isPriority = idx < 3;
+        var mainAttrs = img1
+            ? (isPriority
+                ? 'src="' + img1 + '" loading="eager" fetchpriority="' + (idx === 0 ? 'high' : 'auto') + '"'
+                : 'data-src="' + img1 + '" loading="lazy" fetchpriority="low"')
+            : '';
 
         return '<a class="pv-card-item" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
             '<div class="pv-card-img-wrap">' +
-                (img1 ? '<img class="pv-img-main" src="' + img1 + '" alt="' + escHtml(displayTitle) + '" loading="lazy" decoding="async">' : '') +
-                (img2 ? '<img class="pv-img-hover" src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" loading="lazy" decoding="async">' : '') +
+                (img1 ? '<img class="pv-img-main' + (isPriority ? '' : ' pv-lazy-img') + '" ' + mainAttrs + ' alt="' + escHtml(displayTitle) + '" width="640" height="800" decoding="async">' : '') +
+                (img2 ? '<img class="pv-img-hover" data-src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" width="640" height="800" loading="lazy" decoding="async" fetchpriority="low">' : '') +
                 (nFotos > 1 ? '<span class="pv-photo-count"><i class="ph-bold ph-images"></i> ' + nFotos + '</span>' : '') +
             '</div>' +
             '<div class="pv-card-info">' +
@@ -900,6 +962,7 @@
 
         if (intro) intro.style.display = '';
         stage.innerHTML = renderCatalogComplete(items);
+        pvHydrateRenderedImages(stage);
     }
 
     function renderCurrentView(items, searchTerm, isFiltered) {
@@ -919,32 +982,115 @@
         if (isFiltered) {
             if (intro) intro.style.display = 'none';
             stage.innerHTML = renderSearchResults(items, searchTerm);
+            pvHydrateRenderedImages(stage);
             return;
         }
 
         renderDefaultCatalog(items);
     }
-    async function pvCargar() {
+    function pvFetchJson(url) {
+        return fetch(url).then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status + ' cargando ' + url);
+            return res.json();
+        });
+    }
+
+    function pvIndexFullItems(items) {
+        (items || []).forEach(function (item) {
+            if (item && item.slug) _pvFullBySlug[item.slug] = item;
+        });
+    }
+
+    function pvSetCatalogItems(items) {
         var galSection = document.getElementById('pv-galeria');
-        try {
-            if (!db) throw new Error('Supabase no disponible');
-            var res = await db.from('preventa_catalogo')
-                .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox')
-                .eq('publicado', true)
-                .order('destacado', { ascending: false });
+        _pvAll = dedupePreventaItems(items || []).sort(compareByScore);
 
-            if (res.error) throw res.error;
-            _pvAll = dedupePreventaItems(res.data || []).sort(compareByScore);
+        if (!_pvAll.length) {
+            galSection.style.display = 'none';
+            return false;
+        }
 
-            if (!_pvAll.length) {
-                galSection.style.display = 'none';
+        galSection.style.display = '';
+        pvApplyFilters();
+        return true;
+    }
+
+    function pvLoadFullCatalog() {
+        if (_pvFullCatalogPromise) return _pvFullCatalogPromise;
+        _pvFullCatalogPromise = pvFetchJson(PV_FULL_CATALOG_URL).then(function (items) {
+            pvIndexFullItems(items);
+            return items;
+        }).catch(function (e) {
+            _pvFullCatalogPromise = null;
+            throw e;
+        });
+        return _pvFullCatalogPromise;
+    }
+
+    function pvLoadSupabaseClient() {
+        if (db) return Promise.resolve(db);
+        if (window.supabase) {
+            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return Promise.resolve(db);
+        }
+
+        return new Promise(function (resolve, reject) {
+            var existing = document.querySelector('script[data-pv-supabase]');
+            if (existing) {
+                existing.addEventListener('load', function () {
+                    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    resolve(db);
+                }, { once: true });
+                existing.addEventListener('error', reject, { once: true });
                 return;
             }
 
-            galSection.style.display = '';
-            pvApplyFilters();
+            var script = document.createElement('script');
+            script.src = SUPABASE_SCRIPT_URL;
+            script.async = true;
+            script.defer = true;
+            script.dataset.pvSupabase = 'true';
+            script.onload = function () {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                resolve(db);
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function pvLoadFromSupabaseFallback() {
+        return pvLoadSupabaseClient().then(function (client) {
+            return client.from('preventa_catalogo')
+                .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox,pais_o_club,tags')
+                .eq('publicado', true)
+                .order('destacado', { ascending: false });
+        }).then(function (res) {
+            if (res.error) throw res.error;
+            return res.data || [];
+        });
+    }
+
+    async function pvCargar() {
+        var galSection = document.getElementById('pv-galeria');
+        try {
+            var listItems = await pvFetchJson(PV_LIST_URL);
+            pvSetCatalogItems(listItems);
+
         } catch (e) {
-            galSection.style.display = 'none';
+            try {
+                var fullItems = await pvLoadFullCatalog();
+                pvSetCatalogItems(fullItems);
+            } catch (fallbackError) {
+                try {
+                    var remoteItems = await pvLoadFromSupabaseFallback();
+                    pvIndexFullItems(remoteItems);
+                    pvSetCatalogItems(remoteItems);
+                } catch (remoteError) {
+                    galSection.style.display = 'none';
+                    console.warn('[pv-galeria] Error cargando catalogo:', remoteError.message || fallbackError.message || e.message);
+                }
+            }
             console.warn('[pv-galeria] Error cargando catálogo:', e.message);
         }
     }
@@ -1020,6 +1166,7 @@
         var sections = buildSections(_pvAll);
         var stage = document.getElementById('pv-grid-stage');
         stage.innerHTML = sections.map(renderSection).join('');
+        pvHydrateRenderedImages(stage);
 
         var target = document.querySelector('[onclick="pvMostrarMas(\'' + sectionKey + '\')"]');
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1106,7 +1253,7 @@
         var thumbsEl = document.getElementById('pv-lb-thumbs');
         if (imgs.length > 1) {
             thumbsEl.innerHTML = imgs.map(function (img, i) {
-                return '<img class="pv-lb-thumb' + (i === 0 ? ' active' : '') + '" src="' + img.url + '" alt="Foto ' + (i + 1) + '" onclick="pvLbGoTo(' + i + ')">';
+                return '<img class="pv-lb-thumb' + (i === 0 ? ' active' : '') + '" src="' + img.url + '" alt="Foto ' + (i + 1) + '" loading="lazy" decoding="async" fetchpriority="low" onclick="pvLbGoTo(' + i + ')">';
             }).join('');
             thumbsEl.style.display = 'flex';
         } else {
@@ -1128,6 +1275,26 @@
             });
         });
         document.body.style.overflow = 'hidden';
+
+        if (getPhotoCount(r) > imgs.length || !_pvFullBySlug[r.slug]) {
+            pvLoadFullCatalog().then(function () {
+                var fullItem = _pvFullBySlug[r.slug];
+                if (!fullItem || !_pvLbData || _pvLbData.slug !== r.slug) return;
+                var fullImgs = fullItem.imagenes || [];
+                if (fullImgs.length <= imgs.length) return;
+
+                _pvLbData = fullItem;
+                if (fullImgs.length > 1) {
+                    thumbsEl.innerHTML = fullImgs.map(function (img, i) {
+                        return '<img class="pv-lb-thumb' + (i === _pvLbIdx ? ' active' : '') + '" src="' + img.url + '" alt="Foto ' + (i + 1) + '" loading="lazy" decoding="async" fetchpriority="low" onclick="pvLbGoTo(' + i + ')">';
+                    }).join('');
+                    thumbsEl.style.display = 'flex';
+                }
+                document.getElementById('pv-lb-prev').style.display = fullImgs.length > 1 ? 'flex' : 'none';
+                document.getElementById('pv-lb-next').style.display = fullImgs.length > 1 ? 'flex' : 'none';
+                pvLbShowImg(Math.min(_pvLbIdx, fullImgs.length - 1));
+            }).catch(function () {});
+        }
     };
 
     function pvLbShowImg(idx) {

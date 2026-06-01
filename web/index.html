@@ -2,15 +2,27 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/img/logo.webp" type="image/webp">
-    <meta name="theme-color" content="#050505">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
-    <script>
+    <link rel="icon" href="/img/favicon.webp" type="image/webp">
+    <meta name="theme-color" content="#050505">    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
+      (function(){
+        var loaded = false;
+        var loadGtag = function(){
+          if (loaded) return;
+          loaded = true;
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
+          document.head.appendChild(script);
+          gtag('js', new Date());
+          gtag('config', 'G-576MFSV66N');
+        };
+        var schedule = function(){ setTimeout(loadGtag, 4500); };
+        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
+        window.addEventListener('keydown', loadGtag, { once: true });
+        window.addEventListener('load', schedule, { once: true });
+      })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camisetas de F&uacute;tbol Retro e Importadas en Colombia | Herencia 90</title>
@@ -30,11 +42,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260601-performance">
+    <link rel="stylesheet" href="/css/style.css?v=20260601-properf">
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="application/ld+json">
     {
@@ -112,7 +123,7 @@
     <!-- Desktop Header (oculto en m&oacute;vil) -->
     <header class="header">
         <div class="header-container">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo" width="120" height="42" fetchpriority="high"></a>
+            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90 Logo" class="logo" width="220" height="249" fetchpriority="high"></a>
 
             <div class="header-right">
                 <label class="sr-only" for="searchInput">Buscar camisetas</label>
@@ -136,18 +147,18 @@
 
     <!-- &Aacute;rea superior m&oacute;vil (no sticky) -->
     <div class="mobile-top">
-        <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="mobile-logo"></a>
+        <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="mobile-logo" width="220" height="249" fetchpriority="high"></a>
     </div>
 
     <section class="hero">
-        <video class="hero-video" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/img/hero-video-poster.webp" id="heroVideo" aria-hidden="true">
-            <source src="/videos/hero-video3.mp4?v=20260525-video-fix" type="video/mp4">
-            <source src="/videos/hero-video2.mp4?v=20260525-video-fix" type="video/mp4">
-            <source src="/videos/hero-video.mp4?v=20260525-video-fix" type="video/mp4">
+        <video class="hero-video" muted loop playsinline webkit-playsinline preload="none" poster="/img/hero-video-poster.webp" id="heroVideo" aria-hidden="true">
+            <source data-src="/videos/hero-video3.mp4?v=20260525-video-fix" type="video/mp4">
+            <source data-src="/videos/hero-video2.mp4?v=20260525-video-fix" type="video/mp4">
+            <source data-src="/videos/hero-video.mp4?v=20260525-video-fix" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <img src="/img/logo.webp" alt="Herencia 90" class="hero-logo-mobile" width="120" height="42" fetchpriority="high">
+            <img src="/img/logo-ui.webp" alt="Herencia 90" class="hero-logo-mobile" width="220" height="249" fetchpriority="high">
             <h2 class="hero-title">Viste la Historia.<br><span class="gold-text">Siente la Pasi&oacute;n.</span></h2>
             <p class="hero-subtitle">Camisetas retro, ediciones limitadas y la nueva colecci&oacute;n 2026 para los verdaderos hinchas.</p>
             <div class="hero-ctas">
@@ -177,7 +188,7 @@
             <div class="categories-mosaic">
                 <!-- Categoría 1: Mundial 2026 (Stock) -->
                 <a href="/categorias/mundial-2026" class="category-mosaic-card card-large" data-aos="fade-up">
-                    <div class="category-mosaic-bg" style="background-image: url('/img/brasil_2026_version_fan_1.webp');"></div>
+                    <div class="category-mosaic-bg" style="background-image: url('/img/brasil_2026_version_fan_1-card.webp');"></div>
                     <div class="category-mosaic-overlay"></div>
                     <div class="category-mosaic-content">
                         <span class="mosaic-badge">Stock Disponible</span>
@@ -188,7 +199,7 @@
                 </a>
                 <!-- Categoría 2: Retro (Bajo Pedido) -->
                 <a href="/preventa" class="category-mosaic-card card-medium" data-aos="fade-up" data-aos-delay="50">
-                    <div class="category-mosaic-bg" style="background-image: url('/img/man_ud_retro_98_home_1.webp');"></div>
+                    <div class="category-mosaic-bg" style="background-image: url('/img/man_ud_retro_98_home_1-card.webp');"></div>
                     <div class="category-mosaic-overlay"></div>
                     <div class="category-mosaic-content">
                         <span class="mosaic-badge" style="background: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">Bajo Pedido</span>
@@ -199,7 +210,7 @@
                 </a>
                 <!-- Categoría 3: Temporada 25/26 (Stock) -->
                 <a href="/categorias/temporada-25-26" class="category-mosaic-card card-small" data-aos="fade-up" data-aos-delay="100">
-                    <div class="category-mosaic-bg" style="background-image: url('/img/barcelona_25-26_home_fan_1.webp');"></div>
+                    <div class="category-mosaic-bg" style="background-image: url('/img/barcelona_25-26_home_fan_1-card.webp');"></div>
                     <div class="category-mosaic-overlay"></div>
                     <div class="category-mosaic-content">
                         <span class="mosaic-badge">Stock Disponible</span>
@@ -209,7 +220,7 @@
                 </a>
                 <!-- Categoría 4: Pre-orden Especial (Pre-orden) -->
                 <a href="/preventa" class="category-mosaic-card card-small" data-aos="fade-up" data-aos-delay="150">
-                    <div class="category-mosaic-bg" style="background-image: url('/img/real_madrid_special_stly_black_fan_1.webp');"></div>
+                    <div class="category-mosaic-bg" style="background-image: url('/img/real_madrid_special_stly_black_fan_1-card.webp');"></div>
                     <div class="category-mosaic-overlay"></div>
                     <div class="category-mosaic-content">
                         <span class="mosaic-badge" style="background: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">Bajo Pedido</span>
@@ -251,7 +262,7 @@
                     <a href="/preventa" class="btn-preorder-action">Iniciar Pre-orden &rarr;</a>
                 </div>
                 <div class="preorder-banner-image">
-                    <img src="/img/man_ud_retro_98_home_1.webp" alt="Camiseta Pre-orden" class="preorder-img-highlight" width="320" height="400" loading="lazy" decoding="async">
+                    <img src="/img/man_ud_retro_98_home_1-card.webp" data-full-src="/img/man_ud_retro_98_home_1.webp" alt="Camiseta Pre-orden" class="preorder-img-highlight" width="640" height="640" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -259,7 +270,7 @@
 
     <footer class="footer">
         <div class="footer-inner">
-            <img src="/img/logo.webp" alt="Herencia 90" class="footer-logo" width="120" height="42">
+            <img src="/img/logo-ui.webp" alt="Herencia 90" class="footer-logo" width="220" height="249">
             <nav class="footer-links" aria-label="Navegaci&oacute;n del pie de p&aacute;gina">
                 <a href="/nosotros">Nosotros</a>
                 <span class="footer-link-separator">•</span>
@@ -280,7 +291,7 @@
             <div class="modal-body">
                 <div class="modal-gallery">
                     <div id="mainImageContainer" class="main-image-container">
-                        <img id="mainImage" src="/img/logo.webp" alt="Vista de producto seleccionado">
+                        <img id="mainImage" src="/img/logo-ui.webp" alt="Vista de producto seleccionado">
                     </div>
                     <div class="thumbnails" id="thumbnailsContainer"></div>
                 </div>
@@ -343,7 +354,7 @@
     <!-- Category Drawer (m&oacute;vil) -->
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo" width="120" height="55" loading="lazy" decoding="async"></a>
+            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="drawer-logo" width="220" height="249" loading="lazy" decoding="async"></a>
             <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
@@ -404,64 +415,7 @@
     </nav>
 
     <!-- UX Libraries -->
-    <script defer src="/js/app.js?v=20260601-performance"></script>
-    <script>
-      (function() {
-        var v = document.getElementById('heroVideo');
-        if (!v) return;
-
-        var startHeroVideo = function() {
-          v.muted = true;
-          v.defaultMuted = true;
-          v.playsInline = true;
-          v.setAttribute('muted', '');
-          v.setAttribute('playsinline', '');
-          v.setAttribute('webkit-playsinline', '');
-          v.play().then(function() {
-            cleanupListeners();
-          }).catch(function(){});
-        };
-
-        var deferHeroVideo = function() {
-          var run = function() { startHeroVideo(); };
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(run, { timeout: 1500 });
-          } else {
-            setTimeout(run, 1200);
-          }
-        };
-
-        var forcePlay = function() {
-          deferHeroVideo();
-        };
-
-        var cleanupListeners = function() {
-          document.removeEventListener('click', forcePlay);
-          document.removeEventListener('touchstart', forcePlay);
-          document.removeEventListener('scroll', forcePlay);
-        };
-
-        // Escuchar la primera interacción del usuario para reproducir (crítico en móviles y ahorro de batería)
-        document.addEventListener('click', forcePlay, { passive: true });
-        document.addEventListener('touchstart', forcePlay, { passive: true });
-        document.addEventListener('scroll', forcePlay, { passive: true });
-
-        window.addEventListener('load', deferHeroVideo, { once: true });
-        window.addEventListener('pageshow', deferHeroVideo);
-        document.addEventListener('visibilitychange', function() {
-          if (!document.hidden) deferHeroVideo();
-        });
-
-        if ('IntersectionObserver' in window) {
-          var observer = new IntersectionObserver(function(entries) {
-            if (entries[0] && entries[0].isIntersecting) deferHeroVideo();
-          }, { threshold: 0.2 });
-          observer.observe(v);
-        } else {
-          deferHeroVideo();
-        }
-      })();
-    </script>
+    <script defer src="/js/app.js?v=20260601-properf"></script>
 </body>
 </html>
 

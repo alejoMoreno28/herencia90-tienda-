@@ -794,11 +794,15 @@
             position: absolute; top: 0; left: 0;
         }
         .pv-card-item:hover .pv-card-img-wrap img.pv-img-main {
+            transform: scale(1.03);
+            opacity: 1;
+        }
+        .pv-card-item.pv-hover-ready:hover .pv-card-img-wrap img.pv-img-main {
             transform: scale(1.06) rotate(-1deg);
             opacity: 0;
         }
         .pv-card-img-wrap img.pv-img-hover { opacity: 0; transform: scale(1.06); }
-        .pv-card-item:hover .pv-card-img-wrap img.pv-img-hover { opacity: 1; transform: scale(1.0); }
+        .pv-card-item.pv-hover-ready:hover .pv-card-img-wrap img.pv-img-hover { opacity: 1; transform: scale(1.0); }
 
         /* Info debajo de la foto — como catálogo principal */
         .pv-card-info {

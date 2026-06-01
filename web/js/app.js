@@ -14,6 +14,7 @@ function displayCategory(name) {
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
 const SUPABASE_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+const ENABLE_PUBLIC_ANALYTICS = false;
 let db = null;
 let supabasePromise = null;
 let aosPromise = null;
@@ -39,6 +40,27 @@ function runWhenIdle(callback, timeout = 1800) {
 
 function runAfterIdleDelay(callback, delay = 1800, timeout = 1800) {
     setTimeout(() => runWhenIdle(callback, timeout), delay);
+}
+
+function runAfterFirstInteraction(callback, fallbackDelay = 9000) {
+    let fired = false;
+    const cleanup = () => {
+        window.removeEventListener('pointerdown', run);
+        window.removeEventListener('keydown', run);
+        window.removeEventListener('scroll', run);
+        window.removeEventListener('touchstart', run);
+    };
+    const run = () => {
+        if (fired) return;
+        fired = true;
+        cleanup();
+        callback();
+    };
+    window.addEventListener('pointerdown', run, { passive: true });
+    window.addEventListener('keydown', run);
+    window.addEventListener('scroll', run, { passive: true });
+    window.addEventListener('touchstart', run, { passive: true });
+    setTimeout(run, fallbackDelay);
 }
 
 function loadExternalScript(src) {
@@ -127,31 +149,12 @@ function loadVanillaTilt() {
 async function loadProducts() {
     let localProducts = [];
     try {
-        const response = await fetch('/productos.json', { cache: 'no-store' });
+        const response = await fetch('/productos.json');
         if (response.ok) localProducts = await response.json();
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);
     }
     return localProducts;
-
-    try {
-        if (!db) throw new Error('Supabase no disponible');
-        const { data, error } = await db.from('productos').select('*').order('id');
-        if (error) throw error;
-        if (Array.isArray(data) && data.length > 0) {
-            const merged = [...data];
-            localProducts.forEach(lp => {
-                if (!merged.some(sp => sp.id === lp.id)) {
-                    merged.push(lp);
-                }
-            });
-            return merged;
-        }
-        throw new Error('Catálogo vacío desde Supabase');
-    } catch (error) {
-        console.warn('Fallo Supabase, usando productos locales', error);
-        return localProducts;
-    }
 }
 
 // ── Analytics ────────────────────────────────────────────────────────────────
@@ -177,6 +180,7 @@ async function refreshProductsFromSupabase(localProducts) {
 }
 
 async function trackEvent(eventType, productData = {}) {
+    if (!ENABLE_PUBLIC_ANALYTICS) return;
     try {
         const client = await ensureSupabaseClient();
         await client.from('analytics_events').insert({
@@ -352,11 +356,9 @@ const imgObserver = new IntersectionObserver((entries) => {
         if (!entry.isIntersecting) return;
         const img = entry.target;
         img.src = img.dataset.src;
-        img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
-        img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
         imgObserver.unobserve(img);
     });
-}, { rootMargin: '200px' });
+}, { rootMargin: '120px' });
 
 // ── Grid toggle ───────────────────────────────────────────────────────────────
 function toggleGrid() {
@@ -416,7 +418,16 @@ document.addEventListener('DOMContentLoaded', () => {
         heroVideo.setAttribute('playsinline', '');
         heroVideo.playsInline = true;
         
+        const hydrateHeroVideo = () => {
+            heroVideo.querySelectorAll('source[data-src]').forEach((source) => {
+                source.src = source.dataset.src;
+                source.removeAttribute('data-src');
+            });
+            heroVideo.load();
+        };
+
         const playVideo = () => {
+            hydrateHeroVideo();
             heroVideo.play().then(() => {
                 cleanupListeners();
             }).catch(e => console.warn("Video playback prevented, waiting for interaction:", e));
@@ -429,18 +440,23 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         // El poster pinta el hero; el video arranca despues para no competir con LCP.
-        const requestHeroPlayback = () => heroVideo.play().catch(() => {
+        const requestHeroPlayback = () => {
+            hydrateHeroVideo();
+            heroVideo.play().catch(() => {
             // Si el navegador bloquea la reproducción por políticas o ahorro de batería,
             // agregamos listeners en la primera interacción (click, scroll, touch) del usuario.
             document.addEventListener('click', playVideo, { passive: true });
             document.addEventListener('touchstart', playVideo, { passive: true });
             document.addEventListener('scroll', playVideo, { passive: true });
-        });
-        window.addEventListener('load', () => runWhenIdle(requestHeroPlayback, 1200), { once: true });
+            });
+        };
+        window.addEventListener('load', () => {
+            runAfterFirstInteraction(() => runWhenIdle(requestHeroPlayback, 1800), 12000);
+        }, { once: true });
     }
 
     // AOS se carga en diferido para no competir con el primer render.
-    if (!prefersReducedMotion && !isTouchDevice && document.querySelector('[data-aos]')) {
+    if (false && !prefersReducedMotion && !isTouchDevice && document.querySelector('[data-aos]')) {
         runAfterIdleDelay(() => {
             loadAOS().then((AOS) => {
                 if (!AOS) return;
@@ -467,8 +483,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNavigation();
         renderProducts(allProducts);
         renderFeaturedProducts();
-        if (!isConstrainedNetwork) {
-            runAfterIdleDelay(() => {
+    if (!isConstrainedNetwork) {
+        runAfterFirstInteraction(() => {
+            runWhenIdle(() => {
                 refreshProductsFromSupabase(allProducts).then((freshProducts) => {
                     if (!Array.isArray(freshProducts) || freshProducts.length === 0) return;
                     allProducts = freshProducts;
@@ -476,13 +493,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderProducts(allProducts);
                     renderFeaturedProducts();
                 });
-            }, 2600, 1800);
+            }, 1800);
+        }, 16000);
         }
     });
 
     // Real-time: se difiere para no competir con el primer render.
     if (!isConstrainedNetwork) {
-        runAfterIdleDelay(() => {
+        runAfterFirstInteraction(() => {
+            runWhenIdle(() => {
             ensureSupabaseClient().then((client) => client.channel('stock-live')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
                     const idx = allProducts.findIndex(p => p.id === payload.new.id);
@@ -492,7 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 })
                 .subscribe()).catch(function(){});
-        }, 4500, 1800);
+            }, 1800);
+        }, 22000);
     }
 
     // Modal close
@@ -621,6 +641,34 @@ function toWebp(src) {
         newSrc = '/' + newSrc;
     }
     return newSrc;
+}
+
+function toCardImage(src) {
+    const webpSrc = toWebp(src);
+    if (!webpSrc || webpSrc.startsWith('http')) return webpSrc;
+    return webpSrc.replace(/\.webp($|\?)/i, '-card.webp$1');
+}
+
+function markProductImageLoaded(img) {
+    if (!img) return;
+    img.classList.add('loaded');
+    if (img.parentElement) img.parentElement.classList.remove('img-loading');
+}
+
+function bindProductImageFallback(img) {
+    if (!img) return;
+    img.onload = () => markProductImageLoaded(img);
+    img.onerror = () => {
+        const fallback = img.dataset.fullSrc;
+        if (fallback && img.src !== fallback) {
+            img.removeAttribute('srcset');
+            img.src = fallback;
+            img.dataset.fullSrc = '';
+            return;
+        }
+        markProductImageLoaded(img);
+    };
+    if (img.complete) markProductImageLoaded(img);
 }
 
 function slugifyText(value) {
@@ -968,6 +1016,8 @@ function renderProducts(products) {
         const idx = allProducts.findIndex(p => p.id === product.id);
         const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
             ? product.imagenes[0] : (product.imagen || ''));
+        const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
+            ? product.imagenes[0] : (product.imagen || ''));
 
         const isBajoPedido = isProductBajoPedido(product);
 
@@ -985,7 +1035,7 @@ function renderProducts(products) {
 
         card.innerHTML = `
             <div class="product-image-wrapper img-loading">
-                <img ${i < 6 ? `src="${coverImg}" fetchpriority="${i < 2 ? 'high' : 'auto'}" loading="eager"` : `data-src="${coverImg}" loading="lazy"`} alt="${product.equipo}" class="lazy-img" width="320" height="400" decoding="async">
+                <img ${i < 3 ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"` : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
                 ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
             </div>
             <div class="product-info">
@@ -1003,11 +1053,10 @@ function renderProducts(products) {
 
         const img = card.querySelector('.lazy-img');
         if (img && img.dataset.src) {
+            bindProductImageFallback(img);
             imgObserver.observe(img);
         } else if (img) {
-            img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
-            img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
-            if (img.complete) img.onload();
+            bindProductImageFallback(img);
         }
         if (!prefersReducedMotion && !isTouchDevice) {
             cardRevealObserver.observe(card);
@@ -1019,7 +1068,7 @@ function renderProducts(products) {
 
     container.insertAdjacentHTML('beforeend', `<div class="catalog-toolbar catalog-toolbar-bottom">${renderCatalogPagination(catalogPage, totalPages)}</div>`);
 
-    if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
+    if (false && !prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
         runAfterIdleDelay(() => {
             loadVanillaTilt().then((VanillaTilt) => {
                 VanillaTilt.init(document.querySelectorAll('.product-card'), {
@@ -1055,6 +1104,8 @@ function renderFeaturedProducts() {
         const idx = allProducts.findIndex(p => p.id === product.id);
         const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
             ? product.imagenes[0] : (product.imagen || ''));
+        const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
+            ? product.imagenes[0] : (product.imagen || ''));
 
         const isBajoPedido = isProductBajoPedido(product);
 
@@ -1072,7 +1123,7 @@ function renderFeaturedProducts() {
 
         card.innerHTML = `
             <div class="product-image-wrapper img-loading">
-                <img ${i < 2 ? `src="${coverImg}" fetchpriority="high" loading="eager"` : `data-src="${coverImg}" loading="lazy"`} alt="${product.equipo}" class="lazy-img" width="320" height="400" decoding="async">
+                <img ${i < 2 ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"` : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
                 ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
             </div>
             <div class="product-info">
@@ -1090,11 +1141,10 @@ function renderFeaturedProducts() {
 
         const img = card.querySelector('.lazy-img');
         if (img && img.dataset.src) {
+            bindProductImageFallback(img);
             imgObserver.observe(img);
         } else if (img) {
-            img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
-            img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
-            if (img.complete) img.onload();
+            bindProductImageFallback(img);
         }
         if (!prefersReducedMotion && !isTouchDevice) {
             cardRevealObserver.observe(card);
@@ -1104,7 +1154,7 @@ function renderFeaturedProducts() {
         container.appendChild(card);
     });
 
-    if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
+    if (false && !prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
         runAfterIdleDelay(() => {
             loadVanillaTilt().then((VanillaTilt) => {
                 VanillaTilt.init(container.querySelectorAll('.product-card'), {

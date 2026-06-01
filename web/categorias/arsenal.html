@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
-    <script>
+    <meta charset="UTF-8">    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
+      (function(){
+        var loaded = false;
+        var loadGtag = function(){
+          if (loaded) return;
+          loaded = true;
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
+          document.head.appendChild(script);
+          gtag('js', new Date());
+          gtag('config', 'G-576MFSV66N');
+        };
+        var schedule = function(){ setTimeout(loadGtag, 4500); };
+        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
+        window.addEventListener('keydown', loadGtag, { once: true });
+        window.addEventListener('load', schedule, { once: true });
+      })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arsenal 25/26 | Herencia 90</title>
@@ -27,7 +39,7 @@
     <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="/css/style.css?v=20260601-performance">
+    <link rel="stylesheet" href="/css/style.css?v=20260601-properf">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="application/ld+json">
@@ -90,7 +102,7 @@
     <!-- Desktop Header (oculto en m&oacute;vil) -->
     <header class="header">
         <div class="header-container">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo"></a>
+            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90 Logo" class="logo"></a>
 
             <div class="header-right">
                 <label class="sr-only" for="searchInput">Buscar camisetas</label>
@@ -114,7 +126,7 @@
 
     <!-- &Aacute;rea superior m&oacute;vil (no sticky) -->
     <div class="mobile-top">
-        <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="mobile-logo"></a>
+        <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="mobile-logo"></a>
     </div>
 
     
@@ -140,7 +152,7 @@
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <img src="/img/logo.webp" alt="Herencia 90" class="footer-logo">
+                <img src="/img/logo-ui.webp" alt="Herencia 90" class="footer-logo">
                 <p>Camisetas de futbol retro e importadas.<br>Medellin, Colombia.</p>
             </div>
             <div class="footer-links">
@@ -160,7 +172,7 @@
             <div class="modal-body">
                 <div class="modal-gallery">
                     <div id="mainImageContainer" class="main-image-container">
-                        <img id="mainImage" src="/img/logo.webp" alt="Vista de producto seleccionado">
+                        <img id="mainImage" src="/img/logo-ui.webp" alt="Vista de producto seleccionado">
                     </div>
                     <div class="thumbnails" id="thumbnailsContainer"></div>
                 </div>
@@ -222,7 +234,7 @@
     <!-- Category Drawer (m&oacute;vil) -->
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="drawer-logo"></a>
             <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
@@ -283,7 +295,7 @@
     </nav>
 
     <!-- UX Libraries -->
-    <script defer src="/js/app.js?v=20260601-performance"></script>
+    <script defer src="/js/app.js?v=20260601-properf"></script>
 </body>
 </html>
 
