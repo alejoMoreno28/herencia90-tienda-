@@ -783,6 +783,14 @@ body.grid-single .product-grid-inner {
     box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
     cursor: pointer;
 }
+@supports (content-visibility: auto) {
+    .product-card,
+    .category-mosaic-card,
+    .showcase-card {
+        content-visibility: auto;
+        contain-intrinsic-size: 360px 560px;
+    }
+}
 .product-card:hover {
     transform: translateY(-8px);
     border-color: var(--gold);

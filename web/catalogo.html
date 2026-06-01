@@ -31,10 +31,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="stylesheet" href="/css/style.css?v=20260601-contrast">
-    <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
+    <link rel="stylesheet" href="/css/style.css?v=20260601-performance">
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
@@ -100,7 +97,7 @@
     <!-- Desktop Header (oculto en m&oacute;vil) -->
     <header class="header">
         <div class="header-container">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo"></a>
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90 Logo" class="logo" width="120" height="82" fetchpriority="high"></a>
 
             <div class="header-right">
                 <label class="sr-only" for="searchInput">Buscar camisetas</label>
@@ -124,7 +121,7 @@
 
     <!-- &Aacute;rea superior m&oacute;vil (no sticky) -->
     <div class="mobile-top">
-        <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="mobile-logo"></a>
+        <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="mobile-logo" width="120" height="70" fetchpriority="high"></a>
     </div>
 
     
@@ -150,7 +147,7 @@
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <img src="/img/logo.webp" alt="Herencia 90" class="footer-logo">
+                <img src="/img/logo.webp" alt="Herencia 90" class="footer-logo" width="120" height="40" loading="lazy" decoding="async">
                 <p>Camisetas de futbol retro e importadas.<br>Medellin, Colombia.</p>
             </div>
             <div class="footer-links">
@@ -232,7 +229,7 @@
     <!-- Category Drawer (m&oacute;vil) -->
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo" width="120" height="55" loading="lazy" decoding="async"></a>
             <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
@@ -293,10 +290,7 @@
     </nav>
 
     <!-- UX Libraries -->
-    <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-    <script defer src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script defer src="/js/app.js?v=20260601-stock-priority"></script>
+    <script defer src="/js/app.js?v=20260601-performance"></script>
 </body>
 </html>
 

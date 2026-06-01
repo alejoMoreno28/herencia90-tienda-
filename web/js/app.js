@@ -13,9 +13,10 @@ function displayCategory(name) {
 
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-const db = window.supabase
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
+const SUPABASE_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+let db = null;
+let supabasePromise = null;
+let aosPromise = null;
 
 let allProducts = [];
 let catalogSearchTerm = '';
@@ -34,6 +35,67 @@ function runWhenIdle(callback, timeout = 1800) {
         return;
     }
     setTimeout(callback, Math.min(timeout, 1200));
+}
+
+function runAfterIdleDelay(callback, delay = 1800, timeout = 1800) {
+    setTimeout(() => runWhenIdle(callback, timeout), delay);
+}
+
+function loadExternalScript(src) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+            if (existing.dataset.loaded === 'true') {
+                resolve();
+                return;
+            }
+            existing.addEventListener('load', resolve, { once: true });
+            existing.addEventListener('error', reject, { once: true });
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.onload = () => {
+            script.dataset.loaded = 'true';
+            resolve();
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+async function ensureSupabaseClient() {
+    if (db) return db;
+    if (!supabasePromise) {
+        supabasePromise = loadExternalScript(SUPABASE_SCRIPT_SRC).then(() => {
+            if (!window.supabase) throw new Error('Supabase no disponible');
+            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return db;
+        });
+    }
+    return supabasePromise;
+}
+
+function loadAOS() {
+    if (window.AOS) return Promise.resolve(window.AOS);
+    if (aosPromise) return aosPromise;
+
+    aosPromise = new Promise((resolve, reject) => {
+        if (!document.querySelector('link[href="https://unpkg.com/aos@2.3.4/dist/aos.css"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/aos@2.3.4/dist/aos.css';
+            document.head.appendChild(link);
+        }
+
+        loadExternalScript('https://unpkg.com/aos@2.3.4/dist/aos.js')
+            .then(() => resolve(window.AOS))
+            .catch(reject);
+    });
+
+    return aosPromise;
 }
 
 function byId(id) {
@@ -70,6 +132,7 @@ async function loadProducts() {
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);
     }
+    return localProducts;
 
     try {
         if (!db) throw new Error('Supabase no disponible');
@@ -92,10 +155,31 @@ async function loadProducts() {
 }
 
 // ── Analytics ────────────────────────────────────────────────────────────────
-async function trackEvent(eventType, productData = {}) {
-    if (!db) return;
+async function refreshProductsFromSupabase(localProducts) {
     try {
-        await db.from('analytics_events').insert({
+        const client = await ensureSupabaseClient();
+        const { data, error } = await client.from('productos').select('*').order('id');
+        if (error) throw error;
+        if (Array.isArray(data) && data.length > 0) {
+            const merged = [...data];
+            (localProducts || []).forEach(lp => {
+                if (!merged.some(sp => sp.id === lp.id)) {
+                    merged.push(lp);
+                }
+            });
+            return merged;
+        }
+        return localProducts || [];
+    } catch (error) {
+        console.warn('Fallo Supabase, usando productos locales', error);
+        return localProducts || [];
+    }
+}
+
+async function trackEvent(eventType, productData = {}) {
+    try {
+        const client = await ensureSupabaseClient();
+        await client.from('analytics_events').insert({
             event_type: eventType,
             product_id: productData.id || null,
             product_name: productData.equipo || productData.product_name || null,
@@ -344,24 +428,30 @@ document.addEventListener('DOMContentLoaded', () => {
             document.removeEventListener('scroll', playVideo);
         };
         
-        // Intentar reproducir inmediatamente
-        heroVideo.play().catch(() => {
+        // El poster pinta el hero; el video arranca despues para no competir con LCP.
+        const requestHeroPlayback = () => heroVideo.play().catch(() => {
             // Si el navegador bloquea la reproducción por políticas o ahorro de batería,
             // agregamos listeners en la primera interacción (click, scroll, touch) del usuario.
             document.addEventListener('click', playVideo, { passive: true });
             document.addEventListener('touchstart', playVideo, { passive: true });
             document.addEventListener('scroll', playVideo, { passive: true });
         });
+        window.addEventListener('load', () => runWhenIdle(requestHeroPlayback, 1200), { once: true });
     }
 
-    // AOS - Animate On Scroll
-    if (typeof AOS !== 'undefined' && !prefersReducedMotion && !isTouchDevice) {
-        AOS.init({
-            duration: 420,
-            easing: 'ease-out-cubic',
-            once: true,
-            offset: 60,
-        });
+    // AOS se carga en diferido para no competir con el primer render.
+    if (!prefersReducedMotion && !isTouchDevice && document.querySelector('[data-aos]')) {
+        runAfterIdleDelay(() => {
+            loadAOS().then((AOS) => {
+                if (!AOS) return;
+                AOS.init({
+                    duration: 420,
+                    easing: 'ease-out-cubic',
+                    once: true,
+                    offset: 60,
+                });
+            }).catch(function(){});
+        }, 1800, 1800);
     } else {
         document.querySelectorAll('[data-aos]').forEach(el => {
             el.removeAttribute('data-aos');
@@ -370,19 +460,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Registrar visita a la página
-    runWhenIdle(() => trackEvent('page_view', {}), 2500);
+    runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);
 
     loadProducts().then((products) => {
         allProducts = products;
         renderNavigation();
         renderProducts(allProducts);
         renderFeaturedProducts();
+        if (!isConstrainedNetwork) {
+            runAfterIdleDelay(() => {
+                refreshProductsFromSupabase(allProducts).then((freshProducts) => {
+                    if (!Array.isArray(freshProducts) || freshProducts.length === 0) return;
+                    allProducts = freshProducts;
+                    renderNavigation();
+                    renderProducts(allProducts);
+                    renderFeaturedProducts();
+                });
+            }, 2600, 1800);
+        }
     });
 
     // Real-time: se difiere para no competir con el primer render.
-    if (db && !isConstrainedNetwork) {
-        runWhenIdle(() => {
-            db.channel('stock-live')
+    if (!isConstrainedNetwork) {
+        runAfterIdleDelay(() => {
+            ensureSupabaseClient().then((client) => client.channel('stock-live')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
                     const idx = allProducts.findIndex(p => p.id === payload.new.id);
                     if (idx !== -1) {
@@ -390,8 +491,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         renderProducts(allProducts);
                     }
                 })
-                .subscribe();
-        }, 4500);
+                .subscribe()).catch(function(){});
+        }, 4500, 1800);
     }
 
     // Modal close
@@ -515,12 +616,6 @@ function formatPrice(price) {
 
 function toWebp(src) {
     if (!src) return src;
-    if (src.includes('barcelona_125_aniversario_sin_fondo.png')) {
-        if (!src.startsWith('/') && !src.startsWith('http')) {
-            src = '/' + src;
-        }
-        return src;
-    }
     let newSrc = src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
     if (!newSrc.startsWith('/') && !newSrc.startsWith('http')) {
         newSrc = '/' + newSrc;
@@ -890,7 +985,7 @@ function renderProducts(products) {
 
         card.innerHTML = `
             <div class="product-image-wrapper img-loading">
-                <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
+                <img ${i < 6 ? `src="${coverImg}" fetchpriority="${i < 2 ? 'high' : 'auto'}" loading="eager"` : `data-src="${coverImg}" loading="lazy"`} alt="${product.equipo}" class="lazy-img" width="320" height="400" decoding="async">
                 ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
             </div>
             <div class="product-info">
@@ -907,7 +1002,13 @@ function renderProducts(products) {
         `;
 
         const img = card.querySelector('.lazy-img');
-        if (img) imgObserver.observe(img);
+        if (img && img.dataset.src) {
+            imgObserver.observe(img);
+        } else if (img) {
+            img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
+            img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
+            if (img.complete) img.onload();
+        }
         if (!prefersReducedMotion && !isTouchDevice) {
             cardRevealObserver.observe(card);
         } else {
@@ -919,7 +1020,7 @@ function renderProducts(products) {
     container.insertAdjacentHTML('beforeend', `<div class="catalog-toolbar catalog-toolbar-bottom">${renderCatalogPagination(catalogPage, totalPages)}</div>`);
 
     if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
-        runWhenIdle(() => {
+        runAfterIdleDelay(() => {
             loadVanillaTilt().then((VanillaTilt) => {
                 VanillaTilt.init(document.querySelectorAll('.product-card'), {
                     max: 4,
@@ -930,7 +1031,7 @@ function renderProducts(products) {
                     perspective: 900,
                 });
             }).catch(function(){});
-        }, 2500);
+        }, 2500, 1800);
     }
 }
 
@@ -971,7 +1072,7 @@ function renderFeaturedProducts() {
 
         card.innerHTML = `
             <div class="product-image-wrapper img-loading">
-                <img data-src="${coverImg}" alt="${product.equipo}" class="lazy-img">
+                <img ${i < 2 ? `src="${coverImg}" fetchpriority="high" loading="eager"` : `data-src="${coverImg}" loading="lazy"`} alt="${product.equipo}" class="lazy-img" width="320" height="400" decoding="async">
                 ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
             </div>
             <div class="product-info">
@@ -988,7 +1089,13 @@ function renderFeaturedProducts() {
         `;
 
         const img = card.querySelector('.lazy-img');
-        if (img) imgObserver.observe(img);
+        if (img && img.dataset.src) {
+            imgObserver.observe(img);
+        } else if (img) {
+            img.onload = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
+            img.onerror = () => { img.classList.add('loaded'); img.parentElement.classList.remove('img-loading'); };
+            if (img.complete) img.onload();
+        }
         if (!prefersReducedMotion && !isTouchDevice) {
             cardRevealObserver.observe(card);
         } else {
@@ -998,7 +1105,7 @@ function renderFeaturedProducts() {
     });
 
     if (!prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
-        runWhenIdle(() => {
+        runAfterIdleDelay(() => {
             loadVanillaTilt().then((VanillaTilt) => {
                 VanillaTilt.init(container.querySelectorAll('.product-card'), {
                     max: 4,
@@ -1009,7 +1116,7 @@ function renderFeaturedProducts() {
                     perspective: 900,
                 });
             }).catch(function(){});
-        }, 2500);
+        }, 2500, 1800);
     }
 }
 

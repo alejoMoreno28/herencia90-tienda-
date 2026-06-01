@@ -34,10 +34,7 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="/css/style.css?v=20260601-contrast">
-    <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
+    <link rel="stylesheet" href="/css/style.css?v=20260601-performance">
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="application/ld+json">
     {
@@ -143,7 +140,7 @@
     </div>
 
     <section class="hero">
-        <video class="hero-video" muted loop playsinline webkit-playsinline autoplay preload="auto" poster="/img/hero-video-poster.webp" id="heroVideo" aria-hidden="true">
+        <video class="hero-video" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/img/hero-video-poster.webp" id="heroVideo" aria-hidden="true">
             <source src="/videos/hero-video3.mp4?v=20260525-video-fix" type="video/mp4">
             <source src="/videos/hero-video2.mp4?v=20260525-video-fix" type="video/mp4">
             <source src="/videos/hero-video.mp4?v=20260525-video-fix" type="video/mp4">
@@ -254,7 +251,7 @@
                     <a href="/preventa" class="btn-preorder-action">Iniciar Pre-orden &rarr;</a>
                 </div>
                 <div class="preorder-banner-image">
-                    <img src="/img/man_ud_retro_98_home_1.webp" alt="Camiseta Pre-orden" class="preorder-img-highlight">
+                    <img src="/img/man_ud_retro_98_home_1.webp" alt="Camiseta Pre-orden" class="preorder-img-highlight" width="320" height="400" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -346,7 +343,7 @@
     <!-- Category Drawer (m&oacute;vil) -->
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
-            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <a href="/"><img src="/img/logo.webp" alt="Herencia 90" class="drawer-logo" width="120" height="55" loading="lazy" decoding="async"></a>
             <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
@@ -407,9 +404,7 @@
     </nav>
 
     <!-- UX Libraries -->
-    <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script defer src="/js/app.js?v=20260601-stock-priority"></script>
+    <script defer src="/js/app.js?v=20260601-performance"></script>
     <script>
       (function() {
         var v = document.getElementById('heroVideo');
@@ -427,8 +422,17 @@
           }).catch(function(){});
         };
 
+        var deferHeroVideo = function() {
+          var run = function() { startHeroVideo(); };
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(run, { timeout: 1500 });
+          } else {
+            setTimeout(run, 1200);
+          }
+        };
+
         var forcePlay = function() {
-          startHeroVideo();
+          deferHeroVideo();
         };
 
         var cleanupListeners = function() {
@@ -442,19 +446,19 @@
         document.addEventListener('touchstart', forcePlay, { passive: true });
         document.addEventListener('scroll', forcePlay, { passive: true });
 
-        window.addEventListener('load', startHeroVideo, { once: true });
-        window.addEventListener('pageshow', startHeroVideo);
+        window.addEventListener('load', deferHeroVideo, { once: true });
+        window.addEventListener('pageshow', deferHeroVideo);
         document.addEventListener('visibilitychange', function() {
-          if (!document.hidden) startHeroVideo();
+          if (!document.hidden) deferHeroVideo();
         });
 
         if ('IntersectionObserver' in window) {
           var observer = new IntersectionObserver(function(entries) {
-            if (entries[0] && entries[0].isIntersecting) startHeroVideo();
+            if (entries[0] && entries[0].isIntersecting) deferHeroVideo();
           }, { threshold: 0.2 });
           observer.observe(v);
         } else {
-          startHeroVideo();
+          deferHeroVideo();
         }
       })();
     </script>
