@@ -167,7 +167,14 @@ async function refreshProductsFromSupabase(localProducts) {
         const { data, error } = await client.from('productos').select('*').order('id');
         if (error) throw error;
         if (Array.isArray(data) && data.length > 0) {
-            const merged = [...data];
+            const localById = new Map((localProducts || []).map(lp => [lp.id, lp]));
+            const merged = data.map(sp => {
+                const lp = localById.get(sp.id);
+                if (lp && (!Array.isArray(sp.imagenes) || sp.imagenes.length === 0) && Array.isArray(lp.imagenes) && lp.imagenes.length > 0) {
+                    return { ...sp, imagenes: lp.imagenes };
+                }
+                return sp;
+            });
             (localProducts || []).forEach(lp => {
                 if (!merged.some(sp => sp.id === lp.id)) {
                     merged.push(lp);

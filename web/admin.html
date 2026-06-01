@@ -1896,11 +1896,11 @@
             renderInventory();
             await saveInventory(true);
         }
-        function safeStorageFilename(name) {
+        function safeStorageFilename(name, preferredExt) {
             const raw = String(name || 'imagen');
             const dot = raw.lastIndexOf('.');
             const base = dot > 0 ? raw.slice(0, dot) : raw;
-            const ext = dot > 0 ? raw.slice(dot + 1) : 'webp';
+            const ext = preferredExt || (dot > 0 ? raw.slice(dot + 1) : 'webp');
             const safeBase = base
                 .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
                 .toLowerCase()
@@ -1911,11 +1911,40 @@
             return `${Date.now()}_${safeBase}.${safeExt}`;
         }
 
+        function optimizeImageForUpload(file) {
+            const fallbackExt = (file.name.split('.').pop() || 'webp').toLowerCase();
+            if (!file.type.startsWith('image/')) return Promise.resolve({ blob: file, ext: fallbackExt, type: file.type || undefined });
+
+            return new Promise(resolve => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    const maxSize = 1200;
+                    const scale = Math.min(1, maxSize / Math.max(img.naturalWidth, img.naturalHeight));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+                    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(blob => {
+                        resolve(blob ? { blob, ext: 'webp', type: 'image/webp' } : { blob: file, ext: fallbackExt, type: file.type || undefined });
+                    }, 'image/webp', 0.82);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve({ blob: file, ext: fallbackExt, type: file.type || undefined });
+                };
+                img.src = url;
+            });
+        }
+
         async function addImg(e, pI) {
             const f = e.target.files[0]; if (!f) return;
-            const filename = safeStorageFilename(f.name);
-            const { error } = await db.storage.from('product-images').upload(filename, f, { upsert: true, contentType: f.type || undefined });
-            if (error) { alert("Error subiendo imagen: " + error.message); return; }
+            const optimized = await optimizeImageForUpload(f);
+            const filename = safeStorageFilename(f.name, optimized.ext);
+            const { error } = await db.storage.from('product-images').upload(filename, optimized.blob, { upsert: true, contentType: optimized.type });
+            if (error) { e.target.value = ''; alert("Error subiendo imagen: " + error.message); return; }
             const { data: urlData } = db.storage.from('product-images').getPublicUrl(filename);
             productData[pI].imagenes.push(urlData.publicUrl);
             renderInventory();

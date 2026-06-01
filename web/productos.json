@@ -484,6 +484,24 @@
         ]
     },
     {
+        "id": 45,
+        "categoria": "Women's Collection",
+        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla",
+        "descripcion": "Camiseta Colombia local 2026 version mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para publico femenino de seleccion Colombia.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/colombia_2026_mujer_corta_1.webp",
+            "img/colombia_2026_mujer_corta_2.webp"
+        ]
+    },
+    {
         "id": 25,
         "categoria": "Temporada 25/26",
         "equipo": "Camiseta local Real Madrid 25/26",
