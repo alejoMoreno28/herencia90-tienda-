@@ -681,8 +681,12 @@ function getProductBadge(product) {
 }
 
 // ── Size pills ────────────────────────────────────────────────────────────────
+const SIZE_ORDER = { 'XS': 1, 'S': 2, 'M': 3, 'L': 4, 'XL': 5, 'XXL': 6, '2XL': 6, '3XL': 7 };
+
 function buildSizePills(tallas, isBajoPedido = false) {
-    return Object.entries(tallas || {}).map(([s, qty]) =>
+    return Object.entries(tallas || {})
+        .sort((a, b) => (SIZE_ORDER[a[0]] || 99) - (SIZE_ORDER[b[0]] || 99))
+        .map(([s, qty]) =>
         `<span class="size-pill ${(qty > 0 || isBajoPedido) ? 'available' : 'unavailable'}">${s}</span>`
     ).join('');
 }
@@ -1338,7 +1342,9 @@ function openModal(productIndex) {
     addCartBtn.style.opacity = '0.4';
     addCartBtn.onclick = null;
 
-    Object.entries(product.tallas || {}).forEach(([size, stock]) => {
+    Object.entries(product.tallas || {})
+        .sort((a, b) => (SIZE_ORDER[a[0]] || 99) - (SIZE_ORDER[b[0]] || 99))
+        .forEach(([size, stock]) => {
         const btn = document.createElement('button');
         btn.innerText = size;
         const available = isBajoPedido || stock > 0;
