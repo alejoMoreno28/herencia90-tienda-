@@ -349,9 +349,9 @@
                         <div class="sub-value" id="stat-roi-detail">Ventas cobradas - gastos operativos - inversión.</div>
                     </div>
                     <div class="stat-card caja">
-                        <h4>💵 Caja por ventas</h4>
+                        <h4>💵 Caja Física (Líquido)</h4>
                         <div class="value" id="stat-caja">$0</div>
-                        <div class="sub-value" id="stat-cash-detail">Ventas cobradas - gastos operativos. Compara este dato con banco/caja.</div>
+                        <div class="sub-value" id="stat-cash-detail">Total Entradas - Total Salidas. Debe ser igual a tus cuentas y efectivo.</div>
                     </div>
                     <div class="stat-card stock-val">
                         <h4>📦 Inventario disponible</h4>
@@ -1520,10 +1520,10 @@
             setText('stat-roi', roiBalance < 0
                 ? `Pendiente ${formatter.format(Math.abs(roiBalance))}`
                 : `Superávit ${formatter.format(roiBalance)}`);
-            setMoney('stat-caja', salesCash);
+            setMoney('stat-caja', metrics.cashAvailable);
 
             setValueTone('stat-real-profit', metrics.netProfitRealized);
-            setValueTone('stat-caja', salesCash);
+            setValueTone('stat-caja', metrics.cashAvailable);
             setValueTone('stat-roi', roiBalance);
             setValueTone('stat-profit', metrics.grossProfit);
 
