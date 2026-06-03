@@ -1857,7 +1857,7 @@
                     const stockLabel = stock === 0 ? 'Agotada' : `${stock} uds`;
                     const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
                     const imageList = Array.isArray(p.imagenes) ? p.imagenes : [];
-                    const photos = `<ul class="photo-list">` + imageList.map((img, ix)=>`<li><a href="${escapeHtml(img)}" target="_blank" rel="noopener">Foto ${ix + 1}</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#f3f0e8;border:1px solid #e3d6b6;border-radius:5px;padding:4px 6px;display:inline-block;margin-top:5px;font-weight:800;">+ Foto<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
+                    const photos = `<ul class="photo-list">` + imageList.map((img, ix)=>`<li><a href="${escapeHtml(img)}" target="_blank" rel="noopener">Foto ${ix + 1}</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label class="add-photo-btn" style="font-size:10px;cursor:pointer;background:#f3f0e8;border:1px dashed #d9c391;border-radius:5px;padding:6px 8px;display:block;margin-top:5px;font-weight:800;text-align:center;width:100%;box-sizing:border-box;transition:all 0.2s;" ondragover="event.preventDefault(); this.style.background='#e8e3d5'; this.style.borderColor='#997d3d';" ondragleave="this.style.background='#f3f0e8'; this.style.borderColor='#d9c391';" ondrop="this.style.background='#f3f0e8'; this.style.borderColor='#d9c391'; handleDropImg(event, ${i}, this)">+ Añadir Fotos (Arrastra o haz clic)<input type="file" multiple style="display:none" onchange="addImg(event,${i})"></label>`;
 
                     html += `<tr class="${stockCls}">
                         <td><b>#${p.id}</b></td>
@@ -1988,19 +1988,38 @@
             return result.url;
         }
 
-        async function addImg(e, pI) {
-            const f = e.target.files[0]; if (!f) return;
+        async function handleImgFiles(files, pI, labelElement) {
+            if (!files || files.length === 0) return;
+            const originalText = labelElement ? labelElement.innerHTML : '';
+            if (labelElement) labelElement.innerHTML = '⏳ Subiendo...';
             try {
-                const optimized = await optimizeImageForUpload(f);
-                const filename = safeStorageFilename(f.name, optimized.ext);
-                const publicUrl = await uploadProductImage(filename, optimized);
-                productData[pI].imagenes.push(publicUrl);
+                for (let i = 0; i < files.length; i++) {
+                    const f = files[i];
+                    if (labelElement) labelElement.innerHTML = `⏳ Optimizando y subiendo (${i+1}/${files.length})...`;
+                    const optimized = await optimizeImageForUpload(f);
+                    const filename = safeStorageFilename(f.name, optimized.ext);
+                    const publicUrl = await uploadProductImage(filename, optimized);
+                    productData[pI].imagenes.push(publicUrl);
+                }
                 renderInventory();
                 await saveInventory(true);
             } catch (error) {
-                alert("Error subiendo imagen: " + error.message);
+                console.error(error);
+                alert('Error al subir imagen: ' + error.message);
             } finally {
-                e.target.value = '';
+                if (labelElement) labelElement.innerHTML = originalText;
+            }
+        }
+
+        function addImg(e, pI) {
+            handleImgFiles(e.target.files, pI, e.target.parentElement);
+            e.target.value = '';
+        }
+
+        function handleDropImg(e, pI, element) {
+            e.preventDefault();
+            if (e.dataTransfer && e.dataTransfer.files) {
+                handleImgFiles(e.dataTransfer.files, pI, element);
             }
         }
 
