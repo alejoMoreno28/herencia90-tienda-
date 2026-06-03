@@ -17,6 +17,25 @@
 
     function getMonth(fecha) {
         return String(fecha || '').slice(0, 7) || 'Sin fecha';
+(function () {
+    const INVENTORY_PURCHASE = 'compra inventario';
+    const SALE = 'venta';
+
+    function normalizeText(value) {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    function toNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : 0;
+    }
+
+    function getMonth(fecha) {
+        return String(fecha || '').slice(0, 7) || 'Sin fecha';
     }
 
     function isSale(transaction) {
@@ -24,7 +43,7 @@
     }
 
     function isInventoryPurchase(transaction) {
-        return transaction && transaction.tipo === 'gasto' && normalizeText(transaction.categoria).includes(INVENTORY_PURCHASE);
+        return transaction && (transaction.tipo === 'gasto' || transaction.tipo === 'tarjeta') && normalizeText(transaction.categoria).includes(INVENTORY_PURCHASE);
     }
 
     function productCostCOP(transaction, globalTrm) {
@@ -64,6 +83,7 @@
             uncostedSalesCount: 0,
             salesCount: 0,
             transactionCount: scopedTransactions.length,
+            creditCardDebt: 0,
             monthly: { labels: [], salesRevenue: [], cashIn: [], cashOut: [], netProfitRealized: [] }
         };
 
@@ -84,12 +104,28 @@
             }
 
             if (transaction.tipo === 'gasto') {
-                metrics.cashOutTotal += amount;
+                if (transaction.categoria === 'Pago Deuda Tarjeta/Socio') {
+                    metrics.cashOutTotal += amount;
+                    metrics.creditCardDebt -= amount;
+                } else {
+                    metrics.cashOutTotal += amount;
+                    if (isInventoryPurchase(transaction)) {
+                        metrics.inventoryPurchases += amount;
+                    } else {
+                        metrics.profitExpenses += amount;
+                    }
+                }
+                return;
+            }
+
+            if (transaction.tipo === 'tarjeta') {
+                metrics.creditCardDebt += amount;
                 if (isInventoryPurchase(transaction)) {
                     metrics.inventoryPurchases += amount;
                 } else {
                     metrics.profitExpenses += amount;
                 }
+                return;
             }
         });
 

@@ -353,6 +353,11 @@
                         <div class="value" id="stat-caja">$0</div>
                         <div class="sub-value" id="stat-cash-detail">Total Entradas - Total Salidas. Debe ser igual a tus cuentas y efectivo.</div>
                     </div>
+                    <div class="stat-card" style="border-color: #dc3545; background: #fff5f5;">
+                        <h4>💳 Deuda Tarjeta (Socios)</h4>
+                        <div class="value" id="stat-deuda" style="color: #dc3545;">$0</div>
+                        <div class="sub-value">Deuda pendiente por inventario pagado con tarjeta personal.</div>
+                    </div>
                     <div class="stat-card stock-val">
                         <h4>📦 Inventario disponible</h4>
                         <div class="value" id="stat-inv-val">$0</div>
@@ -410,6 +415,8 @@
                                     <button type="button" class="movement-preset" data-preset="regalo" onclick="setMovementPreset('regalo')">Regalo / promo</button>
                                     <button type="button" class="movement-preset" data-preset="retiro" onclick="setMovementPreset('retiro')">Retiro personal</button>
                                     <button type="button" class="movement-preset" data-preset="defectuoso" onclick="setMovementPreset('defectuoso')">Defectuosa</button>
+                                    <button type="button" class="movement-preset" data-preset="compra_tarjeta" onclick="setMovementPreset('compra_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💳 Compra Tarjeta</button>
+                                    <button type="button" class="movement-preset" data-preset="pago_tarjeta" onclick="setMovementPreset('pago_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💵 Pago a Tarjeta</button>
                                 </div>
                                 <div class="movement-hint" id="movement-hint">Elige una acción para que el admin prepare los campos correctos.</div>
                                 <div class="form-group">
@@ -417,6 +424,7 @@
                                     <select id="t-tipo" required onchange="updateCategories()">
                                         <option value="gasto">Gasto (Salida de caja)</option>
                                         <option value="ingreso">Ingreso (Entrada a caja)</option>
+                                        <option value="tarjeta">Gasto con Tarjeta (No toca billetes)</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -1088,8 +1096,9 @@
 
         // --- FINANZAS ---
         const cats = {
-            gasto: ['Compra Inventario', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
-            ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso']
+            gasto: ['Compra Inventario', 'Pago Deuda Tarjeta/Socio', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
+            ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso'],
+            tarjeta: ['Compra Inventario', 'Publicidad Pauta', 'Varios']
         };
 
         const movementPresets = {
@@ -1115,6 +1124,16 @@
                 categoria: 'Producto Defectuoso / Crédito Proveedor',
                 monto: 0,
                 hint: 'Defectuosa: descuenta inventario y deja claro que hay reposición o crédito pendiente.'
+            },
+            compra_tarjeta: {
+                tipo: 'tarjeta',
+                categoria: 'Compra Inventario',
+                hint: '💳 Sube tu deuda y anota el gasto, pero NO descuenta billetes de tu caja física.'
+            },
+            pago_tarjeta: {
+                tipo: 'gasto',
+                categoria: 'Pago Deuda Tarjeta/Socio',
+                hint: '💵 Saca plata de la caja física y la usa para pagar/bajar tu deuda pendiente.'
             }
         };
         
@@ -1521,6 +1540,7 @@
                 ? `Pendiente ${formatter.format(Math.abs(roiBalance))}`
                 : `Superávit ${formatter.format(roiBalance)}`);
             setMoney('stat-caja', metrics.cashAvailable);
+            setMoney('stat-deuda', metrics.creditCardDebt || 0);
 
             setValueTone('stat-real-profit', metrics.netProfitRealized);
             setValueTone('stat-caja', metrics.cashAvailable);
