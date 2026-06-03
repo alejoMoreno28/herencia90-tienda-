@@ -25,7 +25,7 @@
     }
 
     function isInventoryPurchase(transaction) {
-        return transaction && (transaction.tipo === 'gasto' || transaction.tipo === 'tarjeta') && normalizeText(transaction.categoria).includes(INVENTORY_PURCHASE);
+        return transaction && transaction.tipo === 'gasto' && normalizeText(transaction.categoria).includes(INVENTORY_PURCHASE);
     }
 
     function productCostCOP(transaction, globalTrm) {
@@ -89,6 +89,9 @@
                 if (transaction.categoria === 'Pago Deuda Tarjeta/Socio') {
                     metrics.cashOutTotal += amount;
                     metrics.creditCardDebt -= amount;
+                } else if (transaction.categoria === 'Compra Inventario (con Tarjeta)') {
+                    metrics.creditCardDebt += amount;
+                    metrics.inventoryPurchases += amount;
                 } else {
                     metrics.cashOutTotal += amount;
                     if (isInventoryPurchase(transaction)) {
@@ -96,16 +99,6 @@
                     } else {
                         metrics.profitExpenses += amount;
                     }
-                }
-                return;
-            }
-
-            if (transaction.tipo === 'tarjeta') {
-                metrics.creditCardDebt += amount;
-                if (isInventoryPurchase(transaction)) {
-                    metrics.inventoryPurchases += amount;
-                } else {
-                    metrics.profitExpenses += amount;
                 }
                 return;
             }

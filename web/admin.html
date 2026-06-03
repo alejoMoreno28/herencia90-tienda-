@@ -28,9 +28,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/admin-finance-metrics.js?v=20260602-2"></script>
-    <script src="js/admin-inventory-guard.js?v=20260602-2"></script>
-    <script src="js/admin-lote-photo-review.js?v=20260602-2"></script>
+    <script src="js/admin-finance-metrics.js?v=20260602-3"></script>
+    <script src="js/admin-inventory-guard.js?v=20260602-3"></script>
+    <script src="js/admin-lote-photo-review.js?v=20260602-3"></script>
     <style>
         :root {
             --bg-color: #f6f4ef;
@@ -424,7 +424,6 @@
                                     <select id="t-tipo" required onchange="updateCategories()">
                                         <option value="gasto">Gasto (Salida de caja)</option>
                                         <option value="ingreso">Ingreso (Entrada a caja)</option>
-                                        <option value="tarjeta">Gasto con Tarjeta (No toca billetes)</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -1096,9 +1095,8 @@
 
         // --- FINANZAS ---
         const cats = {
-            gasto: ['Compra Inventario', 'Pago Deuda Tarjeta/Socio', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
-            ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso'],
-            tarjeta: ['Compra Inventario', 'Publicidad Pauta', 'Varios']
+            gasto: ['Compra Inventario', 'Compra Inventario (con Tarjeta)', 'Pago Deuda Tarjeta/Socio', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
+            ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso']
         };
 
         const movementPresets = {
@@ -1126,8 +1124,8 @@
                 hint: 'Defectuosa: descuenta inventario y deja claro que hay reposición o crédito pendiente.'
             },
             compra_tarjeta: {
-                tipo: 'tarjeta',
-                categoria: 'Compra Inventario',
+                tipo: 'gasto',
+                categoria: 'Compra Inventario (con Tarjeta)',
                 hint: '💳 Sube tu deuda y anota el gasto, pero NO descuenta billetes de tu caja física.'
             },
             pago_tarjeta: {
