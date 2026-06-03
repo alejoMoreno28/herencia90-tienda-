@@ -5,7 +5,8 @@
     }
 
     function isSaleCategory(category) {
-        return String(category || '').toLowerCase().includes('venta');
+        const text = String(category || '').toLowerCase();
+        return text.includes('venta') && !text.includes('inventario');
     }
 
     function normalizeCategory(category) {
@@ -17,7 +18,7 @@
 
     function isStockMovementCategory(category) {
         const text = normalizeCategory(category);
-        return text.includes('venta')
+        return (text.includes('venta') && !text.includes('inventario'))
             || text.includes('regalo')
             || text.includes('retiro personal')
             || text.includes('defectuoso');

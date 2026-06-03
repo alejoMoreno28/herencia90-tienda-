@@ -17,25 +17,7 @@
 
     function getMonth(fecha) {
         return String(fecha || '').slice(0, 7) || 'Sin fecha';
-(function () {
-    const INVENTORY_PURCHASE = 'compra inventario';
-    const SALE = 'venta';
 
-    function normalizeText(value) {
-        return String(value || '')
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-    }
-
-    function toNumber(value) {
-        const number = Number(value);
-        return Number.isFinite(number) ? number : 0;
-    }
-
-    function getMonth(fecha) {
-        return String(fecha || '').slice(0, 7) || 'Sin fecha';
     }
 
     function isSale(transaction) {
