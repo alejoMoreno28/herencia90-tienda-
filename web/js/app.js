@@ -805,6 +805,10 @@ function getProductPrice(product) {
 }
 
 function compareCatalogProducts(a, b) {
+    const stockA = getAvailableStock(a) > 0 ? 1 : 0;
+    const stockB = getAvailableStock(b) > 0 ? 1 : 0;
+    if (stockA !== stockB) return stockB - stockA;
+
     let diff = 0;
     if (catalogSort === 'price-asc') diff = getProductPrice(a) - getProductPrice(b);
     if (catalogSort === 'price-desc') diff = getProductPrice(b) - getProductPrice(a);

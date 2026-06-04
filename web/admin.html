@@ -526,7 +526,7 @@
                                 <option value="all">Todas</option>
                             </select>
                         </div>
-                        <div class="inventory-field">
+                        <div class="inventory-field" style="display:none;">
                             <label for="invStockFilter">Estado</label>
                             <select id="invStockFilter" onchange="renderInventory()">
                                 <option value="all">Todo el inventario</option>
@@ -563,6 +563,25 @@
                         <div class="inventory-actions">
                             <button class="btn-save" onclick="renameCategory()">Renombrar categoría</button>
                         </div>
+                    </div>
+
+                    <div class="inv-tabs" style="display:flex; gap:10px; margin:20px 0 15px; border-bottom:2px solid #eee; padding-bottom:10px; overflow-x:auto;">
+                        <button class="inv-tab active" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-all" onclick="setStockFilter('all', this)">Todas</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-stock" onclick="setStockFilter('available', this)">✅ Con Stock</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-empty" onclick="setStockFilter('empty', this)">❌ Agotadas</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-low" onclick="setStockFilter('low', this)">⚠️ Bajo Stock</button>
+                        <style>
+                            .inv-tab:hover { background:#f5f5f5; color:#333; }
+                            .inv-tab.active { background:#111 !important; color:#fff !important; }
+                        </style>
+                        <script>
+                            function setStockFilter(val, btn) {
+                                document.getElementById('invStockFilter').value = val;
+                                document.querySelectorAll('.inv-tab').forEach(b => b.classList.remove('active'));
+                                btn.classList.add('active');
+                                renderInventory();
+                            }
+                        </script>
                     </div>
 
                     <div id="tablesContainer"></div>
@@ -1809,6 +1828,15 @@
             });
 
             updateInventorySummary(allItems);
+
+            const tAll = allItems.length;
+            const tStock = allItems.filter(i => i.stock > 0).length;
+            const tEmpty = allItems.filter(i => i.stock === 0).length;
+            const tLow = allItems.filter(i => i.stock > 0 && i.stock <= 2).length;
+            if(document.getElementById('tab-all')) document.getElementById('tab-all').innerText = `Todas (${tAll})`;
+            if(document.getElementById('tab-stock')) document.getElementById('tab-stock').innerText = `✅ Con Stock (${tStock})`;
+            if(document.getElementById('tab-empty')) document.getElementById('tab-empty').innerText = `❌ Agotadas (${tEmpty})`;
+            if(document.getElementById('tab-low')) document.getElementById('tab-low').innerText = `⚠️ Bajo Stock (${tLow})`;
 
             let visibleItems = allItems.filter(item => {
                 const matchesQuery = !query || item.searchable.includes(query);
