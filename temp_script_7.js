@@ -1,0 +1,1793 @@
+
+        const formatter = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+        const usdFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+        function switchTab(tId) {
+            document.querySelectorAll('.view-section, .sidebar-menu button').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-'+tId).classList.add('active');
+            document.getElementById('tab-'+tId).classList.add('active');
+            const titles = { dashboard: 'Dashboard Financiero', inventario: 'Gestión de Inventario (Al Costo)', analytics: 'Analytics Web', preventa: 'Pre-Venta — Catálogo de Referencias', pedidos: 'Control de Pedidos y Clientes' };
+            document.getElementById('page-title').innerText = titles[tId] || tId;
+            document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
+            if (tId === 'dashboard') calculateInventoryValuation();
+            if (tId === 'analytics') loadAnalytics();
+            if (tId === 'preventa') pvaCargarLista();
+            if (tId === 'pedidos') loadPedidos();
+        }
+        async function logout() { await db.auth.signOut(); window.location.href='/login.html'; }
+
+        // Fetch TRM Oficial (Superintendencia) API
+        async function fetchTRM() {
+            try {
+                // API Socrata de datos.gov.co para TRM
+                const res = await fetch("https://www.datos.gov.co/resource/32sa-8pi3.json?$limit=1&$order=vigenciadesde%20DESC");
+                const data = await res.json();
+                if(data && data.length > 0) {
+                    const oficial = parseFloat(data[0].valor);
+                    document.getElementById('trm-api').innerText = formatter.format(oficial);
+                    // Si el custom estaba en base (default), prellenarlo con la oficial
+                    if(document.getElementById('trm-custom').value === "3980" || document.getElementById('trm-custom').value === "3714" || parseInt(document.getElementById('trm-custom').value) === 1) {
+                        document.getElementById('trm-custom').value = oficial;
+                    }
+                }
+            } catch(e) { document.getElementById('trm-api').innerText = "ND"; }
+            updateCustomTRM();
+        }
+
+        function updateCustomTRM() {
+            GLOBAL_TRM = parseFloat(document.getElementById('trm-custom').value) || 3980;
+            renderInventory(); 
+            calculateInventoryValuation();
+            calcCOP();
+        }
+
+        let productData = [];
+        let financeData = { transacciones: [] };
+        let CATEGORIAS_INV = [];
+        let profitChart = null;
+        let cashChart = null;
+
+        async function init() {
+            await fetchTRM();
+            try {
+                const { data: prods } = await db.from('productos').select('*').order('id');
+                if (prods) productData = prods;
+
+                const { data: trans } = await db.from('transacciones').select('*').order('fecha', { ascending: false });
+                if (trans) financeData.transacciones = trans;
+
+                renderInventory();
+                renderFinance();
+                calculateInventoryValuation();
+            } catch(e) { console.error(e); }
+        }
+
+        // --- FINANZAS ---
+        const cats = {
+            gasto: ['Compra Inventario', 'Regalo / Promoción', 'Retiro Personal Socio', 'Producto Defectuoso / Crédito Proveedor', 'Comisión / PayPal', 'Material Empaques', 'Envíos Nacionales', 'Publicidad Pauta', 'Varios'],
+            ingreso: ['Venta de Producto', 'Inversión Inicial de Socios', 'Reembolso']
+        };
+
+        const movementPresets = {
+            venta: {
+                tipo: 'ingreso',
+                categoria: 'Venta de Producto',
+                hint: 'Venta normal: entra plata, se descuenta inventario y queda costo de producto asociado.'
+            },
+            regalo: {
+                tipo: 'gasto',
+                categoria: 'Regalo / Promoción',
+                monto: 0,
+                hint: 'Regalo o promo: no entra plata, pero la camiseta sale del inventario con trazabilidad.'
+            },
+            retiro: {
+                tipo: 'gasto',
+                categoria: 'Retiro Personal Socio',
+                monto: 0,
+                hint: 'Retiro personal: saca una camiseta del inventario sin mezclarla con ventas.'
+            },
+            defectuoso: {
+                tipo: 'gasto',
+                categoria: 'Producto Defectuoso / Crédito Proveedor',
+                monto: 0,
+                hint: 'Defectuosa: descuenta inventario y deja claro que hay reposición o crédito pendiente.'
+            }
+        };
+        
+        function updateCategories() {
+            const tipo = document.getElementById('t-tipo').value;
+            const sel = document.getElementById('t-categoria');
+            sel.innerHTML = cats[tipo].map(c => `<option value="${c}">${c}</option>`).join('');
+            checkVenta();
+            updateMovementHint();
+        }
+
+        function setMovementPreset(kind) {
+            const preset = movementPresets[kind];
+            if (!preset) return;
+
+            document.getElementById('t-tipo').value = preset.tipo;
+            updateCategories();
+            document.getElementById('t-categoria').value = preset.categoria;
+            if (preset.monto !== undefined) {
+                document.getElementById('t-monto').value = preset.monto;
+            } else if (Number(document.getElementById('t-monto').value) === 0) {
+                document.getElementById('t-monto').value = '';
+            }
+            document.getElementById('movement-hint').textContent = preset.hint;
+            document.querySelectorAll('.movement-preset').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === kind);
+            });
+            checkVenta();
+            calcCOP();
+        }
+
+        function updateMovementHint() {
+            const category = document.getElementById('t-categoria').value;
+            const preset = Object.entries(movementPresets).find(([, item]) => item.categoria === category);
+            const hint = document.getElementById('movement-hint');
+            if (hint && preset) hint.textContent = preset[1].hint;
+        }
+
+        function checkVenta() {
+            const isVenta = window.AdminInventoryGuard.isStockMovementCategory(document.getElementById('t-categoria').value);
+            const grp = document.getElementById('t-venta-group');
+            grp.style.display = isVenta ? 'block' : 'none';
+            if (isVenta) populateProductSelect();
+        }
+        document.getElementById('t-categoria').addEventListener('change', checkVenta);
+
+        // ── Multi-item venta ──────────────────────────────────────────
+        let _ventaItems = [];   // [{ prodId, talla, cantidad }]
+        let _hideTimers = {};
+
+        function populateProductSelect() {
+            _ventaItems = [];
+            document.getElementById('t-items-list').innerHTML = '';
+            addVentaItem();
+        }
+
+        function addVentaItem() {
+            const idx = _ventaItems.length;
+            _ventaItems.push({ prodId: null, talla: null, cantidad: 1 });
+            const list = document.getElementById('t-items-list');
+            const div = document.createElement('div');
+            div.id = `vi-${idx}`;
+            div.style.cssText = 'background:#f9f9f9; border:1px solid #eee; border-radius:8px; padding:10px; margin-bottom:8px; position:relative;';
+            div.innerHTML = `
+                ${idx > 0 ? `<button type="button" onclick="removeVentaItem(${idx})" style="position:absolute;top:6px;right:8px;background:none;border:none;color:#c0392b;font-size:16px;cursor:pointer;">✕</button>` : ''}
+                <div style="position:relative; margin-bottom:6px;">
+                    <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none;">🔍</span>
+                    <input type="text" id="vi-search-${idx}" autocomplete="off" placeholder="Busca la camiseta..."
+                        style="padding-left:30px;width:100%;box-sizing:border-box;font-size:13px;"
+                        oninput="filterVI(${idx})" onfocus="filterVI(${idx})" onblur="hideVI(${idx})">
+                    <div id="vi-dd-${idx}" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;width:100%;box-shadow:0 4px 12px rgba(0,0,0,.1);left:0;"></div>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <select id="vi-talla-${idx}" onchange="onVITalla(${idx})" style="flex:2;font-size:13px;">
+                        <option value="">Talla</option>
+                    </select>
+                    <input type="number" id="vi-cant-${idx}" min="1" value="1" style="flex:1;text-align:center;font-size:13px;" oninput="onVITalla(${idx})">
+                </div>
+                <div id="vi-info-${idx}" style="font-size:11px;margin-top:5px;color:#555;"></div>`;
+            list.appendChild(div);
+        }
+
+        function removeVentaItem(idx) {
+            _ventaItems[idx] = null;
+            const el = document.getElementById(`vi-${idx}`);
+            if (el) el.remove();
+        }
+
+        function filterVI(idx) {
+            const q = (document.getElementById(`vi-search-${idx}`).value || '').toLowerCase();
+            const dd = document.getElementById(`vi-dd-${idx}`);
+            const matches = productData.filter(p => ((p.equipo||'')+' '+(p.descripcion||'')).toLowerCase().includes(q));
+            if (!matches.length) { dd.style.display='none'; return; }
+            dd.innerHTML = matches.map(p => {
+                const stock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
+                const sc = stock > 5 ? '#198754' : stock > 0 ? '#e67e22' : '#c0392b';
+                const name = p.equipo + (p.descripcion ? ' — ' + p.descripcion : '');
+                return `<div onmousedown="selectVI(${idx},${p.id})"
+                    style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:12px;"
+                    onmouseover="this.style.background='#fff8e8'" onmouseout="this.style.background='#fff'">
+                    ${name} <span style="float:right;font-weight:700;color:${sc};">${stock} uds</span>
+                </div>`;
+            }).join('');
+            dd.style.display = 'block';
+        }
+
+        function hideVI(idx) {
+            _hideTimers[idx] = setTimeout(() => {
+                const dd = document.getElementById(`vi-dd-${idx}`);
+                if (dd) dd.style.display = 'none';
+            }, 200);
+        }
+
+        function selectVI(idx, prodId) {
+            clearTimeout(_hideTimers[idx]);
+            const prod = productData.find(p => p.id == prodId);
+            if (!prod) return;
+            _ventaItems[idx] = { prodId, talla: null, cantidad: 1 };
+            document.getElementById(`vi-search-${idx}`).value = prod.equipo + (prod.descripcion ? ' — ' + prod.descripcion : '');
+            document.getElementById(`vi-dd-${idx}`).style.display = 'none';
+            const tallaEl = document.getElementById(`vi-talla-${idx}`);
+            tallaEl.innerHTML = '<option value="">Talla</option>';
+            const orden = ['S','M','L','XL','XXL'];
+            const tallas = prod.tallas || {};
+            orden.filter(t => tallas[t]!==undefined).concat(Object.keys(tallas).filter(t=>!orden.includes(t))).forEach(t => {
+                const cant = tallas[t]||0;
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = cant > 0 ? `${t} — ${cant} disp.` : `${t} — Agotada`;
+                if (!cant) { opt.disabled = true; opt.style.color='#bbb'; }
+                tallaEl.appendChild(opt);
+            });
+            document.getElementById(`vi-info-${idx}`).textContent = '';
+        }
+
+        function onVITalla(idx) {
+            const item = _ventaItems[idx];
+            if (!item || !item.prodId) return;
+            const talla = document.getElementById(`vi-talla-${idx}`).value;
+            const cantidad = parseInt(document.getElementById(`vi-cant-${idx}`).value) || 1;
+            item.talla = talla; item.cantidad = cantidad;
+            const infoEl = document.getElementById(`vi-info-${idx}`);
+            if (!talla) { infoEl.textContent = ''; return; }
+            const prod = productData.find(p => p.id == item.prodId);
+            if (!prod) return;
+            const stock = (prod.tallas||{})[talla] || 0;
+            const ok = stock >= cantidad;
+            const costoUsd = (prod.costo_usd||0) * cantidad;
+            const costoCOP = costoUsd * GLOBAL_TRM + 10000 + 3000;
+            const p65 = Math.round(costoCOP / 0.35);
+            infoEl.style.color = ok ? '#155724' : '#721c24';
+            infoEl.innerHTML = ok
+                ? `✅ Stock: ${stock} uds &nbsp;|&nbsp; Precio sugerido (65% margen): <b>${formatter.format(p65)}</b> &nbsp;|&nbsp; Catálogo: ${formatter.format(prod.precio||0)}`
+                : `⚠️ Solo hay ${stock} unid. en talla ${talla}`;
+        }
+
+        function calcCOP() {
+            const val = parseFloat(document.getElementById('t-monto').value) || 0;
+            const isUSD = document.getElementById('t-moneda').value === 'USD';
+            const cop = isUSD ? val * GLOBAL_TRM : val;
+            document.getElementById('t-monto-cop').innerText = formatter.format(cop);
+        }
+
+        async function addTransaction(e) {
+            e.preventDefault();
+            const val = parseFloat(document.getElementById('t-monto').value);
+            const categoryValue = document.getElementById('t-categoria').value;
+            const isStockMovement = window.AdminInventoryGuard.isStockMovementCategory(categoryValue);
+            const isSaleMovement = categoryValue.includes('Venta');
+            if (!Number.isFinite(val) && (!isStockMovement || isSaleMovement)) {
+                alert('Ingresa un monto válido antes de guardar.');
+                return;
+            }
+            const safeVal = Number.isFinite(val) ? val : 0;
+            const isUSD = document.getElementById('t-moneda').value === 'USD';
+            const copVal = isUSD ? safeVal * GLOBAL_TRM : safeVal;
+            const usdVal = isUSD ? safeVal : (safeVal / GLOBAL_TRM);
+
+            const trans = {
+                tipo: document.getElementById('t-tipo').value,
+                categoria: categoryValue,
+                fecha: document.getElementById('t-fecha').value,
+                monto: copVal,
+                usd_amount: usdVal,
+                trm: GLOBAL_TRM,
+                descripcion: document.getElementById('t-desc').value,
+                costo_usd_asociado: parseFloat(document.getElementById('t-costo-usd').value) || 0
+            };
+
+            // Calcular costo_usd total de todos los items seleccionados
+            const isVenta = window.AdminInventoryGuard.isStockMovementCategory(trans.categoria);
+            let stockMovement = null;
+            if (isVenta) {
+                stockMovement = window.AdminInventoryGuard.buildStockMovement({
+                    category: trans.categoria,
+                    amountCOP: trans.monto,
+                    note: trans.descripcion,
+                    items: _ventaItems,
+                    products: productData
+                });
+                if (!stockMovement.ok) {
+                    alert('Revisa la venta antes de guardar:\n\n' + stockMovement.errors.join('\n'));
+                    return;
+                }
+                trans.costo_usd_asociado = stockMovement.totalCostUsd;
+                trans.descripcion = stockMovement.description;
+            }
+
+            // Generar ID numerico si la columna no tiene secuencia en Supabase
+            const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+
+            const { data: saved, error } = await db.from('transacciones').insert(trans).select().single();
+            if (error) { alert("Error guardando: " + error.message); return; }
+            financeData.transacciones.push(saved);
+            financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+            // Descontar inventario por cada item
+            if (isVenta) {
+                for (const item of stockMovement.items) {
+                    if (!item.prodId || !item.talla) continue;
+                    const prodIdx = productData.findIndex(p => p.id == item.prodId);
+                    if (prodIdx === -1) continue;
+                    const newStock = Math.max(0, (productData[prodIdx].tallas[item.talla]||0) - item.cantidad);
+                    productData[prodIdx].tallas[item.talla] = newStock;
+                    await db.from('productos').update({ tallas: productData[prodIdx].tallas }).eq('id', item.prodId);
+                }
+                renderInventory();
+                calculateInventoryValuation();
+            }
+
+            showToast("Transacción guardada ✅");
+            document.getElementById('transForm').reset();
+            document.getElementById('t-fecha').valueAsDate = new Date();
+            setMovementPreset('venta'); calcCOP(); renderFinance();
+            _ventaItems = [];
+            document.getElementById('t-items-list').innerHTML = '';
+            addVentaItem();
+        }
+
+        async function quickAdd(tipo) {
+            const montoEl = document.getElementById(`quick-${tipo}-monto`);
+            const descEl  = document.getElementById(`quick-${tipo}-desc`);
+            const monto = parseInt(montoEl.value) || 0;
+            const desc  = descEl.value.trim();
+            if (!monto) { alert('Ingresa el valor'); return; }
+            const categoria = tipo === 'envio' ? 'Envíos Nacionales' : 'Material Empaques';
+            const descripcion = (desc ? `${tipo === 'envio' ? 'Envío' : 'Caja'} — ${desc}` : (tipo === 'envio' ? 'Envío' : 'Caja'));
+            const today = new Date().toISOString().split('T')[0];
+            const trans = {
+                tipo: 'gasto', categoria,
+                fecha: today, monto, usd_amount: monto / GLOBAL_TRM, trm: GLOBAL_TRM,
+                descripcion, costo_usd_asociado: 0
+            };
+            const { error } = await db.from('transacciones').insert(trans);
+            if (error) { alert('Error: ' + error.message); return; }
+            financeData.transacciones.unshift(trans);
+            renderFinance();
+            montoEl.value = '';
+            descEl.value = '';
+            showToast(`${tipo === 'envio' ? 'Envío' : 'Caja'} registrado`);
+        }
+
+        function openEditModal(id) {
+            const t = financeData.transacciones.find(x => x.id == id);
+            if (!t) return;
+            document.getElementById('e-id').value = t.id;
+            document.getElementById('e-fecha').value = t.fecha;
+            document.getElementById('e-monto').value = t.monto;
+            document.getElementById('e-desc').value = t.descripcion || '';
+            document.getElementById('e-costo-usd').value = t.costo_usd_asociado || '';
+            // Tipo y categoria
+            const tipoSel = document.getElementById('e-tipo');
+            tipoSel.value = t.tipo;
+            updateEditCategories();
+            document.getElementById('e-categoria').value = t.categoria;
+            checkEditVenta();
+            // Mostrar modal
+            const modal = document.getElementById('editModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function updateEditCategories() {
+            const tipo = document.getElementById('e-tipo').value;
+            const sel = document.getElementById('e-categoria');
+            sel.innerHTML = cats[tipo].map(c => `<option value="${c}">${c}</option>`).join('');
+            checkEditVenta();
+        }
+
+        function checkEditVenta() {
+            const isVenta = document.getElementById('e-tipo').value === 'ingreso' &&
+                            document.getElementById('e-categoria').value.includes('Venta');
+            document.getElementById('e-costo-group').style.display = isVenta ? 'block' : 'none';
+        }
+
+        async function saveEditTrans() {
+            const id = document.getElementById('e-id').value;
+            const monto = parseFloat(document.getElementById('e-monto').value) || 0;
+            const tipo = document.getElementById('e-tipo').value;
+            const categoria = document.getElementById('e-categoria').value;
+            const fecha = document.getElementById('e-fecha').value;
+            const descripcion = document.getElementById('e-desc').value.trim();
+            const costo_usd_asociado = parseFloat(document.getElementById('e-costo-usd').value) || 0;
+
+            const updates = {
+                monto, tipo, categoria, fecha, descripcion,
+                usd_amount: monto / GLOBAL_TRM,
+                trm: GLOBAL_TRM,
+                costo_usd_asociado: tipo === 'ingreso' && categoria.includes('Venta') ? costo_usd_asociado : 0
+            };
+
+            const { error } = await db.from('transacciones').update(updates).eq('id', id);
+            if (error) { alert('Error guardando: ' + error.message); return; }
+
+            // Actualizar local
+            const idx = financeData.transacciones.findIndex(x => x.id == id);
+            if (idx !== -1) financeData.transacciones[idx] = { ...financeData.transacciones[idx], ...updates };
+            closeEditModal();
+            renderFinance();
+            showToast('Transacción actualizada');
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        async function delTrans(id) {
+            if(!confirm("¿Borrar transacción?")) return;
+            const { error } = await db.from('transacciones').delete().eq('id', id);
+            if (error) { alert("Error borrando"); return; }
+            financeData.transacciones = financeData.transacciones.filter(t => t.id !== id);
+            renderFinance();
+            showToast("Transacción eliminada");
+        }
+
+        function renderFinance() {
+            const tbody = document.getElementById('transactions-body');
+            tbody.innerHTML = '';
+
+            const allTransactions = financeData.transacciones || [];
+            const mesSelect = document.getElementById('t-mes-filtro');
+            const previousPeriod = mesSelect.value || 'all';
+            const mesesStr = [...new Set(allTransactions.map(t => (t.fecha || '').substring(0, 7)).filter(Boolean))].sort().reverse();
+            mesSelect.innerHTML = '<option value="all">Todos los meses</option>' + mesesStr.map(m => `<option value="${m}">${formatMonthLabel(m)}</option>`).join('');
+            mesSelect.value = previousPeriod === 'all' || mesesStr.includes(previousPeriod) ? previousPeriod : 'all';
+
+            const filtro = mesSelect.value;
+            const metrics = window.AdminFinance.computeFinanceMetrics(allTransactions, { globalTrm: GLOBAL_TRM, period: filtro });
+            const visibleTransactions = window.AdminFinance.filterByPeriod(allTransactions, filtro);
+
+            visibleTransactions.forEach(t => {
+                const isIngreso = (t.tipo === 'ingreso');
+                const isVenta = window.AdminFinance.isSale(t);
+                const bClass = isIngreso ? 'badge-in' : 'badge-out';
+                const s = isIngreso ? '+' : '-';
+                const c = isIngreso ? 'var(--success)' : 'var(--danger)';
+
+                let costoProductoStr = '--', margenStr = '--', precioVentaStr = '--', margenColor = '#888';
+                if (isVenta) {
+                    const costoProducto = (parseFloat(t.costo_usd_asociado) || 0) * (parseFloat(t.trm) || GLOBAL_TRM);
+                    const margen = t.monto > 0 ? ((t.monto - costoProducto) / t.monto * 100) : 0;
+                    costoProductoStr = formatter.format(costoProducto);
+                    margenStr = margen.toFixed(1) + '%';
+                    precioVentaStr = formatter.format(t.monto);
+                    margenColor = margen >= 40 ? 'var(--success)' : margen >= 20 ? '#fd7e14' : 'var(--danger)';
+                }
+
+                tbody.innerHTML += `<tr>
+                    <td>${t.fecha}</td>
+                    <td><span class="badge ${bClass}">${t.tipo.substr(0,3).toUpperCase()}</span><br><b>${t.categoria}</b></td>
+                    <td>${t.descripcion || ''} ${t.costo_usd_asociado ? `<br><small style="color:#888">Costo producto: $${t.costo_usd_asociado} USD</small>`:''}</td>
+                    <td style="text-align:right; color:#666">${costoProductoStr}</td>
+                    <td style="text-align:right; font-weight:700; color:${margenColor}">${margenStr}</td>
+                    <td style="text-align:right; font-weight:900; color:${c}">${precioVentaStr !== '--' ? precioVentaStr : s+formatter.format(t.monto)}</td>
+                    <td style="display:flex; gap:4px;">
+                        <button style="background:#6f42c1; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;" onclick="openEditModal('${t.id}')">✏️</button>
+                        <button class="btn-danger" onclick="delTrans('${t.id}')">x</button>
+                    </td>
+                </tr>`;
+            });
+
+            updateFinanceSummary(metrics, filtro);
+            drawFinanceCharts(metrics);
+        }
+
+        function updateFinanceSummary(metrics, period) {
+            const salesCash = Number.isFinite(metrics.salesCash) ? metrics.salesCash : (metrics.salesRevenue - metrics.profitExpenses);
+            const roiBalance = Number.isFinite(metrics.roiBalance) ? metrics.roiBalance : (salesCash - metrics.inventoryPurchases);
+            const roiPct = Number.isFinite(metrics.roiPct)
+                ? metrics.roiPct
+                : (metrics.inventoryPurchases ? (salesCash / metrics.inventoryPurchases) * 100 : 0);
+
+            setMoney('stat-real-profit', metrics.netProfitRealized);
+            setMoney('stat-sales', metrics.salesRevenue);
+            setMoney('stat-cogs', metrics.cogs);
+            setMoney('stat-profit', metrics.grossProfit);
+            setMoney('stat-expense', metrics.profitExpenses);
+            setText('stat-roi', roiBalance < 0
+                ? `Pendiente ${formatter.format(Math.abs(roiBalance))}`
+                : `Superávit ${formatter.format(roiBalance)}`);
+            setMoney('stat-caja', salesCash);
+
+            setValueTone('stat-real-profit', metrics.netProfitRealized);
+            setValueTone('stat-caja', salesCash);
+            setValueTone('stat-roi', roiBalance);
+            setValueTone('stat-profit', metrics.grossProfit);
+
+            setText('stat-net-margin', `Margen neto: ${formatPercent(metrics.netMarginPct)}`);
+            setText('stat-sales-count', `${metrics.salesCount} ventas`);
+            setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
+            setText('stat-roi-detail', `Recuperado: ${formatPercent(roiPct)} · Inversión: ${formatter.format(metrics.inventoryPurchases)}.`);
+            setText('stat-cash-detail', 'Ventas cobradas - gastos operativos. No resta inventario ni utilidad contable.');
+            setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
+
+            const alertEl = document.getElementById('finance-alert');
+            if (metrics.uncostedSalesCount > 0) {
+                alertEl.style.display = 'block';
+                alertEl.textContent = `Hay ${metrics.uncostedSalesCount} venta(s) sin costo de producto asociado. La utilidad puede estar inflada hasta corregir ese costo.`;
+            } else {
+                alertEl.style.display = 'none';
+                alertEl.textContent = '';
+            }
+        }
+
+        function setMoney(id, value) {
+            setText(id, formatter.format(value || 0));
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+
+        function setValueTone(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('negative', (value || 0) < 0);
+        }
+
+        function formatPercent(value) {
+            return `${(value || 0).toFixed(1)}%`;
+        }
+
+        function formatMonthLabel(period) {
+            if (!period || period === 'all') return 'Todos los meses';
+            const [year, month] = period.split('-').map(Number);
+            if (!year || !month) return period;
+            const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            return `${months[month - 1]} ${year}`;
+        }
+
+        function exportToExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "ID,Fecha,Tipo,Categoria,Monto COP,Monto USD,TRM Aplicada,Costo Base USD (Para Ventas),Descripcion\n";
+            
+            const filtro = document.getElementById('t-mes-filtro').value;
+            
+            financeData.transacciones.forEach(t => {
+                if(filtro !== 'all' && t.fecha.substring(0,7) !== filtro) return;
+                const row = [
+                    t.id, t.fecha, t.tipo, `"${t.categoria}"`, t.monto, t.usd_amount||"", 
+                    t.trm||GLOBAL_TRM, t.costo_usd_asociado||"", `"${(t.descripcion||'').replace(/"/g,'""')}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Finanzas_Herencia90_${filtro}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function drawFinanceCharts(metrics) {
+            drawProfitWaterfall(metrics);
+            drawCashChart(metrics.monthly);
+        }
+
+        function drawProfitWaterfall(metrics) {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            const waterfall = window.AdminFinance.buildProfitWaterfall(metrics);
+            const colors = waterfall.kinds.map(kind => {
+                if (kind === 'positive') return '#28a745';
+                if (kind === 'total') return '#6f42c1';
+                if (kind === 'negative-total') return '#dc3545';
+                return '#dc3545';
+            });
+
+            if (profitChart) profitChart.destroy();
+            profitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: waterfall.labels,
+                    datasets: [{
+                        label: 'COP',
+                        data: waterfall.ranges,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => {
+                                    const value = waterfall.values[context.dataIndex] || 0;
+                                    return formatter.format(value);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { ticks: { callback: value => formatter.format(value) } },
+                        x: { ticks: { maxRotation: 0, minRotation: 0, font: { size: 10, weight: '700' } } }
+                    }
+                }
+            });
+        }
+
+        function drawCashChart(monthly) {
+            const ctx = document.getElementById('cashChart').getContext('2d');
+            const labels = (monthly.labels.length ? monthly.labels : ['Sin datos']).map(formatMonthLabel);
+            const cashIn = monthly.labels.length ? monthly.cashIn : [0];
+            const cashOut = monthly.labels.length ? monthly.cashOut : [0];
+            const netProfit = monthly.labels.length ? monthly.netProfitRealized : [0];
+
+            if (cashChart) cashChart.destroy();
+            cashChart = new Chart(ctx, {
+                data: {
+                    labels,
+                    datasets: [
+                        { type: 'bar', label: 'Entradas caja', data: cashIn, backgroundColor: '#28a745', borderRadius: 6 },
+                        { type: 'bar', label: 'Salidas caja', data: cashOut, backgroundColor: '#dc3545', borderRadius: 6 },
+                        { type: 'line', label: 'Ganancia neta', data: netProfit, borderColor: '#6f42c1', backgroundColor: '#6f42c1', tension: .25, pointRadius: 4, pointHoverRadius: 5 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ${formatter.format(context.raw || 0)}` } } },
+                    scales: {
+                        y: { ticks: { callback: value => formatter.format(value) } },
+                        x: { ticks: { maxRotation: 0, minRotation: 0, font: { size: 10, weight: '700' } } }
+                    }
+                }
+            });
+        }
+
+        // --- INVENTARIO ---
+        function calculateInventoryValuation() {
+            let totalValUSD = 0, totalPotCOP = 0, totalQty = 0;
+            productData.forEach(p => {
+                const q = Object.values(p.tallas || {}).reduce((a,b)=>a+parseInt(b||0),0);
+                totalQty += q;
+                totalValUSD += (q * (parseFloat(p.costo_usd)||0));
+                totalPotCOP += (q * (parseFloat(p.precio)||0));
+            });
+            const valCOP = totalValUSD * GLOBAL_TRM;
+            document.getElementById('stat-inv-val').innerText = `${totalQty} camisetas`;
+            document.getElementById('stat-inv-cost').innerText = formatter.format(valCOP);
+            document.getElementById('stat-inv-prof').innerText = formatter.format(totalPotCOP - valCOP);
+        }
+
+        function renderInventory() {
+            const cnt = document.getElementById('tablesContainer');
+            cnt.innerHTML = '';
+            CATEGORIAS_INV = [...new Set(productData.map(p=>p.categoria||'Otras'))];
+            if(!CATEGORIAS_INV.length) CATEGORIAS_INV=['Nueva'];
+            
+            const renameSel = document.getElementById('renameCatSelect');
+            if(renameSel) renameSel.innerHTML = CATEGORIAS_INV.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+            CATEGORIAS_INV.forEach(cat => {
+                const items = productData.map((p,i)=>({p,i})).filter(x=>x.p.categoria===cat);
+                if(!items.length) return;
+
+                let html = `<div class="category-section"><h3>${cat}</h3>
+                    <table class="inv-table"><thead><tr>
+                        <th>ID</th><th>Categoría</th><th>Referencia</th>
+                        <th title="En USD basado en facturas">Costo USD</th><th title="Valor base COP con TRM actual">Costo Real (COP)</th>
+                        <th>Precio Venta</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+                        <th>Desc. y Fotos</th><th>...</th>
+                    </tr></thead><tbody>`;
+                
+                items.forEach(({p,i}) => {
+                    if(!p.tallas) p.tallas={S:0,M:0,L:0,XL:0};
+                    const totQ = (p.tallas.S||0) + (p.tallas.M||0) + (p.tallas.L||0) + (p.tallas.XL||0);
+                    const stockCls = totQ === 0 ? 'low-stock' : '';
+                    
+                    const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
+
+                    let photos = `<ul class="photo-list">` + (p.imagenes||[]).map((img, ix)=>`<li><a href="/${img}" target="_blank">📷</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#eee;padding:2px;display:block;text-align:center;margin-top:2px;">[+]<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
+
+                    html += `<tr class="${stockCls}">
+                        <td>${p.id}</td>
+                        <td><select onchange="uD(${i},'categoria',this.value)">${CATEGORIAS_INV.map(c=>`<option value="${c}" ${c===p.categoria?'selected':''}>${c}</option>`).join('')}</select></td>
+                        <td><input type="text" value="${p.equipo}" onchange="uD(${i},'equipo',this.value)"></td>
+                        <td><input type="number" class="cost-input" step="0.01" value="${p.costo_usd||''}" onchange="uD(${i},'costo_usd',this.value)"></td>
+                        <td style="color:#777; font-weight:600;">${formatter.format(pCOP)}</td>
+                        <td><input type="number" class="price-input" value="${p.precio}" onchange="uD(${i},'precio',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="uS(${i},'S',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="uS(${i},'M',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="uS(${i},'L',this.value)"></td>
+                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="uS(${i},'XL',this.value)"></td>
+                        <td style="width:180px;">
+                            <textarea onchange="uD(${i},'descripcion',this.value)" rows="1" style="font-size:10px">${p.descripcion||''}</textarea>
+                            ${photos}
+                        </td>
+                        <td><button class="btn-danger" onclick="delP(${i})">Borrar</button></td>
+                    </tr>`;
+                });
+                cnt.innerHTML += html + `</tbody></table></div>`;
+            });
+            calculateInventoryValuation();
+        }
+
+        function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
+        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); calculateInventoryValuation(); }
+        
+        async function addProduct() {
+            const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
+            const newP = { id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] };
+            const { error } = await db.from('productos').insert(newP);
+            if (error) { alert("Error creando producto"); return; }
+            productData.unshift(newP);
+            renderInventory();
+        }
+        async function delP(i) {
+            if (!confirm('Borrar?')) return;
+            const id = productData[i].id;
+            const { error } = await db.from('productos').delete().eq('id', id);
+            if (error) { alert("Error borrando producto"); return; }
+            productData.splice(i,1);
+            renderInventory();
+        }
+        function renameCategory() {
+            const o = document.getElementById('renameCatSelect').value, n = document.getElementById('renameCatInput').value.trim();
+            if(n && o!==n) { productData.forEach(p=>{if(p.categoria===o)p.categoria=n;}); renderInventory(); saveInventory(true); }
+        }
+        async function rmImg(pI, iI) {
+            const url = productData[pI].imagenes[iI];
+            const filename = url.split('/product-images/')[1];
+            if (filename) await db.storage.from('product-images').remove([filename]);
+            productData[pI].imagenes.splice(iI,1);
+            renderInventory();
+            await saveInventory(true);
+        }
+        async function addImg(e, pI) {
+            const f = e.target.files[0]; if (!f) return;
+            const filename = `${Date.now()}_${f.name.replace(/\s+/g,'_')}`;
+            const { error } = await db.storage.from('product-images').upload(filename, f, { upsert: true });
+            if (error) { alert("Error subiendo imagen: " + error.message); return; }
+            const { data: urlData } = db.storage.from('product-images').getPublicUrl(filename);
+            productData[pI].imagenes.push(urlData.publicUrl);
+            renderInventory();
+            await saveInventory(true);
+        }
+
+        async function saveInventory(silent=false) {
+            const b = document.getElementById('globalSaveBtn');
+            if (!silent) b.innerText = '...';
+            const { error } = await db.from('productos').upsert(productData);
+            if (!silent) {
+                b.innerText = 'Guardar Inventario Completo';
+                if (!error) showToast('Inventario Editado');
+                else { console.error(error); alert("Error guardando inventario"); }
+            }
+        }
+        function showToast(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('t-fecha').valueAsDate = new Date();
+            updateCategories();
+            setMovementPreset('venta');
+            init();
+        });
+
+        // ─── ANALYTICS ─────────────────────────────────────────────────────────
+        let analyticsChart = null;
+
+        async function reloadAnalytics() {
+            await loadAnalytics();
+        }
+
+        async function loadAnalytics() {
+            const days = parseInt(document.getElementById('analytics-range')?.value ?? '30');
+            let query = db.from('analytics_events').select('*').order('timestamp', { ascending: false });
+            if (days > 0) {
+                const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+                query = query.gte('timestamp', since);
+            }
+            const { data: events } = await query;
+
+            if (!events || events.length === 0) {
+                document.getElementById('an-views').innerText = '0';
+                document.getElementById('an-wa').innerText = '0';
+                document.getElementById('an-cart').innerText = '0';
+                document.getElementById('an-pv').innerText = '0';
+                return;
+            }
+
+            // Conteos globales
+            const counts = { modal_open: 0, whatsapp_click: 0, cart_add: 0, page_view: 0 };
+            events.forEach(e => { if (counts[e.event_type] !== undefined) counts[e.event_type]++; });
+            document.getElementById('an-views').innerText = counts.modal_open;
+            document.getElementById('an-wa').innerText   = counts.whatsapp_click;
+            document.getElementById('an-cart').innerText = counts.cart_add;
+            document.getElementById('an-pv').innerText   = counts.page_view;
+
+            // Top productos por vistas (modal_open)
+            const viewsByProd = {};
+            const waByprod   = {};
+            events.forEach(e => {
+                if (!e.product_name) return;
+                if (e.event_type === 'modal_open')      viewsByProd[e.product_name] = (viewsByProd[e.product_name] || 0) + 1;
+                if (e.event_type === 'whatsapp_click')  waByprod[e.product_name]   = (waByprod[e.product_name] || 0) + 1;
+            });
+
+            const topViews = Object.entries(viewsByProd).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const topWA    = Object.entries(waByprod).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+            // Tabla top vistas
+            const topBody = document.getElementById('an-top-body');
+            topBody.innerHTML = topViews.map(([name, views], i) => {
+                const wa   = waByprod[name] || 0;
+                const conv = views > 0 ? ((wa / views) * 100).toFixed(0) + '%' : '0%';
+                const convColor = wa / views >= 0.3 ? 'var(--success)' : wa / views >= 0.1 ? '#fd7e14' : 'var(--danger)';
+                return `<tr>
+                    <td style="font-weight:700;">${i + 1}</td>
+                    <td>${name}</td>
+                    <td><span class="badge" style="background:#6f42c1">${events.find(e => e.product_name === name)?.category || '-'}</span></td>
+                    <td style="text-align:right;font-weight:700;">${views}</td>
+                    <td style="text-align:right;">${wa}</td>
+                    <td style="text-align:right;font-weight:700;color:${convColor}">${conv}</td>
+                </tr>`;
+            }).join('');
+
+            // Tabla top WhatsApp
+            const waBody = document.getElementById('an-wa-body');
+            waBody.innerHTML = topWA.map(([name, clicks], i) =>
+                `<tr><td style="font-weight:700;">${i + 1}</td><td>${name}</td><td style="text-align:right;font-weight:900;color:var(--success);">${clicks}</td></tr>`
+            ).join('');
+
+            // Eventos recientes
+            const recentBody = document.getElementById('an-recent-body');
+            const typeEmoji = { page_view: '📱', modal_open: '👁️', whatsapp_click: '💬', cart_add: '🛒', checkout: '✅' };
+            recentBody.innerHTML = events.slice(0, 20).map(e => {
+                const ts = new Date(e.timestamp).toLocaleString('es-CO', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                return `<tr>
+                    <td style="font-size:11px;">${ts}</td>
+                    <td>${typeEmoji[e.event_type] || '📌'} ${e.event_type}</td>
+                    <td style="font-size:11px;">${e.product_name || '-'}</td>
+                </tr>`;
+            }).join('');
+
+            // Gráfico eventos por día
+            const dayMap = {};
+            events.forEach(e => {
+                const day = e.timestamp.substring(0, 10);
+                if (!dayMap[day]) dayMap[day] = { modal_open: 0, whatsapp_click: 0, page_view: 0 };
+                if (dayMap[day][e.event_type] !== undefined) dayMap[day][e.event_type]++;
+            });
+            const chartDays = Object.keys(dayMap).sort();
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            if (analyticsChart) analyticsChart.destroy();
+            analyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartDays,
+                    datasets: [
+                        { label: 'Visitas', data: chartDays.map(d => dayMap[d].page_view), borderColor: '#17a2b8', backgroundColor: 'rgba(23,162,184,0.1)', tension: 0.3, fill: true },
+                        { label: 'Productos vistos', data: chartDays.map(d => dayMap[d].modal_open), borderColor: '#6f42c1', backgroundColor: 'rgba(111,66,193,0.1)', tension: 0.3, fill: true },
+                        { label: 'WhatsApp clicks', data: chartDays.map(d => dayMap[d].whatsapp_click), borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', tension: 0.3, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
+        // ─── PRE-VENTA ADMIN ──────────────────────────────────────────────────────
+
+        // Estado de sesión de importación actual
+        var _pvaImportResult = null;  // { titulo, imagenes, yupoo_origen }
+        var _pvaTags = [];
+        var _pvaEditId = null;        // uuid si estamos editando un existente
+
+        async function pvaImportar() {
+            const url = document.getElementById('pva-url').value.trim();
+            const max = parseInt(document.getElementById('pva-max').value) || 8;
+            const statusEl = document.getElementById('pva-status');
+            const btn = document.getElementById('pva-import-btn');
+
+            if (!url) { statusEl.style.color='#dc3545'; statusEl.textContent = '⚠️ Ingresa la URL del álbum.'; return; }
+            if (!url.includes('yupoo')) { statusEl.style.color='#dc3545'; statusEl.textContent = '⚠️ La URL debe ser de yupoo.com o yupoos.com.'; return; }
+
+            btn.disabled = true;
+            statusEl.style.color = '#666';
+            statusEl.textContent = '⏳ Descargando y subiendo fotos… (puede tomar 30-60s según la cantidad)';
+
+            try {
+                const res = await fetch('/api/preventa-yupoo-import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer herencia2026'
+                    },
+                    body: JSON.stringify({ yupoo_album_url: url, max_imagenes: max })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error del servidor');
+
+                _pvaImportResult = data;
+                statusEl.style.color = '#28a745';
+                statusEl.textContent = `✅ ${data.imagenes.length} fotos importadas. Completa los datos y publica.`;
+
+                // Prellenar título como equipo si está vacío
+                if (data.titulo && !document.getElementById('pva-equipo').value) {
+                    document.getElementById('pva-equipo').value = data.titulo;
+                }
+                pvaRenderThumbs(data.imagenes);
+                document.getElementById('pva-meta-panel').style.display = 'block';
+            } catch (e) {
+                statusEl.style.color = '#dc3545';
+                statusEl.textContent = '❌ ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function pvaRenderThumbs(imagenes) {
+            const wrap = document.getElementById('pva-thumbs');
+            wrap.innerHTML = imagenes.map((img, i) => `
+                <div class="pv-thumb" id="pvt-${i}">
+                    <img src="${img.url}" alt="Foto ${i+1}" loading="lazy">
+                    <button class="pv-thumb-exclude" onclick="pvaExcluirFoto(${i})" title="Excluir esta foto">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function pvaExcluirFoto(i) {
+            const el = document.getElementById('pvt-' + i);
+            if (el) el.classList.toggle('excluded');
+        }
+
+        function pvaAddTag() {
+            const input = document.getElementById('pva-tag-input');
+            const val = input.value.trim().toLowerCase().replace(/,/g,'');
+            if (val && !_pvaTags.includes(val)) {
+                _pvaTags.push(val);
+                pvaRenderTags();
+            }
+            input.value = '';
+            input.focus();
+        }
+
+        function pvaRemoveTag(tag) {
+            _pvaTags = _pvaTags.filter(t => t !== tag);
+            pvaRenderTags();
+        }
+
+        function pvaRenderTags() {
+            document.getElementById('pva-tags-display').innerHTML =
+                _pvaTags.map(t => `<span class="pv-tag-chip">${t}<button onclick="pvaRemoveTag('${t}')">×</button></span>`).join('');
+        }
+
+        async function pvaGuardar(publicar) {
+            const equipo = document.getElementById('pva-equipo').value.trim();
+            const temporada = document.getElementById('pva-temporada').value.trim();
+            const tipo = document.getElementById('pva-tipo').value;
+            const categoria = document.getElementById('pva-categoria').value;
+
+            if (!equipo || !temporada) {
+                alert('Equipo y temporada son obligatorios.'); return;
+            }
+
+            // Fotos no excluidas
+            const imagenes = _pvaImportResult
+                ? _pvaImportResult.imagenes.filter((_, i) => {
+                    const el = document.getElementById('pvt-' + i);
+                    return el && !el.classList.contains('excluded');
+                })
+                : [];
+
+            if (!imagenes.length && !_pvaEditId) {
+                alert('No hay fotos importadas. Importa un álbum primero.'); return;
+            }
+
+            // Generar slug
+            const slug = _pvaEditId
+                ? undefined  // mantener el existente en update
+                : (equipo + '-' + temporada + '-' + tipo)
+                    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,60)
+                    + '-' + Date.now().toString(36);
+
+            const payload = {
+                equipo,
+                temporada,
+                tipo,
+                categoria,
+                pais_o_club: document.getElementById('pva-pais').value.trim() || null,
+                decada: document.getElementById('pva-decada').value || null,
+                descripcion: document.getElementById('pva-desc').value.trim() || null,
+                precio_aprox: parseInt(document.getElementById('pva-precio').value) || null,
+                destacado: document.getElementById('pva-destacado').checked,
+                tags: _pvaTags,
+                publicado: publicar,
+                ...(imagenes.length ? { imagenes } : {}),
+                ...(_pvaImportResult ? { yupoo_origen: _pvaImportResult.yupoo_origen } : {}),
+                ...(!_pvaEditId ? { slug } : {}),
+            };
+
+            try {
+                let error;
+                if (_pvaEditId) {
+                    ({ error } = await db.from('preventa_catalogo').update(payload).eq('id', _pvaEditId));
+                } else {
+                    ({ error } = await db.from('preventa_catalogo').insert(payload));
+                }
+                if (error) throw error;
+                showToast(publicar ? '✅ Referencia publicada' : '💾 Borrador guardado');
+                pvaCancelar();
+                pvaCargarLista();
+            } catch (e) {
+                alert('Error guardando: ' + (e.message || JSON.stringify(e)));
+            }
+        }
+
+        function pvaCancelar() {
+            _pvaImportResult = null;
+            _pvaTags = [];
+            _pvaEditId = null;
+            document.getElementById('pva-meta-panel').style.display = 'none';
+            document.getElementById('pva-url').value = '';
+            document.getElementById('pva-status').textContent = '';
+            document.getElementById('pva-equipo').value = '';
+            document.getElementById('pva-temporada').value = '';
+            document.getElementById('pva-tipo').value = 'local';
+            document.getElementById('pva-categoria').value = 'selecciones';
+            document.getElementById('pva-pais').value = '';
+            document.getElementById('pva-decada').value = '';
+            document.getElementById('pva-precio').value = '';
+            document.getElementById('pva-desc').value = '';
+            document.getElementById('pva-destacado').checked = false;
+            document.getElementById('pva-thumbs').innerHTML = '';
+            pvaRenderTags();
+        }
+
+        async function pvaCargarLista() {
+            const pubFiltro = document.getElementById('pva-filtro-pub').value;
+            const catFiltro = document.getElementById('pva-filtro-cat').value;
+            const tbody = document.getElementById('pva-list-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Cargando...</td></tr>';
+
+            let q = db.from('preventa_catalogo').select('id,slug,equipo,temporada,tipo,categoria,publicado,destacado,imagenes,orden').order('orden', { ascending: true });
+            if (pubFiltro !== '') q = q.eq('publicado', pubFiltro === 'true');
+            if (catFiltro) q = q.eq('categoria', catFiltro);
+
+            const { data, error } = await q;
+            if (error || !data) { tbody.innerHTML = '<tr><td colspan="6" style="color:red;padding:20px;">Error cargando datos</td></tr>'; return; }
+            if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Sin referencias aún</td></tr>'; return; }
+
+            tbody.innerHTML = data.map(r => {
+                const thumb = r.imagenes && r.imagenes[0] ? `<img src="${r.imagenes[0].url}" class="pv-list-img">` : '—';
+                const pub = r.publicado ? '<span class="badge-pub">Publicada</span>' : '<span class="badge-draft">Borrador</span>';
+                const dest = r.destacado ? ' <span class="badge-dest">★</span>' : '';
+                return `<tr>
+                    <td>${thumb}</td>
+                    <td style="font-weight:700;">${r.equipo}</td>
+                    <td>${r.temporada}</td>
+                    <td style="text-transform:capitalize;">${r.tipo}</td>
+                    <td>${pub}${dest}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-save" onclick="pvaEditar('${r.id}')" style="padding:3px 8px;font-size:10px;margin-right:4px;">✏️</button>
+                        <button onclick="pvaTogglePub('${r.id}', ${r.publicado})" style="background:${r.publicado?'#6c757d':'#28a745'};color:white;border:none;padding:3px 8px;font-size:10px;border-radius:4px;cursor:pointer;margin-right:4px;">${r.publicado?'Ocultar':'Publicar'}</button>
+                        <button class="btn-danger" onclick="pvaEliminar('${r.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function pvaTogglePub(id, actual) {
+            const { error } = await db.from('preventa_catalogo').update({ publicado: !actual }).eq('id', id);
+            if (error) { alert('Error: ' + error.message); return; }
+            showToast(actual ? 'Referencia ocultada' : 'Referencia publicada');
+            pvaCargarLista();
+        }
+
+        async function pvaEditar(id) {
+            const { data, error } = await db.from('preventa_catalogo').select('*').eq('id', id).single();
+            if (error || !data) { alert('Error cargando referencia'); return; }
+
+            _pvaEditId = id;
+            _pvaTags = data.tags || [];
+            _pvaImportResult = data.imagenes && data.imagenes.length
+                ? { titulo: data.equipo, imagenes: data.imagenes, yupoo_origen: data.yupoo_origen }
+                : null;
+
+            document.getElementById('pva-equipo').value = data.equipo || '';
+            document.getElementById('pva-temporada').value = data.temporada || '';
+            document.getElementById('pva-tipo').value = data.tipo || 'local';
+            document.getElementById('pva-categoria').value = data.categoria || 'selecciones';
+            document.getElementById('pva-pais').value = data.pais_o_club || '';
+            document.getElementById('pva-decada').value = data.decada || '';
+            document.getElementById('pva-precio').value = data.precio_aprox || '';
+            document.getElementById('pva-desc').value = data.descripcion || '';
+            document.getElementById('pva-destacado').checked = !!data.destacado;
+
+            if (_pvaImportResult) pvaRenderThumbs(_pvaImportResult.imagenes);
+            pvaRenderTags();
+            document.getElementById('pva-meta-panel').style.display = 'block';
+            document.getElementById('pva-status').textContent = '✏️ Modo edición — modifica los campos y guarda.';
+            document.getElementById('pva-status').style.color = '#6f42c1';
+        }
+
+        async function pvaEliminar(id) {
+            if (!confirm('¿Eliminar esta referencia? Esta acción no se puede deshacer.')) return;
+            const { error } = await db.from('preventa_catalogo').delete().eq('id', id);
+            if (error) { alert('Error: ' + error.message); return; }
+            showToast('Referencia eliminada');
+            pvaCargarLista();
+        }
+
+        // ============================================================
+        // MÓDULO DE PEDIDOS Y CLIENTES — HERENCIA 90
+        // ============================================================
+        let pedidosData = [];
+        let loteItems = [];
+        let _loteHideTimers = {};
+
+        function setPedidosSubTab(sub) {
+            document.getElementById('subtab-crm').style.background = sub === 'crm' ? 'var(--gold)' : '#e0e0e0';
+            document.getElementById('subtab-crm').style.color = sub === 'crm' ? '#111' : '#333';
+            document.getElementById('subtab-import').style.background = sub === 'import' ? 'var(--gold)' : '#e0e0e0';
+            document.getElementById('subtab-import').style.color = sub === 'import' ? '#111' : '#333';
+            
+            document.getElementById('pedidos-subview-crm').style.display = sub === 'crm' ? 'block' : 'none';
+            document.getElementById('pedidos-subview-import').style.display = sub === 'import' ? 'block' : 'none';
+            
+            if (sub === 'import' && loteItems.length === 0) {
+                document.getElementById('lote-trm').value = GLOBAL_TRM;
+                const todayStr = new Date().toISOString().split('T')[0];
+                document.getElementById('lote-nombre').value = `Lote ${todayStr}`;
+            }
+        }
+
+        async function loadPedidos() {
+            try {
+                // Cargar productos por si acaso
+                const { data: prods } = await db.from('productos').select('*').order('id');
+                if (prods) productData = prods;
+
+                // Cargar pedidos
+                const { data: peds, error } = await db.from('pedidos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                pedidosData = peds || [];
+                renderPedidos();
+            } catch(e) {
+                console.error('Error cargando pedidos:', e);
+            }
+        }
+
+        function renderPedidos() {
+            const tbody = document.getElementById('pedidos-crm-body');
+            tbody.innerHTML = '';
+
+            const q = document.getElementById('pedidos-search').value.toLowerCase().trim();
+            const filterPago = document.getElementById('pedidos-filter-pago').value;
+            const filterEntrega = document.getElementById('pedidos-filter-entrega').value;
+            const filterCanal = document.getElementById('pedidos-filter-canal').value;
+
+            let filtered = pedidosData.filter(p => {
+                const textMatch = (p.cliente || '').toLowerCase().includes(q) || (p.equipo || '').toLowerCase().includes(q);
+                const pagoMatch = filterPago === 'all' || p.estado_pago === filterPago;
+                const entregaMatch = filterEntrega === 'all' || p.estado_entrega === filterEntrega;
+                const canalMatch = filterCanal === 'all' || p.canal === filterCanal;
+                return textMatch && pagoMatch && entregaMatch && canalMatch;
+            });
+
+            // Actualizar tarjetas de métricas
+            let cuentasPorCobrar = 0;
+            let pendientesEntrega = 0;
+            let totalRecaudado = 0;
+
+            pedidosData.forEach(p => {
+                const totalPedido = parseFloat(p.precio_venta) || 0;
+                const abono = parseFloat(p.abono) || 0;
+                
+                if (p.estado_pago !== 'Pagado') {
+                    cuentasPorCobrar += (totalPedido - abono);
+                }
+                if (p.estado_entrega === 'Pendiente') {
+                    pendientesEntrega += parseInt(p.cantidad) || 0;
+                }
+                totalRecaudado += abono;
+            });
+
+            document.getElementById('stat-pedidos-por-cobrar').innerText = formatter.format(cuentasPorCobrar);
+            document.getElementById('stat-pedidos-pendientes-entrega').innerText = `${pendientesEntrega} uds`;
+            document.getElementById('stat-pedidos-recaudado').innerText = formatter.format(totalRecaudado);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#aaa; padding:30px; font-weight:600;">No hay pedidos registrados con estos filtros.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const tr = document.createElement('tr');
+                
+                // Color badges
+                const bPago = p.estado_pago === 'Pagado' ? 'badge-in' : p.estado_pago === 'Abonado' ? 'badge-in' : 'badge-out';
+                const bPagoStyle = p.estado_pago === 'Abonado' ? 'background:#e67e22' : '';
+                const bEntrega = p.estado_entrega === 'Entregado' ? 'badge-in' : 'badge-out';
+
+                const totalVal = parseFloat(p.precio_venta) || 0;
+                const abonoVal = parseFloat(p.abono) || 0;
+                const deudaVal = totalVal - abonoVal;
+
+                let infoPago = p.estado_pago;
+                if (p.estado_pago === 'Abonado') {
+                    infoPago = `Abono: ${formatter.format(abonoVal)} (Falta: ${formatter.format(deudaVal)})`;
+                }
+
+                tr.innerHTML = `
+                    <td>${p.fecha_pedido || ''}</td>
+                    <td><small style="color:#666; font-weight:700;">${p.lote_codigo || 'Manual'}</small></td>
+                    <td style="font-weight:700;">👤 ${p.cliente}</td>
+                    <td><span class="badge" style="background:#555;">${p.canal}</span></td>
+                    <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.equipo}">👕 ${p.equipo}</td>
+                    <td style="text-align:center; font-weight:700;">${p.talla}</td>
+                    <td style="text-align:right; font-weight:700;">${formatter.format(totalVal)}</td>
+                    <td style="text-align:center;">
+                        <span class="badge ${bPago}" style="${bPagoStyle}">${infoPago}</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <span class="badge ${bEntrega}">${p.estado_entrega}</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <div style="display:flex; gap:6px; justify-content:center;">
+                            ${p.estado_pago !== 'Pagado' ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#198754;" onclick="registrarPagoPedido(${p.id})">💵 Cobrar</button>` : ''}
+                            ${p.estado_entrega !== 'Entregado' ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#e67e22;" onclick="registrarEntregaPedido(${p.id})">🚚 Entregar</button>` : ''}
+                            <button class="btn-danger" style="padding:4px 8px; font-size:10px;" onclick="eliminarPedido(${p.id})">🗑️ Borrar</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function registrarPagoPedido(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            const total = parseFloat(p.precio_venta) || 0;
+            const abono = parseFloat(p.abono) || 0;
+            const deuda = total - abono;
+
+            const promptVal = prompt(`Registrar cobro para ${p.cliente}.\nMonto pendiente: ${formatter.format(deuda)}\n\nIngresa el valor recibido:`, deuda);
+            if (promptVal === null) return;
+            const cobro = parseFloat(promptVal) || 0;
+            if (cobro <= 0) { alert('Monto inválido'); return; }
+
+            const nuevoAbono = abono + cobro;
+            const estado_pago = nuevoAbono >= total ? 'Pagado' : 'Abonado';
+
+            try {
+                // 1. Actualizar el pedido
+                const { error: errPed } = await db.from('pedidos').update({
+                    estado_pago,
+                    abono: nuevoAbono
+                }).eq('id', id);
+                if (errPed) throw errPed;
+
+                // 2. Registrar el Ingreso en Finanzas
+                const descTrans = `[Bajo Pedido] Pago - Cliente: ${p.cliente} | Prenda: ${p.equipo} (${p.talla}) | Canal: ${p.canal}`;
+                const trans = {
+                    tipo: 'ingreso',
+                    categoria: 'Venta de Producto',
+                    fecha: new Date().toISOString().split('T')[0],
+                    monto: cobro,
+                    usd_amount: cobro / GLOBAL_TRM,
+                    trm: GLOBAL_TRM,
+                    descripcion: descTrans,
+                    costo_usd_asociado: p.costo_usd * (cobro / total) // Prorratea el COGS exacto al dinero recibido
+                };
+
+                // Generar ID numérico para transacciones
+                const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+                trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+
+                const { error: errTrans } = await db.from('transacciones').insert(trans);
+                if (errTrans) throw errTrans;
+
+                showToast("Pago registrado y sumado a Finanzas contables ✅");
+                await loadPedidos();
+                if (window.init) window.init(); // Refrescar finanzas generales si está el dashboard abierto
+            } catch(e) {
+                alert("Error procesando pago: " + e.message);
+            }
+        }
+
+        async function registrarEntregaPedido(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            if (!confirm(`¿Marcar camiseta ${p.equipo} como entregada físicamente a ${p.cliente}?`)) return;
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const { error } = await db.from('pedidos').update({
+                    estado_entrega: 'Entregado',
+                    fecha_entrega: today
+                }).eq('id', id);
+                if (error) throw error;
+
+                showToast("Camiseta marcada como entregada 🚚");
+                await loadPedidos();
+            } catch(e) {
+                alert("Error registrando entrega: " + e.message);
+            }
+        }
+
+        async function eliminarPedido(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            if (!confirm(`¿Eliminar reserva de ${p.cliente} por ${p.equipo}?\nEsta acción no se puede deshacer.`)) return;
+
+            let devolverStock = false;
+            if (p.producto_id) {
+                devolverStock = confirm("¿Deseas devolver esta unidad al inventario disponible de tu página web (Stock general)?\n\nHaz clic en Aceptar si la prenda físicamente se liberará para vender a cualquier otra persona.");
+            }
+
+            try {
+                // 1. Borrar de pedidos
+                const { error: errDel } = await db.from('pedidos').delete().eq('id', id);
+                if (errDel) throw errDel;
+
+                // 2. Si se devuelve a stock
+                if (devolverStock && p.producto_id) {
+                    const prodIdx = productData.findIndex(x => x.id == p.producto_id);
+                    if (prodIdx !== -1) {
+                        const tallas = productData[prodIdx].tallas || {};
+                        tallas[p.talla] = (parseInt(tallas[p.talla]) || 0) + 1;
+                        const { error: errStock } = await db.from('productos').update({ tallas }).eq('id', p.producto_id);
+                        if (errStock) console.warn("Error devolviendo stock:", errStock.message);
+                        else {
+                            showToast("Reserva eliminada y stock devuelto a la web ✅");
+                        }
+                    }
+                } else {
+                    showToast("Reserva eliminada con éxito");
+                }
+
+                await loadPedidos();
+                if (window.init) window.init();
+            } catch(e) {
+                alert("Error eliminando pedido: " + e.message);
+            }
+        }
+
+        // ============================================================
+        // LÓGICA DE IMPORTACIÓN Y CARGA DE LOTES (EXCEL BULK PARSER)
+        // ============================================================
+
+        function onExcelPasteInput() {
+            // Se puede usar para disparar el procesado inmediato si se quiere, 
+            // pero usar el botón es más seguro y controlable.
+        }
+
+        function limpiarPegadoExcel() {
+            document.getElementById('lote-excel-paste').value = '';
+            loteItems = [];
+            renderLotePreview();
+        }
+
+        function cleanNumber(val) {
+            if (!val) return 0;
+            const cleaned = String(val).replace(/[$\s]/g, '').replace(',', '.');
+            const parsed = parseFloat(cleaned);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function findBestProductMatch(desc) {
+            if (!desc) return null;
+            const query = desc.toLowerCase().trim();
+            
+            // 1. Coincidencia exacta o contiene completo
+            let best = productData.find(p => (p.equipo || '').toLowerCase() === query);
+            if (best) return best;
+            
+            best = productData.find(p => (p.equipo || '').toLowerCase().includes(query) || query.includes((p.equipo || '').toLowerCase()));
+            if (best) return best;
+
+            // 2. Coincidencia por palabras clave (peso)
+            const queryWords = query.split(/[\s_-]+/).filter(w => w.length > 2);
+            if (!queryWords.length) return null;
+
+            let maxMatches = 0;
+            productData.forEach(p => {
+                const pText = ((p.equipo || '') + ' ' + (p.descripcion || '')).toLowerCase();
+                let matches = 0;
+                queryWords.forEach(w => {
+                    if (pText.includes(w)) matches++;
+                });
+                if (matches > maxMatches) {
+                    maxMatches = matches;
+                    best = p;
+                }
+            });
+            return maxMatches > 0 ? best : null;
+        }
+
+        function procesarPegadoExcel() {
+            const rawText = document.getElementById('lote-excel-paste').value;
+            if (!rawText.trim()) { alert('Pega celdas válidas de Excel primero'); return; }
+
+            const lines = rawText.split('\n');
+            const processedItems = [];
+
+            lines.forEach(line => {
+                const cols = line.split('\t');
+                if (cols.length < 3) return; // Línea vacía o inválida
+
+                // Estructura Excel del usuario: Size (B), Type (C), Description (D), Extras (E), Extras Cost (F), Qty (G), Unit Price (H), Subtotal (I), Running Total (J), Destino (K)
+                // En pegados de Excel directo, los índices son secuenciales:
+                const sizeVal = cols[0] ? cols[0].trim() : 'M';
+                const typeVal = cols[1] ? cols[1].trim() : 'FAN';
+                const descVal = cols[2] ? cols[2].trim() : '';
+                const qtyVal  = parseInt(cols[5]) || 1;
+                const costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
+                
+                // Mapear destino buscando las palabras clave en cualquier columna del final para robustez
+                let destinoVal = 'STOCK';
+                for (let i = cols.length - 1; i >= 0; i--) {
+                    const text = String(cols[i]).toUpperCase();
+                    if (text.includes('PREVENTA') || text.includes('PEDIDO')) {
+                        destinoVal = 'PREVENTA';
+                        break;
+                    }
+                    if (text.includes('STOCK')) {
+                        destinoVal = 'STOCK';
+                        break;
+                    }
+                }
+
+                if (!descVal) return;
+
+                const match = findBestProductMatch(descVal);
+
+                processedItems.push({
+                    id: Date.now() + Math.random(),
+                    prodId: match ? match.id : null,
+                    queryStr: descVal,
+                    size: sizeVal,
+                    qty: qtyVal,
+                    costUsd: costVal,
+                    destino: destinoVal,
+                    cliente: '',
+                    canal: 'Amigos/Confianza',
+                    precioVenta: match ? match.precio : 99000,
+                    abono: 0
+                });
+            });
+
+            if (processedItems.length === 0) {
+                alert('No se detectaron filas válidas de camisetas. Revisa que hayas copiado el bloque correcto del Excel.');
+                return;
+            }
+
+            loteItems = processedItems;
+            renderLotePreview();
+            showToast(`${loteItems.length} camisetas importadas del Excel`);
+        }
+
+        function agregarFilaManualLote() {
+            loteItems.push({
+                id: Date.now() + Math.random(),
+                prodId: null,
+                queryStr: '',
+                size: 'M',
+                qty: 1,
+                costUsd: 10.44,
+                destino: 'STOCK',
+                cliente: '',
+                canal: 'Amigos/Confianza',
+                precioVenta: 99000,
+                abono: 0
+            });
+            renderLotePreview();
+        }
+
+        function removerFilaLote(idx) {
+            loteItems.splice(idx, 1);
+            renderLotePreview();
+        }
+
+        function renderLotePreview() {
+            const tbody = document.getElementById('lote-preview-body');
+            tbody.innerHTML = '';
+            
+            if (loteItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#aaa; padding:25px;">El lote está vacío. Pega tus celdas de Excel o agrega una fila manual para comenzar.</td></tr>`;
+                document.getElementById('lote-error-alert').style.display = 'none';
+                return;
+            }
+
+            let hasErrors = false;
+
+            loteItems.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.id = `lote-row-${idx}`;
+                
+                // Si no se encontró coincidencia en catálogo, marcar la fila con error
+                const isError = !item.prodId;
+                if (isError) {
+                    hasErrors = true;
+                    tr.style.background = '#fff0f0';
+                }
+
+                const optionsDestino = `
+                    <select onchange="updateLoteItem(${idx}, 'destino', this.value)" style="font-size:12px; padding:4px;">
+                        <option value="STOCK" ${item.destino === 'STOCK' ? 'selected' : ''}>📦 STOCK</option>
+                        <option value="PREVENTA" ${item.destino === 'PREVENTA' ? 'selected' : ''}>👤 PREVENTA</option>
+                    </select>
+                `;
+
+                const isPreventa = item.destino === 'PREVENTA';
+
+                tr.innerHTML = `
+                    <!-- Col 1: Camiseta buscador predictivo -->
+                    <td style="position:relative; overflow:visible;">
+                        <input type="text" id="lote-search-${idx}" value="${item.queryStr}" placeholder="Escribe y selecciona la camiseta..." 
+                            style="font-size:12px; padding:6px; ${isError ? 'border-color:red; background:#fff8f8;' : ''}"
+                            oninput="filterLoteProd(${idx})" onfocus="filterLoteProd(${idx})" onblur="hideLoteProd(${idx})">
+                        <div id="lote-dd-${idx}" style="display:none; position:absolute; left:0; right:0; z-index:9000; background:white; border:1px solid #ddd; max-height:150px; overflow-y:auto; box-shadow:0 4px 8px rgba(0,0,0,0.1);"></div>
+                    </td>
+                    <!-- Col 2: Talla -->
+                    <td style="text-align:center;">
+                        <input type="text" value="${item.size}" style="width:50px; font-weight:700; text-align:center; font-size:12px; padding:4px;" 
+                            oninput="updateLoteItem(${idx}, 'size', this.value)">
+                    </td>
+                    <!-- Col 3: Cantidad -->
+                    <td style="text-align:center;">
+                        <input type="number" value="${item.qty}" min="1" style="width:50px; text-align:center; font-size:12px; padding:4px;" 
+                            oninput="updateLoteItem(${idx}, 'qty', parseInt(this.value)||1)">
+                    </td>
+                    <!-- Col 4: Costo USD -->
+                    <td style="text-align:right;">
+                        <input type="number" value="${item.costUsd}" step="0.01" style="width:70px; text-align:right; font-size:12px; padding:4px; font-weight:700; color:#0275d8;" 
+                            oninput="updateLoteItem(${idx}, 'costUsd', parseFloat(this.value)||0)">
+                    </td>
+                    <!-- Col 5: Destinado A -->
+                    <td style="text-align:center;">${optionsDestino}</td>
+                    <!-- Col 6: Cliente (Solo Preventa) -->
+                    <td>
+                        <input type="text" value="${item.cliente}" placeholder="Nombre del amigo..." 
+                            style="font-size:12px; padding:5px;" ${!isPreventa ? 'disabled style="background:#e9ecef; border-color:#ccc;" placeholder="N/A"' : ''}
+                            oninput="updateLoteItem(${idx}, 'cliente', this.value)">
+                    </td>
+                    <!-- Col 7: Canal (Solo Preventa) -->
+                    <td>
+                        <select onchange="updateLoteItem(${idx}, 'canal', this.value)" style="font-size:12px; padding:4px;" ${!isPreventa ? 'disabled style="background:#e9ecef;"' : ''}>
+                            <option value="Amigos/Confianza" ${item.canal === 'Amigos/Confianza' ? 'selected' : ''}>Amigos/Confianza</option>
+                            <option value="WhatsApp" ${item.canal === 'WhatsApp' ? 'selected' : ''}>WhatsApp</option>
+                            <option value="Facebook" ${item.canal === 'Facebook' ? 'selected' : ''}>Facebook</option>
+                            <option value="Instagram" ${item.canal === 'Instagram' ? 'selected' : ''}>Instagram</option>
+                        </select>
+                    </td>
+                    <!-- Col 8: Precio Venta (Solo Preventa) -->
+                    <td style="text-align:right;">
+                        <input type="number" value="${item.precioVenta}" style="width:90px; text-align:right; font-size:12px; padding:4px; font-weight:700;" 
+                            ${!isPreventa ? 'disabled style="background:#e9ecef;"' : ''}
+                            oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
+                    </td>
+                    <!-- Col 9: Acciones (Remover) -->
+                    <td style="text-align:center;">
+                        <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold;" onclick="removerFilaLote(${idx})">✕</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('lote-error-alert').style.display = hasErrors ? 'block' : 'none';
+        }
+
+        function updateLoteItem(idx, field, value) {
+            if (loteItems[idx]) {
+                loteItems[idx][field] = value;
+                if (field === 'destino') {
+                    // Refrescar para deshabilitar/habilitar columnas específicas de preventa
+                    renderLotePreview();
+                }
+            }
+        }
+
+        function filterLoteProd(idx) {
+            const input = document.getElementById(`lote-search-${idx}`);
+            const q = (input.value || '').toLowerCase();
+            const dd = document.getElementById(`lote-dd-${idx}`);
+            const matches = productData.filter(p => ((p.equipo||'')+' '+(p.descripcion||'')).toLowerCase().includes(q));
+            
+            if (!matches.length) { dd.style.display='none'; return; }
+            
+            dd.innerHTML = matches.map(p => {
+                const stock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
+                const name = p.equipo + (p.descripcion ? ' — ' + p.descripcion : '');
+                return `<div onmousedown="selectLoteProd(${idx}, ${p.id})"
+                    style="padding:6px 10px; cursor:pointer; border-bottom:1px solid #f5f5f5; font-size:11px; text-align:left;"
+                    onmouseover="this.style.background='#fff8e8'" onmouseout="this.style.background='#fff'">
+                    <b>${p.equipo}</b> <span style="float:right; font-weight:700; color:#555;">${stock} uds</span>
+                </div>`;
+            }).join('');
+            dd.style.display = 'block';
+        }
+
+        function selectLoteProd(idx, prodId) {
+            clearTimeout(_loteHideTimers[idx]);
+            const prod = productData.find(p => p.id == prodId);
+            if (!prod) return;
+
+            loteItems[idx].prodId = prod.id;
+            loteItems[idx].queryStr = prod.equipo;
+            loteItems[idx].precioVenta = prod.precio || 99000;
+            
+            renderLotePreview();
+        }
+
+        function hideLoteProd(idx) {
+            _loteHideTimers[idx] = setTimeout(() => {
+                const dd = document.getElementById(`lote-dd-${idx}`);
+                if (dd) dd.style.display = 'none';
+            }, 250);
+        }
+
+        async function guardarLoteCompleto() {
+            const loteNombre = document.getElementById('lote-nombre').value.trim();
+            const trm = parseFloat(document.getElementById('lote-trm').value) || 0;
+
+            if (!loteNombre) { alert('Ingresa un nombre para identificar este Lote.'); return; }
+            if (trm <= 0) { alert('Ingresa una TRM de compra válida (mayor a 0).'); return; }
+            if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
+
+            // Validar errores
+            let hasUnmatched = false;
+            let hasEmptyClients = false;
+
+            loteItems.forEach((item, ix) => {
+                if (!item.prodId) hasUnmatched = true;
+                if (item.destino === 'PREVENTA' && !item.cliente.trim()) hasEmptyClients = true;
+            });
+
+            if (hasUnmatched) {
+                alert('⚠️ Tienes camisetas en la lista que no están vinculadas a ninguna referencia de tu catálogo (resaltadas en rojo). Vincúlalas antes de continuar.');
+                return;
+            }
+            if (hasEmptyClients) {
+                alert('⚠️ Tienes camisetas de PREVENTA sin el nombre del cliente. Escribe el nombre de tu amigo en cada una antes de guardar.');
+                return;
+            }
+
+            if (!confirm(`¿Procesar y guardar el lote completo?\n\n- Total camisetas: ${loteItems.reduce((a,b)=>a+b.qty, 0)} uds\n- TRM: ${formatter.format(trm)}\n\nEsta operación actualizará stocks de la web y registrará las reservas al instante.`)) return;
+
+            const btnSave = document.getElementById('btn-guardar-lote');
+            btnSave.disabled = true;
+            btnSave.innerText = '🔄 Procesando y guardando lote...';
+
+            try {
+                let stockUpdates = {}; // { prodId: tallasObj }
+                let newPedidos = [];
+                let totalCostUsd = 0;
+                let totalQty = 0;
+                let stockQty = 0;
+                let preventaQty = 0;
+
+                // Procesar cada item del lote
+                for (const item of loteItems) {
+                    const prod = productData.find(x => x.id == item.prodId);
+                    if (!prod) continue;
+
+                    totalQty += item.qty;
+                    totalCostUsd += (item.costUsd * item.qty);
+
+                    if (item.destino === 'STOCK') {
+                        stockQty += item.qty;
+                        // Sumar stock
+                        if (!stockUpdates[item.prodId]) {
+                            stockUpdates[item.prodId] = { ...prod.tallas };
+                        }
+                        stockUpdates[item.prodId][item.size] = (parseInt(stockUpdates[item.prodId][item.size]) || 0) + item.qty;
+                    } else {
+                        preventaQty += item.qty;
+                        const costoLandedCop = item.costUsd * trm;
+                        
+                        // Crear reservas en pedidos
+                        // Si qty > 1, creamos pedidos individuales para simplificar el cobro uno a uno
+                        for (let k = 0; k < item.qty; k++) {
+                            const newPed = {
+                                cliente: item.cliente,
+                                canal: item.canal,
+                                producto_id: item.prodId,
+                                equipo: prod.equipo,
+                                talla: item.size,
+                                cantidad: 1,
+                                precio_venta: item.precioVenta,
+                                costo_usd: item.costUsd,
+                                costo_landed_cop: costoLandedCop,
+                                trm: trm,
+                                estado_pago: item.abono >= item.precioVenta ? 'Pagado' : item.abono > 0 ? 'Abonado' : 'Pendiente',
+                                abono: item.abono,
+                                estado_entrega: 'Pendiente',
+                                lote_codigo: loteNombre,
+                                fecha_pedido: new Date().toISOString().split('T')[0]
+                            };
+                            newPedidos.push(newPed);
+                        }
+                    }
+                }
+
+                // 1. Guardar actualizaciones de stock en Supabase
+                for (const prodId of Object.keys(stockUpdates)) {
+                    const { error: errStock } = await db.from('productos').update({ tallas: stockUpdates[prodId] }).eq('id', prodId);
+                    if (errStock) throw errStock;
+                }
+
+                // 2. Insertar nuevos pedidos en Supabase
+                if (newPedidos.length > 0) {
+                    const { error: errPeds } = await db.from('pedidos').insert(newPedidos);
+                    if (errPeds) throw errPeds;
+                }
+
+                // 3. Registrar Transacciones Financieras
+                
+                // Transacción A: Gasto por compra de lote
+                const totalMontoCOP = totalCostUsd * trm;
+                const gastoTrans = {
+                    tipo: 'gasto',
+                    categoria: 'Compra Inventario (Camisetas)',
+                    fecha: new Date().toISOString().split('T')[0],
+                    monto: totalMontoCOP,
+                    usd_amount: totalCostUsd,
+                    trm: trm,
+                    descripcion: `[Compra Lote] ${loteNombre} - Total ${totalQty} camisetas (Stock: ${stockQty}, Preventas: ${preventaQty})`,
+                    costo_usd_asociado: 0
+                };
+
+                const { data: maxRowG } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+                gastoTrans.id = (maxRowG && maxRowG[0] && maxRowG[0].id) ? maxRowG[0].id + 1 : 1;
+
+                const { error: errGasto } = await db.from('transacciones').insert(gastoTrans);
+                if (errGasto) throw errGasto;
+
+                // Transacciones B: Si hubo abonos inmediatos en las preventas
+                for (const p of newPedidos) {
+                    if (p.abono > 0) {
+                        const abonoTrans = {
+                            tipo: 'ingreso',
+                            categoria: 'Venta de Producto',
+                            fecha: new Date().toISOString().split('T')[0],
+                            monto: p.abono,
+                            usd_amount: p.abono / trm,
+                            trm: trm,
+                            descripcion: `[Bajo Pedido] Anticipo - Cliente: ${p.cliente} | Prenda: ${p.equipo} (${p.talla})`,
+                            costo_usd_asociado: p.costo_usd * (p.abono / p.precio_venta)
+                        };
+
+                        const { data: maxRowA } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+                        abonoTrans.id = (maxRowA && maxRowA[0] && maxRowA[0].id) ? maxRowA[0].id + 1 : 1;
+
+                        const { error: errAbono } = await db.from('transacciones').insert(abonoTrans);
+                        if (errAbono) console.error("Error guardando abono en finanzas:", errAbono.message);
+                    }
+                }
+
+                // Éxito completo
+                showToast("¡Lote procesado y guardado con éxito! 🚀");
+                limpiarPegadoExcel();
+                setPedidosSubTab('crm');
+                await loadPedidos();
+                if (window.init) window.init(); // Refrescar dashboard general
+            } catch(e) {
+                console.error(e);
+                alert("Error procesando el lote completo: " + e.message);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerText = '🚀 Procesar y Guardar Lote Completo';
+            }
+        }
+    

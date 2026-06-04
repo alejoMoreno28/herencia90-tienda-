@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta Visual - Censor de Logos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            width: 100%;
+            padding: 15px 20px;
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .progress {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-skip {
+            background-color: #ff5252;
+            color: white;
+        }
+        .btn-skip:hover {
+            background-color: #ff1744;
+        }
+        .image-container {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        #current-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: crosshair;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 2px solid #333;
+        }
+        /* Cursor flotante para simular el área que se censurará */
+        #cursor-preview {
+            position: fixed;
+            border: 2px dashed #4CAF50;
+            background-color: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            display: none;
+            border-radius: 10px;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        .loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+        }
+        .finished {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        .finished h1 {
+            color: #4CAF50;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="header">
+        <div class="title">🎯 Censor Visual de Herencia 90</div>
+        <div class="progress" id="progress-text">Cargando...</div>
+        <div class="controls">
+            <span style="font-size: 0.9rem; margin-right: 15px; display: flex; align-items: center; color: #aaa;">
+                🖱️ Rueda: Tamaño | 🖱️ Clic: Marcar logo | ⌨️ Enter: Aplicar | ⌨️ Espacio: Saltar
+            </span>
+            <button class="btn-skip" onclick="processAction('skip')" style="background-color: #555;">Saltar (Espacio)</button>
+            <button class="btn-skip" onclick="applyPatches()" style="background-color: #4CAF50;">Aplicar y Siguiente (Enter)</button>
+        </div>
+    </div>
+
+    <div class="image-container" id="workspace">
+        <div id="cursor-preview"></div>
+        <div id="markers-container"></div>
+        <img id="current-image" src="" alt="Cargando imagen...">
+        <div class="loader" id="loader">⏳ Procesando...</div>
+    </div>
+
+    <div class="finished" id="finished-screen">
+        <h1>🎉 ¡Todo terminado!</h1>
+        <p>Has revisado todas las imágenes. Revisa la carpeta EQUIPOS_CENSURADOS.</p>
+    </div>
+
+    <script>
+        const imgElement = document.getElementById('current-image');
+        const progressText = document.getElementById('progress-text');
+        const cursorPreview = document.getElementById('cursor-preview');
+        const markersContainer = document.getElementById('markers-container');
+        const loader = document.getElementById('loader');
+        const workspace = document.getElementById('workspace');
+        const header = document.getElementById('header');
+        const finishedScreen = document.getElementById('finished-screen');
+
+        let isProcessing = false;
+        let activePatches = [];
+        let currentSizeRatio = 0.15; // 15% por defecto
+
+        // Iniciar herramienta
+        async function init() {
+            await fetch('/api/init');
+            loadNextImage();
+        }
+
+        // Cargar siguiente
+        async function loadNextImage() {
+            const res = await fetch('/api/next');
+            const data = await res.json();
+
+            if (data.done) {
+                workspace.style.display = 'none';
+                header.style.display = 'none';
+                finishedScreen.style.display = 'flex';
+                return;
+            }
+
+            imgElement.src = '/images/' + data.imagePath;
+            progressText.innerText = data.progress;
+            activePatches = [];
+            markersContainer.innerHTML = '';
+            isProcessing = false;
+        }
+
+        function updatePreviewBox(e) {
+            if (isProcessing) return;
+            
+            const imgRatio = imgElement.naturalWidth / imgElement.naturalHeight;
+            const boxRatio = imgElement.clientWidth / imgElement.clientHeight;
+            
+            let renderWidth, renderHeight;
+            if (boxRatio > imgRatio) {
+                renderHeight = imgElement.clientHeight;
+                renderWidth = renderHeight * imgRatio;
+            } else {
+                renderWidth = imgElement.clientWidth;
+                renderHeight = renderWidth / imgRatio;
+            }
+            
+            const boxWidth = renderWidth * currentSizeRatio;
+            const boxHeight = boxWidth * 0.75; // Aspect ratio 4:3
+
+            cursorPreview.style.width = `${boxWidth}px`;
+            cursorPreview.style.height = `${boxHeight}px`;
+            
+            cursorPreview.style.display = 'block';
+            cursorPreview.style.left = `${e.clientX}px`;
+            cursorPreview.style.top = `${e.clientY}px`;
+        }
+
+        // Mouse move tracking
+        imgElement.addEventListener('mousemove', updatePreviewBox);
+
+        // Controlar tamaño con la rueda del ratón
+        imgElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                currentSizeRatio = Math.min(0.80, currentSizeRatio + 0.02);
+            } else {
+                currentSizeRatio = Math.max(0.02, currentSizeRatio - 0.02);
+            }
+            updatePreviewBox(e);
+        });
+
+        imgElement.addEventListener('mouseleave', () => {
+            cursorPreview.style.display = 'none';
+        });
+
+        // Click on image para agregar un marcador
+        imgElement.addEventListener('click', (e) => {
+            if (isProcessing) return;
+            
+            const rect = imgElement.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const imgRatio = imgElement.naturalWidth / imgElement.naturalHeight;
+            const boxRatio = imgElement.clientWidth / imgElement.clientHeight;
+            
+            let renderWidth, renderHeight, xOffset = 0, yOffset = 0;
+            
+            if (boxRatio > imgRatio) {
+                renderHeight = imgElement.clientHeight;
+                renderWidth = renderHeight * imgRatio;
+                xOffset = (imgElement.clientWidth - renderWidth) / 2;
+            } else {
+                renderWidth = imgElement.clientWidth;
+                renderHeight = renderWidth / imgRatio;
+                yOffset = (imgElement.clientHeight - renderHeight) / 2;
+            }
+
+            const xOnImage = clickX - xOffset;
+            const yOnImage = clickY - yOffset;
+
+            const realX = Math.round((xOnImage / renderWidth) * imgElement.naturalWidth);
+            const realY = Math.round((yOnImage / renderHeight) * imgElement.naturalHeight);
+
+            if (xOnImage < 0 || xOnImage > renderWidth || yOnImage < 0 || yOnImage > renderHeight) {
+                return; 
+            }
+
+            // Guardar el parche
+            activePatches.push({ x: realX, y: realY, sizeRatio: currentSizeRatio });
+
+            // Dibujar un marcador visual temporal
+            const marker = document.createElement('div');
+            marker.style.position = 'fixed';
+            marker.style.left = `${e.clientX}px`;
+            marker.style.top = `${e.clientY}px`;
+            marker.style.width = cursorPreview.style.width;
+            marker.style.height = cursorPreview.style.height;
+            marker.style.backgroundColor = 'rgba(76, 175, 80, 0.5)';
+            marker.style.border = '2px solid #4CAF50';
+            marker.style.borderRadius = '10px';
+            marker.style.transform = 'translate(-50%, -50%)';
+            marker.style.pointerEvents = 'none';
+            marker.style.zIndex = '9998';
+            markersContainer.appendChild(marker);
+        });
+
+        async function applyPatches() {
+            if (isProcessing) return;
+            
+            // Si el usuario presiona Enter sin haber marcado nada, asumimos que quiere saltarla
+            if (activePatches.length === 0) {
+                return processAction('skip');
+            }
+
+            isProcessing = true;
+            cursorPreview.style.display = 'none';
+            imgElement.style.opacity = '0.3';
+            loader.style.display = 'block';
+
+            await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'censor', patches: activePatches })
+            });
+
+            imgElement.style.opacity = '1';
+            loader.style.display = 'none';
+            loadNextImage();
+        }
+
+        async function processAction(action) {
+            if (isProcessing) return;
+            isProcessing = true;
+            cursorPreview.style.display = 'none';
+            imgElement.style.opacity = '0.3';
+            loader.style.display = 'block';
+
+            await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action, patches: [] })
+            });
+
+            imgElement.style.opacity = '1';
+            loader.style.display = 'none';
+            loadNextImage();
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                processAction('skip');
+            } else if (e.code === 'Enter') {
+                e.preventDefault();
+                applyPatches();
+            }
+        });
+
+        // Iniciar al cargar
+        init();
+    </script>
+</body>
+</html>

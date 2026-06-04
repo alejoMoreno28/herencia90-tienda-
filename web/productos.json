@@ -286,7 +286,7 @@
         "costo_usd": 10.44,
         "tallas": {
             "L": 0,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
@@ -328,7 +328,7 @@
         "categoria": "Leyendas Clásicas",
         "equipo": "Camiseta local Retro Manchester United 1998",
         "descripcion": "Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.",
-        "precio": 120000,
+        "precio": 130000,
         "costo_usd": 18.44,
         "tallas": {
             "L": 0,
@@ -380,7 +380,7 @@
         "precio": 110000,
         "costo_usd": 13.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0
@@ -398,7 +398,7 @@
         "categoria": "Temporada 25/26",
         "equipo": "Camiseta local PSG 25/26",
         "descripcion": "La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital francesa. Elegancia parisina en cada detalle. Versión Fan del club más glamuroso de la Ligue 1.",
-        "precio": 79000,
+        "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
             "L": 0,
@@ -439,30 +439,6 @@
         ]
     },
     {
-        "id": 20,
-        "categoria": "Leyendas Clásicas",
-        "equipo": "Camiseta local Retro Real Madrid 1999/00",
-        "descripcion": "Camiseta retro del Real Madrid temporada 1999-2000, la era de los Galácticos. El blanco mítico de Figo, Raúl, Morientes y Hierro con el escudo vintage dorado. Una pieza de colección para quienes vivieron la gloria.",
-        "precio": 120000,
-        "costo_usd": 15.44,
-        "tallas": {
-            "L": 0,
-            "M": 0,
-            "S": 0,
-            "XL": 0
-        },
-        "imagenes": [
-            "img/real_majdrid_retro_1999-00_home_fan_1.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_2.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_3.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_4.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_5.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_6.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_7.webp",
-            "img/real_majdrid_retro_1999-00_home_fan_8.webp"
-        ]
-    },
-    {
         "id": 24,
         "categoria": "Women's Collection",
         "equipo": "Camiseta Colombia Mujer Mundial 2026",
@@ -481,24 +457,6 @@
             "img/colombia_2026_mujer_fan_3.webp",
             "img/colombia_2026_mujer_fan_4.webp",
             "img/colombia_2026_mujer_fan_5.webp"
-        ]
-    },
-    {
-        "id": 45,
-        "categoria": "Women's Collection",
-        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla",
-        "descripcion": "Camiseta Colombia local 2026 version mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para publico femenino de seleccion Colombia.",
-        "precio": 99000,
-        "costo_usd": 11,
-        "tallas": {
-            "L": 0,
-            "M": 0,
-            "S": 0,
-            "XL": 0
-        },
-        "imagenes": [
-            "img/colombia_2026_mujer_corta_1.webp",
-            "img/colombia_2026_mujer_corta_2.webp"
         ]
     },
     {
@@ -547,30 +505,11 @@
         ]
     },
     {
-        "id": 27,
-        "categoria": "Retro",
-        "equipo": "Camiseta Retro Brasil Local 2004 - Ronaldo",
-        "descripcion": "Revive la época dorada del fútbol brasileño con la mítica camiseta local de Brasil de la temporada 2004, personalizada con el dorsal del legendario Ronaldo \"El Fenómeno\". Este diseño clásico evoca la magia del \"Jogo Bonito\" de una selección plagada de estrellas que maravilló al mundo entero con su alegría, regates y goles inolvidables.\n\nFabricada con tejido técnico de alta calidad, transpirable y ligero, esta prenda retro ofrece una comodidad excepcional tanto para lucir en el campo como en el día a día. Presenta un corte clásico y detalles bordados de alta precisión que garantizan la máxima durabilidad para los coleccionistas y aficionados más exigentes.",
-        "precio": 130000,
-        "costo_usd": 18,
-        "tallas": {
-            "L": 0,
-            "M": 0,
-            "S": 0,
-            "XL": 0
-        },
-        "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-2.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-brasil-local-2004-ronaldo-1780255756090-3.webp"
-        ]
-    },
-    {
         "id": 28,
-        "categoria": "Nueva Coleccion",
-        "equipo": "[RETRO] Brasil 2004 Home",
-        "descripcion": "",
-        "precio": 120000,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Brasil Local 2004 ",
+        "descripcion": "Versión retro de Brasil local 2004 ",
+        "precio": 130000,
         "costo_usd": 15,
         "tallas": {
             "L": 0,
@@ -579,18 +518,19 @@
             "XL": 1
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-2.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-3.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-5.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-brasil-2004-home-1780255939454-6.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532486508_6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532488222_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532489102_2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490084_3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490794_4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532491849_5.webp"
         ]
     },
     {
         "id": 29,
-        "categoria": "Nueva Coleccion",
-        "equipo": "Roma 25/26 BLANCA",
-        "descripcion": "",
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta AS Roma Visitante 2025/26 Blanca",
+        "descripcion": "Camiseta visitante de AS Roma temporada 2025/26 en base blanca con detalles verdes y naranjas. Una referencia sobria, distinta y fácil de combinar para fanáticos del club italiano.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -612,9 +552,9 @@
     },
     {
         "id": 30,
-        "categoria": "Nueva Coleccion",
-        "equipo": "[RETRO] Milán 2008 Home (Dorsal: Ronaldinho) (+ Dorsal / Personalization)",
-        "descripcion": "",
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro AC Milan Visitante 2008/09 - Ronaldinho #80",
+        "descripcion": "Camiseta retro visitante del AC Milan 2008/09 en color blanco, personalizada con Ronaldinho #80. Una pieza de colección ligada a una de las etapas más recordadas del fútbol europeo.",
         "precio": 130000,
         "costo_usd": 18,
         "tallas": {
@@ -630,14 +570,14 @@
     },
     {
         "id": 31,
-        "categoria": "Nueva Coleccion",
-        "equipo": "[RETRO] COLOMBIA 90 AÑOS AMARILLA",
-        "descripcion": "",
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Colombia Local 1990 Amarilla",
+        "descripcion": "Camiseta retro de Colombia local 1990 en amarillo, con detalles tricolor y estética clásica de selección. Una referencia nostálgica, muy colombiana y con alta intención de compra.",
         "precio": 120000,
         "costo_usd": 15,
         "tallas": {
-            "L": 0,
-            "M": 3,
+            "L": 1,
+            "M": 2,
             "S": 0,
             "XL": 2
         },
@@ -648,15 +588,15 @@
     },
     {
         "id": 32,
-        "categoria": "Nueva Coleccion",
-        "equipo": "[RETRO WOMAN] COLOMBIA 90 AÑOS ROJA",
-        "descripcion": "",
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Colombia Visitante 1990 Roja ",
+        "descripcion": "Versión femenina de la camiseta retro de Colombia visitante 1990 en color rojo, con detalles amarillos y corte para mujer. Una alternativa diferente para quienes buscan una prenda retro colombiana fuera del amarillo tradicional.",
         "precio": 120000,
         "costo_usd": 15,
         "tallas": {
-            "L": 0,
+            "L": 1,
             "M": 1,
-            "S": 0,
+            "S": 1,
             "XL": 0
         },
         "imagenes": [
@@ -668,9 +608,9 @@
     },
     {
         "id": 33,
-        "categoria": "Nueva Coleccion",
-        "equipo": "Colombia azul 2026",
-        "descripcion": "",
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia Visitante 2026 Azul",
+        "descripcion": "Camiseta Colombia visitante 2026 en tono azul con patrón gráfico moderno y detalles amarillos. Una opción fresca para quienes quieren una camiseta de selección distinta a la local amarilla.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -687,9 +627,9 @@
     },
     {
         "id": 34,
-        "categoria": "Nueva Coleccion",
-        "equipo": "colombia 100 Años NEGRA",
-        "descripcion": "",
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia 100 Años Negra",
+        "descripcion": "Camiseta conmemorativa Colombia 100 años en color negro, con franja tricolor y detalles de aniversario. Diseño elegante, de colección y fácil de usar por fuera del contexto de partido.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -709,14 +649,14 @@
     },
     {
         "id": 35,
-        "categoria": "Nueva Coleccion",
-        "equipo": "ESPAÑA 26 BLANCA",
-        "descripcion": "",
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta España Visitante 2026 Blanca",
+        "descripcion": "Camiseta visitante de España 2026 en base blanca con detalles vino y amarillo. Una referencia limpia, moderna y de muy buena salida para temporada de selecciones.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 1
         },
@@ -729,9 +669,9 @@
     },
     {
         "id": 36,
-        "categoria": "Nueva Coleccion",
-        "equipo": "arsenal local 25/26",
-        "descripcion": "",
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta Arsenal Local 2025/26",
+        "descripcion": "Camiseta local del Arsenal temporada 2025/26 en rojo con mangas blancas. Un diseño clásico del club londinense, ideal para fanáticos de Premier League.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -747,14 +687,14 @@
     },
     {
         "id": 37,
-        "categoria": "Nueva Coleccion",
-        "equipo": "colombia 100 Años blanca",
-        "descripcion": "",
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia 100 Años Blanca",
+        "descripcion": "Camiseta conmemorativa Colombia 100 años en color blanco, con franja tricolor y detalles dorados. Una referencia limpia, coleccionable y muy comercial para público colombiano.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 2,
-            "M": 0,
+            "L": 0,
+            "M": 1,
             "S": 0,
             "XL": 2
         },
@@ -767,6 +707,179 @@
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-6.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-7.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-8.webp"
+        ]
+    },
+    {
+        "id": 38,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia Local 2026 Player Amarilla",
+        "descripcion": "Versión player de la camiseta Colombia local 2026 en amarillo, con corte más deportivo y detalles de alto rendimiento. Ideal para quienes prefieren una silueta más ajustada y premium.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/player-colombia-amarilla-26-1780256212810-1.webp"
+        ]
+    },
+    {
+        "id": 39,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Real Madrid Local 1999/00 Blanca",
+        "descripcion": "Camiseta retro local del Real Madrid 1999/00 en color blanco, con detalles negros y patrocinador Teka. Una referencia clásica de finales de los noventa para seguidores merengues.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532114518_43.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532117274_44.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532118477_45.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532119771_46.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532120866_47.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532121704_48.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532122558_49.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532123940_50.webp"
+        ]
+    },
+    {
+        "id": 40,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Bayern Munich Visitante 1999/00",
+        "descripcion": "Camiseta retro visitante del Bayern Munich 1999/00 en base blanca con detalles rojos y azul oscuro. Diseño histórico con patrocinador Opel y estética clásica del fútbol alemán.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-8.webp"
+        ]
+    },
+    {
+        "id": 41,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta FC Barcelona 125 Aniversario",
+        "descripcion": "Camiseta especial del FC Barcelona 125 aniversario con mitades azulgrana y escudo conmemorativo. Una pieza llamativa para hinchas culés y coleccionistas.",
+        "precio": 110000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/barca-125-anos-1780256369889-1.webp"
+        ]
+    },
+    {
+        "id": 42,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Real Madrid Tercera 1999/00 Negra",
+        "descripcion": "Camiseta retro tercera del Real Madrid 1999/00 en color negro, con detalles amarillos y patrocinador Teka. Una de las referencias más buscadas por su diseño poco común y elegante.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-4.webp"
+        ]
+    },
+    {
+        "id": 43,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro River Plate Local 1996/97 Blanca",
+        "descripcion": "Camiseta retro local de River Plate 1996/97 en blanco con banda roja y patrocinador Quilmes. Un clásico sudamericano con estética noventera y gran valor nostálgico.",
+        "precio": 129998,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-3.webp"
+        ]
+    },
+    {
+        "id": 44,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta FC Barcelona Travis Scott Edición Especial",
+        "descripcion": "Camiseta especial del FC Barcelona edición Travis Scott, con diseño azulgrana oscuro y detalles diferenciales. Una referencia urbana, llamativa y pensada para rotación rápida.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/barca-travis-1780256384815-1.webp"
+        ]
+    },
+    {
+        "id": 45,
+        "categoria": "Women's Collection",
+        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla ",
+        "descripcion": "Camiseta Colombia local 2026 versión mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para público femenino de selección Colombia.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335230691_diseno_sin_titulo_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335239040_diseno_sin_titulo_2.webp"
+        ]
+    },
+    {
+        "id": 46,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Adidas Colombia Originals Classic Edition",
+        "descripcion": "Revive la época dorada del fútbol con esta camiseta retro de Adidas, una pieza de colección que rinde homenaje a los diseños más icónicos de las décadas pasadas. Con el legendario logotipo del trébol y las clásicas tres rayas en las mangas, esta prenda captura la esencia del estilo vintage y la cultura urbana que definió una era inolvidable en el deporte rey.\n\nFabricada con un tejido técnico de alta calidad que combina poliéster y algodón, ofrece una suavidad excepcional y una gran durabilidad para el uso diario. Su corte clásico y holgado garantiza una comodidad óptima, ideal tanto para lucir en las gradas como para un look casual de inspiración retro.",
+        "precio": 130000,
+        "costo_usd": 22,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-adidas-originals-classic-edition-1780276395730-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-adidas-originals-classic-edition-1780276395730-3.webp"
         ]
     }
 ]
