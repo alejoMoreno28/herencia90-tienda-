@@ -698,8 +698,8 @@ function getAvailableStock(product) {
 function isProductBajoPedido(product) {
     const hasStock = getAvailableStock(product) > 0;
     if (hasStock) return false;
-    const cat = (product.categoria || '').toLowerCase();
-    return product.bajo_pedido === true || cat.includes('retro') || cat.includes('leyendas');
+    // Si no hay stock, SIEMPRE es bajo pedido (eliminando el concepto "Agotado")
+    return true;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
