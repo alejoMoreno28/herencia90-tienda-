@@ -1,9 +1,30 @@
-*
+node_modules
+.git
+.codex-scratch
+.codex-temp
+.codex_tmp
+.pedido-imagenes-cache
+.preventa-clean-preview
+.tmp-provider-photo-audit-live
 
-!api/
-!api/**
-!web/
-!web/**
-!package.json
-!package-lock.json
-!vercel.json
+EQUIPOS
+LOGOS
+ESTILO VISUAL REFERENCIAS
+0_ORIGINALES_PESADOS
+VIDEOS REFERENCIA EDICION
+EQUIPOS_CENSURADOS
+EQUIPOS_CON_FONDO
+HERENCIA 90 MARKETING
+4x
+
+*.zip
+*.xlsx
+*.ai
+*.mov
+*.m4v
+*.avi
+*.webm
+*.mp4
+!web/videos/hero-video.mp4
+!web/videos/hero-video2.mp4
+!web/videos/hero-video3.mp4
