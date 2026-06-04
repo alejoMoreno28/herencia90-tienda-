@@ -4,38 +4,89 @@
     {
       "source": "/(.*)\\.(js|css)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
       ]
     },
     {
       "source": "/(.*)\\.(webp|png|jpg|jpeg|gif|svg|mp4|webm)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
       ]
     },
     {
       "source": "/(.*)\\.json",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=86400" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
       ]
     },
     {
-      "source": "/(.*).html",
+      "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/categorias/:slug", "destination": "/categorias/:slug.html" },
-    { "source": "/ciudades/:slug", "destination": "/ciudades/:slug.html" },
-    { "source": "/camisetas/:slug", "destination": "/camisetas/:slug.html" },
-    { "source": "/preventa/:slug", "destination": "/preventa/:slug.html" },
-    { "source": "/catalogo", "destination": "/catalogo.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/preventa", "destination": "/preventa.html" },
-    { "source": "/nosotros", "destination": "/nosotros.html" },
-    { "source": "/preguntas-frecuentes", "destination": "/preguntas-frecuentes.html" }
+    {
+      "source": "/categorias/:slug",
+      "destination": "/categorias/:slug.html"
+    },
+    {
+      "source": "/ciudades/:slug",
+      "destination": "/ciudades/:slug.html"
+    },
+    {
+      "source": "/camisetas/:slug",
+      "destination": "/camisetas/:slug.html"
+    },
+    {
+      "source": "/preventa/:slug",
+      "destination": "/preventa/:slug.html"
+    },
+    {
+      "source": "/catalogo",
+      "destination": "/catalogo.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/preventa",
+      "destination": "/preventa.html"
+    },
+    {
+      "source": "/nosotros",
+      "destination": "/nosotros.html"
+    },
+    {
+      "source": "/preguntas-frecuentes",
+      "destination": "/preguntas-frecuentes.html"
+    }
   ]
 }
