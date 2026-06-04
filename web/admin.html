@@ -3630,6 +3630,14 @@
             renderLotePreview();
             renderLotePhotoReview();
 
+            // Re-intentar match por si el usuario corrigió el texto pero no hizo clic en el dropdown
+            loteItems.forEach(item => {
+                if (!item.prodId) {
+                    const match = findBestProductMatch(item.queryStr);
+                    if (match) item.prodId = match.id;
+                }
+            });
+
             // Validar errores
             let unmatchedItems = loteItems.filter(item => !item.prodId);
 
@@ -3642,7 +3650,7 @@
 
             // unmatch validation happens below
             if (unmatchedItems.length > 0) {
-                const conf = confirm(`⚠️ Tienes ${unmatchedItems.length} camisetas en rojo que no existen en tu catálogo.\n\n¿Deseas que el sistema las agregue automáticamente al catálogo de Inventario con sus precios asignados para poder guardar el lote completo?`);
+                const conf = confirm(`⚠️ Tienes ${unmatchedItems.length} camisetas en rojo que NO coinciden con ninguna referencia existente.\n\nEl sistema va a CREAR ESTAS CAMISETAS COMO NUEVAS REFERENCIAS (podrían ser duplicadas si ya existían con otro nombre).\n\n¿Estás seguro de crearlas automáticamente? (Si es un error, dale Cancelar y selecciona la correcta en el buscador de la tabla).`);
                 if (!conf) return;
 
                 // Crear los productos faltantes en Supabase
