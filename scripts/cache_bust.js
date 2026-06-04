@@ -5,11 +5,31 @@ const ts = Date.now();
 const vercelPath = path.join(__dirname, '..', 'vercel.json');
 let vercelJson = JSON.parse(fs.readFileSync(vercelPath, 'utf8'));
 
+const freshContentHeaders = [
+  { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" },
+  { "key": "Pragma", "value": "no-cache" },
+  { "key": "Expires", "value": "0" }
+];
+
+const freshRoutes = [
+  "/",
+  "/catalogo",
+  "/admin",
+  "/login",
+  "/preventa",
+  "/nosotros",
+  "/preguntas-frecuentes",
+  "/categorias/:slug",
+  "/ciudades/:slug",
+  "/camisetas/:slug",
+  "/preventa/:slug"
+];
+
 vercelJson.headers = [
   {
     "source": "/(.*)\\.(js|css)",
     "headers": [
-      { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
+      { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
     ]
   },
   {
@@ -20,22 +40,16 @@ vercelJson.headers = [
   },
   {
     "source": "/(.*)\\.json",
-    "headers": [
-      { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
-    ]
+    "headers": freshContentHeaders
   },
   {
     "source": "/(.*)\\.html",
-    "headers": [
-      { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
-    ]
+    "headers": freshContentHeaders
   },
-  {
-    "source": "/",
-    "headers": [
-      { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
-    ]
-  }
+  ...freshRoutes.map(source => ({
+    "source": source,
+    "headers": freshContentHeaders
+  }))
 ];
 
 fs.writeFileSync(vercelPath, JSON.stringify(vercelJson, null, 2));

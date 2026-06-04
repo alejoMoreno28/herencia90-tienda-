@@ -188,7 +188,7 @@ function loadVanillaTilt() {
 async function loadProducts() {
     let localProducts = [];
     try {
-        const response = await fetch('/productos.json?v=1780608002223');
+        const response = await fetch('/productos.json?v=1780612418310');
         if (response.ok) localProducts = await response.json();
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);
