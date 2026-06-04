@@ -123,26 +123,33 @@ check('static category pages exist and are included in the sitemap', () => {
 });
 
 check('category pages preserve shared navigation and dynamic catalog rendering', () => {
-  const sharedCategoryPages = [
-    'colombia.html',
-    'real-madrid.html',
-    'retro.html',
-    'temporada-25-26.html',
-    'mundial-2026.html'
-  ];
+  const categoryPagesDir = path.join(root, 'web', 'categorias');
+  const sharedCategoryPages = fs.readdirSync(categoryPagesDir).filter((file) => file.endsWith('.html'));
 
   for (const file of sharedCategoryPages) {
-    const samplePage = path.join(root, 'web', 'categorias', file);
+    const samplePage = path.join(categoryPagesDir, file);
     const sampleHtml = fs.readFileSync(samplePage, 'utf8');
 
     assert.match(sampleHtml, /<nav class="category-nav">/i, `${file} should keep the shared nav`);
     assert.match(sampleHtml, /id="desktopCatNav"/i, `${file} should expose desktop category nav`);
     assert.match(sampleHtml, /id="mobileCatNav"/i, `${file} should expose mobile category nav`);
-    assert.match(sampleHtml, /<script src="\/js\/app\.js"><\/script>/i, `${file} should load app.js`);
+    assert.match(sampleHtml, /data-category="[^"]+"/i, `${file} should expose a category slug`);
+    assert.match(sampleHtml, /<div class="product-grid" id="productGrid"><\/div>/i, `${file} should render the shared product grid`);
+    assert.match(sampleHtml, /<script(?:\s+defer)?\s+src="\/js\/app\.js\?v=\d+"><\/script>/i, `${file} should load a cache-busted app.js`);
     assert.doesNotMatch(sampleHtml, /<header class="topbar">/i, `${file} should not use the legacy topbar landing`);
     assert.doesNotMatch(sampleHtml, /STATIC_COLLECTION/i, `${file} should not use the legacy static collection`);
+    assert.doesNotMatch(sampleHtml, /collectionProducts/i, `${file} should not render hardcoded product cards`);
     assert.doesNotMatch(sampleHtml, /seo-collection-live-/i, `${file} should not use legacy live collection hooks`);
   }
+});
+
+check('storefront loads live products from Supabase before falling back to local JSON', () => {
+  const app = read('web/js/app.js');
+
+  assert.match(app, /async function fetchProductsFromSupabaseRest\(\)/i);
+  assert.match(app, /rest\/v1\/productos\?select=\*&order=id\.asc/i);
+  assert.match(app, /async function loadProducts\(\)[\s\S]*fetchProductsFromSupabaseRest\(\)[\s\S]*return mergeLiveProducts/i);
+  assert.match(app, /Fallo Supabase inicial, usando productos locales/i);
 });
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');

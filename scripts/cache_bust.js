@@ -75,8 +75,10 @@ const htmlFiles = walkSync(webDir);
 
 htmlFiles.forEach(file => {
   let content = fs.readFileSync(file, 'utf8');
-  let newContent = content.replace(/\.css\?v=[^"']+/g, `.css?v=${ts}`)
-                          .replace(/\.js\?v=[^"']+/g, `.js?v=${ts}`);
+  let newContent = content
+    .replace(/((?:href|src)=["']\/(?:css\/[^"']+\.css|js\/[^"']+\.js))(?:\?v=[^"']*)?(["'])/g, `$1?v=${ts}$2`)
+    .replace(/\.css\?v=[^"']+/g, `.css?v=${ts}`)
+    .replace(/\.js\?v=[^"']+/g, `.js?v=${ts}`);
   if (content !== newContent) {
     fs.writeFileSync(file, newContent);
     console.log(`Updated ${file}`);

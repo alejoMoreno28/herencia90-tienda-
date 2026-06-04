@@ -185,10 +185,49 @@ function loadVanillaTilt() {
     return vanillaTiltPromise;
 }
 
-async function loadProducts() {
+const PRODUCT_FETCH_TIMEOUT_MS = 8000;
+
+function withTimeout(promise, timeoutMs, label) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(`${label} agotó el tiempo de espera`)), timeoutMs);
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            }
+        );
+    });
+}
+
+function mergeLiveProducts(liveProducts, localProducts) {
+    if (!Array.isArray(liveProducts) || liveProducts.length === 0) return localProducts || [];
+
+    const localById = new Map((localProducts || []).map(lp => [lp.id, lp]));
+    const merged = liveProducts.map(sp => {
+        const lp = localById.get(sp.id);
+        if (lp && (!Array.isArray(sp.imagenes) || sp.imagenes.length === 0) && Array.isArray(lp.imagenes) && lp.imagenes.length > 0) {
+            return { ...sp, imagenes: lp.imagenes };
+        }
+        return sp;
+    });
+
+    (localProducts || []).forEach(lp => {
+        if (!merged.some(sp => sp.id === lp.id)) {
+            merged.push(lp);
+        }
+    });
+
+    return merged;
+}
+
+async function loadLocalProducts() {
     let localProducts = [];
     try {
-        const response = await fetch('/productos.json?v=1780612418310');
+        const response = await fetch('/productos.json?v=1780613504326');
         if (response.ok) localProducts = await response.json();
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);
@@ -196,29 +235,39 @@ async function loadProducts() {
     return localProducts;
 }
 
+async function fetchProductsFromSupabaseRest() {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*&order=id.asc`, {
+        headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Supabase productos respondió ${response.status}`);
+    }
+    return response.json();
+}
+
+async function loadProducts() {
+    const localProducts = await loadLocalProducts();
+    try {
+        const liveProducts = await withTimeout(
+            fetchProductsFromSupabaseRest(),
+            PRODUCT_FETCH_TIMEOUT_MS,
+            'Supabase productos'
+        );
+        return mergeLiveProducts(liveProducts, localProducts);
+    } catch (error) {
+        console.warn('Fallo Supabase inicial, usando productos locales', error);
+        return localProducts;
+    }
+}
+
 // ── Analytics ────────────────────────────────────────────────────────────────
 async function refreshProductsFromSupabase(localProducts) {
     try {
-        const client = await ensureSupabaseClient();
-        const { data, error } = await client.from('productos').select('*').order('id');
-        if (error) throw error;
-        if (Array.isArray(data) && data.length > 0) {
-            const localById = new Map((localProducts || []).map(lp => [lp.id, lp]));
-            const merged = data.map(sp => {
-                const lp = localById.get(sp.id);
-                if (lp && (!Array.isArray(sp.imagenes) || sp.imagenes.length === 0) && Array.isArray(lp.imagenes) && lp.imagenes.length > 0) {
-                    return { ...sp, imagenes: lp.imagenes };
-                }
-                return sp;
-            });
-            (localProducts || []).forEach(lp => {
-                if (!merged.some(sp => sp.id === lp.id)) {
-                    merged.push(lp);
-                }
-            });
-            return merged;
-        }
-        return localProducts || [];
+        const data = await fetchProductsFromSupabaseRest();
+        return mergeLiveProducts(data, localProducts);
     } catch (error) {
         console.warn('Fallo Supabase, usando productos locales', error);
         return localProducts || [];
