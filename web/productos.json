@@ -1,867 +1,870 @@
 [
-  {
-    "id": 1,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Alemania Mundial 2026",
-    "descripcion": "Camiseta oficial de la Selección de Alemania para el Mundial 2026. Diseño blanco clásico con detalles en negro y el águila federal bordada. Versión Fan con tela transpirable y corte moderno.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 1,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Alemania Mundial 2026",
+        "descripcion": "Camiseta oficial de la Selección de Alemania para el Mundial 2026. Diseño blanco clásico con detalles en negro y el águila federal bordada. Versión Fan con tela transpirable y corte moderno.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/alemania_2026_version_fan_1.webp",
+            "img/alemania_2026_version_fan_2.webp",
+            "img/alemania_2026_version_fan_3.webp",
+            "img/alemania_2026_version_fan_4.webp",
+            "img/alemania_2026_version_fan_5.webp",
+            "img/alemania_2026_version_fan_6.webp",
+            "img/alemania_2026_version_fan_7.webp"
+        ]
     },
-    "imagenes": [
-      "img/alemania_2026_version_fan_1.webp",
-      "img/alemania_2026_version_fan_2.webp",
-      "img/alemania_2026_version_fan_3.webp",
-      "img/alemania_2026_version_fan_4.webp",
-      "img/alemania_2026_version_fan_5.webp",
-      "img/alemania_2026_version_fan_6.webp",
-      "img/alemania_2026_version_fan_7.webp"
-    ]
-  },
-  {
-    "id": 2,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Argentina Mundial 2026",
-    "descripcion": "La camiseta más icónica del mundo en su versión 2026. Rayas celeste y blanco con detalles dorados en honor a los campeones del mundo. Versión Fan de alta calidad para los verdaderos hinchas de la Albiceleste.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 2,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Argentina Mundial 2026",
+        "descripcion": "La camiseta más icónica del mundo en su versión 2026. Rayas celeste y blanco con detalles dorados en honor a los campeones del mundo. Versión Fan de alta calidad para los verdaderos hinchas de la Albiceleste.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/argnetina_2026_home_fan_1.webp",
+            "img/argnetina_2026_home_fan_2.webp",
+            "img/argnetina_2026_home_fan_3.webp"
+        ]
     },
-    "imagenes": [
-      "img/argnetina_2026_home_fan_1.webp",
-      "img/argnetina_2026_home_fan_2.webp",
-      "img/argnetina_2026_home_fan_3.webp"
-    ]
-  },
-  {
-    "id": 3,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta visitante Arsenal 25/26",
-    "descripcion": "Camiseta alternativa del Arsenal temporada 2025-26 en colorway blanco con detalles en rojo y dorado. Versión Fan de corte ajustado, ideal para coleccionistas de la Premier League y seguidores de los Gunners.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 3,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta visitante Arsenal 25/26",
+        "descripcion": "Camiseta alternativa del Arsenal temporada 2025-26 en colorway blanco con detalles en rojo y dorado. Versión Fan de corte ajustado, ideal para coleccionistas de la Premier League y seguidores de los Gunners.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/arsenal_25-25_blanca_fan_1.webp",
+            "img/arsenal_25-25_blanca_fan_2.webp",
+            "img/arsenal_25-25_blanca_fan_3.webp",
+            "img/arsenal_25-25_blanca_fan_4.webp",
+            "img/arsenal_25-25_blanca_fan_5.webp",
+            "img/arsenal_25-25_blanca_fan_6.webp",
+            "img/arsenal_25-25_blanca_fan_7.webp",
+            "img/arsenal_25-25_blanca_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/arsenal_25-25_blanca_fan_1.webp",
-      "img/arsenal_25-25_blanca_fan_2.webp",
-      "img/arsenal_25-25_blanca_fan_3.webp",
-      "img/arsenal_25-25_blanca_fan_4.webp",
-      "img/arsenal_25-25_blanca_fan_5.webp",
-      "img/arsenal_25-25_blanca_fan_6.webp",
-      "img/arsenal_25-25_blanca_fan_7.webp",
-      "img/arsenal_25-25_blanca_fan_8.webp"
-    ]
-  },
-  {
-    "id": 4,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Arsenal 25/26",
-    "descripcion": "Camiseta local del Arsenal para la temporada 2025-26. El rojo intenso de Emirates Stadium con detalles en blanco y el escudo de los Gunners. Versión Fan con tela ligera y transpirable.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 4,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Arsenal 25/26",
+        "descripcion": "Camiseta local del Arsenal para la temporada 2025-26. El rojo intenso de Emirates Stadium con detalles en blanco y el escudo de los Gunners. Versión Fan con tela ligera y transpirable.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/arsenal_25-26_home_fan_1.webp",
+            "img/arsenal_25-26_home_fan_2.webp",
+            "img/arsenal_25-26_home_fan_3.webp",
+            "img/arsenal_25-26_home_fan_4.webp",
+            "img/arsenal_25-26_home_fan_5.webp",
+            "img/arsenal_25-26_home_fan_6.webp",
+            "img/arsenal_25-26_home_fan_7.webp",
+            "img/arsenal_25-26_home_fan_8.webp",
+            "img/arsenal_25-26_home_fan_9.webp"
+        ]
     },
-    "imagenes": [
-      "img/arsenal_25-26_home_fan_1.webp",
-      "img/arsenal_25-26_home_fan_2.webp",
-      "img/arsenal_25-26_home_fan_3.webp",
-      "img/arsenal_25-26_home_fan_4.webp",
-      "img/arsenal_25-26_home_fan_5.webp",
-      "img/arsenal_25-26_home_fan_6.webp",
-      "img/arsenal_25-26_home_fan_7.webp",
-      "img/arsenal_25-26_home_fan_8.webp",
-      "img/arsenal_25-26_home_fan_9.webp"
-    ]
-  },
-  {
-    "id": 5,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Barcelona 25/26",
-    "descripcion": "La nueva camiseta local del FC Barcelona temporada 2025-26 con los legendarios colores blaugrana. Franjas clásicas rediseñadas con toque moderno y escudo bordado. Versión Fan premium para los culers del mundo.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 5,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Barcelona 25/26",
+        "descripcion": "La nueva camiseta local del FC Barcelona temporada 2025-26 con los legendarios colores blaugrana. Franjas clásicas rediseñadas con toque moderno y escudo bordado. Versión Fan premium para los culers del mundo.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/barcelona_25-26_home_fan_1.webp",
+            "img/barcelona_25-26_home_fan_2.webp",
+            "img/barcelona_25-26_home_fan_3.webp",
+            "img/barcelona_25-26_home_fan_4.webp",
+            "img/barcelona_25-26_home_fan_5.webp",
+            "img/barcelona_25-26_home_fan_6.webp",
+            "img/barcelona_25-26_home_fan_7.webp",
+            "img/barcelona_25-26_home_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/barcelona_25-26_home_fan_1.webp",
-      "img/barcelona_25-26_home_fan_2.webp",
-      "img/barcelona_25-26_home_fan_3.webp",
-      "img/barcelona_25-26_home_fan_4.webp",
-      "img/barcelona_25-26_home_fan_5.webp",
-      "img/barcelona_25-26_home_fan_6.webp",
-      "img/barcelona_25-26_home_fan_7.webp",
-      "img/barcelona_25-26_home_fan_8.webp"
-    ]
-  },
-  {
-    "id": 6,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta visitante Barcelona 25/26",
-    "descripcion": "Camiseta visitante del FC Barcelona 2025-26 en elegante colorway blanco con detalles dorados y blaugrana. La segunda equipación más exclusiva del Barça. Versión Fan de alta calidad.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 2,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 6,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta visitante Barcelona 25/26",
+        "descripcion": "Camiseta visitante del FC Barcelona 2025-26 en elegante colorway blanco con detalles dorados y blaugrana. La segunda equipación más exclusiva del Barça. Versión Fan de alta calidad.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 2,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/barclona_25-26_away_white_1.webp",
+            "img/barclona_25-26_away_white_2.webp",
+            "img/barclona_25-26_away_white_3.webp",
+            "img/barclona_25-26_away_white_4.webp",
+            "img/barclona_25-26_away_white_5.webp",
+            "img/barclona_25-26_away_white_6.webp",
+            "img/barclona_25-26_away_white_7.webp"
+        ]
     },
-    "imagenes": [
-      "img/barclona_25-26_away_white_1.webp",
-      "img/barclona_25-26_away_white_2.webp",
-      "img/barclona_25-26_away_white_3.webp",
-      "img/barclona_25-26_away_white_4.webp",
-      "img/barclona_25-26_away_white_5.webp",
-      "img/barclona_25-26_away_white_6.webp",
-      "img/barclona_25-26_away_white_7.webp"
-    ]
-  },
-  {
-    "id": 7,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Bayern Múnich 25/26",
-    "descripcion": "La camiseta local del Bayern München temporada 2025-26 en el característico rojo bávaro con detalles en blanco. Diseño limpio y poderoso del gigante alemán. Versión Fan premium de los campeones de la Bundesliga.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 7,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Bayern Múnich 25/26",
+        "descripcion": "La camiseta local del Bayern München temporada 2025-26 en el característico rojo bávaro con detalles en blanco. Diseño limpio y poderoso del gigante alemán. Versión Fan premium de los campeones de la Bundesliga.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "img/bayern_munich_25-26_home_fan_1.webp",
+            "img/bayern_munich_25-26_home_fan_2.webp",
+            "img/bayern_munich_25-26_home_fan_3.webp",
+            "img/bayern_munich_25-26_home_fan_4.webp",
+            "img/bayern_munich_25-26_home_fan_5.webp",
+            "img/bayern_munich_25-26_home_fan_6.webp",
+            "img/bayern_munich_25-26_home_fan_7.webp",
+            "img/bayern_munich_25-26_home_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/bayern_munich_25-26_home_fan_1.webp",
-      "img/bayern_munich_25-26_home_fan_2.webp",
-      "img/bayern_munich_25-26_home_fan_3.webp",
-      "img/bayern_munich_25-26_home_fan_4.webp",
-      "img/bayern_munich_25-26_home_fan_5.webp",
-      "img/bayern_munich_25-26_home_fan_6.webp",
-      "img/bayern_munich_25-26_home_fan_7.webp",
-      "img/bayern_munich_25-26_home_fan_8.webp"
-    ]
-  },
-  {
-    "id": 8,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta tercera Bayern Múnich 25/26",
-    "descripcion": "Tercera equipación del Bayern München 2025-26 en negro elegante. Un diseño audaz y moderno que rompe con el clásico rojo bávaro. Edición limitada Versión Fan para los seguidores más atrevidos del gigante alemán.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 8,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta tercera Bayern Múnich 25/26",
+        "descripcion": "Tercera equipación del Bayern München 2025-26 en negro elegante. Un diseño audaz y moderno que rompe con el clásico rojo bávaro. Edición limitada Versión Fan para los seguidores más atrevidos del gigante alemán.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "img/bayern_munich_25-26_tercera_negra_fan_1.webp",
+            "img/bayern_munich_25-26_tercera_negra_fan_2.webp",
+            "img/bayern_munich_25-26_tercera_negra_fan_3.webp",
+            "img/bayern_munich_25-26_tercera_negra_fan_4.webp",
+            "img/bayern_munich_25-26_tercera_negra_fan_5.webp",
+            "img/bayern_munich_25-26_tercera_negra_fan_6.webp"
+        ]
     },
-    "imagenes": [
-      "img/bayern_munich_25-26_tercera_negra_fan_1.webp",
-      "img/bayern_munich_25-26_tercera_negra_fan_2.webp",
-      "img/bayern_munich_25-26_tercera_negra_fan_3.webp",
-      "img/bayern_munich_25-26_tercera_negra_fan_4.webp",
-      "img/bayern_munich_25-26_tercera_negra_fan_5.webp",
-      "img/bayern_munich_25-26_tercera_negra_fan_6.webp"
-    ]
-  },
-  {
-    "id": 9,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Brasil Mundial 2026",
-    "descripcion": "La canarinha para el Mundial 2026. El icónico amarillo de Vinicius Jr. y Rodrygo con detalles verdes y el escudo de la CBF bordado. Para los hinchas de la Seleção que sueñan con el hexacampeonato.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 9,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Brasil Mundial 2026",
+        "descripcion": "La canarinha para el Mundial 2026. El icónico amarillo de Vinicius Jr. y Rodrygo con detalles verdes y el escudo de la CBF bordado. Para los hinchas de la Seleção que sueñan con el hexacampeonato.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/brasil_2026_version_fan_1.webp",
+            "img/brasil_2026_version_fan_2.webp",
+            "img/brasil_2026_version_fan_3.webp",
+            "img/brasil_2026_version_fan_4.webp",
+            "img/brasil_2026_version_fan_5.webp",
+            "img/brasil_2026_version_fan_6.webp",
+            "img/brasil_2026_version_fan_7.webp"
+        ]
     },
-    "imagenes": [
-      "img/brasil_2026_version_fan_1.webp",
-      "img/brasil_2026_version_fan_2.webp",
-      "img/brasil_2026_version_fan_3.webp",
-      "img/brasil_2026_version_fan_4.webp",
-      "img/brasil_2026_version_fan_5.webp",
-      "img/brasil_2026_version_fan_6.webp",
-      "img/brasil_2026_version_fan_7.webp"
-    ]
-  },
-  {
-    "id": 10,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Colombia Mundial 2026",
-    "descripcion": "La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.",
-    "precio": 79000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 2,
-      "M": 4,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 10,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia Mundial 2026",
+        "descripcion": "La tricolor en su versión mundialista 2026. El amarillo dorado de James, Díaz y Córdoba con los detalles azules y rojos que identifican a Los Cafeteros. Para los que creen en el sueño de la primera estrella.",
+        "precio": 79000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 2,
+            "M": 4,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/colombia_2026_1.webp",
+            "img/colombia_2026_2.webp",
+            "img/colombia_2026_3.webp",
+            "img/colombia_2026_4.webp",
+            "img/colombia_2026_5.webp",
+            "img/colombia_2026_6.webp"
+        ]
     },
-    "imagenes": [
-      "img/colombia_2026_1.webp",
-      "img/colombia_2026_2.webp",
-      "img/colombia_2026_3.webp",
-      "img/colombia_2026_4.webp",
-      "img/colombia_2026_5.webp",
-      "img/colombia_2026_6.webp"
-    ]
-  },
-  {
-    "id": 11,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Liverpool 25/26",
-    "descripcion": "El rojo de Anfield para la temporada 2025-26. La camiseta local del Liverpool con el escudo del Liverbird y el espíritu de You'll Never Walk Alone. Versión Fan del equipo de Arne Slot.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 11,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Liverpool 25/26",
+        "descripcion": "El rojo de Anfield para la temporada 2025-26. La camiseta local del Liverpool con el escudo del Liverbird y el espíritu de You'll Never Walk Alone. Versión Fan del equipo de Arne Slot.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/liverpool_25-26_home_red_fan_1.webp",
+            "img/liverpool_25-26_home_red_fan_2.webp",
+            "img/liverpool_25-26_home_red_fan_3.webp",
+            "img/liverpool_25-26_home_red_fan_4.webp",
+            "img/liverpool_25-26_home_red_fan_5.webp",
+            "img/liverpool_25-26_home_red_fan_6.webp",
+            "img/liverpool_25-26_home_red_fan_7.webp",
+            "img/liverpool_25-26_home_red_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/liverpool_25-26_home_red_fan_1.webp",
-      "img/liverpool_25-26_home_red_fan_2.webp",
-      "img/liverpool_25-26_home_red_fan_3.webp",
-      "img/liverpool_25-26_home_red_fan_4.webp",
-      "img/liverpool_25-26_home_red_fan_5.webp",
-      "img/liverpool_25-26_home_red_fan_6.webp",
-      "img/liverpool_25-26_home_red_fan_7.webp",
-      "img/liverpool_25-26_home_red_fan_8.webp"
-    ]
-  },
-  {
-    "id": 12,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta visitante Liverpool 25/26",
-    "descripcion": "Camiseta visitante del Liverpool 2025-26 en blanco con detalles en rojo y dorado. El toque elegante del equipo de Anfield para los partidos fuera de casa. Versión Fan de alta calidad.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 12,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta visitante Liverpool 25/26",
+        "descripcion": "Camiseta visitante del Liverpool 2025-26 en blanco con detalles en rojo y dorado. El toque elegante del equipo de Anfield para los partidos fuera de casa. Versión Fan de alta calidad.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/liverpool_25-26_white_fan_1.webp",
+            "img/liverpool_25-26_white_fan_2.webp",
+            "img/liverpool_25-26_white_fan_3.webp",
+            "img/liverpool_25-26_white_fan_4.webp",
+            "img/liverpool_25-26_white_fan_5.webp",
+            "img/liverpool_25-26_white_fan_6.webp",
+            "img/liverpool_25-26_white_fan_7.webp",
+            "img/liverpool_25-26_white_fan_8.webp",
+            "img/liverpool_25-26_white_fan_9.webp"
+        ]
     },
-    "imagenes": [
-      "img/liverpool_25-26_white_fan_1.webp",
-      "img/liverpool_25-26_white_fan_2.webp",
-      "img/liverpool_25-26_white_fan_3.webp",
-      "img/liverpool_25-26_white_fan_4.webp",
-      "img/liverpool_25-26_white_fan_5.webp",
-      "img/liverpool_25-26_white_fan_6.webp",
-      "img/liverpool_25-26_white_fan_7.webp",
-      "img/liverpool_25-26_white_fan_8.webp",
-      "img/liverpool_25-26_white_fan_9.webp"
-    ]
-  },
-  {
-    "id": 13,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta tercera Manchester City 25/26",
-    "descripcion": "Tercera equipación del Manchester City 2025-26 en negro. Un diseño oscuro y sofisticado del campeón inglés, alejado del clásico celeste. Versión Fan de edición limitada para los Citizens más atrevidos.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 13,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta tercera Manchester City 25/26",
+        "descripcion": "Tercera equipación del Manchester City 2025-26 en negro. Un diseño oscuro y sofisticado del campeón inglés, alejado del clásico celeste. Versión Fan de edición limitada para los Citizens más atrevidos.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_city_25-26_black_fan_1.webp",
+            "img/man_city_25-26_black_fan_2.webp",
+            "img/man_city_25-26_black_fan_3.webp",
+            "img/man_city_25-26_black_fan_4.webp",
+            "img/man_city_25-26_black_fan_5.webp",
+            "img/man_city_25-26_black_fan_6.webp",
+            "img/man_city_25-26_black_fan_7.webp",
+            "img/man_city_25-26_black_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/man_city_25-26_black_fan_1.webp",
-      "img/man_city_25-26_black_fan_2.webp",
-      "img/man_city_25-26_black_fan_3.webp",
-      "img/man_city_25-26_black_fan_4.webp",
-      "img/man_city_25-26_black_fan_5.webp",
-      "img/man_city_25-26_black_fan_6.webp",
-      "img/man_city_25-26_black_fan_7.webp",
-      "img/man_city_25-26_black_fan_8.webp"
-    ]
-  },
-  {
-    "id": 14,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Manchester City 25/26",
-    "descripcion": "La camiseta local del Manchester City 2025-26 en el clásico celeste de los Citizens. El diseño del campeón inglés para la nueva era. Versión Fan premium con tela ligera y acabados de calidad.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 14,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Manchester City 25/26",
+        "descripcion": "La camiseta local del Manchester City 2025-26 en el clásico celeste de los Citizens. El diseño del campeón inglés para la nueva era. Versión Fan premium con tela ligera y acabados de calidad.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_city_25-26_fan_home_1.webp",
+            "img/man_city_25-26_fan_home_2.webp",
+            "img/man_city_25-26_fan_home_3.webp",
+            "img/man_city_25-26_fan_home_4.webp",
+            "img/man_city_25-26_fan_home_5.webp",
+            "img/man_city_25-26_fan_home_6.webp"
+        ]
     },
-    "imagenes": [
-      "img/man_city_25-26_fan_home_1.webp",
-      "img/man_city_25-26_fan_home_2.webp",
-      "img/man_city_25-26_fan_home_3.webp",
-      "img/man_city_25-26_fan_home_4.webp",
-      "img/man_city_25-26_fan_home_5.webp",
-      "img/man_city_25-26_fan_home_6.webp"
-    ]
-  },
-  {
-    "id": 15,
-    "categoria": "Leyendas Clásicas",
-    "equipo": "Camiseta local Retro Manchester United 1998",
-    "descripcion": "Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.",
-    "precio": 130000,
-    "costo_usd": 18.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 15,
+        "categoria": "Leyendas Clásicas",
+        "equipo": "Camiseta local Retro Manchester United 1998",
+        "descripcion": "Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.",
+        "precio": 130000,
+        "costo_usd": 18.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/man_ud_retro_98_home_1.webp",
+            "img/man_ud_retro_98_home_2.webp",
+            "img/man_ud_retro_98_home_3.webp",
+            "img/man_ud_retro_98_home_4.webp",
+            "img/man_ud_retro_98_home_5.webp",
+            "img/man_ud_retro_98_home_6.webp",
+            "img/man_ud_retro_98_home_7.webp",
+            "img/man_ud_retro_98_home_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/man_ud_retro_98_home_1.webp",
-      "img/man_ud_retro_98_home_2.webp",
-      "img/man_ud_retro_98_home_3.webp",
-      "img/man_ud_retro_98_home_4.webp",
-      "img/man_ud_retro_98_home_5.webp",
-      "img/man_ud_retro_98_home_6.webp",
-      "img/man_ud_retro_98_home_7.webp",
-      "img/man_ud_retro_98_home_8.webp"
-    ]
-  },
-  {
-    "id": 16,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Manchester United 25/26",
-    "descripcion": "La camiseta local del Manchester United temporada 2025-26 en rojo intenso con detalles en blanco y negro. El renacimiento de los Red Devils de Old Trafford bajo la nueva era. Versión Fan de alta calidad.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 16,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Manchester United 25/26",
+        "descripcion": "La camiseta local del Manchester United temporada 2025-26 en rojo intenso con detalles en blanco y negro. El renacimiento de los Red Devils de Old Trafford bajo la nueva era. Versión Fan de alta calidad.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/manchester_united_25-26_home_fan_1.webp",
+            "img/manchester_united_25-26_home_fan_2.webp",
+            "img/manchester_united_25-26_home_fan_3.webp",
+            "img/manchester_united_25-26_home_fan_4.webp",
+            "img/manchester_united_25-26_home_fan_5.webp",
+            "img/manchester_united_25-26_home_fan_6.webp",
+            "img/manchester_united_25-26_home_fan_7.webp",
+            "img/manchester_united_25-26_home_fan_8.webp",
+            "img/manchester_united_25-26_home_fan_9.webp"
+        ]
     },
-    "imagenes": [
-      "img/manchester_united_25-26_home_fan_1.webp",
-      "img/manchester_united_25-26_home_fan_2.webp",
-      "img/manchester_united_25-26_home_fan_3.webp",
-      "img/manchester_united_25-26_home_fan_4.webp",
-      "img/manchester_united_25-26_home_fan_5.webp",
-      "img/manchester_united_25-26_home_fan_6.webp",
-      "img/manchester_united_25-26_home_fan_7.webp",
-      "img/manchester_united_25-26_home_fan_8.webp",
-      "img/manchester_united_25-26_home_fan_9.webp"
-    ]
-  },
-  {
-    "id": 17,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Portugal Edicion Especial Mundial 2026",
-    "descripcion": "Edición especial de la Selección de Portugal para el ciclo 2026-27. El rojo de Cristiano Ronaldo y Bruno Fernandes en un diseño único y atrevido que rompe con lo convencional. Versión Fan de colección exclusiva.",
-    "precio": 110000,
-    "costo_usd": 13.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 17,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Portugal Edicion Especial Mundial 2026",
+        "descripcion": "Edición especial de la Selección de Portugal para el ciclo 2026-27. El rojo de Cristiano Ronaldo y Bruno Fernandes en un diseño único y atrevido que rompe con lo convencional. Versión Fan de colección exclusiva.",
+        "precio": 110000,
+        "costo_usd": 13.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/portugal_2026_especial_26-27_fan_1.webp",
+            "img/portugal_2026_especial_26-27_fan_2.webp",
+            "img/portugal_2026_especial_26-27_fan_3.webp",
+            "img/portugal_2026_especial_26-27_fan_4.webp",
+            "img/portugal_2026_especial_26-27_fan_5.webp"
+        ]
     },
-    "imagenes": [
-      "img/portugal_2026_especial_26-27_fan_1.webp",
-      "img/portugal_2026_especial_26-27_fan_2.webp",
-      "img/portugal_2026_especial_26-27_fan_3.webp",
-      "img/portugal_2026_especial_26-27_fan_4.webp",
-      "img/portugal_2026_especial_26-27_fan_5.webp"
-    ]
-  },
-  {
-    "id": 18,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local PSG 25/26",
-    "descripcion": "La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital francesa. Elegancia parisina en cada detalle. Versión Fan del club más glamuroso de la Ligue 1.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 1,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 18,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local PSG 25/26",
+        "descripcion": "La camiseta local del Paris Saint-Germain temporada 2025-26 con los colores azul, rojo y blanco de la capital francesa. Elegancia parisina en cada detalle. Versión Fan del club más glamuroso de la Ligue 1.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/psg_25-26_home_fan_1.webp",
+            "img/psg_25-26_home_fan_2.webp",
+            "img/psg_25-26_home_fan_3.webp",
+            "img/psg_25-26_home_fan_4.webp",
+            "img/psg_25-26_home_fan_5.webp",
+            "img/psg_25-26_home_fan_6.webp",
+            "img/psg_25-26_home_fan_7.webp",
+            "img/psg_25-26_home_fan_8.webp"
+        ]
     },
-    "imagenes": [
-      "img/psg_25-26_home_fan_1.webp",
-      "img/psg_25-26_home_fan_2.webp",
-      "img/psg_25-26_home_fan_3.webp",
-      "img/psg_25-26_home_fan_4.webp",
-      "img/psg_25-26_home_fan_5.webp",
-      "img/psg_25-26_home_fan_6.webp",
-      "img/psg_25-26_home_fan_7.webp",
-      "img/psg_25-26_home_fan_8.webp"
-    ]
-  },
-  {
-    "id": 19,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta visitante Real Madrid 25/26",
-    "descripcion": "Camiseta visitante del Real Madrid 2025-26 en azul marino. El equipo más ganador de la historia con una segunda equipación de elegancia y poder. Versión Fan para los madridistas que dominan también de visitante.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 2,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 19,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta visitante Real Madrid 25/26",
+        "descripcion": "Camiseta visitante del Real Madrid 2025-26 en azul marino. El equipo más ganador de la historia con una segunda equipación de elegancia y poder. Versión Fan para los madridistas que dominan también de visitante.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 2,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/real_madrid_25-26_azul_fan_1.webp",
+            "img/real_madrid_25-26_azul_fan_2.webp",
+            "img/real_madrid_25-26_azul_fan_3.webp",
+            "img/real_madrid_25-26_azul_fan_4.webp",
+            "img/real_madrid_25-26_azul_fan_5.webp"
+        ]
     },
-    "imagenes": [
-      "img/real_madrid_25-26_azul_fan_1.webp",
-      "img/real_madrid_25-26_azul_fan_2.webp",
-      "img/real_madrid_25-26_azul_fan_3.webp",
-      "img/real_madrid_25-26_azul_fan_4.webp",
-      "img/real_madrid_25-26_azul_fan_5.webp"
-    ]
-  },
-  {
-    "id": 24,
-    "categoria": "Women's Collection",
-    "equipo": "Camiseta Colombia Mujer Mundial 2026",
-    "descripcion": "Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.",
-    "precio": 79000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 2,
-      "XL": 0
+    {
+        "id": 24,
+        "categoria": "Women's Collection",
+        "equipo": "Camiseta Colombia Mujer Mundial 2026",
+        "descripcion": "Camiseta de la Selección Colombia 2026 en corte femenino. Diseño ajustado con el icónico amarillo tricolor y silueta moderna. Para las hinchas que visten la pasión con estilo propio. Disponible en todas las tallas.",
+        "precio": 79000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 2,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/colombia_2026_mujer_fan_1.webp",
+            "img/colombia_2026_mujer_fan_2.webp",
+            "img/colombia_2026_mujer_fan_3.webp",
+            "img/colombia_2026_mujer_fan_4.webp",
+            "img/colombia_2026_mujer_fan_5.webp"
+        ]
     },
-    "imagenes": [
-      "img/colombia_2026_mujer_fan_1.webp",
-      "img/colombia_2026_mujer_fan_2.webp",
-      "img/colombia_2026_mujer_fan_3.webp",
-      "img/colombia_2026_mujer_fan_4.webp",
-      "img/colombia_2026_mujer_fan_5.webp"
-    ]
-  },
-  {
-    "id": 25,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta local Real Madrid 25/26",
-    "descripcion": "La camiseta local del Real Madrid 2026 en el eterno blanco merengue. Diseño moderno que honra la tradición del club más laureado del mundo. Versión Fan premium del campeón de Champions. Disponible en todas las tallas.",
-    "precio": 99000,
-    "costo_usd": 10.44,
-    "tallas": {
-      "L": 0,
-      "M": 2,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 25,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta local Real Madrid 25/26",
+        "descripcion": "La camiseta local del Real Madrid 2026 en el eterno blanco merengue. Diseño moderno que honra la tradición del club más laureado del mundo. Versión Fan premium del campeón de Champions. Disponible en todas las tallas.",
+        "precio": 99000,
+        "costo_usd": 10.44,
+        "tallas": {
+            "L": 0,
+            "M": 2,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/real_madrid_home_white_fan_2026_1.webp",
+            "img/real_madrid_home_white_fan_2026_2.webp",
+            "img/real_madrid_home_white_fan_2026_3.webp",
+            "img/real_madrid_home_white_fan_2026_4.webp",
+            "img/real_madrid_home_white_fan_2026_5.webp",
+            "img/real_madrid_home_white_fan_2026_6.webp",
+            "img/real_madrid_home_white_fan_2026_7.webp"
+        ]
     },
-    "imagenes": [
-      "img/real_madrid_home_white_fan_2026_1.webp",
-      "img/real_madrid_home_white_fan_2026_2.webp",
-      "img/real_madrid_home_white_fan_2026_3.webp",
-      "img/real_madrid_home_white_fan_2026_4.webp",
-      "img/real_madrid_home_white_fan_2026_5.webp",
-      "img/real_madrid_home_white_fan_2026_6.webp",
-      "img/real_madrid_home_white_fan_2026_7.webp"
-    ]
-  },
-  {
-    "id": 26,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta Edición Especial Real Madrid",
-    "descripcion": "Edición especial del Real Madrid en negro absoluto. Una camiseta única del equipo merengue que combina el poder del negro con los escudos dorados. Versión Fan de colección para los madridistas más atrevidos.",
-    "precio": 110000,
-    "costo_usd": 13.44,
-    "tallas": {
-      "L": 0,
-      "M": 2,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 26,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta Edición Especial Real Madrid",
+        "descripcion": "Edición especial del Real Madrid en negro absoluto. Una camiseta única del equipo merengue que combina el poder del negro con los escudos dorados. Versión Fan de colección para los madridistas más atrevidos.",
+        "precio": 110000,
+        "costo_usd": 13.44,
+        "tallas": {
+            "L": 0,
+            "M": 2,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "img/real_madrid_special_stly_black_fan_1.webp",
+            "img/real_madrid_special_stly_black_fan_2.webp",
+            "img/real_madrid_special_stly_black_fan_3.webp",
+            "img/real_madrid_special_stly_black_fan_4.webp",
+            "img/real_madrid_special_stly_black_fan_5.webp",
+            "img/real_madrid_special_stly_black_fan_6.webp"
+        ]
     },
-    "imagenes": [
-      "img/real_madrid_special_stly_black_fan_1.webp",
-      "img/real_madrid_special_stly_black_fan_2.webp",
-      "img/real_madrid_special_stly_black_fan_3.webp",
-      "img/real_madrid_special_stly_black_fan_4.webp",
-      "img/real_madrid_special_stly_black_fan_5.webp",
-      "img/real_madrid_special_stly_black_fan_6.webp"
-    ]
-  },
-  {
-    "id": 28,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Brasil Local 2004 ",
-    "descripcion": "Versión retro de Brasil local 2004 ",
-    "precio": 130000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 28,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Brasil Local 2004 ",
+        "descripcion": "Versión retro de Brasil local 2004 ",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532488222_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532489102_2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490084_3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490794_4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532491849_5.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532486508_6.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532488222_1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532489102_2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490084_3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532490794_4.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532491849_5.webp"
-    ]
-  },
-  {
-    "id": 29,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta AS Roma Visitante 2025/26 Blanca",
-    "descripcion": "Camiseta visitante de AS Roma temporada 2025/26 en base blanca con detalles verdes y naranjas. Una referencia sobria, distinta y fácil de combinar para fanáticos del club italiano.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 29,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta AS Roma Visitante 2025/26 Blanca",
+        "descripcion": "Camiseta visitante de AS Roma temporada 2025/26 en base blanca con detalles verdes y naranjas. Una referencia sobria, distinta y fácil de combinar para fanáticos del club italiano.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578483904_62.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578485143_63.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578486162_64.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578487364_65.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-4.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-5.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-6.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-7.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/roma-2526-blanca-1780256106132-8.webp"
-    ]
-  },
-  {
-    "id": 30,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro AC Milan Visitante 2008/09 - Ronaldinho #80",
-    "descripcion": "Camiseta retro visitante del AC Milan 2008/09 en color blanco, personalizada con Ronaldinho #80. Una pieza de colección ligada a una de las etapas más recordadas del fútbol europeo.",
-    "precio": 130000,
-    "costo_usd": 18,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 30,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro AC Milan Visitante 2008/09 - Ronaldinho #80",
+        "descripcion": "Camiseta retro visitante del AC Milan 2008/09 en color blanco, personalizada con Ronaldinho #80. Una pieza de colección ligada a una de las etapas más recordadas del fútbol europeo.",
+        "precio": 130000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-2.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization-1780256091333-2.webp"
-    ]
-  },
-  {
-    "id": 31,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Colombia Local 1990 Amarilla",
-    "descripcion": "Camiseta retro de Colombia local 1990 en amarillo, con detalles tricolor y estética clásica de selección. Una referencia nostálgica, muy colombiana y con alta intención de compra.",
-    "precio": 120000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 1,
-      "M": 2,
-      "S": 0,
-      "XL": 2
+    {
+        "id": 31,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Colombia Local 1990 Amarilla",
+        "descripcion": "Camiseta retro de Colombia local 1990 en amarillo, con detalles tricolor y estética clásica de selección. Una referencia nostálgica, muy colombiana y con alta intención de compra.",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 2,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533500868_30.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533501777_31.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533504029_34.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533505313_35.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533594014_36.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-colombia-90-anos-amarilla-1780256111287-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-colombia-90-anos-amarilla-1780256111287-2.webp"
-    ]
-  },
-  {
-    "id": 32,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Colombia Visitante 1990 Roja ",
-    "descripcion": "Versión femenina de la camiseta retro de Colombia visitante 1990 en color rojo, con detalles amarillos y corte para mujer. Una alternativa diferente para quienes buscan una prenda retro colombiana fuera del amarillo tradicional.",
-    "precio": 120000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 1,
-      "M": 1,
-      "S": 1,
-      "XL": 0
+    {
+        "id": 32,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Colombia Visitante 1990 Roja ",
+        "descripcion": "Versión femenina de la camiseta retro de Colombia visitante 1990 en color rojo, con detalles amarillos y corte para mujer. Una alternativa diferente para quienes buscan una prenda retro colombiana fuera del amarillo tradicional.",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533506082_24.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533506714_25.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533507704_26.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533508581_27.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533509378_28.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-woman-colombia-90-anos-roja-1780256127909-4.webp"
-    ]
-  },
-  {
-    "id": 33,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Colombia Visitante 2026 Azul",
-    "descripcion": "Camiseta Colombia visitante 2026 en tono azul con patrón gráfico moderno y detalles amarillos. Una opción fresca para quienes quieren una camiseta de selección distinta a la local amarilla.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 33,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia Visitante 2026 Azul",
+        "descripcion": "Camiseta Colombia visitante 2026 en tono azul con patrón gráfico moderno y detalles amarillos. Una opción fresca para quienes quieren una camiseta de selección distinta a la local amarilla.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578533835_59.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578535784_60.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578536930_61.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-azul-2026-1780256155289-3.webp"
-    ]
-  },
-  {
-    "id": 34,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Colombia 100 Años Negra",
-    "descripcion": "Camiseta conmemorativa Colombia 100 años en color negro, con franja tricolor y detalles de aniversario. Diseño elegante, de colección y fácil de usar por fuera del contexto de partido.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 2,
-      "M": 2,
-      "S": 0,
-      "XL": 2
+    {
+        "id": 34,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia 100 Años Negra",
+        "descripcion": "Camiseta conmemorativa Colombia 100 años en color negro, con franja tricolor y detalles de aniversario. Diseño elegante, de colección y fácil de usar por fuera del contexto de partido.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 2,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533411187_37.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533412073_38.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533625852_39.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-4.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-5.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-negra-1780256238994-6.webp"
-    ]
-  },
-  {
-    "id": 35,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta España Visitante 2026 Blanca",
-    "descripcion": "Camiseta visitante de España 2026 en base blanca con detalles vino y amarillo. Una referencia limpia, moderna y de muy buena salida para temporada de selecciones.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 35,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta España Visitante 2026 Blanca",
+        "descripcion": "Camiseta visitante de España 2026 en base blanca con detalles vino y amarillo. Una referencia limpia, moderna y de muy buena salida para temporada de selecciones.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533471791_21.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533472615_22.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533619416_23.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-6.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/espana-26-blanca-1780256220815-7.webp"
-    ]
-  },
-  {
-    "id": 37,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Colombia 100 Años Blanca",
-    "descripcion": "Camiseta conmemorativa Colombia 100 años en color blanco, con franja tricolor y detalles dorados. Una referencia limpia, coleccionable y muy comercial para público colombiano.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 0,
-      "M": 1,
-      "S": 0,
-      "XL": 2
+    {
+        "id": 37,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia 100 Años Blanca",
+        "descripcion": "Camiseta conmemorativa Colombia 100 años en color blanco, con franja tricolor y detalles dorados. Una referencia limpia, coleccionable y muy comercial para público colombiano.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533665091_40.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533666046_41.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533675732_42.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-4.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-5.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-6.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-7.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/colombia-100-anos-blanca-1780256299615-8.webp"
-    ]
-  },
-  {
-    "id": 38,
-    "categoria": "Colección 2026",
-    "equipo": "Camiseta Colombia Local 2026 Player Amarilla",
-    "descripcion": "Versión player de la camiseta Colombia local 2026 en amarillo, con corte más deportivo y detalles de alto rendimiento. Ideal para quienes prefieren una silueta más ajustada y premium.",
-    "precio": 110000,
-    "costo_usd": 14,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 38,
+        "categoria": "Colección 2026",
+        "equipo": "Camiseta Colombia Local 2026 Player Amarilla",
+        "descripcion": "Versión player de la camiseta Colombia local 2026 en amarillo, con corte más deportivo y detalles de alto rendimiento. Ideal para quienes prefieren una silueta más ajustada y premium.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533447656_65.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533449001_66.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533450151_67.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533451291_68.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533452158_69.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533452903_70.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/player-colombia-amarilla-26-1780256212810-1.webp"
-    ]
-  },
-  {
-    "id": 39,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Real Madrid Local 1999/00 Blanca",
-    "descripcion": "Camiseta retro local del Real Madrid 1999/00 en color blanco, con detalles negros y patrocinador Teka. Una referencia clásica de finales de los noventa para seguidores merengues.",
-    "precio": 130000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 39,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Real Madrid Local 1999/00 Blanca",
+        "descripcion": "Camiseta retro local del Real Madrid 1999/00 en color blanco, con detalles negros y patrocinador Teka. Una referencia clásica de finales de los noventa para seguidores merengues.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532114518_43.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532117274_44.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532118477_45.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532119771_46.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532120866_47.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532121704_48.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532122558_49.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532123940_50.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532114518_43.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532117274_44.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532118477_45.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532119771_46.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532120866_47.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532121704_48.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532122558_49.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780532123940_50.webp"
-    ]
-  },
-  {
-    "id": 40,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Bayern Munich Visitante 1999/00",
-    "descripcion": "Camiseta retro visitante del Bayern Munich 1999/00 en base blanca con detalles rojos y azul oscuro. Diseño histórico con patrocinador Opel y estética clásica del fútbol alemán.",
-    "precio": 130000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 40,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Bayern Munich Visitante 1999/00",
+        "descripcion": "Camiseta retro visitante del Bayern Munich 1999/00 en base blanca con detalles rojos y azul oscuro. Diseño histórico con patrocinador Opel y estética clásica del fútbol alemán.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-6.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-8.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-4.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-5.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-6.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-7.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-8.webp"
-    ]
-  },
-  {
-    "id": 41,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta FC Barcelona 125 Aniversario",
-    "descripcion": "Camiseta especial del FC Barcelona 125 aniversario con mitades azulgrana y escudo conmemorativo. Una pieza llamativa para hinchas culés y coleccionistas.",
-    "precio": 110000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 1,
-      "M": 1,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 41,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta FC Barcelona 125 Aniversario",
+        "descripcion": "Camiseta especial del FC Barcelona 125 aniversario con mitades azulgrana y escudo conmemorativo. Una pieza llamativa para hinchas culés y coleccionistas.",
+        "precio": 110000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533525279_11.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533526492_12.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533713682_13.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/barca-125-anos-1780256369889-1.webp"
-    ]
-  },
-  {
-    "id": 42,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Real Madrid Tercera 1999/00 Negra",
-    "descripcion": "Camiseta retro tercera del Real Madrid 1999/00 en color negro, con detalles amarillos y patrocinador Teka. Una de las referencias más buscadas por su diseño poco común y elegante.",
-    "precio": 130000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 42,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Real Madrid Tercera 1999/00 Negra",
+        "descripcion": "Camiseta retro tercera del Real Madrid 1999/00 en color negro, con detalles amarillos y patrocinador Teka. Una de las referencias más buscadas por su diseño poco común y elegante.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533513520_14.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533514387_15.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533515529_16.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533516508_17.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533517582_18.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533518474_19.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533607060_20.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-3.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-real-madrid-99-negra-1780256376211-4.webp"
-    ]
-  },
-  {
-    "id": 43,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro River Plate Local 1996/97 Blanca",
-    "descripcion": "Camiseta retro local de River Plate 1996/97 en blanco con banda roja y patrocinador Quilmes. Un clásico sudamericano con estética noventera y gran valor nostálgico.",
-    "precio": 129998,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 43,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro River Plate Local 1996/97 Blanca",
+        "descripcion": "Camiseta retro local de River Plate 1996/97 en blanco con banda roja y patrocinador Quilmes. Un clásico sudamericano con estética noventera y gran valor nostálgico.",
+        "precio": 129998,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-3.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-2.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-river-96-blanca-1780256394866-3.webp"
-    ]
-  },
-  {
-    "id": 44,
-    "categoria": "Temporada 25/26",
-    "equipo": "Camiseta FC Barcelona Travis Scott Edición Especial",
-    "descripcion": "Camiseta especial del FC Barcelona edición Travis Scott, con diseño azulgrana oscuro y detalles diferenciales. Una referencia urbana, llamativa y pensada para rotación rápida.",
-    "precio": 130000,
-    "costo_usd": 15,
-    "tallas": {
-      "L": 1,
-      "M": 0,
-      "S": 0,
-      "XL": 1
+    {
+        "id": 44,
+        "categoria": "Temporada 25/26",
+        "equipo": "Camiseta FC Barcelona Travis Scott Edición Especial",
+        "descripcion": "Camiseta especial del FC Barcelona edición Travis Scott, con diseño azulgrana oscuro y detalles diferenciales. Una referencia urbana, llamativa y pensada para rotación rápida.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533543503_7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533544460_8.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578440188_10.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578444207_9.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/barca-travis-1780256384815-1.webp"
-    ]
-  },
-  {
-    "id": 45,
-    "categoria": "Women's Collection",
-    "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla ",
-    "descripcion": "Camiseta Colombia local 2026 versión mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para público femenino de selección Colombia.",
-    "precio": 99000,
-    "costo_usd": 11,
-    "tallas": {
-      "L": 0,
-      "M": 0,
-      "S": 0,
-      "XL": 0
+    {
+        "id": 45,
+        "categoria": "Women's Collection",
+        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla ",
+        "descripcion": "Camiseta Colombia local 2026 versión mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para público femenino de selección Colombia.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335230691_diseno_sin_titulo_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335239040_diseno_sin_titulo_2.webp"
+        ]
     },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335230691_diseno_sin_titulo_1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780335239040_diseno_sin_titulo_2.webp"
-    ]
-  },
-  {
-    "id": 46,
-    "categoria": "Retro",
-    "equipo": "Camiseta Retro Adidas Colombia Originals Classic Edition",
-    "descripcion": "Revive la época dorada del fútbol con esta camiseta retro de Adidas, una pieza de colección que rinde homenaje a los diseños más icónicos de las décadas pasadas. Con el legendario logotipo del trébol y las clásicas tres rayas en las mangas, esta prenda captura la esencia del estilo vintage y la cultura urbana que definió una era inolvidable en el deporte rey.\n\nFabricada con un tejido técnico de alta calidad que combina poliéster y algodón, ofrece una suavidad excepcional y una gran durabilidad para el uso diario. Su corte clásico y holgado garantiza una comodidad óptima, ideal tanto para lucir en las gradas como para un look casual de inspiración retro.",
-    "precio": 130000,
-    "costo_usd": 22,
-    "tallas": {
-      "L": 0,
-      "M": 1,
-      "S": 0,
-      "XL": 0
-    },
-    "imagenes": [
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-adidas-originals-classic-edition-1780276395730-1.webp",
-      "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/camiseta-retro-adidas-originals-classic-edition-1780276395730-3.webp"
-    ]
-  }
+    {
+        "id": 46,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Adidas Colombia Originals Classic Edition",
+        "descripcion": "Revive la época dorada del fútbol con esta camiseta retro de Adidas, una pieza de colección que rinde homenaje a los diseños más icónicos de las décadas pasadas. Con el legendario logotipo del trébol y las clásicas tres rayas en las mangas, esta prenda captura la esencia del estilo vintage y la cultura urbana que definió una era inolvidable en el deporte rey.\n\nFabricada con un tejido técnico de alta calidad que combina poliéster y algodón, ofrece una suavidad excepcional y una gran durabilidad para el uso diario. Su corte clásico y holgado garantiza una comodidad óptima, ideal tanto para lucir en las gradas como para un look casual de inspiración retro.",
+        "precio": 130000,
+        "costo_usd": 22,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578408207_57.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578417321_58.webp"
+        ]
+    }
 ]
