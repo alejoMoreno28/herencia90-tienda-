@@ -31,6 +31,7 @@
     <script src="js/admin-finance-metrics.js?v=1780613504326"></script>
     <script src="js/admin-inventory-guard.js?v=1780613504326"></script>
     <script src="js/admin-lote-photo-review.js?v=1780613504326"></script>
+    <script src="js/admin-lote-workflow.js?v=1780613504326"></script>
     <style>
         :root {
             --bg-color: #f6f4ef;
@@ -50,10 +51,10 @@
             --shadow: 0 8px 24px rgba(35, 31, 22, 0.06);
         }
         * { box-sizing: border-box; }
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: var(--bg-color); 
-            color: var(--text-color); 
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
@@ -78,11 +79,11 @@
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .topbar { background: rgba(255,255,255,.94); padding: 16px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom:1px solid var(--line); box-shadow: 0 6px 18px rgba(35,31,22,0.04); z-index: 10; }
         .topbar h2 { margin: 0; font-size: 20px; color: #111; font-weight: 800; letter-spacing: 0; }
-        
+
         /* TRM Ticker */
         .trm-module { background: var(--surface); border: 1px solid var(--line); padding: 8px 10px; border-radius: var(--radius); display: flex; gap: 12px; align-items: center; font-size: 12px; box-shadow: 0 3px 12px rgba(35,31,22,.04); }
         .trm-module input { width: 80px; padding: 6px 8px; font-size: 12px; border: 1px solid #d8d0c1; border-radius: 6px; }
-        
+
         .content-area { padding: 30px; overflow-y: auto; flex-grow: 1; }
         .view-section { display: none; animation: fadeIn 0.3s; }
         .view-section.active { display: block; }
@@ -140,7 +141,7 @@
         .chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; display: block; }
         @media (max-width: 1280px) { .finance-cards { grid-template-columns: repeat(3, minmax(180px, 1fr)); } .stat-card.primary { grid-column: span 3; } .chart-grid { grid-template-columns: 1fr; } }
         @media (max-width: 760px) { .finance-toolbar { align-items: stretch; flex-direction: column; } .finance-period-control { width: 100%; } .finance-period-control select { flex: 1; } .finance-cards { grid-template-columns: 1fr; } .stat-card.primary { grid-column: span 1; } }
-        
+
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #555;}
         .movement-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
@@ -151,7 +152,7 @@
         }
         .movement-preset:hover, .movement-preset.active { border-color: var(--gold); background: #f5ead0; color: #111; }
         .movement-hint { background:#f8f6ef; border:1px solid #e8dfc9; border-radius:7px; padding:9px 10px; margin-bottom:12px; font-size:11px; color:#6b5b35; font-weight:700; line-height:1.35; }
-        
+
         .fin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .fin-table th, .fin-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
         .fin-table th { background: #fafafa; color: #666; font-weight: 600; }
@@ -296,7 +297,7 @@
         </header>
 
         <section class="content-area">
-            
+
             <!-- VISTA FINANZAS -->
             <div id="view-dashboard" class="view-section active">
                 <div class="finance-toolbar">
@@ -934,7 +935,7 @@
                                 📋 3. Importación Rápida desde Excel
                             </label>
                             <p style="font-size:11px; color:#666; margin:4px 0 10px; line-height:1.35;">
-                                Abre tu Excel de pedido, selecciona las columnas (desde **SIZE** hasta **DESTINO**) de tus camisetas y cópialas (Ctrl+C). 
+                                Abre tu Excel de pedido, selecciona las columnas (desde **SIZE** hasta **DESTINO**) de tus camisetas y cópialas (Ctrl+C).
                                 Luego, haz clic en el cuadro de abajo y pégalas (Ctrl+V). El sistema se encargará del resto de forma automática.
                             </p>
                             <textarea id="lote-excel-paste" rows="5" placeholder="Pega tus celdas de Excel aquí..." style="font-family:monospace; font-size:12px; padding:10px; width:100%; border:1px solid #ccc; border-radius:6px; background:#fff;" oninput="onExcelPasteInput()"></textarea>
@@ -951,9 +952,9 @@
                             <h3 style="margin:0; border:none; padding:0;">🔍 4. Previsualización del Lote a Registrar</h3>
                             <button type="button" class="btn-save" style="font-size:12px; background:#495057; color:#fff;" onclick="agregarFilaManualLote()">+ Agregar Camiseta Manual</button>
                         </div>
-                        
+
                         <div id="lote-error-alert" style="display:none; background:#fff3cd; color:#664d03; padding:10px 15px; border-radius:6px; font-size:12px; font-weight:bold; margin-bottom:15px; border:1px solid #ffecb5;">
-                            ⚠️ Hay camisetas resaltadas en rojo (Nuevas). No te preocupes, el sistema las agregará automáticamente a tu catálogo cuando presiones Guardar.
+                            Revisa las filas marcadas: amarillo significa posible duplicado, rojo significa referencia nueva que necesita fotos aprobadas antes de guardar.
                         </div>
 
                         <div style="overflow-x:auto;">
@@ -1088,7 +1089,7 @@
 
         function updateCustomTRM() {
             GLOBAL_TRM = parseFloat(document.getElementById('trm-custom').value) || 3980;
-            renderInventory(); 
+            renderInventory();
             calculateInventoryValuation();
             calcCOP();
         }
@@ -1155,7 +1156,7 @@
                 hint: '💵 Saca plata de la caja física y la usa para pagar/bajar tu deuda pendiente.'
             }
         };
-        
+
         function updateCategories() {
             const tipo = document.getElementById('t-tipo').value;
             const sel = document.getElementById('t-categoria');
@@ -1613,18 +1614,18 @@
         function exportToExcel() {
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "ID,Fecha,Tipo,Categoria,Monto COP,Monto USD,TRM Aplicada,Costo Base USD (Para Ventas),Descripcion\n";
-            
+
             const filtro = document.getElementById('t-mes-filtro').value;
-            
+
             financeData.transacciones.forEach(t => {
                 if(filtro !== 'all' && t.fecha.substring(0,7) !== filtro) return;
                 const row = [
-                    t.id, t.fecha, t.tipo, `"${t.categoria}"`, t.monto, t.usd_amount||"", 
+                    t.id, t.fecha, t.tipo, `"${t.categoria}"`, t.monto, t.usd_amount||"",
                     t.trm||GLOBAL_TRM, t.costo_usd_asociado||"", `"${(t.descripcion||'').replace(/"/g,'""')}"`
                 ];
                 csvContent += row.join(",") + "\n";
             });
-            
+
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1733,7 +1734,7 @@
             cnt.innerHTML = '';
             CATEGORIAS_INV = [...new Set(productData.map(p=>p.categoria||'Otras'))];
             if(!CATEGORIAS_INV.length) CATEGORIAS_INV=['Nueva'];
-            
+
             const renameSel = document.getElementById('renameCatSelect');
             if(renameSel) renameSel.innerHTML = CATEGORIAS_INV.map(c=>`<option value="${c}">${c}</option>`).join('');
 
@@ -1748,12 +1749,12 @@
                         <th>Precio Venta</th><th>S</th><th>M</th><th>L</th><th>XL</th>
                         <th>Desc. y Fotos</th><th>...</th>
                     </tr></thead><tbody>`;
-                
+
                 items.forEach(({p,i}) => {
                     if(!p.tallas) p.tallas={S:0,M:0,L:0,XL:0};
                     const totQ = (p.tallas.S||0) + (p.tallas.M||0) + (p.tallas.L||0) + (p.tallas.XL||0);
                     const stockCls = totQ === 0 ? 'low-stock' : '';
-                    
+
                     const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
 
                     let photos = `<ul class="photo-list">` + (p.imagenes||[]).map((img, ix)=>`<li><a href="/${img}" target="_blank">📷</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#eee;padding:2px;display:block;text-align:center;margin-top:2px;">[+]<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
@@ -1804,7 +1805,7 @@
             cnt.innerHTML = '';
             CATEGORIAS_INV = [...new Set(productData.map(p=>p.categoria||'Otras'))];
             if(!CATEGORIAS_INV.length) CATEGORIAS_INV=['Nueva'];
-            
+
             const renameSel = document.getElementById('renameCatSelect');
             if(renameSel) renameSel.innerHTML = CATEGORIAS_INV.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
 
@@ -1880,7 +1881,7 @@
                         <th>Precio</th><th>S</th><th>M</th><th>L</th><th>XL</th>
                         <th>Descripción y fotos</th><th></th>
                     </tr></thead><tbody>`;
-                
+
                 items.forEach(({p,i,stock}) => {
                     const stockCls = stock === 0 ? 'low-stock' : '';
                     const stockTone = stock === 0 ? 'empty' : stock <= 2 ? 'low' : 'ok';
@@ -1915,7 +1916,7 @@
 
         function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria'||f==='precio') renderInventory(); else calculateInventoryValuation(); }
         function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); renderInventory(); }
-        
+
         async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
             const newP = { id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] };
@@ -2445,10 +2446,10 @@
             document.getElementById('subtab-crm').style.color = sub === 'crm' ? '#111' : '#333';
             document.getElementById('subtab-import').style.background = sub === 'import' ? 'var(--gold)' : '#e0e0e0';
             document.getElementById('subtab-import').style.color = sub === 'import' ? '#111' : '#333';
-            
+
             document.getElementById('pedidos-subview-crm').style.display = sub === 'crm' ? 'block' : 'none';
             document.getElementById('pedidos-subview-import').style.display = sub === 'import' ? 'block' : 'none';
-            
+
             if (sub === 'import' && loteItems.length === 0) {
                 document.getElementById('lote-trm').value = GLOBAL_TRM;
                 const todayStr = new Date().toISOString().split('T')[0];
@@ -2497,7 +2498,7 @@
             pedidosData.forEach(p => {
                 const totalPedido = parseFloat(p.precio_venta) || 0;
                 const abono = parseFloat(p.abono) || 0;
-                
+
                 if (p.estado_pago !== 'Pagado') {
                     cuentasPorCobrar += (totalPedido - abono);
                 }
@@ -2518,7 +2519,7 @@
 
             filtered.forEach(p => {
                 const tr = document.createElement('tr');
-                
+
                 // Color badges
                 const bPago = p.estado_pago === 'Pagado' ? 'badge-in' : p.estado_pago === 'Abonado' ? 'badge-in' : 'badge-out';
                 const bPagoStyle = p.estado_pago === 'Abonado' ? 'background:#e67e22' : '';
@@ -2574,7 +2575,7 @@
             try {
                 const { error } = await db.from('pedidos').update({ precio_venta: precioVenta }).eq('id', id);
                 if (error) throw error;
-                
+
                 // Reevaluar estado de pago
                 const p = pedidosData.find(x => x.id == id);
                 if (p) {
@@ -2582,7 +2583,7 @@
                     const estado_pago = abono >= precioVenta ? 'Pagado' : (abono > 0 ? 'Abonado' : 'Pendiente');
                     await db.from('pedidos').update({ estado_pago }).eq('id', id);
                 }
-                
+
                 showToast("Precio actualizado correctamente");
                 loadPedidos();
             } catch (e) {
@@ -2593,7 +2594,7 @@
         async function editarClientePedido(id, currentName) {
             const nuevoNombre = prompt("Ingresa el nombre del cliente para esta preventa:", currentName);
             if (nuevoNombre === null || !nuevoNombre.trim()) return;
-            
+
             try {
                 const { error } = await db.from('pedidos').update({ cliente: nuevoNombre.trim() }).eq('id', id);
                 if (error) throw error;
@@ -2721,7 +2722,7 @@
         // ============================================================
 
         function onExcelPasteInput() {
-            // Se puede usar para disparar el procesado inmediato si se quiere, 
+            // Se puede usar para disparar el procesado inmediato si se quiere,
             // pero usar el botón es más seguro y controlable.
         }
 
@@ -2734,6 +2735,9 @@
         }
 
         function cleanNumber(val) {
+            if (window.AdminLoteWorkflow && window.AdminLoteWorkflow.cleanNumber) {
+                return window.AdminLoteWorkflow.cleanNumber(val);
+            }
             if (!val) return 0;
             const cleaned = String(val).replace(/[$\s]/g, '').replace(',', '.');
             const parsed = parseFloat(cleaned);
@@ -2741,9 +2745,14 @@
         }
 
         function findBestProductMatch(desc) {
+            if (window.AdminLoteWorkflow) {
+                const candidates = window.AdminLoteWorkflow.findProductCandidates(desc, productData);
+                const safe = window.AdminLoteWorkflow.chooseSafeCandidate(candidates);
+                return safe ? productData.find(p => p.id == safe.id) || null : null;
+            }
             if (!desc) return null;
             const rawQuery = String(desc).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-            
+
             // 1. Coincidencia exacta o contiene completo
             let best = productData.find(p => {
                 const pName = (p.equipo || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -2797,6 +2806,89 @@
             const rawText = document.getElementById('lote-excel-paste').value;
             if (!rawText.trim()) { alert('Pega celdas válidas de Excel primero'); return; }
 
+            if (window.AdminLoteWorkflow) {
+                const lines = rawText.split('\n');
+                const processedItems = [];
+
+                lines.forEach(line => {
+                    const cols = line.split('\t');
+                    if (cols.length < 3) return;
+                    const descVal = cols[2] ? cols[2].trim() : '';
+                    if (!descVal) return;
+                    processedItems.push(window.AdminLoteWorkflow.buildLoteItemFromColumns(cols, productData));
+                });
+
+                if (processedItems.length === 0) {
+                    alert('No se detectaron filas validas de camisetas. Revisa que hayas copiado el bloque correcto del Excel.');
+                    return;
+                }
+
+                const itemsForAi = processedItems.filter(item => !item.prodId);
+                if (itemsForAi.length > 0) {
+                    const btn = document.querySelector('button[onclick="procesarPegadoExcel()"]');
+                    if (btn) {
+                        btn.innerText = 'Optimizando con IA...';
+                        btn.disabled = true;
+                    }
+                    showToast(`Preparando nombre y descripcion de ${itemsForAi.length} referencia(s) nueva(s)...`);
+
+                    const aiResults = {};
+                    for (const item of itemsForAi) {
+                        const raw = item.generatedName || item.rawDescription || item.queryStr;
+                        if (aiResults[raw]) continue;
+                        try {
+                            const res = await fetch('/api/optimize-product', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ rawName: raw })
+                            });
+                            if (res.ok) aiResults[raw] = await res.json();
+                        } catch(e) {
+                            console.error('Error llamando IA:', e);
+                        }
+                    }
+
+                    processedItems.forEach(item => {
+                        const raw = item.generatedName || item.rawDescription || item.queryStr;
+                        if (!item.prodId && aiResults[raw]) {
+                            const ai = aiResults[raw];
+                            item.aiData = { ...(item.aiData || {}), ...ai };
+                            item.generatedName = ai.nombre_oficial || item.generatedName;
+                            item.generatedDescription = ai.descripcion || item.generatedDescription;
+                            item.generatedCategory = ai.categoria || item.generatedCategory;
+                            item.queryStr = item.generatedName || item.queryStr;
+
+                            const candidates = window.AdminLoteWorkflow.findProductCandidates(item.queryStr, productData);
+                            const safe = window.AdminLoteWorkflow.chooseSafeCandidate(candidates);
+                            item.duplicateCandidates = candidates;
+                            if (safe) {
+                                const prod = productData.find(p => p.id == safe.id);
+                                if (prod) {
+                                    item.prodId = prod.id;
+                                    item.queryStr = prod.equipo;
+                                    item.precioVenta = prod.precio || item.precioVenta;
+                                    item.matchStatus = 'matched';
+                                }
+                            } else {
+                                item.matchStatus = candidates.length ? 'candidate' : 'new';
+                            }
+                        }
+                    });
+
+                    if (btn) {
+                        btn.innerText = 'Procesar Celdas de Excel';
+                        btn.disabled = false;
+                    }
+                }
+
+                loteItems = processedItems;
+                refreshLotePhotoGroups();
+                renderLotePreview();
+                renderLotePhotoReview();
+                showToast(`${loteItems.length} camisetas importadas del Excel`);
+                return;
+            }
+
             const lines = rawText.split('\n');
             const processedItems = [];
             let unoptimizedStrings = [];
@@ -2810,7 +2902,7 @@
                 const descVal = cols[2] ? cols[2].trim() : '';
                 const extrasVal = cols[3] ? cols[3].trim() : '';
                 const qtyVal  = parseInt(cols[5]) || 1;
-                
+
                 let costVal = cols[6] ? cleanNumber(cols[6]) : 10.44;
                 if (cols[7]) {
                     const subtotal = cleanNumber(cols[7]);
@@ -2818,7 +2910,7 @@
                         costVal = subtotal / qtyVal;
                     }
                 }
-                
+
                 let finalDesc = descVal;
                 if (typeVal && typeVal.toUpperCase() !== 'FAN') {
                     finalDesc = `[${typeVal}] ` + finalDesc;
@@ -2882,7 +2974,7 @@
                     btn.disabled = true;
                 }
                 showToast(`Optimizando ${unoptimizedStrings.length} camisetas nuevas con IA...`);
-                
+
                 const aiResults = {};
                 for (const raw of unoptimizedStrings) {
                     try {
@@ -2899,9 +2991,9 @@
                         console.error('Error llamando IA:', e);
                     }
                 }
-                
+
                 showToast('Nombres y precios listos. Ahora pega los links de fotos por referencia.');
-                
+
                 processedItems.forEach(item => {
                     if (!item.prodId && aiResults[item.queryStr]) {
                         const ai = aiResults[item.queryStr];
@@ -2909,7 +3001,7 @@
                         item.aiData = ai;
                     }
                 });
-                
+
                 if (btn) {
                     btn.innerText = '⚡ Procesar Celdas de Excel';
                     btn.disabled = false;
@@ -2924,20 +3016,25 @@
         }
 
         function agregarFilaManualLote() {
-            loteItems.push({
-                id: Date.now() + Math.random(),
-                prodId: null,
-                queryStr: '',
-                size: 'M',
-                qty: 1,
-                costUsd: 10.44,
-                destino: 'STOCK',
-                cliente: '',
-                canal: 'Amigos/Confianza',
-                precioVenta: 99000,
-                abono: 0,
-                aiData: null
-            });
+            const item = window.AdminLoteWorkflow
+                ? window.AdminLoteWorkflow.buildLoteItemFromColumns(['M', 'FAN', 'Nueva referencia', '', '', '1', '$11,00', '$11,00', '', 'STOCK'], productData)
+                : {
+                    id: Date.now() + Math.random(),
+                    prodId: null,
+                    queryStr: 'Nueva referencia',
+                    size: 'M',
+                    qty: 1,
+                    costUsd: 11,
+                    destino: 'STOCK',
+                    cliente: '',
+                    canal: 'Amigos/Confianza',
+                    precioVenta: 99000,
+                    abono: 0,
+                    aiData: null
+                };
+            item.prodId = null;
+            item.forceNewReference = true;
+            loteItems.push(item);
             refreshLotePhotoGroups();
             renderLotePreview();
             renderLotePhotoReview();
@@ -3034,6 +3131,10 @@
                         ${thumbs}
                         <div class="lote-photo-actions">
                             <button type="button" class="btn-save" style="background:#0d6efd;color:white;padding:7px 10px;font-size:11px;" onclick="extraerFotosDeReferencia(${idx})">Extraer</button>
+                            <label class="btn-save" style="background:#6c757d;color:white;padding:7px 10px;font-size:11px;cursor:pointer;margin:0;display:inline-block;line-height:normal;" ondragover="event.preventDefault(); this.style.background='#5b636a';" ondragleave="this.style.background='#6c757d';" ondrop="handleDropFotosManualesLote(event, ${idx}); this.style.background='#6c757d';">
+                                <span id="lbl-upload-text-${idx}">Subir Manual</span>
+                                <input type="file" multiple accept="image/*" style="display:none;" onchange="subirFotosManualesLote(event, ${idx})">
+                            </label>
                             <button type="button" class="btn-add" style="padding:7px 10px;font-size:11px;" onclick="aprobarFotosDeReferencia(${idx})" ${group.images && group.images.length ? '' : 'disabled'}>Aprobar fotos</button>
                             <button type="button" class="btn-add" style="padding:7px 10px;font-size:11px;background:#198754;" onclick="guardarReferenciaLote(${idx})" ${group.approved ? '' : 'disabled'}>Guardar referencia</button>
                         </div>
@@ -3153,10 +3254,71 @@
             }
         }
 
+        function handleDropFotosManualesLote(event, groupIdx) {
+            event.preventDefault();
+            const files = event.dataTransfer && event.dataTransfer.files;
+            subirFotosManualesLote({ target: { files, value: '' } }, groupIdx);
+        }
+
+        async function subirFotosManualesLote(event, groupIdx) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+
+            const lblText = document.getElementById(`lbl-upload-text-${groupIdx}`);
+            if (lblText) lblText.innerText = '⏳ Subiendo...';
+
+            try {
+                let uploadedUrls = [];
+                for (let i = 0; i < files.length; i++) {
+                    const f = files[i];
+                    if (lblText) lblText.innerText = `⏳ Subiendo (${i+1}/${files.length})...`;
+                    const optimized = await optimizeImageForUpload(f);
+                    const filename = safeStorageFilename(f.name, optimized.ext);
+                    const publicUrl = await uploadProductImage(filename, optimized);
+                    uploadedUrls.push(publicUrl);
+                }
+
+                if (uploadedUrls.length > 0) {
+                    if (!group.images) group.images = [];
+                    const startIdx = group.images.length;
+                    group.images.push(...uploadedUrls);
+                    group.providerUrl = group.providerUrl || 'Manual';
+
+                    if (!group.selectedImages) group.selectedImages = [];
+                    uploadedUrls.forEach((_, idx) => group.selectedImages.push(startIdx + idx));
+
+                    group.error = '';
+                    group.approved = false;
+
+                    group.itemIndexes.forEach((itemIndex) => {
+                        const item = loteItems[itemIndex];
+                        if (!item) return;
+                        item.aiData = item.aiData || {};
+                        item.aiData.imagenes_extraidas = group.images.slice();
+                        item.aiData.imagenes_aprobadas = false;
+                        item.aiData.fuente_imagenes = 'Manual';
+                        item.providerPhotoUrl = 'Manual';
+                        if (item.selectedImageIndex === undefined) item.selectedImageIndex = 0;
+                    });
+
+                    showToast('Fotos subidas correctamente. Revisa y aprueba.');
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Error al subir fotos manuales: ' + e.message);
+            } finally {
+                if (lblText) lblText.innerText = 'Subir Manual';
+                event.target.value = '';
+                renderLotePhotoReview();
+            }
+        }
+
         function renderLotePreview() {
             const tbody = document.getElementById('lote-preview-body');
             tbody.innerHTML = '';
-            
+
             if (loteItems.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#aaa; padding:25px;">El lote está vacío. Pega tus celdas de Excel o agrega una fila manual para comenzar.</td></tr>`;
                 document.getElementById('lote-error-alert').style.display = 'none';
@@ -3168,7 +3330,7 @@
             loteItems.forEach((item, idx) => {
                 const tr = document.createElement('tr');
                 tr.id = `lote-row-${idx}`;
-                
+
                 // Si no se encontró coincidencia en catálogo, marcar la fila con error
                 const isError = !item.prodId;
                 if (isError) {
@@ -3184,35 +3346,75 @@
                 `;
 
                 const isPreventa = item.destino === 'PREVENTA';
+                const candidates = Array.isArray(item.duplicateCandidates) ? item.duplicateCandidates : [];
+                const unresolvedDuplicate = !item.prodId && !item.forceNewReference && candidates.length > 0;
+                if (unresolvedDuplicate) tr.style.background = '#fff8e1';
+                const inputStateStyle = item.prodId
+                    ? ''
+                    : unresolvedDuplicate
+                        ? 'border-color:#b7791f; background:#fffaf0;'
+                        : 'border-color:red; background:#fff8f8;';
+                const rowStatus = item.prodId
+                    ? 'En catalogo'
+                    : unresolvedDuplicate
+                        ? 'Posible duplicado'
+                        : item.forceNewReference
+                            ? 'Nueva confirmada'
+                            : 'Nueva referencia';
+                const rowStatusColor = item.prodId ? '#198754' : unresolvedDuplicate ? '#b7791f' : '#b02a37';
+                const candidateHtml = unresolvedDuplicate ? `
+                    <div style="margin-top:6px; background:#fff8e1; border:1px solid #f4d27a; border-radius:6px; padding:6px; font-size:10px;">
+                        <div style="font-weight:900; color:#7a5200; margin-bottom:5px;">Posibles coincidencias. Elige una o confirma que es nueva:</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                            ${candidates.map(c => `<button type="button" class="btn-save" style="padding:4px 6px; font-size:10px; background:#495057; color:#fff;" onclick="selectLoteProd(${idx}, ${c.id})">${escapeHtml(c.equipo)}</button>`).join('')}
+                            <button type="button" class="btn-add" style="padding:4px 6px; font-size:10px; background:#b7791f;" onclick="confirmarNuevaReferenciaLote(${idx})">Crear nueva</button>
+                        </div>
+                    </div>
+                ` : '';
+                const metaDescription = item.generatedDescription || (item.aiData && item.aiData.descripcion) || '';
+                const metaCategory = item.generatedCategory || (item.aiData && item.aiData.categoria) || 'Nueva Coleccion';
+                const metaHtml = !item.prodId ? `
+                    <div style="margin-top:6px; display:grid; gap:5px;">
+                        <textarea rows="2" style="font-size:11px; padding:6px; resize:vertical; min-height:44px;" placeholder="Descripcion para catalogo" oninput="updateLoteItem(${idx}, 'generatedDescription', this.value)">${escapeHtml(metaDescription)}</textarea>
+                        <input type="text" value="${escapeHtml(metaCategory)}" style="font-size:11px; padding:5px;" placeholder="Coleccion / categoria" oninput="updateLoteItem(${idx}, 'generatedCategory', this.value)">
+                    </div>
+                ` : '';
+                const extrasHtml = (item.extrasLabel && item.extrasLabel !== 'Sin extras') || item.sleeve === 'Manga larga'
+                    ? `<div style="margin-top:5px; font-size:10px; color:#555; line-height:1.3;"><b>Extras:</b> ${escapeHtml(item.extrasLabel || 'Sin extras')} ${item.sleeve ? `| ${escapeHtml(item.sleeve)}` : ''}</div>`
+                    : '';
 
                 tr.innerHTML = `
                     <!-- Col 1: Camiseta buscador predictivo -->
                     <td style="position:relative; overflow:visible;">
-                        <input type="text" id="lote-search-${idx}" value="${item.queryStr}" placeholder="Escribe y selecciona la camiseta..." 
-                            style="font-size:12px; padding:6px; ${isError ? 'border-color:red; background:#fff8f8;' : ''}"
+                        <input type="text" id="lote-search-${idx}" value="${escapeHtml(item.queryStr)}" placeholder="Escribe y selecciona la camiseta..."
+                            style="font-size:12px; padding:6px; ${inputStateStyle}"
                             oninput="updateLoteItem(${idx}, 'queryStr', this.value); filterLoteProd(${idx})" onfocus="filterLoteProd(${idx})" onblur="hideLoteProd(${idx})">
                         <div id="lote-dd-${idx}" style="display:none; position:absolute; left:0; right:0; z-index:9000; background:white; border:1px solid #ddd; max-height:150px; overflow-y:auto; box-shadow:0 4px 8px rgba(0,0,0,0.1);"></div>
+                        <div style="margin-top:5px; font-size:10px; font-weight:900; color:${rowStatusColor};">${rowStatus}</div>
+                        ${extrasHtml}
+                        ${candidateHtml}
+                        ${metaHtml}
                     </td>
                     <!-- Col 2: Talla -->
                     <td style="text-align:center;">
-                        <input type="text" value="${item.size}" style="width:50px; font-weight:700; text-align:center; font-size:12px; padding:4px;" 
+                        <input type="text" value="${escapeHtml(item.size)}" style="width:50px; font-weight:700; text-align:center; font-size:12px; padding:4px;"
                             oninput="updateLoteItem(${idx}, 'size', this.value)">
                     </td>
                     <!-- Col 3: Cantidad -->
                     <td style="text-align:center;">
-                        <input type="number" value="${item.qty}" min="1" style="width:50px; text-align:center; font-size:12px; padding:4px;" 
+                        <input type="number" value="${item.qty}" min="1" style="width:50px; text-align:center; font-size:12px; padding:4px;"
                             oninput="updateLoteItem(${idx}, 'qty', parseInt(this.value)||1)">
                     </td>
                     <!-- Col 4: Costo USD -->
                     <td style="text-align:right;">
-                        <input type="number" value="${item.costUsd}" step="0.01" style="width:70px; text-align:right; font-size:12px; padding:4px; font-weight:700; color:#0275d8;" 
+                        <input type="number" value="${item.costUsd}" step="0.01" style="width:70px; text-align:right; font-size:12px; padding:4px; font-weight:700; color:#0275d8;"
                             oninput="updateLoteItem(${idx}, 'costUsd', parseFloat(this.value)||0)">
                     </td>
                     <!-- Col 5: Destinado A -->
                     <td style="text-align:center;">${optionsDestino}</td>
                     <!-- Col 6: Cliente (Solo Preventa) -->
                     <td>
-                        <input type="text" value="${item.cliente}" placeholder="Nombre del amigo..." 
+                        <input type="text" value="${escapeHtml(item.cliente)}" placeholder="Nombre del amigo..."
                             style="font-size:12px; padding:5px;" ${!isPreventa ? 'disabled style="background:#e9ecef; border-color:#ccc;" placeholder="N/A"' : ''}
                             oninput="updateLoteItem(${idx}, 'cliente', this.value)">
                     </td>
@@ -3225,16 +3427,18 @@
                             <option value="Instagram" ${item.canal === 'Instagram' ? 'selected' : ''}>Instagram</option>
                         </select>
                     </td>
-                    <!-- Col 8: Precio Venta (Solo Preventa) -->
+                    <!-- Col 8: Precio Venta / Catalogo -->
                     <td style="text-align:right;">
-                        <input type="number" value="${item.precioVenta}" style="width:90px; text-align:right; font-size:12px; padding:4px; font-weight:700;" 
-                            ${!isPreventa ? 'disabled style="background:#e9ecef;"' : ''}
+                        <input type="number" value="${item.precioVenta}" style="width:90px; text-align:right; font-size:12px; padding:4px; font-weight:700;"
                             oninput="updateLoteItem(${idx}, 'precioVenta', parseFloat(this.value)||0)">
                     </td>
                     <!-- Col 9: Estado fotos y remover -->
                     <td style="text-align:center; min-width: 140px;">
+                        <div style="font-size:10px; font-weight:800; margin-bottom:6px; color:${rowStatusColor};">
+                            ${rowStatus}
+                        </div>
                         <div style="font-size:10px; font-weight:800; margin-bottom:6px; color:${!item.prodId ? ((item.aiData && item.aiData.imagenes_aprobadas) ? '#198754' : '#b02a37') : '#666'};">
-                            ${!item.prodId ? ((item.aiData && item.aiData.imagenes_aprobadas) ? 'Fotos aprobadas' : 'Fotos pendientes') : 'En catalogo'}
+                            ${item.prodId ? 'Fotos existentes' : unresolvedDuplicate ? 'Decide primero' : ((item.aiData && item.aiData.imagenes_aprobadas) ? 'Fotos aprobadas' : 'Fotos pendientes')}
                         </div>
                         <div style="text-align:center;">
                             <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕ Eliminar Fila</button>
@@ -3250,6 +3454,23 @@
         function updateLoteItem(idx, field, value) {
             if (loteItems[idx]) {
                 loteItems[idx][field] = value;
+                if (field === 'queryStr' && window.AdminLoteWorkflow) {
+                    loteItems[idx].prodId = null;
+                    loteItems[idx].forceNewReference = false;
+                    loteItems[idx].generatedName = value;
+                    loteItems[idx].duplicateCandidates = window.AdminLoteWorkflow.findProductCandidates(value, productData);
+                    loteItems[idx].matchStatus = loteItems[idx].duplicateCandidates.length ? 'candidate' : 'new';
+                    loteItems[idx].aiData = loteItems[idx].aiData || {};
+                    loteItems[idx].aiData.nombre_oficial = value;
+                }
+                if (field === 'generatedDescription') {
+                    loteItems[idx].aiData = loteItems[idx].aiData || {};
+                    loteItems[idx].aiData.descripcion = value;
+                }
+                if (field === 'generatedCategory') {
+                    loteItems[idx].aiData = loteItems[idx].aiData || {};
+                    loteItems[idx].aiData.categoria = value;
+                }
                 if (['queryStr', 'size', 'qty', 'destino'].includes(field)) {
                     refreshLotePhotoGroups();
                     renderLotePhotoReview();
@@ -3279,7 +3500,7 @@
                 showToast("Por favor pega un link válido de la tienda.");
                 return;
             }
-            
+
             const url = inputUrl.value.trim();
             const item = loteItems[idx];
             const btn = inputUrl.nextElementSibling;
@@ -3329,10 +3550,19 @@
             const input = document.getElementById(`lote-search-${idx}`);
             const q = (input.value || '').toLowerCase();
             const dd = document.getElementById(`lote-dd-${idx}`);
-            const matches = productData.filter(p => ((p.equipo||'')+' '+(p.descripcion||'')).toLowerCase().includes(q));
-            
+            if (q.trim().length < 2) { dd.style.display='none'; return; }
+            const candidateIds = window.AdminLoteWorkflow
+                ? window.AdminLoteWorkflow.findProductCandidates(q, productData, 8).map(c => c.id)
+                : [];
+            let matches = candidateIds
+                .map(id => productData.find(p => p.id == id))
+                .filter(Boolean);
+            if (!matches.length) {
+                matches = productData.filter(p => ((p.equipo||'')+' '+(p.descripcion||'')).toLowerCase().includes(q)).slice(0, 8);
+            }
+
             if (!matches.length) { dd.style.display='none'; return; }
-            
+
             dd.innerHTML = matches.map(p => {
                 const stock = Object.values(p.tallas||{}).reduce((a,b)=>a+b,0);
                 const name = p.equipo + (p.descripcion ? ' — ' + p.descripcion : '');
@@ -3353,7 +3583,21 @@
             loteItems[idx].prodId = prod.id;
             loteItems[idx].queryStr = prod.equipo;
             loteItems[idx].precioVenta = prod.precio || 99000;
+            loteItems[idx].forceNewReference = false;
+            loteItems[idx].duplicateCandidates = [];
+            loteItems[idx].matchStatus = 'matched';
 
+            refreshLotePhotoGroups();
+            renderLotePreview();
+            renderLotePhotoReview();
+        }
+
+        function confirmarNuevaReferenciaLote(idx) {
+            const item = loteItems[idx];
+            if (!item) return;
+            item.prodId = null;
+            item.forceNewReference = true;
+            item.matchStatus = 'new-confirmed';
             refreshLotePhotoGroups();
             renderLotePreview();
             renderLotePhotoReview();
@@ -3380,7 +3624,17 @@
             return { loteNombre, trm };
         }
 
+        function assertNoUnresolvedDuplicateItems(itemsToCheck) {
+            if (!window.AdminLoteWorkflow) return true;
+            const unresolved = window.AdminLoteWorkflow.findUnresolvedDuplicateItems(itemsToCheck || loteItems);
+            if (!unresolved.length) return true;
+            const names = unresolved.slice(0, 5).map(item => `- ${item.queryStr}`).join('\n');
+            alert(`Hay ${unresolved.length} posible(s) duplicado(s) sin decidir.\n\n${names}\n\nElige una referencia existente o presiona "Crear nueva" en la fila antes de guardar.`);
+            return false;
+        }
+
         async function ensureCatalogProductsForLoteItems(itemsToProcess) {
+            if (!assertNoUnresolvedDuplicateItems(itemsToProcess)) return false;
             const unmatchedItems = itemsToProcess.filter(item => !item.prodId);
             if (!unmatchedItems.length) return true;
 
@@ -3511,7 +3765,7 @@
                             cliente: item.cliente,
                             canal: item.canal,
                             producto_id: item.prodId,
-                            equipo: prod.equipo,
+                            equipo: window.AdminLoteWorkflow ? window.AdminLoteWorkflow.buildPedidoProductName(prod.equipo, item) : prod.equipo,
                             talla: item.size,
                             cantidad: 1,
                             precio_venta: item.precioVenta,
@@ -3575,14 +3829,15 @@
             refreshLotePhotoGroups();
             const group = lotePhotoGroups[groupIdx];
             if (!group) return;
+            const itemsToProcess = window.AdminLotePhotoReview.itemsForPhotoGroup(loteItems, group);
+            if (!itemsToProcess.length) return;
+            if (!assertNoUnresolvedDuplicateItems(itemsToProcess)) return;
             if (!group.approved) {
                 alert('Aprueba las fotos de esta referencia antes de guardarla.');
                 return;
             }
 
             window.AdminLotePhotoReview.applyApprovedPhotosToItems(loteItems, [group]);
-            const itemsToProcess = window.AdminLotePhotoReview.itemsForPhotoGroup(loteItems, group);
-            if (!itemsToProcess.length) return;
 
             if (!confirm(`Guardar solo esta referencia?\n\n- ${group.title}\n- ${group.totalQty} uds\n- Destino: ${group.destinations.join(' + ') || 'Sin destino'}\n\nSe actualizara stock/preventa y finanzas solo para estas filas.`)) return;
 
@@ -3620,6 +3875,11 @@
             if (loteItems.length === 0) { alert('El lote está vacío. Agrega camisetas antes de guardar.'); return; }
             syncLotePhotoInputs();
             refreshLotePhotoGroups();
+            if (!assertNoUnresolvedDuplicateItems(loteItems)) {
+                renderLotePreview();
+                renderLotePhotoReview();
+                return;
+            }
             const photoValidation = window.AdminLotePhotoReview.validatePhotoReferenceGroups(lotePhotoGroups);
             if (!photoValidation.ok) {
                 alert(`Faltan fotos por aprobar antes de guardar.\n\n- Links pendientes: ${photoValidation.missingLinks}\n- Referencias sin aprobar: ${photoValidation.missingApprovals}\n\nPega los links, extrae las fotos y aprueba cada referencia nueva.`);
@@ -3632,7 +3892,7 @@
 
             // Re-intentar match por si el usuario corrigió el texto pero no hizo clic en el dropdown
             loteItems.forEach(item => {
-                if (!item.prodId) {
+                if (!item.prodId && !item.forceNewReference) {
                     const match = findBestProductMatch(item.queryStr);
                     if (match) item.prodId = match.id;
                 }
@@ -3657,7 +3917,7 @@
                 const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
                 let newIdCounter = mx + 1;
                 let createdProductsMap = {};
-                
+
                 for (let uItem of unmatchedItems) {
                     const creationKey = window.AdminLotePhotoReview.normalizeReferenceKey(uItem.queryStr) || uItem.queryStr;
                     if (createdProductsMap[creationKey]) {
@@ -3665,14 +3925,14 @@
                         continue;
                     }
 
-                    const newP = { 
-                        id: newIdCounter++, 
-                        categoria: uItem.aiData ? uItem.aiData.categoria : 'Nueva Colección', 
-                        equipo: uItem.aiData ? uItem.aiData.nombre_oficial : uItem.queryStr, 
-                        descripcion: uItem.aiData ? uItem.aiData.descripcion : '', 
-                        precio: uItem.precioVenta, 
-                        costo_usd: uItem.costUsd, 
-                        tallas: {S:0, M:0, L:0, XL:0}, 
+                    const newP = {
+                        id: newIdCounter++,
+                        categoria: uItem.aiData ? uItem.aiData.categoria : 'Nueva Colección',
+                        equipo: uItem.aiData ? uItem.aiData.nombre_oficial : uItem.queryStr,
+                        descripcion: uItem.aiData ? uItem.aiData.descripcion : '',
+                        precio: uItem.precioVenta,
+                        costo_usd: uItem.costUsd,
+                        tallas: {S:0, M:0, L:0, XL:0},
                         imagenes: window.AdminLotePhotoReview.normalizeImageList(uItem.aiData && uItem.aiData.imagenes_extraidas)
                     };
                     const { error } = await db.from('productos').insert(newP);
@@ -3719,7 +3979,7 @@
                     } else {
                         preventaQty += item.qty;
                         const costoLandedCop = item.costUsd * trm;
-                        
+
                         // Crear reservas en pedidos
                         // Si qty > 1, creamos pedidos individuales para simplificar el cobro uno a uno
                         for (let k = 0; k < item.qty; k++) {
@@ -3727,7 +3987,7 @@
                                 cliente: item.cliente,
                                 canal: item.canal,
                                 producto_id: item.prodId,
-                                equipo: prod.equipo,
+                                equipo: window.AdminLoteWorkflow ? window.AdminLoteWorkflow.buildPedidoProductName(prod.equipo, item) : prod.equipo,
                                 talla: item.size,
                                 cantidad: 1,
                                 precio_venta: item.precioVenta,
@@ -3758,12 +4018,12 @@
                 }
 
                 // 3. Registrar Transacciones Financieras
-                
+
                 // Transacción A: Gasto por compra de lote
                 const totalCostUsdConDescuento = totalCostUsd - descuentoUsd;
                 const totalMontoCOP = totalCostUsdConDescuento * trm;
                 const descDescuentoStr = descuentoUsd > 0 ? ` (Incluye descuento de $${descuentoUsd} USD)` : '';
-                
+
                 const gastoTrans = {
                     tipo: 'gasto',
                     categoria: 'Compra Inventario (Camisetas)',

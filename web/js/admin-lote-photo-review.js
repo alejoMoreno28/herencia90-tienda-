@@ -12,7 +12,12 @@
     }
 
     function requiresPhotoReview(item) {
-        return !!item && (item.forcePhotoReview || !item.prodId);
+        if (!item) return false;
+        const hasUnresolvedCandidates = !item.prodId
+            && !item.forceNewReference
+            && Array.isArray(item.duplicateCandidates)
+            && item.duplicateCandidates.length > 0;
+        return !hasUnresolvedCandidates && (item.forcePhotoReview || !item.prodId);
     }
 
     function summarizeSizes(rows) {
@@ -97,7 +102,10 @@
 
     function validatePhotoReferenceGroups(groups) {
         const activeGroups = groups || [];
-        const missingLinks = activeGroups.filter((group) => !String(group.providerUrl || '').trim()).length;
+        const missingLinks = activeGroups.filter((group) => {
+            const images = normalizeImageList(group.images);
+            return !String(group.providerUrl || '').trim() && images.length === 0;
+        }).length;
         const missingApprovals = activeGroups.filter((group) => !group.approved || !group.images || !group.images.length).length;
 
         return {
@@ -126,10 +134,10 @@
                 if (!item) return;
                 item.aiData = item.aiData || {};
                 item.aiData.imagenes_extraidas = approvedImages.slice();
-                item.aiData.fuente_imagenes = group.providerUrl || '';
+                item.aiData.fuente_imagenes = group.providerUrl || 'Manual';
                 item.aiData.imagenes_aprobadas = true;
                 item.selectedImageIndex = 0;
-                item.providerPhotoUrl = group.providerUrl || '';
+                item.providerPhotoUrl = group.providerUrl || 'Manual';
             });
         });
     }
@@ -138,9 +146,9 @@
         const aiData = (item && item.aiData) || {};
         return {
             id,
-            categoria: aiData.categoria || 'Nueva Coleccion',
-            equipo: aiData.nombre_oficial || (item && item.queryStr) || 'Nueva referencia',
-            descripcion: aiData.descripcion || '',
+            categoria: aiData.categoria || (item && item.generatedCategory) || 'Nueva Coleccion',
+            equipo: aiData.nombre_oficial || (item && item.generatedName) || (item && item.queryStr) || 'Nueva referencia',
+            descripcion: aiData.descripcion || (item && item.generatedDescription) || '',
             precio: (item && item.precioVenta) || 99000,
             costo_usd: (item && item.costUsd) || 0,
             tallas: { S: 0, M: 0, L: 0, XL: 0 },

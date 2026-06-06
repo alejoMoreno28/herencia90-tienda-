@@ -97,6 +97,40 @@ test('keeps extracted photos visible when groups are rebuilt from lote items', a
   assert.deepEqual(asPlain(normalizeImageList(items[0].aiData.imagenes_extraidas)), groups[0].images);
 });
 
+test('does not ask for photos on unresolved possible duplicates until creating new is confirmed', async () => {
+  const { buildPhotoReferenceGroups } = await loadPhotoReview();
+  const items = [
+    loteItem({
+      queryStr: 'Manchester United 98/99 roja',
+      duplicateCandidates: [{ id: 7, equipo: 'Camiseta Manchester United 1998/99 Roja' }],
+      forceNewReference: false,
+    }),
+  ];
+
+  assert.equal(buildPhotoReferenceGroups(items).length, 0);
+
+  items[0].forceNewReference = true;
+  assert.equal(buildPhotoReferenceGroups(items).length, 1);
+});
+
+test('allows manually uploaded and approved photos without a provider link', async () => {
+  const { buildPhotoReferenceGroups, validatePhotoReferenceGroups } = await loadPhotoReview();
+  const items = [
+    loteItem({ queryStr: 'Manchester United 98/99 manga larga', size: 'L', qty: 1, destino: 'STOCK' }),
+  ];
+  let groups = buildPhotoReferenceGroups(items);
+  groups[0].providerUrl = '';
+  groups[0].images = ['https://cdn.test/manual-front.webp', 'https://cdn.test/manual-back.webp'];
+  groups[0].approved = true;
+  groups = buildPhotoReferenceGroups(items, groups);
+
+  assert.deepEqual(asPlain(validatePhotoReferenceGroups(groups)), {
+    ok: true,
+    missingLinks: 0,
+    missingApprovals: 0,
+  });
+});
+
 test('builds a catalog product payload with only inventory table columns', async () => {
   const { buildCatalogProductFromLoteItem } = await loadPhotoReview();
   const product = buildCatalogProductFromLoteItem(loteItem({
@@ -133,6 +167,27 @@ test('builds a catalog product payload with only inventory table columns', async
   ]);
   assert.equal(product.pais_o_club, undefined);
   assert.equal(product.decada, undefined);
+});
+
+test('uses generated lot metadata when AI data is not present in catalog payload', async () => {
+  const { buildCatalogProductFromLoteItem } = await loadPhotoReview();
+  const product = buildCatalogProductFromLoteItem(loteItem({
+    queryStr: 'Fallback name',
+    generatedName: 'Camiseta Manchester United 1998/99 Roja Manga Larga',
+    generatedDescription: 'Descripcion generada para catalogo.',
+    generatedCategory: 'Retro',
+    precioVenta: 140000,
+    costUsd: 18,
+    aiData: {
+      imagenes_extraidas: ['https://cdn.test/united-front.webp'],
+    },
+  }), 900);
+
+  assert.equal(product.equipo, 'Camiseta Manchester United 1998/99 Roja Manga Larga');
+  assert.equal(product.descripcion, 'Descripcion generada para catalogo.');
+  assert.equal(product.categoria, 'Retro');
+  assert.equal(product.precio, 140000);
+  assert.deepEqual(product.imagenes, ['https://cdn.test/united-front.webp']);
 });
 
 test('selects and removes only the rows that belong to one approved reference group', async () => {
