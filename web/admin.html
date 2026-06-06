@@ -32,6 +32,7 @@
     <script src="js/admin-inventory-guard.js?v=1780613504326"></script>
     <script src="js/admin-lote-photo-review.js?v=1780613504326"></script>
     <script src="js/admin-lote-workflow.js?v=1780613504326"></script>
+    <script src="js/admin-pedido-payments.js?v=1780700000000"></script>
     <style>
         :root {
             --bg-color: #f6f4ef;
@@ -859,6 +860,7 @@
                             <select id="pedidos-filter-pago" onchange="renderPedidos()" style="font-size:13px;">
                                 <option value="all">Todos los pagos</option>
                                 <option value="Pendiente">Deuda Pendiente</option>
+                                <option value="Abonado">Abonado</option>
                                 <option value="Pagado">Pagado</option>
                             </select>
                         </div>
@@ -878,6 +880,26 @@
                                 <option value="Instagram">Instagram</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Seccion de abonos por cliente -->
+                    <div class="table-container" style="padding:15px; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                            <h3 style="margin:0; border:none; padding:0;">Abonos por cliente</h3>
+                            <button class="btn-save" onclick="renderPedidos()" style="padding:6px 10px; font-size:11px;">Actualizar</button>
+                        </div>
+                        <div style="display:grid; grid-template-columns:minmax(260px,2fr) minmax(150px,.65fr) auto; gap:10px; align-items:end;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Cliente y lote</label>
+                                <select id="abono-grupo-select" onchange="renderAbonoGrupoPreview()"></select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Monto recibido</label>
+                                <input type="text" id="abono-grupo-monto" placeholder="Ej: 175.000" onkeydown="if(event.key==='Enter'){registrarAbonoGrupoSeleccionado();}">
+                            </div>
+                            <button class="btn-add" onclick="registrarAbonoGrupoSeleccionado()" style="min-height:38px;">Aplicar abono</button>
+                        </div>
+                        <div id="abono-grupo-preview" style="font-size:12px; color:#5b5244; font-weight:700; margin-top:10px;"></div>
                     </div>
 
                     <!-- Tabla de Clientes y Pedidos -->
@@ -2440,6 +2462,7 @@
         let loteItems = [];
         let lotePhotoGroups = [];
         let _loteHideTimers = {};
+        let pedidosAbonoGroups = [];
 
         function setPedidosSubTab(sub) {
             document.getElementById('subtab-crm').style.background = sub === 'crm' ? 'var(--gold)' : '#e0e0e0';
@@ -2473,9 +2496,90 @@
             }
         }
 
+        function getPedidoPayments() {
+            if (!window.AdminPedidoPayments) {
+                throw new Error('No se cargo el modulo de abonos. Recarga la pagina e intenta de nuevo.');
+            }
+            return window.AdminPedidoPayments;
+        }
+
+        function getPedidoPaymentState(p) {
+            const payments = getPedidoPayments();
+            return payments.normalizePaymentState(parseFloat(p.precio_venta) || 0, parseFloat(p.abono) || 0);
+        }
+
+        function parsePedidoCopAmount(value) {
+            return getPedidoPayments().parseCopAmount(value);
+        }
+
+        function buildPedidoPaymentGroups() {
+            pedidosAbonoGroups = getPedidoPayments().buildClientPaymentGroups(pedidosData);
+            return pedidosAbonoGroups;
+        }
+
+        function renderAbonosPanel() {
+            const select = document.getElementById('abono-grupo-select');
+            const preview = document.getElementById('abono-grupo-preview');
+            if (!select || !preview) return;
+
+            const previousValue = select.value;
+            const groups = buildPedidoPaymentGroups();
+
+            if (groups.length === 0) {
+                select.innerHTML = '<option value="">No hay saldos pendientes</option>';
+                select.disabled = true;
+                preview.innerHTML = 'Sin cuentas pendientes en este momento.';
+                return;
+            }
+
+            select.disabled = false;
+            select.innerHTML = groups.map(group => {
+                const label = `${group.cliente} - ${group.lote} - ${group.pedidos.length} pedido(s) - Saldo ${formatter.format(group.saldo)}`;
+                return `<option value="${group.key}">${label}</option>`;
+            }).join('');
+
+            if (previousValue && groups.some(group => group.key === previousValue)) {
+                select.value = previousValue;
+            }
+            renderAbonoGrupoPreview();
+        }
+
+        function renderAbonoGrupoPreview() {
+            const select = document.getElementById('abono-grupo-select');
+            const preview = document.getElementById('abono-grupo-preview');
+            if (!select || !preview) return;
+            const group = pedidosAbonoGroups.find(g => g.key === select.value);
+            if (!group) {
+                preview.innerHTML = 'Selecciona un cliente con saldo pendiente.';
+                return;
+            }
+            preview.innerHTML = `<strong>${group.cliente}</strong> | ${group.lote} | Total ${formatter.format(group.total)} | Abonado ${formatter.format(group.abono)} | Saldo ${formatter.format(group.saldo)}`;
+        }
+
+        async function getNextTransactionId() {
+            const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            return (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+        }
+
+        function buildPedidoIncomeTransaction(p, amount, descriptionPrefix) {
+            const total = parseFloat(p.precio_venta) || 0;
+            const costoUsd = parseFloat(p.costo_usd) || 0;
+            return {
+                tipo: 'ingreso',
+                categoria: 'Venta de Producto',
+                fecha: new Date().toISOString().split('T')[0],
+                monto: amount,
+                usd_amount: amount / GLOBAL_TRM,
+                trm: GLOBAL_TRM,
+                descripcion: `${descriptionPrefix} - Cliente: ${p.cliente} | Prenda: ${p.equipo} (${p.talla}) | Canal: ${p.canal}`,
+                costo_usd_asociado: total > 0 ? costoUsd * (amount / total) : 0
+            };
+        }
+
         function renderPedidos() {
             const tbody = document.getElementById('pedidos-crm-body');
             tbody.innerHTML = '';
+            renderAbonosPanel();
 
             const q = document.getElementById('pedidos-search').value.toLowerCase().trim();
             const filterPago = document.getElementById('pedidos-filter-pago').value;
@@ -2484,7 +2588,7 @@
 
             let filtered = pedidosData.filter(p => {
                 const textMatch = (p.cliente || '').toLowerCase().includes(q) || (p.equipo || '').toLowerCase().includes(q);
-                const pagoMatch = filterPago === 'all' || p.estado_pago === filterPago;
+                const pagoMatch = filterPago === 'all' || getPedidoPaymentState(p).estado_pago === filterPago;
                 const entregaMatch = filterEntrega === 'all' || p.estado_entrega === filterEntrega;
                 const canalMatch = filterCanal === 'all' || p.canal === filterCanal;
                 return textMatch && pagoMatch && entregaMatch && canalMatch;
@@ -2496,16 +2600,13 @@
             let totalRecaudado = 0;
 
             pedidosData.forEach(p => {
-                const totalPedido = parseFloat(p.precio_venta) || 0;
-                const abono = parseFloat(p.abono) || 0;
+                const state = getPedidoPaymentState(p);
 
-                if (p.estado_pago !== 'Pagado') {
-                    cuentasPorCobrar += (totalPedido - abono);
-                }
+                cuentasPorCobrar += state.saldo;
                 if (p.estado_entrega === 'Pendiente') {
                     pendientesEntrega += parseInt(p.cantidad) || 0;
                 }
-                totalRecaudado += abono;
+                totalRecaudado += state.abono;
             });
 
             document.getElementById('stat-pedidos-por-cobrar').innerText = formatter.format(cuentasPorCobrar);
@@ -2520,26 +2621,20 @@
             filtered.forEach(p => {
                 const tr = document.createElement('tr');
 
-                // Color badges
-                const bPago = p.estado_pago === 'Pagado' ? 'badge-in' : p.estado_pago === 'Abonado' ? 'badge-in' : 'badge-out';
-                const bPagoStyle = p.estado_pago === 'Abonado' ? 'background:#e67e22' : '';
                 const bEntrega = p.estado_entrega === 'Entregado' ? 'badge-in' : 'badge-out';
 
                 const totalVal = parseFloat(p.precio_venta) || 0;
-                const abonoVal = parseFloat(p.abono) || 0;
-                const deudaVal = totalVal - abonoVal;
-
-                let infoPago = p.estado_pago;
-                if (p.estado_pago === 'Abonado') {
-                    infoPago = `Abono: ${formatter.format(abonoVal)} (Falta: ${formatter.format(deudaVal)})`;
-                }
+                const payState = getPedidoPaymentState(p);
+                const bPago = payState.estado_pago === 'Pagado' ? 'badge-in' : payState.estado_pago === 'Abonado' ? 'badge-in' : 'badge-out';
+                const bPagoStyle = payState.estado_pago === 'Abonado' ? 'background:#e67e22' : '';
+                const clienteSafe = String(p.cliente || 'Pendiente por Asignar').replace(/'/g, "\\'");
 
                 tr.innerHTML = `
                     <td>${p.fecha_pedido || ''}</td>
                     <td><small style="color:#666; font-weight:700;">${p.lote_codigo || 'Manual'}</small></td>
                     <td style="font-weight:700;">
                         👤 ${p.cliente}
-                        <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarClientePedido(${p.id}, '${p.cliente.replace(/'/g, "\\'")}')" title="Editar Nombre del Cliente">✏️</span>
+                        <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarClientePedido(${p.id}, '${clienteSafe}')" title="Editar Nombre del Cliente">✏️</span>
                     </td>
                     <td><span class="badge" style="background:#555;">${p.canal}</span></td>
                     <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.equipo}">👕 ${p.equipo}</td>
@@ -2549,14 +2644,18 @@
                         <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarPrecioPedido(${p.id}, ${totalVal})" title="Editar Precio Total (Descuentos)">✏️</span>
                     </td>
                     <td style="text-align:center;">
-                        <span class="badge ${bPago}" style="${bPagoStyle}">${infoPago}</span>
+                        <span class="badge ${bPago}" style="${bPagoStyle}">${payState.estado_pago}</span>
+                        <div style="margin-top:4px; font-size:10px; color:#555; font-weight:800;">Abono: ${formatter.format(payState.abono)}</div>
+                        <div style="font-size:10px; color:${payState.saldo > 0 ? '#b02a37' : '#198754'}; font-weight:800;">Saldo: ${formatter.format(payState.saldo)}</div>
                     </td>
                     <td style="text-align:center;">
                         <span class="badge ${bEntrega}">${p.estado_entrega}</span>
                     </td>
                     <td style="text-align:center;">
-                        <div style="display:flex; gap:6px; justify-content:center;">
-                            ${p.estado_pago !== 'Pagado' ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#198754;" onclick="registrarPagoPedido(${p.id})">💵 Cobrar</button>` : ''}
+                        <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#198754;" onclick="registrarPagoPedido(${p.id})" title="Sumar pago solo a esta camiseta">+ Pago</button>` : ''}
+                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#6f42c1; color:white;" onclick="editarAbonoPedido(${p.id})" title="Editar abono total registrado">Editar abono</button>
+                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#0d6efd; color:white;" onclick="registrarAbonoClienteDesdePedido(${p.id})" title="Repartir un abono del cliente en sus pedidos">Abono cliente</button>` : ''}
                             ${p.estado_entrega !== 'Entregado' ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#e67e22;" onclick="registrarEntregaPedido(${p.id})">🚚 Entregar</button>` : ''}
                             <button class="btn-danger" style="padding:4px 8px; font-size:10px;" onclick="eliminarPedido(${p.id})">🗑️ Borrar</button>
                         </div>
@@ -2569,20 +2668,19 @@
         async function editarPrecioPedido(id, currentPrice) {
             const nuevoPrecio = prompt("Ingresa el nuevo PRECIO FINAL para este pedido (Si le hiciste rebaja a tu amigo):", currentPrice);
             if (nuevoPrecio === null) return;
-            const precioVenta = parseFloat(nuevoPrecio);
-            if (isNaN(precioVenta) || precioVenta < 0) { alert('Precio inválido'); return; }
+            const precioVenta = parsePedidoCopAmount(nuevoPrecio);
+            if (!Number.isFinite(precioVenta) || precioVenta < 0) { alert('Precio invalido'); return; }
 
             try {
-                const { error } = await db.from('pedidos').update({ precio_venta: precioVenta }).eq('id', id);
-                if (error) throw error;
-
-                // Reevaluar estado de pago
                 const p = pedidosData.find(x => x.id == id);
+                const updates = { precio_venta: precioVenta };
                 if (p) {
-                    const abono = parseFloat(p.abono) || 0;
-                    const estado_pago = abono >= precioVenta ? 'Pagado' : (abono > 0 ? 'Abonado' : 'Pendiente');
-                    await db.from('pedidos').update({ estado_pago }).eq('id', id);
+                    const state = getPedidoPayments().normalizePaymentState(precioVenta, parseFloat(p.abono) || 0);
+                    updates.estado_pago = state.estado_pago;
+                    if (state.wasCapped) updates.abono = state.abono;
                 }
+                const { error } = await db.from('pedidos').update(updates).eq('id', id);
+                if (error) throw error;
 
                 showToast("Precio actualizado correctamente");
                 loadPedidos();
@@ -2605,46 +2703,69 @@
             }
         }
 
+        async function editarAbonoPedido(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            const current = getPedidoPaymentState(p);
+            const promptVal = prompt(`Editar abono TOTAL registrado para esta camiseta.\nCliente: ${p.cliente}\nPrecio: ${formatter.format(current.total)}\n\nEste valor reemplaza el abono actual; no suma un pago nuevo.`, current.abono);
+            if (promptVal === null) return;
+            const abonoTotal = parsePedidoCopAmount(promptVal);
+            if (!Number.isFinite(abonoTotal) || abonoTotal < 0) { alert('Monto invalido'); return; }
+            if (current.total > 0 && abonoTotal > current.total) {
+                alert(`El abono de esta camiseta no puede superar su precio (${formatter.format(current.total)}).\n\nSi el cliente pago por varias camisetas, usa "Abono cliente" para repartirlo.`);
+                return;
+            }
+
+            const next = getPedidoPayments().normalizePaymentState(current.total, abonoTotal);
+            try {
+                const { error } = await db.from('pedidos').update({
+                    estado_pago: next.estado_pago,
+                    abono: next.abono
+                }).eq('id', id);
+                if (error) throw error;
+
+                showToast("Abono ajustado sin sumar un pago nuevo");
+                await loadPedidos();
+            } catch(e) {
+                alert("Error ajustando abono: " + e.message);
+            }
+        }
+
         async function registrarPagoPedido(id) {
             const p = pedidosData.find(x => x.id == id);
             if (!p) return;
 
-            const total = parseFloat(p.precio_venta) || 0;
-            const abono = parseFloat(p.abono) || 0;
-            const deuda = total - abono;
+            const current = getPedidoPaymentState(p);
+            if (current.saldo <= 0) {
+                alert('Esta camiseta ya no tiene saldo pendiente.');
+                return;
+            }
 
-            const promptVal = prompt(`Registrar cobro para ${p.cliente}.\nMonto pendiente: ${formatter.format(deuda)}\n\nIngresa el valor recibido:`, deuda);
+            const promptVal = prompt(`Sumar pago solo a esta camiseta.\nCliente: ${p.cliente}\nSaldo de esta camiseta: ${formatter.format(current.saldo)}\n\nSi el pago es para varias camisetas, usa "Abono cliente".`, current.saldo);
             if (promptVal === null) return;
-            const cobro = parseFloat(promptVal) || 0;
-            if (cobro <= 0) { alert('Monto inválido'); return; }
+            const cobro = parsePedidoCopAmount(promptVal);
+            if (cobro <= 0) { alert('Monto invalido'); return; }
+            if (cobro > current.saldo) {
+                alert(`Ese valor supera el saldo de esta camiseta (${formatter.format(current.saldo)}).\n\nUsa "Abono cliente" para repartir un pago grande entre varias camisetas.`);
+                return;
+            }
 
-            const nuevoAbono = abono + cobro;
-            const estado_pago = nuevoAbono >= total ? 'Pagado' : 'Abonado';
+            const next = getPedidoPayments().normalizePaymentState(current.total, current.abono + cobro);
 
             try {
                 // 1. Actualizar el pedido
                 const { error: errPed } = await db.from('pedidos').update({
-                    estado_pago,
-                    abono: nuevoAbono
+                    estado_pago: next.estado_pago,
+                    abono: next.abono
                 }).eq('id', id);
                 if (errPed) throw errPed;
 
                 // 2. Registrar el Ingreso en Finanzas
-                const descTrans = `[Bajo Pedido] Pago - Cliente: ${p.cliente} | Prenda: ${p.equipo} (${p.talla}) | Canal: ${p.canal}`;
-                const trans = {
-                    tipo: 'ingreso',
-                    categoria: 'Venta de Producto',
-                    fecha: new Date().toISOString().split('T')[0],
-                    monto: cobro,
-                    usd_amount: cobro / GLOBAL_TRM,
-                    trm: GLOBAL_TRM,
-                    descripcion: descTrans,
-                    costo_usd_asociado: p.costo_usd * (cobro / total) // Prorratea el COGS exacto al dinero recibido
-                };
+                const trans = buildPedidoIncomeTransaction(p, cobro, '[Bajo Pedido] Pago');
 
                 // Generar ID numérico para transacciones
-                const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
-                trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+                trans.id = await getNextTransactionId();
 
                 const { error: errTrans } = await db.from('transacciones').insert(trans);
                 if (errTrans) throw errTrans;
@@ -2654,6 +2775,84 @@
                 if (window.init) window.init(); // Refrescar finanzas generales si está el dashboard abierto
             } catch(e) {
                 alert("Error procesando pago: " + e.message);
+            }
+        }
+
+        async function registrarAbonoClienteDesdePedido(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            const groupKey = getPedidoPayments().buildGroupKey(p);
+            const group = buildPedidoPaymentGroups().find(g => g.key === groupKey);
+            if (!group) {
+                alert('Este cliente no tiene saldos pendientes en este lote.');
+                return;
+            }
+
+            const promptVal = prompt(`Abono para ${group.cliente} (${group.lote}).\nPedidos pendientes: ${group.pedidos.length}\nSaldo total: ${formatter.format(group.saldo)}\n\nIngresa el valor recibido para repartirlo:`, group.saldo);
+            if (promptVal === null) return;
+            await aplicarAbonoGrupo(group.key, promptVal);
+        }
+
+        async function registrarAbonoGrupoSeleccionado() {
+            const select = document.getElementById('abono-grupo-select');
+            const input = document.getElementById('abono-grupo-monto');
+            if (!select || !input || !select.value) return;
+            await aplicarAbonoGrupo(select.value, input.value);
+        }
+
+        async function aplicarAbonoGrupo(groupKey, rawAmount) {
+            const groups = buildPedidoPaymentGroups();
+            const group = groups.find(g => g.key === groupKey);
+            if (!group) {
+                alert('No encontre saldos pendientes para este cliente/lote.');
+                return;
+            }
+
+            const amount = parsePedidoCopAmount(rawAmount);
+            if (amount <= 0) { alert('Monto invalido'); return; }
+            if (amount > group.saldo) {
+                alert(`El abono supera el saldo total de este cliente/lote (${formatter.format(group.saldo)}).`);
+                return;
+            }
+
+            const allocation = getPedidoPayments().allocateClientPayment(group.pedidos, amount);
+            if (allocation.updates.length === 0) {
+                alert('No hay pedidos pendientes para aplicar este abono.');
+                return;
+            }
+
+            const detail = allocation.updates
+                .map(update => `- ${update.pedido.equipo} (${update.pedido.talla}): ${formatter.format(update.delta)}`)
+                .join('\n');
+            if (!confirm(`Aplicar abono de ${formatter.format(amount)} a ${group.cliente}?\n\n${detail}`)) return;
+
+            try {
+                for (const update of allocation.updates) {
+                    const { error } = await db.from('pedidos').update({
+                        estado_pago: update.estado_pago,
+                        abono: update.nextAbono
+                    }).eq('id', update.id);
+                    if (error) throw error;
+                }
+
+                let nextTransId = await getNextTransactionId();
+                const transacciones = allocation.updates.map(update => {
+                    const trans = buildPedidoIncomeTransaction(update.pedido, update.delta, `[Bajo Pedido] Abono cliente ${group.lote}`);
+                    trans.id = nextTransId++;
+                    return trans;
+                });
+
+                const { error: errTrans } = await db.from('transacciones').insert(transacciones);
+                if (errTrans) throw errTrans;
+
+                const input = document.getElementById('abono-grupo-monto');
+                if (input) input.value = '';
+                showToast("Abono de cliente aplicado y repartido");
+                await loadPedidos();
+                if (window.init) window.init();
+            } catch(e) {
+                alert("Error aplicando abono de cliente: " + e.message);
             }
         }
 
