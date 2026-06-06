@@ -31,7 +31,7 @@
         "costo_usd": 10.44,
         "tallas": {
             "L": 0,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
@@ -333,8 +333,8 @@
         "tallas": {
             "L": 0,
             "M": 0,
-            "S": 0,
-            "XL": 0
+            "S": 1,
+            "XL": 1
         },
         "imagenes": [
             "img/man_ud_retro_98_home_1.webp",
@@ -865,6 +865,104 @@
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578408207_57.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578417321_58.webp"
+        ]
+    },
+    {
+        "id": 47,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Croacia Mundial Francia 1998",
+        "descripcion": "Revive la hazaña histórica de la selección de Croacia en el Mundial de Francia 1998, donde sorprendieron al mundo alcanzando el tercer puesto de la mano de leyendas como Davor Šuker. Esta icónica camiseta destaca por su revolucionario diseño de cuadros rojos y blancos difuminados sobre un fondo blanco, convirtiéndose en una de las piezas de culto más codiciadas y memorables en la historia de los mundiales.\n\nFabricada con tejido técnico de alta calidad, transpirable y ligero, esta réplica retro recrea fielmente el tacto y los detalles del modelo original de la época. Cuenta con un ajuste clásico muy cómodo, cuello tipo polo y costuras reforzadas, siendo ideal tanto para lucir en el campo como para coleccionistas de la moda vintage futbolera.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769546360_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769549278_2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769550349_3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769551354_4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769552109_5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769553038_6.webp"
+        ]
+    },
+    {
+        "id": 48,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Bayern Múnich Local 2026/27",
+        "descripcion": "Viste la grandeza del gigante de Baviera con la nueva camiseta local del Bayern Múnich para la temporada 2026/27. Este diseño rinde homenaje a la rica historia del club, fusionando el clásico y apasionado color rojo con detalles modernos que representan la vanguardia del fútbol europeo, ideal para alentar en el Allianz Arena o lucir con orgullo en cualquier lugar.\n\nFabricada con tecnología de absorción de última generación, esta prenda garantiza una óptima transpirabilidad y frescura durante todo el día. Su tejido de poliéster reciclado de alta calidad ofrece un ajuste atlético sumamente cómodo, diseñado tanto para el alto rendimiento en la cancha como para el uso diario.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 4,
+            "M": 2,
+            "S": 0,
+            "XL": 2
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769727255_14.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769728432_15.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769729295_16.webp"
+        ]
+    },
+    {
+        "id": 49,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta de la Selección de Portugal Local 2024/25",
+        "descripcion": "Viste los colores de la 'Seleção das Quinas' con la camiseta oficial de Portugal para la temporada 2024/25. Este diseño rinde homenaje a la rica historia futbolística del país luso, combinando el clásico rojo patriótico con elegantes detalles en verde y dorado que celebran la pasión y el orgullo de una nación que siempre aspira a la gloria en el fútbol mundial.\n\nFabricada con tecnología de transpiración avanzada, esta prenda garantiza una excelente frescura y comodidad tanto dentro como fuera del terreno de juego. Su tejido de poliéster reciclado de alta calidad ofrece un ajuste estándar sumamente cómodo, ideal para alentar a tus jugadores favoritos o para tus partidos diarios.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769722284_11.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769723311_12.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769724520_13.webp"
+        ]
+    },
+    {
+        "id": 50,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta de la Selección de Italia Visitante 2026",
+        "descripcion": "Lesta elegante camiseta de visitante de la selección italiana para el año 2026 captura la esencia del estilo y la tradición del fútbol transalpino. Con un diseño minimalista en color blanco que destaca por sus sutiles detalles en azul clásico, esta prenda rinde homenaje a la rica historia de la 'Azzurra' en su camino hacia la gloria internacional, convirtiéndose en una pieza imprescindible para cualquier aficionado.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769715336_7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769717037_8.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769718176_9.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780769719361_10.webp"
+        ]
+    },
+    {
+        "id": 51,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Selección Colombia 1994",
+        "descripcion": "Revive la época dorada del fútbol colombiano con la mítica camiseta de la Selección Colombia para el Mundial de EE. UU. 1994. Esta prenda rinde homenaje a una generación legendaria de futbolistas como Carlos 'El Pibe' Valderrama, Freddy Rincón y Faustino Asprilla, quienes maravillaron al mundo con su estilo de juego alegre y vistoso. Su icónico diseño amarillo con detalles geométricos en azul y rojo evoca la pasión y la nostalgia de uno de los momentos más memorables de la historia del fútbol sudamericano.\n\nFabricada con tejido técnico de alta calidad, esta camiseta ofrece una excelente transpirabilidad y comodidad, ideal tanto para lucir en el estadio como para un look urbano de estilo retro. Cuenta con un corte clásico de la época, ligeramente holgado, y acabados detallados que replican fielmente el modelo original. Disponible en una amplia variedad de tallas, se recomienda elegir tu talla habitual para un ajuste perfecto.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780770372445_17.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780770375041_18.webp"
         ]
     }
 ]
