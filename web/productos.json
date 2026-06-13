@@ -574,7 +574,7 @@
             "L": 1,
             "M": 1,
             "S": 0,
-            "XL": 2
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533500868_30.webp",
@@ -671,7 +671,7 @@
         "costo_usd": 11,
         "tallas": {
             "L": 0,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 2
         },
@@ -689,7 +689,7 @@
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0
