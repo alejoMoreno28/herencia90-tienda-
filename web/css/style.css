@@ -2447,11 +2447,46 @@ body.grid-single .product-grid-inner {
     color: var(--gold);
     border: 1px solid rgba(217,195,145,0.3);
 }
+.size-pill.low {
+    background: #fff4d8;
+    color: #835a00;
+    border-color: rgba(217, 158, 45, 0.45);
+}
+.size-pill-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-size: 0.62rem;
+    line-height: 1;
+}
 .size-pill.unavailable {
     background: rgba(15, 23, 42, 0.72);
     color: #ffffff;
     border: 1px solid rgba(255,255,255,0.16);
     text-decoration: line-through;
+}
+.product-stock-note,
+.modal-stock-note {
+    display: block;
+    margin: -4px 0 12px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: #fff8e6;
+    border: 1px solid rgba(217, 158, 45, 0.35);
+    color: #7a5200;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.35;
+}
+.modal-stock-note {
+    margin: 14px 0 8px;
+    font-size: 0.84rem;
 }
 @media (min-width: 768px) {
     .size-pill { font-size: 0.75rem; min-width: 26px; padding: 3px 8px; }
@@ -4439,4 +4474,42 @@ body.grid-single .product-grid-inner {
     color: #8a8173 !important;
     border-color: #d8cbb2 !important;
     background: #fbfaf7 !important;
+}
+
+/* Live stock visibility */
+.product-sizes .size-pill {
+    gap: 4px;
+}
+.product-sizes .size-pill.low {
+    background: #fff4d8;
+    color: #7a5200;
+    border-color: rgba(217, 158, 45, 0.48);
+}
+.product-sizes .size-pill-count {
+    color: inherit;
+    background: rgba(122, 82, 0, 0.12);
+}
+.product-stock-note {
+    color: #7a5200;
+}
+.size-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+.size-btn.low-stock {
+    border-color: rgba(217, 158, 45, 0.55);
+    background: #fff8e6;
+    color: #7a5200;
+}
+.size-btn-stock {
+    display: block;
+    font-size: 0.62rem;
+    line-height: 1;
+    font-weight: 800;
+    opacity: 0.82;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }

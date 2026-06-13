@@ -390,6 +390,36 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+        .transaction-search {
+            position: relative;
+            min-width: 240px;
+            flex: 1 1 260px;
+        }
+        .transaction-search input {
+            width: 100%;
+            min-height: 34px;
+            padding: 8px 12px 8px 34px;
+            border: 1px solid #e2d8c3;
+            border-radius: 999px;
+            background: #fffdf8;
+            font-size: 12px;
+            font-family: 'Outfit', sans-serif;
+            color: var(--ink);
+        }
+        .transaction-search input:focus {
+            outline: 2px solid rgba(217,195,145,.35);
+            border-color: var(--gold);
+            box-shadow: 0 8px 22px rgba(80, 64, 24, .08);
+        }
+        .transaction-search::before {
+            content: "🔍";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: .65;
+        }
         .admin-chip {
             display: inline-flex;
             align-items: center;
@@ -934,6 +964,9 @@
                             <div class="section-head">
                                 <h3>📝 Historial de Transacciones</h3>
                                 <div class="section-actions">
+                                    <label class="transaction-search" for="transaction-search-input">
+                                        <input id="transaction-search-input" type="search" placeholder="Buscar cliente, referencia, monto..." oninput="renderFinance()">
+                                    </label>
                                     <span class="admin-chip" id="transactions-count-chip">0 movimientos</span>
                                     <button class="btn-add" style="background:#198754; font-size:11px; padding:4px 8px;" onclick="exportToExcel()">📥 Exportar Excel (.csv)</button>
                                 </div>
@@ -2099,7 +2132,15 @@
 
             const filtro = mesSelect.value;
             const metrics = window.AdminFinance.computeFinanceMetrics(allTransactions, { globalTrm: GLOBAL_TRM, period: filtro });
-            const visibleTransactions = window.AdminFinance.filterByPeriod(allTransactions, filtro);
+            const periodTransactions = window.AdminFinance.filterByPeriod(allTransactions, filtro);
+            const searchQuery = getTransactionSearchQuery();
+            const visibleTransactions = searchQuery
+                ? periodTransactions.filter(t => transactionMatchesSearch(t, searchQuery))
+                : periodTransactions;
+
+            if (visibleTransactions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#777; font-weight:700;">${searchQuery ? 'No hay movimientos que coincidan con la busqueda.' : 'No hay movimientos en este periodo.'}</td></tr>`;
+            }
 
             visibleTransactions.forEach(t => {
                 const isIngreso = (t.tipo === 'ingreso');
@@ -2133,10 +2174,42 @@
             });
 
             const txChip = document.getElementById('transactions-count-chip');
-            if (txChip) txChip.textContent = `${visibleTransactions.length} movimientos`;
+            if (txChip) {
+                txChip.textContent = searchQuery
+                    ? `${visibleTransactions.length} de ${periodTransactions.length} movimientos`
+                    : `${visibleTransactions.length} movimientos`;
+            }
 
             updateFinanceSummary(metrics, filtro);
             drawFinanceCharts(metrics);
+        }
+
+        function normalizeTransactionSearch(value) {
+            return String(value || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
+        }
+
+        function getTransactionSearchQuery() {
+            return normalizeTransactionSearch(document.getElementById('transaction-search-input')?.value || '');
+        }
+
+        function transactionMatchesSearch(t, query) {
+            if (!query) return true;
+            const searchable = [
+                t.id,
+                t.fecha,
+                t.tipo,
+                t.categoria,
+                t.descripcion,
+                t.monto,
+                formatter.format(t.monto || 0),
+                t.usd_amount,
+                t.costo_usd_asociado,
+                t.trm
+            ].join(' ');
+            return normalizeTransactionSearch(searchable).includes(query);
         }
 
         function updateFinanceSummary(metrics, period) {
@@ -2211,9 +2284,11 @@
             csvContent += "ID,Fecha,Tipo,Categoria,Monto COP,Monto USD,TRM Aplicada,Costo Base USD (Para Ventas),Descripcion\n";
 
             const filtro = document.getElementById('t-mes-filtro').value;
+            const searchQuery = getTransactionSearchQuery();
+            const rows = window.AdminFinance.filterByPeriod(financeData.transacciones || [], filtro)
+                .filter(t => transactionMatchesSearch(t, searchQuery));
 
-            financeData.transacciones.forEach(t => {
-                if(filtro !== 'all' && t.fecha.substring(0,7) !== filtro) return;
+            rows.forEach(t => {
                 const row = [
                     t.id, t.fecha, t.tipo, `"${t.categoria}"`, t.monto, t.usd_amount||"",
                     t.trm||GLOBAL_TRM, t.costo_usd_asociado||"", `"${(t.descripcion||'').replace(/"/g,'""')}"`

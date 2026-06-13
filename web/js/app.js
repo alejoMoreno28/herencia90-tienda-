@@ -731,17 +731,71 @@ function getProductBadge(product) {
 
 // ── Size pills ────────────────────────────────────────────────────────────────
 const SIZE_ORDER = { 'XS': 1, 'S': 2, 'M': 3, 'L': 4, 'XL': 5, 'XXL': 6, '2XL': 6, '3XL': 7 };
+const LOW_STOCK_THRESHOLD = 2;
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function parseStockQty(qty) {
+    return Math.max(0, parseInt(qty, 10) || 0);
+}
+
+function getSortedSizeEntries(tallas) {
+    return Object.entries(tallas || {})
+        .map(([size, qty]) => ({ size, stock: parseStockQty(qty) }))
+        .sort((a, b) => (SIZE_ORDER[a.size] || 99) - (SIZE_ORDER[b.size] || 99));
+}
+
+function getAvailableSizeEntries(product) {
+    return getSortedSizeEntries(product.tallas).filter(item => item.stock > 0);
+}
+
+function getLowStockEntries(product) {
+    return getAvailableSizeEntries(product).filter(item => item.stock <= LOW_STOCK_THRESHOLD);
+}
+
+function buildStockNoticeText(product, isBajoPedido = false) {
+    if (isBajoPedido) return '';
+    const lowEntries = getLowStockEntries(product);
+    if (lowEntries.length === 0) return '';
+    if (lowEntries.length === 1) {
+        const item = lowEntries[0];
+        return item.stock === 1
+            ? `Ultima unidad en talla ${item.size}`
+            : `Ultimas ${item.stock} unidades en talla ${item.size}`;
+    }
+    return `Ultimas unidades: ${lowEntries.map(item => `${item.size} (${item.stock})`).join(', ')}`;
+}
+
+function buildStockNotice(product, isBajoPedido = false) {
+    const notice = buildStockNoticeText(product, isBajoPedido);
+    return notice ? `<div class="product-stock-note">${escapeHtml(notice)}</div>` : '';
+}
 
 function buildSizePills(tallas, isBajoPedido = false) {
-    return Object.entries(tallas || {})
-        .sort((a, b) => (SIZE_ORDER[a[0]] || 99) - (SIZE_ORDER[b[0]] || 99))
-        .map(([s, qty]) =>
-        `<span class="size-pill ${(qty > 0 || isBajoPedido) ? 'available' : 'unavailable'}">${s}</span>`
-    ).join('');
+    return getSortedSizeEntries(tallas).map(({ size, stock }) => {
+        const available = stock > 0 || isBajoPedido;
+        const low = !isBajoPedido && stock > 0 && stock <= LOW_STOCK_THRESHOLD;
+        const title = isBajoPedido
+            ? `Talla ${size} disponible bajo pedido`
+            : stock > 0
+                ? `${stock} unidad${stock === 1 ? '' : 'es'} disponible${stock === 1 ? '' : 's'} en talla ${size}`
+                : `Talla ${size} agotada`;
+        const stockCount = !isBajoPedido && stock > 0
+            ? `<span class="size-pill-count">${stock}</span>`
+            : '';
+        return `<span class="size-pill ${available ? 'available' : 'unavailable'}${low ? ' low' : ''}" title="${escapeHtml(title)}"><span>${escapeHtml(size)}</span>${stockCount}</span>`;
+    }).join('');
 }
 
 function getAvailableStock(product) {
-    return Object.values(product.tallas || {}).reduce((total, qty) => total + (parseInt(qty, 10) || 0), 0);
+    return getAvailableSizeEntries(product).reduce((total, item) => total + item.stock, 0);
 }
 
 function isProductBajoPedido(product) {
@@ -1106,9 +1160,10 @@ function createCatalogProductCard(product, i, productIndexById) {
         ? product.imagenes[0] : (product.imagen || ''));
 
     const isBajoPedido = isProductBajoPedido(product);
-    const tallas = Object.entries(product.tallas || {});
-    const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+    const tallas = getSortedSizeEntries(product.tallas);
+    const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(({ stock }) => stock === 0);
     const sizePills = buildSizePills(product.tallas, isBajoPedido);
+    const stockNotice = buildStockNotice(product, isBajoPedido);
     const badge = getProductBadge(product);
 
     const card = document.createElement('div');
@@ -1131,6 +1186,7 @@ function createCatalogProductCard(product, i, productIndexById) {
             <h3 class="product-title">${product.equipo}</h3>
             <div class="product-price">${formatPrice(product.precio)}</div>
             <div class="product-sizes">${sizePills}</div>
+            ${stockNotice}
             <div class="product-actions">
                 ${allSoldOut
                     ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
@@ -1272,9 +1328,10 @@ function renderFeaturedProducts() {
 
         const isBajoPedido = isProductBajoPedido(product);
 
-        const tallas = Object.entries(product.tallas || {});
-        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(([, qty]) => qty === 0);
+        const tallas = getSortedSizeEntries(product.tallas);
+        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(({ stock }) => stock === 0);
         const sizePills = buildSizePills(product.tallas, isBajoPedido);
+        const stockNotice = buildStockNotice(product, isBajoPedido);
         const badge = getProductBadge(product);
 
         const card = document.createElement('div');
@@ -1293,6 +1350,7 @@ function renderFeaturedProducts() {
                 <h3 class="product-title">${product.equipo}</h3>
                 <div class="product-price">${formatPrice(product.precio)}</div>
                 <div class="product-sizes">${sizePills}</div>
+                ${stockNotice}
                 <div class="product-actions">
                     ${allSoldOut
                         ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
@@ -1354,6 +1412,17 @@ function openModal(productIndex) {
     descEl.textContent = descText;
     descEl.style.display = descText ? 'block' : 'none';
 
+    let modalStockNotice = document.getElementById('modalStockNotice');
+    if (!modalStockNotice) {
+        modalStockNotice = document.createElement('div');
+        modalStockNotice.id = 'modalStockNotice';
+        modalStockNotice.className = 'modal-stock-note';
+        descEl.parentNode.insertBefore(modalStockNotice, descEl);
+    }
+    const stockNoticeText = buildStockNoticeText(product, isBajoPedido);
+    modalStockNotice.textContent = stockNoticeText;
+    modalStockNotice.style.display = stockNoticeText ? 'block' : 'none';
+
     const mainImg = document.getElementById('mainImage');
     const thumbContainer = document.getElementById('thumbnailsContainer');
     thumbContainer.innerHTML = '';
@@ -1395,25 +1464,29 @@ function openModal(productIndex) {
     addCartBtn.style.opacity = '0.4';
     addCartBtn.onclick = null;
 
-    Object.entries(product.tallas || {})
-        .sort((a, b) => (SIZE_ORDER[a[0]] || 99) - (SIZE_ORDER[b[0]] || 99))
-        .forEach(([size, stock]) => {
+    getSortedSizeEntries(product.tallas).forEach(({ size, stock }) => {
         const btn = document.createElement('button');
-        btn.innerText = size;
+        btn.innerHTML = isBajoPedido || stock <= 0
+            ? `<span class="size-btn-code">${escapeHtml(size)}</span>`
+            : `<span class="size-btn-code">${escapeHtml(size)}</span><span class="size-btn-stock">${stock} disp.</span>`;
         const available = isBajoPedido || stock > 0;
         if (!available) {
             btn.className = 'size-btn out-of-stock';
             btn.title = 'Agotada';
         } else {
-            btn.className = 'size-btn';
+            btn.className = 'size-btn' + (!isBajoPedido && stock <= LOW_STOCK_THRESHOLD ? ' low-stock' : '');
+            btn.title = isBajoPedido ? `Talla ${size} bajo pedido` : `${stock} unidad${stock === 1 ? '' : 'es'} disponible${stock === 1 ? '' : 's'}`;
             btn.onclick = () => {
                 Array.from(sizeContainer.children).forEach(c => c.classList.remove('selected'));
                 btn.classList.add('selected');
                 trackEvent('whatsapp_click', { ...product, extra: { talla: size } });
                 
+                const stockLine = !isBajoPedido && stock <= LOW_STOCK_THRESHOLD
+                    ? ` Quedan ${stock} unidad${stock === 1 ? '' : 'es'} disponible${stock === 1 ? '' : 's'} en esa talla.`
+                    : '';
                 const msgText = isBajoPedido
                     ? `Hola Herencia 90, me interesa pre-ordenar la camiseta: ${product.equipo} en Talla ${size}. Entiendo que tiene un tiempo de espera de 15 a 20 días hábiles aprox.`
-                    : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.`;
+                    : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.${stockLine}`;
                 const msg = encodeURIComponent(msgText);
                 wsBtn.href = `https://wa.me/573126428153?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';
