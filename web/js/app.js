@@ -322,7 +322,8 @@ function addToCart(product, size) {
     } else {
         const imagen = toWebp((product.imagenes && product.imagenes.length > 0)
             ? product.imagenes[0] : (product.imagen || ''));
-        cart.push({ id: product.id, equipo: product.equipo, talla: size, precio: product.precio, imagen, cantidad: 1 });
+        const fitInfo = getProductFitInfo(product);
+        cart.push({ id: product.id, equipo: product.equipo, talla: size, corte: fitInfo.label, precio: product.precio, imagen, cantidad: 1 });
     }
     saveCart();
     showToast();
@@ -406,12 +407,20 @@ function checkoutWhatsApp() {
     if (cart.length === 0) return;
     let msg = '¡Hola Herencia 90! Quiero hacer el siguiente pedido:\n\n';
     cart.forEach((item, i) => {
-        msg += `${i + 1}. ${item.equipo}\n   Talla: ${item.talla}  ×${item.cantidad}  →  ${formatPrice(item.precio * item.cantidad)}\n`;
+        const fitLine = item.corte ? `\n   Corte: ${item.corte}` : '';
+        msg += `${i + 1}. ${item.equipo}\n   Talla: ${item.talla}${fitLine}\n   Cantidad: ${item.cantidad} - ${formatPrice(item.precio * item.cantidad)}\n`;
     });
     const total = cart.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-    msg += `\n💰 *Total: ${formatPrice(total)}*\n\nPor favor confirmar disponibilidad y forma de pago 🙏`;
+    msg += `\n💰 *Total: ${formatPrice(total)}*\n\nPor favor confirmar talla, corte, disponibilidad y forma de pago 🙏`;
     trackEvent('checkout', { extra: { items: cart.length, total } });
     window.open(`https://wa.me/573126428153?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function setProductModalVisible(isVisible) {
+    const modal = byId('productModal');
+    if (!modal) return;
+    modal.style.display = isVisible ? 'block' : 'none';
+    document.body.classList.toggle('modal-open', isVisible);
 }
 
 let toastTimer = null;
@@ -624,8 +633,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modal close
     const modal = byId('productModal');
-    onId('closeModal', 'click', () => { if (modal) modal.style.display = 'none'; });
-    window.addEventListener('click', (e) => { if (modal && e.target === modal) modal.style.display = 'none'; });
+    onId('closeModal', 'click', () => setProductModalVisible(false));
+    window.addEventListener('click', (e) => { if (modal && e.target === modal) setProductModalVisible(false); });
 
     // Zoom en imagen principal
     const mainImgContainer = document.getElementById('mainImageContainer');
@@ -703,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             closeSearchOverlay();
             closeDrawer();
-            if (modal) modal.style.display = 'none';
+            if (modal) setProductModalVisible(false);
         }
     });
 
@@ -732,6 +741,7 @@ function getProductBadge(product) {
 // ── Size pills ────────────────────────────────────────────────────────────────
 const SIZE_ORDER = { 'XS': 1, 'S': 2, 'M': 3, 'L': 4, 'XL': 5, 'XXL': 6, '2XL': 6, '3XL': 7 };
 const LOW_STOCK_THRESHOLD = 2;
+const SIZE_GUIDE_URL = '/img/guia-tallas-herencia90-vertical.png';
 
 function escapeHtml(value) {
     return String(value || '')
@@ -776,6 +786,38 @@ function buildStockNoticeText(product, isBajoPedido = false) {
 function buildStockNotice(product, isBajoPedido = false) {
     const notice = buildStockNoticeText(product, isBajoPedido);
     return notice ? `<div class="product-stock-note">${escapeHtml(notice)}</div>` : '';
+}
+
+function getProductFitInfo(product) {
+    const text = normalizeSearchTerm(`${product.equipo || ''} ${product.categoria || ''} ${product.descripcion || ''}`);
+    if (text.includes('nino') || text.includes('nina') || text.includes('infantil') || text.includes('kid')) {
+        return {
+            label: 'Corte nino',
+            text: 'Referencia infantil. Confirma edad, estatura y medida de pecho antes de pedir.'
+        };
+    }
+    if (text.includes('mujer') || text.includes('woman') || text.includes('women') || text.includes('femenino')) {
+        return {
+            label: 'Corte femenino',
+            text: 'Horma mas ajustada. Compara pecho y largo con una camiseta que ya uses comoda.'
+        };
+    }
+    return {
+        label: 'Corte fan / posible unisex',
+        text: 'Muchas referencias Fan pueden funcionar para hombre o mujer. Compara pecho y largo antes de elegir.'
+    };
+}
+
+function buildModalFitGuideHtml(product) {
+    const fit = getProductFitInfo(product);
+    return `
+        <div class="modal-fit-guide-head">
+            <span class="modal-fit-badge">${escapeHtml(fit.label)}</span>
+            <a class="modal-fit-guide-link" href="${SIZE_GUIDE_URL}" target="_blank" rel="noopener noreferrer">Ver guia de tallas</a>
+        </div>
+        <p>${escapeHtml(fit.text)}</p>
+        <p class="modal-fit-guide-note">Si dudas entre dos tallas, escribenos por WhatsApp y confirmamos la mejor opcion contigo.</p>
+    `;
 }
 
 function buildSizePills(tallas, isBajoPedido = false) {
@@ -1447,6 +1489,15 @@ function openModal(productIndex) {
     // Tallas
     const sizeContainer = document.getElementById('sizeButtons');
     sizeContainer.innerHTML = '';
+    let fitGuideEl = document.getElementById('modalFitGuide');
+    if (!fitGuideEl) {
+        fitGuideEl = document.createElement('div');
+        fitGuideEl.id = 'modalFitGuide';
+        fitGuideEl.className = 'modal-fit-guide';
+        fitGuideEl.setAttribute('aria-label', 'Guia de tallas y corte');
+        sizeContainer.insertAdjacentElement('afterend', fitGuideEl);
+    }
+    fitGuideEl.innerHTML = buildModalFitGuideHtml(product);
     const wsBtn = document.getElementById('modalWsBtn');
     const addCartBtn = document.getElementById('modalAddCartBtn');
 
@@ -1484,9 +1535,11 @@ function openModal(productIndex) {
                 const stockLine = !isBajoPedido && stock <= LOW_STOCK_THRESHOLD
                     ? ` Quedan ${stock} unidad${stock === 1 ? '' : 'es'} disponible${stock === 1 ? '' : 's'} en esa talla.`
                     : '';
+                const fitInfo = getProductFitInfo(product);
+                const confirmLine = ` Quiero confirmar talla, corte (${fitInfo.label}) y disponibilidad.`;
                 const msgText = isBajoPedido
-                    ? `Hola Herencia 90, me interesa pre-ordenar la camiseta: ${product.equipo} en Talla ${size}. Entiendo que tiene un tiempo de espera de 15 a 20 días hábiles aprox.`
-                    : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.${stockLine}`;
+                    ? `Hola Herencia 90, me interesa pre-ordenar la camiseta: ${product.equipo} en Talla ${size}.${confirmLine} Entiendo que tiene un tiempo de espera de 15 a 20 dias habiles aprox.`
+                    : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.${stockLine}${confirmLine}`;
                 const msg = encodeURIComponent(msgText);
                 wsBtn.href = `https://wa.me/573126428153?text=${msg}`;
                 wsBtn.style.pointerEvents = 'auto';
@@ -1501,7 +1554,7 @@ function openModal(productIndex) {
                 addCartBtn.style.opacity = '1';
                 addCartBtn.onclick = () => {
                     addToCart(product, size);
-                    modal.style.display = 'none';
+                    setProductModalVisible(false);
                 };
             };
         }
@@ -1523,7 +1576,7 @@ function openModal(productIndex) {
         }
     }
 
-    modal.style.display = 'block';
+    setProductModalVisible(true);
 }
 
 // Inject Global Floating WhatsApp Button & FAQ Accordion Listener
