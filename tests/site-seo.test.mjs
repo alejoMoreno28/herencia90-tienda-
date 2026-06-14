@@ -191,7 +191,7 @@ check('preventa gallery uses descriptive titles with season details', () => {
   assert.match(preventaScript, /function getPreventaDisplayTitle\(item\)/i);
   assert.match(preventaScript, /titleAlreadyHasSeason\(title,\s*temporada\)/i);
   assert.match(preventaScript, /var displayTitle = getPreventaDisplayTitle\(item\)/i);
-  assert.match(preventaScript, /<div class="pv-card-equipo">'\s*\+\s*escHtml\(displayTitle\)/i);
+  assert.match(preventaScript, /<div class="pv-card-equipo[^"]*">'\s*\+\s*escHtml\(displayTitle\)/i);
   assert.match(preventaScript, /pv-lb-equipo'\)\.textContent = getPreventaDisplayTitle\(r\)/i);
 });
 

@@ -106,11 +106,38 @@ check('preventa cards use stock-like square image treatment', () => {
   const js = read('web/js/preventa.js');
   const css = read('web/css/preventa.css');
   const cardImageBlock = css.match(/\.pv-card-img-wrap img\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+  const unifiedCardBlock = css.match(/\.pv-stock-unified \.pv-card-img-wrap\.product-image-wrapper\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+  const unifiedMainImageBlock = css.match(/\.pv-stock-unified \.pv-card-img-wrap img\.pv-img-main\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
 
   assert.match(js, /function getPreventaCardImageUrl/i, 'preventa should support curated card images');
+  assert.match(js, /class="pv-card-item product-card bajopedido"/i, 'preventa cards should use the stock product-card shell');
+  assert.match(js, /pv-card-img-wrap product-image-wrapper/i, 'preventa image wrappers should use stock image wrapper class');
+  assert.match(js, /pv-card-info product-info/i, 'preventa card info should use stock product-info class');
+  assert.match(js, /pv-card-equipo product-title/i, 'preventa titles should use stock product-title class');
+  assert.match(js, /pv-card-cta btn-whatsapp/i, 'preventa CTA should use stock whatsapp button class');
   assert.match(js, /width="640" height="640"/i, 'preventa cards should declare square image dimensions');
+  assert.match(unifiedCardBlock, /aspect-ratio:\s*1\s*\/\s*1;/i, 'preventa image previews should be square like the stock assets');
+  assert.match(unifiedMainImageBlock, /opacity:\s*1;/i, 'preventa images should stay visible when inheriting stock image wrapper styles');
   assert.match(cardImageBlock, /object-fit:\s*contain;/i, 'preventa card images should not be cropped');
   assert.doesNotMatch(cardImageBlock, /object-fit:\s*cover;/i, 'preventa card images should avoid cover crops');
+});
+
+check('preventa lightbox uses the product-modal visual language', () => {
+  const js = read('web/js/preventa.js');
+  const css = read('web/css/preventa.css');
+  const html = read('web/preventa/index.html');
+  const unifiedLightboxBlock = css.match(/\.pv-stock-unified \.pv-lb-content\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+  const unifiedCarouselBlock = css.match(/\.pv-stock-unified \.pv-lb-carousel\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+  const unifiedImageBlock = css.match(/\.pv-stock-unified \.pv-lb-img\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+
+  assert.match(html, /<body class="pv-stock-unified">/i, 'preventa page should activate the stock-unified visual layer');
+  assert.match(js, /var _pvLbImgs = \[\];/i, 'preventa lightbox should keep a normalized gallery image list');
+  assert.match(js, /function getPreventaGalleryImages\(item\)/i, 'preventa lightbox should prioritize curated images too');
+  assert.match(js, /var imgs = getPreventaGalleryImages\(r\);/i, 'preventa lightbox should not open directly from raw imagenes only');
+  assert.match(unifiedLightboxBlock, /background:\s*#ffffff;/i, 'preventa lightbox panel should be white like product modal');
+  assert.match(unifiedLightboxBlock, /grid-template-areas:/i, 'preventa lightbox should use product-style media and info columns');
+  assert.match(unifiedCarouselBlock, /aspect-ratio:\s*1\s*\/\s*1;/i, 'preventa lightbox image area should be square');
+  assert.match(unifiedImageBlock, /object-fit:\s*contain;/i, 'preventa lightbox image should show the full square asset');
 });
 
 check('homepage retro card is marked as pre-order and routes to preventa', () => {

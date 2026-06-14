@@ -287,6 +287,7 @@
     var PV_PAGE_SIZE = 24;
     var _pvLbData = null;
     var _pvLbIdx = 0;
+    var _pvLbImgs = [];
     var _pvRenderToken = 0;
     var _pvImgObserver = null;
     var _pvFullCatalogPromise = null;
@@ -428,6 +429,21 @@
     function getPreventaCardImageUrl(item, index) {
         var curated = getCuratedImages(item);
         return curated[index] || (index === 0 ? curated[0] : '') || getRawImageUrl(item, index);
+    }
+
+    function getPreventaGalleryImages(item) {
+        var urls = [];
+        getCuratedImages(item).forEach(function (url) { urls.push(url); });
+        ((item && item.imagenes) || []).forEach(function (image) {
+            var url = getImageUrl(image);
+            if (url) urls.push(url);
+        });
+
+        return urls.filter(function (url, index) {
+            return url && urls.indexOf(url) === index;
+        }).map(function (url) {
+            return { url: url };
+        });
     }
 
     function getVisualPriority(item) {
@@ -766,17 +782,17 @@
                 : 'data-src="' + img1 + '" loading="lazy" fetchpriority="low"')
             : '';
 
-        return '<a class="pv-card-item" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
-            '<div class="pv-card-img-wrap">' +
+        return '<a class="pv-card-item product-card bajopedido" data-curated-image="' + (curatedImgs.length ? 'true' : 'false') + '" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
+            '<div class="pv-card-img-wrap product-image-wrapper">' +
                 (img1 ? '<img class="pv-img-main' + (isPriority ? '' : ' pv-lazy-img') + '" ' + mainAttrs + ' alt="' + escHtml(displayTitle) + '" width="640" height="640" decoding="async">' : '') +
                 (img2 ? '<img class="pv-img-hover" data-src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" width="640" height="640" loading="lazy" decoding="async" fetchpriority="low">' : '') +
                 (nFotos > 1 ? '<span class="pv-photo-count"><i class="ph-bold ph-images"></i> ' + nFotos + '</span>' : '') +
             '</div>' +
-            '<div class="pv-card-info">' +
-                '<div class="pv-card-equipo">' + escHtml(displayTitle) + '</div>' +
-                '<div class="pv-card-precio">' + precio + '</div>' +
-                '<div class="pv-card-meta">' + escHtml(item.temporada) + ' &middot; ' + escHtml(tipoLabel) + '</div>' +
-                '<div class="pv-card-cta"><i class="ph-bold ph-eye"></i> Ver detalles</div>' +
+            '<div class="pv-card-info product-info">' +
+                '<div class="pv-card-equipo product-title">' + escHtml(displayTitle) + '</div>' +
+                '<div class="pv-card-precio product-price">' + precio + '</div>' +
+                '<div class="pv-card-meta product-sizes">' + escHtml(item.temporada) + ' &middot; ' + escHtml(tipoLabel) + '</div>' +
+                '<div class="pv-card-cta btn-whatsapp"><i class="ph-bold ph-eye"></i> Ver detalles</div>' +
             '</div>' +
         '</a>';
     }
@@ -1293,7 +1309,7 @@
         _pvLbData = r;
         _pvLbIdx = 0;
 
-        var imgs = r.imagenes || [];
+        var imgs = getPreventaGalleryImages(r);
         if (!imgs.length) {
             pvSeleccionar(JSON.stringify(r));
             return;
@@ -1302,6 +1318,8 @@
         document.getElementById('pv-lb-equipo').textContent = getPreventaDisplayTitle(r);
         document.getElementById('pv-lb-meta').textContent = (r.temporada || '') + ' · ' + (r.tipo || '').replace(/-/g, ' ');
         document.getElementById('pv-lb-precio').textContent = pvGetPrecio(r.tipo);
+
+        _pvLbImgs = imgs;
 
         var thumbsEl = document.getElementById('pv-lb-thumbs');
         if (imgs.length > 1) {
@@ -1333,10 +1351,11 @@
             pvLoadFullCatalog().then(function () {
                 var fullItem = _pvFullBySlug[r.slug];
                 if (!fullItem || !_pvLbData || _pvLbData.slug !== r.slug) return;
-                var fullImgs = fullItem.imagenes || [];
+                var fullImgs = getPreventaGalleryImages(fullItem);
                 if (fullImgs.length <= imgs.length) return;
 
                 _pvLbData = fullItem;
+                _pvLbImgs = fullImgs;
                 if (fullImgs.length > 1) {
                     thumbsEl.innerHTML = fullImgs.map(function (img, i) {
                         return '<img class="pv-lb-thumb' + (i === _pvLbIdx ? ' active' : '') + '" src="' + img.url + '" alt="Foto ' + (i + 1) + '" loading="lazy" decoding="async" fetchpriority="low" onclick="pvLbGoTo(' + i + ')">';
@@ -1351,7 +1370,7 @@
     };
 
     function pvLbShowImg(idx) {
-        var imgs = (_pvLbData && _pvLbData.imagenes) || [];
+        var imgs = _pvLbImgs || [];
         if (!imgs.length) return;
         _pvLbIdx = ((idx % imgs.length) + imgs.length) % imgs.length;
 
@@ -1383,6 +1402,7 @@
         lb.classList.remove('entering');
         document.body.style.overflow = '';
         _pvLbData = null;
+        _pvLbImgs = [];
     }
 
     function pvOpenDrawer() {
