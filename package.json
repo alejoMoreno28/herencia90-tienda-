@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "pv:discover:huiliyuan": "node scripts/pv-discover-provider-catalog.mjs https://huiliyuan.x.yupoo.com/",
+    "preventa:curate:local": "node scripts/preventa-curate-local.mjs",
     "pedido": "node scripts/crear-pedido.mjs"
   },
   "dependencies": {
