@@ -571,10 +571,10 @@
         "precio": 120000,
         "costo_usd": 15,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 1,
             "S": 0,
-            "XL": 1
+            "XL": 0
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533500868_30.webp",
