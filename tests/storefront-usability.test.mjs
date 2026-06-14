@@ -102,6 +102,17 @@ check('preventa search has an accessible name and stable form attributes', () =>
   assert.match(html, /<input type="text" class="pv-search" id="pv-search" name="q" autocomplete="off"/i);
 });
 
+check('preventa cards use stock-like square image treatment', () => {
+  const js = read('web/js/preventa.js');
+  const css = read('web/css/preventa.css');
+  const cardImageBlock = css.match(/\.pv-card-img-wrap img\s*\{[\s\S]*?\n\s*\}/i)?.[0] || '';
+
+  assert.match(js, /function getPreventaCardImageUrl/i, 'preventa should support curated card images');
+  assert.match(js, /width="640" height="640"/i, 'preventa cards should declare square image dimensions');
+  assert.match(cardImageBlock, /object-fit:\s*contain;/i, 'preventa card images should not be cropped');
+  assert.doesNotMatch(cardImageBlock, /object-fit:\s*cover;/i, 'preventa card images should avoid cover crops');
+});
+
 check('homepage retro card is marked as pre-order and routes to preventa', () => {
   const html = read('web/index.html');
   const card = html.match(/<a href="\/preventa" class="category-mosaic-card card-medium"[\s\S]*?<h3>Leyendas Retro<\/h3>[\s\S]*?<\/a>/i);

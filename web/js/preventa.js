@@ -378,6 +378,58 @@
         return item && item.photo_count ? item.photo_count : (Array.isArray(item.imagenes) ? item.imagenes.length : 0);
     }
 
+    function getImageUrl(value) {
+        if (!value) return '';
+        if (typeof value === 'string') return value;
+        return value.url || value.src || value.href || '';
+    }
+
+    function getCuratedImages(item) {
+        if (!item) return [];
+        var fields = [
+            item.imagenes_curadas,
+            item.curated_images,
+            item.curatedImages,
+            item.card_images,
+            item.cardImages
+        ];
+        var images = [];
+
+        fields.forEach(function (field) {
+            if (!Array.isArray(field)) return;
+            field.forEach(function (image) {
+                var url = getImageUrl(image);
+                if (url) images.push(url);
+            });
+        });
+
+        [
+            item.imagen_curada,
+            item.thumbnail_curado,
+            item.card_image,
+            item.cardImage,
+            item.curated_image,
+            item.curatedImage
+        ].forEach(function (field) {
+            var url = getImageUrl(field);
+            if (url) images.unshift(url);
+        });
+
+        return images.filter(function (url, index) {
+            return url && images.indexOf(url) === index;
+        });
+    }
+
+    function getRawImageUrl(item, index) {
+        var imgs = (item && item.imagenes) || [];
+        return imgs[index] ? getImageUrl(imgs[index]) : '';
+    }
+
+    function getPreventaCardImageUrl(item, index) {
+        var curated = getCuratedImages(item);
+        return curated[index] || (index === 0 ? curated[0] : '') || getRawImageUrl(item, index);
+    }
+
     function getVisualPriority(item) {
         return PV_VISUAL_PRIORITY[item.slug] || 0;
     }
@@ -699,9 +751,9 @@
     }
 
     function renderCard(item, idx, collectionKey) {
-        var imgs = item.imagenes || [];
-        var img1 = imgs[0] ? imgs[0].url : '';
-        var img2 = PV_CAN_HOVER && imgs[1] ? imgs[1].url : '';
+        var curatedImgs = getCuratedImages(item);
+        var img1 = getPreventaCardImageUrl(item, 0);
+        var img2 = PV_CAN_HOVER && curatedImgs.length > 1 ? getPreventaCardImageUrl(item, 1) : '';
         var tipoLabel = (item.tipo || '').replace(/-/g, ' ');
         var nFotos = getPhotoCount(item);
         var precio = pvGetPrecio(item.tipo);
@@ -716,15 +768,15 @@
 
         return '<a class="pv-card-item" href="' + detailUrl + '" onclick="event.preventDefault(); pvAbrirLightbox(\'' + collectionKey + '\',' + idx + ')">' +
             '<div class="pv-card-img-wrap">' +
-                (img1 ? '<img class="pv-img-main' + (isPriority ? '' : ' pv-lazy-img') + '" ' + mainAttrs + ' alt="' + escHtml(displayTitle) + '" width="640" height="800" decoding="async">' : '') +
-                (img2 ? '<img class="pv-img-hover" data-src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" width="640" height="800" loading="lazy" decoding="async" fetchpriority="low">' : '') +
+                (img1 ? '<img class="pv-img-main' + (isPriority ? '' : ' pv-lazy-img') + '" ' + mainAttrs + ' alt="' + escHtml(displayTitle) + '" width="640" height="640" decoding="async">' : '') +
+                (img2 ? '<img class="pv-img-hover" data-src="' + img2 + '" alt="' + escHtml(displayTitle) + ' - foto 2" width="640" height="640" loading="lazy" decoding="async" fetchpriority="low">' : '') +
                 (nFotos > 1 ? '<span class="pv-photo-count"><i class="ph-bold ph-images"></i> ' + nFotos + '</span>' : '') +
             '</div>' +
             '<div class="pv-card-info">' +
                 '<div class="pv-card-equipo">' + escHtml(displayTitle) + '</div>' +
                 '<div class="pv-card-precio">' + precio + '</div>' +
                 '<div class="pv-card-meta">' + escHtml(item.temporada) + ' &middot; ' + escHtml(tipoLabel) + '</div>' +
-                '<div class="pv-card-cta"><i class="ph-bold ph-eye"></i> Ver fotos</div>' +
+                '<div class="pv-card-cta"><i class="ph-bold ph-eye"></i> Ver detalles</div>' +
             '</div>' +
         '</a>';
     }
