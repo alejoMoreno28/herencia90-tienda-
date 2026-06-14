@@ -793,18 +793,18 @@ function getProductFitInfo(product) {
     if (text.includes('nino') || text.includes('nina') || text.includes('infantil') || text.includes('kid')) {
         return {
             label: 'Corte nino',
-            text: 'Referencia infantil. Confirma edad, estatura y medida de pecho antes de pedir.'
+            text: 'Referencia infantil. Confirma edad, estatura y pecho antes de pedir.'
         };
     }
     if (text.includes('mujer') || text.includes('woman') || text.includes('women') || text.includes('femenino')) {
         return {
             label: 'Corte femenino',
-            text: 'Horma mas ajustada. Compara pecho y largo con una camiseta que ya uses comoda.'
+            text: 'Horma mas ajustada. Compara pecho y largo con una camiseta comoda.'
         };
     }
     return {
-        label: 'Corte fan / posible unisex',
-        text: 'Muchas referencias Fan pueden funcionar para hombre o mujer. Compara pecho y largo antes de elegir.'
+        label: 'Corte fan unisex',
+        text: 'Puede funcionar para hombre o mujer. Compara pecho y largo antes de elegir.'
     };
 }
 
@@ -813,10 +813,10 @@ function buildModalFitGuideHtml(product) {
     return `
         <div class="modal-fit-guide-head">
             <span class="modal-fit-badge">${escapeHtml(fit.label)}</span>
-            <a class="modal-fit-guide-link" href="${SIZE_GUIDE_URL}" target="_blank" rel="noopener noreferrer">Ver guia de tallas</a>
+            <a class="modal-fit-guide-link" href="${SIZE_GUIDE_URL}" target="_blank" rel="noopener noreferrer">Guia de tallas</a>
         </div>
         <p>${escapeHtml(fit.text)}</p>
-        <p class="modal-fit-guide-note">Si dudas entre dos tallas, escribenos por WhatsApp y confirmamos la mejor opcion contigo.</p>
+        <p class="modal-fit-guide-note">Si dudas entre dos tallas, te asesoramos por WhatsApp.</p>
     `;
 }
 
