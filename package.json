@@ -4,6 +4,7 @@
   "scripts": {
     "pv:discover:huiliyuan": "node scripts/pv-discover-provider-catalog.mjs https://huiliyuan.x.yupoo.com/",
     "preventa:curate:local": "node scripts/preventa-curate-local.mjs",
+    "preventa:curate:import": "node scripts/preventa-curation-import.mjs",
     "pedido": "node scripts/crear-pedido.mjs"
   },
   "dependencies": {

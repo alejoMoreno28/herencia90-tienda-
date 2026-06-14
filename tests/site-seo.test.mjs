@@ -157,6 +157,8 @@ check('generator syncs products from Supabase and automation workflow exists', (
 
   assert.match(generatorScript, /rest\/v1\/productos\?select=\*&order=id/i);
   assert.match(generatorScript, /rest\/v1\/preventa_catalogo\?select=\*&publicado=eq\.true/i);
+  assert.match(generatorScript, /H90_GENERATE_LOCAL/i);
+  assert.match(generatorScript, /Using local preventa catalog/i);
   assert.match(generatorScript, /fs\.writeFileSync\(productsPath/i);
   assert.match(generatorScript, /fs\.writeFileSync\(preventaCatalogPath/i);
   assert.ok(fs.existsSync(workflowPath), 'sync workflow should exist');

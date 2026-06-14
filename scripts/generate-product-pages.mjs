@@ -15,8 +15,14 @@ const productsPath = path.join(root, 'web', 'productos.json');
 const preventaCatalogPath = path.join(root, 'web', 'preventa-catalogo.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
+const useLocalCatalogs = process.env.H90_GENERATE_LOCAL === '1';
 
 async function loadProducts() {
+  if (useLocalCatalogs) {
+    console.warn('Using local products catalog');
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+  }
+
   try {
     const response = await fetch(supabaseProductsUrl, {
       headers: {
@@ -46,6 +52,11 @@ async function loadProducts() {
 const products = await loadProducts();
 
 async function loadPreventaItems() {
+  if (useLocalCatalogs) {
+    console.warn('Using local preventa catalog');
+    return JSON.parse(fs.readFileSync(preventaCatalogPath, 'utf8'));
+  }
+
   try {
     const response = await fetch(supabasePreventaUrl, {
       headers: {
