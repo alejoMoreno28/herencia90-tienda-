@@ -6,6 +6,7 @@
     "preventa:curate:local": "node scripts/preventa-curate-local.mjs",
     "preventa:curate:import": "node scripts/preventa-curation-import.mjs",
     "preventa:gallery:curate": "node scripts/preventa-gallery-curate.mjs",
+    "import-studio": "node scripts/import-studio/import-studio.mjs",
     "pedido": "node scripts/crear-pedido.mjs"
   },
   "dependencies": {
