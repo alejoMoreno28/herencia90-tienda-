@@ -87,6 +87,16 @@
         };
     }
 
+    function buildAbonoEditFinanceDelta(currentState, nextState) {
+        const previousAbono = Math.max(0, toNumber(currentState && currentState.abono));
+        const nextAbono = Math.max(0, toNumber(nextState && nextState.abono));
+        const delta = Math.max(0, nextAbono - previousAbono);
+        return {
+            delta,
+            shouldInsertIncome: delta > 0
+        };
+    }
+
     function normalizeGroupText(value) {
         return String(value || '')
             .normalize('NFD')
@@ -140,6 +150,7 @@
         parseCopAmount,
         normalizePaymentState,
         allocateClientPayment,
+        buildAbonoEditFinanceDelta,
         buildClientPaymentGroups,
         buildGroupKey
     };

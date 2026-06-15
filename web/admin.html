@@ -32,7 +32,7 @@
     <script src="js/admin-inventory-guard.js?v=1780613504326"></script>
     <script src="js/admin-lote-photo-review.js?v=1780613504326"></script>
     <script src="js/admin-lote-workflow.js?v=1780613504326"></script>
-    <script src="js/admin-pedido-payments.js?v=1780700000000"></script>
+    <script src="js/admin-pedido-payments.js?v=1780786400000"></script>
     <style>
         :root {
             --bg-color: #f6f4ef;
@@ -3381,6 +3381,13 @@
             }
 
             const next = getPedidoPayments().normalizePaymentState(current.total, abonoTotal);
+            const financeDelta = getPedidoPayments().buildAbonoEditFinanceDelta(current, next);
+            const shouldRegisterFinance = financeDelta.shouldInsertIncome && confirm(
+                `Subiste el abono de esta camiseta de ${formatter.format(current.abono)} a ${formatter.format(next.abono)}.\n\n` +
+                `¿Registrar tambien ${formatter.format(financeDelta.delta)} en Finanzas y Caja Fisica?\n\n` +
+                `Aceptar: suma solo la diferencia nueva al dashboard.\n` +
+                `Cancelar: solo corrige el estado del pedido, sin mover caja.`
+            );
             try {
                 const { error } = await db.from('pedidos').update({
                     estado_pago: next.estado_pago,
@@ -3388,8 +3395,25 @@
                 }).eq('id', id);
                 if (error) throw error;
 
-                showToast("Abono ajustado sin sumar un pago nuevo");
+                if (shouldRegisterFinance) {
+                    const trans = buildPedidoIncomeTransaction(p, financeDelta.delta, '[Bajo Pedido] Ajuste abono');
+                    trans.id = await getNextTransactionId();
+                    const { error: errTrans } = await db.from('transacciones').insert(trans);
+                    if (errTrans) {
+                        const rollback = await db.from('pedidos').update({
+                            estado_pago: current.estado_pago,
+                            abono: current.abono
+                        }).eq('id', id);
+                        if (rollback.error) {
+                            throw new Error(`El pedido se actualizo, pero no pude registrar Finanzas ni devolver el abono anterior. Revisa manualmente: ${errTrans.message}`);
+                        }
+                        throw new Error(`No se registro la diferencia en Finanzas. El pedido fue devuelto al abono anterior para no descuadrar caja: ${errTrans.message}`);
+                    }
+                }
+
+                showToast(shouldRegisterFinance ? "Abono ajustado y diferencia sumada a Finanzas" : "Abono ajustado sin mover caja");
                 await loadPedidos();
+                if (shouldRegisterFinance && window.init) window.init();
             } catch(e) {
                 alert("Error ajustando abono: " + e.message);
             }

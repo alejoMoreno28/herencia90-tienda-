@@ -75,6 +75,26 @@ test('builds client-lote groups using only pedidos with saldo', async () => {
   assert.equal(groups.find((group) => group.cliente === 'ALBA').saldo, 130000);
 });
 
+test('calculates only the new finance delta when an edited abono increases', async () => {
+  const payments = await loadPayments();
+
+  assert.deepEqual(plain(payments.buildAbonoEditFinanceDelta(
+    { abono: 65000 },
+    { abono: 110000 }
+  )), {
+    delta: 45000,
+    shouldInsertIncome: true
+  });
+
+  assert.deepEqual(plain(payments.buildAbonoEditFinanceDelta(
+    { abono: 110000 },
+    { abono: 65000 }
+  )), {
+    delta: 0,
+    shouldInsertIncome: false
+  });
+});
+
 test('admin CRM exposes separated abono controls', async () => {
   const html = await readFile(new URL('../web/admin.html', import.meta.url), 'utf8');
 
@@ -84,4 +104,6 @@ test('admin CRM exposes separated abono controls', async () => {
   assert.match(html, /editarAbonoPedido/);
   assert.match(html, /registrarAbonoClienteDesdePedido/);
   assert.match(html, /\+ Pago/);
+  assert.match(html, /buildAbonoEditFinanceDelta\(current, next\)/);
+  assert.match(html, /\[Bajo Pedido\] Ajuste abono/);
 });
