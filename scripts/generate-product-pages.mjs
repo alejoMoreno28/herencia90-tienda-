@@ -332,10 +332,54 @@ function getPreventaUrl(item) {
 }
 
 function getPreventaImageUrl(image) {
-  const raw = image?.url || image?.publicUrl || image;
+  const raw = image?.card_url || image?.url || image?.publicUrl || image;
   if (!raw) return `${siteUrl}/img/logo.webp`;
   if (String(raw).startsWith('http')) return raw;
   return absoluteAssetUrl(String(raw));
+}
+
+function getPreventaGalleryImageUrl(image) {
+  const raw = image?.master_url || image?.url || image?.card_url || image?.publicUrl || image;
+  if (!raw) return `${siteUrl}/img/logo.webp`;
+  if (String(raw).startsWith('http')) return raw;
+  return absoluteAssetUrl(String(raw));
+}
+
+function getPreventaCuratedSourceUrl(image) {
+  if (!image || typeof image === 'string') return '';
+  return image.source_url || image.sourceUrl || '';
+}
+
+function isPreventaCuratedImage(image) {
+  const url = getPreventaGalleryImageUrl(image);
+  return url.includes('/preventa-curated/');
+}
+
+function getPreventaGalleryImageUrls(item) {
+  const urls = [];
+  const curatedSourceUrls = new Set();
+  const primaryImages = Array.isArray(item.imagenes) ? item.imagenes : [];
+  const detailImages = Array.isArray(item.imagenes_detalle) ? item.imagenes_detalle : item.imagenes_originales;
+  const hasCuratedPrimary = primaryImages.some(isPreventaCuratedImage);
+
+  primaryImages.forEach((image) => {
+    const sourceUrl = getPreventaCuratedSourceUrl(image);
+    if (sourceUrl) curatedSourceUrls.add(sourceUrl);
+    if (!hasCuratedPrimary || isPreventaCuratedImage(image)) {
+      urls.push(getPreventaGalleryImageUrl(image));
+    }
+  });
+
+  if (Array.isArray(detailImages)) {
+    detailImages.forEach((image) => {
+      const url = getPreventaGalleryImageUrl(image);
+      if (!url || curatedSourceUrls.has(url)) return;
+      urls.push(url);
+    });
+  }
+
+  const unique = urls.filter((url, index) => url && urls.indexOf(url) === index);
+  return unique.length ? unique : [`${siteUrl}/img/logo.webp`];
 }
 
 function getCollectionUrl(collection) {
@@ -1056,7 +1100,7 @@ function renderPreventaPage(item) {
   const title = buildPreventaTitle(item);
   const description = buildPreventaMetaDescription(item);
   const price = getPreventaPrice(item);
-  const imageUrls = (Array.isArray(item.imagenes) && item.imagenes.length ? item.imagenes : [`${siteUrl}/img/logo.webp`]).map(getPreventaImageUrl);
+  const imageUrls = getPreventaGalleryImageUrls(item);
   const categoryLabel = item.categoria === 'selecciones' ? 'Selecciones' : 'Clubes';
   const tipoLabel = formatPreventaTipo(item);
   const related = preventaItems
@@ -1101,18 +1145,16 @@ function renderPreventaPage(item) {
     ]
   };
 
-  const gallery = imageUrls.map((url, index) => `
-        <img src="${escapeHtml(url)}" alt="${escapeHtml(title)} foto ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async">
-      `).join('');
+  const gallery = imageUrls
+    .map((url, index) => `        <img src="${escapeHtml(url)}" alt="${escapeHtml(title)} foto ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async">`)
+    .join('\n');
   const relatedCards = related.map((candidate) => {
     const relatedImage = getPreventaImageUrl(candidate.imagenes?.[0]);
-    return `
-        <a class="related-card" href="/preventa/${slugify(candidate.slug || candidate.equipo)}">
+    return `        <a class="related-card" href="/preventa/${slugify(candidate.slug || candidate.equipo)}">
           <img src="${escapeHtml(relatedImage)}" alt="${escapeHtml(buildPreventaTitle(candidate))}" loading="lazy" decoding="async">
           <span>${escapeHtml(buildPreventaTitle(candidate))}</span>
-        </a>
-      `;
-  }).join('');
+        </a>`;
+  }).join('\n');
 
   return `<!DOCTYPE html>
 <html lang="es">

@@ -153,14 +153,20 @@ check('storefront loads live products from Supabase before falling back to local
 });
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');
+  const packageJson = read('package.json');
   const workflowPath = path.join(root, '.github', 'workflows', 'sync-seo-catalog.yml');
 
   assert.match(generatorScript, /rest\/v1\/productos\?select=\*&order=id/i);
   assert.match(generatorScript, /rest\/v1\/preventa_catalogo\?select=\*&publicado=eq\.true/i);
   assert.match(generatorScript, /H90_GENERATE_LOCAL/i);
   assert.match(generatorScript, /Using local preventa catalog/i);
+  assert.match(generatorScript, /function getPreventaGalleryImageUrls\(item\)/i);
+  assert.match(generatorScript, /imagenes_detalle/i);
+  assert.match(generatorScript, /imagenes_originales/i);
   assert.match(generatorScript, /fs\.writeFileSync\(productsPath/i);
   assert.match(generatorScript, /fs\.writeFileSync\(preventaCatalogPath/i);
+  assert.match(packageJson, /preventa:gallery:curate/i);
+  assert.ok(fs.existsSync(path.join(root, 'scripts', 'preventa-gallery-curate.mjs')), 'preventa gallery curation script should exist');
   assert.ok(fs.existsSync(workflowPath), 'sync workflow should exist');
 
   const workflow = fs.readFileSync(workflowPath, 'utf8');
@@ -193,6 +199,10 @@ check('preventa gallery uses descriptive titles with season details', () => {
   assert.match(preventaScript, /function getPreventaDisplayTitle\(item\)/i);
   assert.match(preventaScript, /titleAlreadyHasSeason\(title,\s*temporada\)/i);
   assert.match(preventaScript, /var displayTitle = getPreventaDisplayTitle\(item\)/i);
+  assert.match(preventaScript, /function getCuratedGalleryImages\(item\)/i);
+  assert.match(preventaScript, /photo_count_gallery/i);
+  assert.match(preventaScript, /imagenes_detalle/i);
+  assert.match(preventaScript, /imagenes_originales/i);
   assert.match(preventaScript, /<div class="pv-card-equipo[^"]*">'\s*\+\s*escHtml\(displayTitle\)/i);
   assert.match(preventaScript, /pv-lb-equipo'\)\.textContent = getPreventaDisplayTitle\(r\)/i);
 });

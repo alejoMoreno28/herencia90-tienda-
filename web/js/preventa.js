@@ -376,13 +376,38 @@
     }
 
     function getPhotoCount(item) {
-        return item && item.photo_count ? item.photo_count : (Array.isArray(item.imagenes) ? item.imagenes.length : 0);
+        if (!item) return 0;
+        var galleryCount = Number(item.photo_count_gallery) || 0;
+        if (galleryCount) return galleryCount;
+        var explicitCount = Math.max(Number(item.photo_count) || 0, Number(item.photo_count_original) || 0);
+        if (explicitCount) return explicitCount;
+        return Math.max(
+            Array.isArray(item.imagenes) ? item.imagenes.length : 0,
+            Array.isArray(item.imagenes_detalle) ? item.imagenes_detalle.length : 0,
+            Array.isArray(item.imagenes_originales) ? item.imagenes_originales.length : 0
+        );
     }
 
     function getImageUrl(value) {
         if (!value) return '';
         if (typeof value === 'string') return value;
-        return value.url || value.src || value.href || '';
+        return value.card_url || value.url || value.src || value.href || '';
+    }
+
+    function getGalleryImageUrl(value) {
+        if (!value) return '';
+        if (typeof value === 'string') return value;
+        return value.master_url || value.url || value.card_url || value.src || value.href || '';
+    }
+
+    function getCuratedSourceUrl(value) {
+        if (!value || typeof value === 'string') return '';
+        return value.source_url || value.sourceUrl || '';
+    }
+
+    function isCuratedImage(value) {
+        var url = getGalleryImageUrl(value);
+        return !!(url && url.indexOf('/preventa-curated/') !== -1);
     }
 
     function getCuratedImages(item) {
@@ -404,6 +429,12 @@
             });
         });
 
+        ((item && item.imagenes) || []).forEach(function (image) {
+            if (!isCuratedImage(image)) return;
+            var url = getImageUrl(image);
+            if (url) images.push(url);
+        });
+
         [
             item.imagen_curada,
             item.thumbnail_curado,
@@ -413,6 +444,48 @@
             item.curatedImage
         ].forEach(function (field) {
             var url = getImageUrl(field);
+            if (url) images.unshift(url);
+        });
+
+        return images.filter(function (url, index) {
+            return url && images.indexOf(url) === index;
+        });
+    }
+
+    function getCuratedGalleryImages(item) {
+        if (!item) return [];
+        var fields = [
+            item.imagenes_curadas,
+            item.curated_images,
+            item.curatedImages,
+            item.card_images,
+            item.cardImages
+        ];
+        var images = [];
+
+        fields.forEach(function (field) {
+            if (!Array.isArray(field)) return;
+            field.forEach(function (image) {
+                var url = getGalleryImageUrl(image);
+                if (url) images.push(url);
+            });
+        });
+
+        ((item && item.imagenes) || []).forEach(function (image) {
+            if (!isCuratedImage(image)) return;
+            var url = getGalleryImageUrl(image);
+            if (url) images.push(url);
+        });
+
+        [
+            item.imagen_curada,
+            item.thumbnail_curado,
+            item.card_image,
+            item.cardImage,
+            item.curated_image,
+            item.curatedImage
+        ].forEach(function (field) {
+            var url = getGalleryImageUrl(field);
             if (url) images.unshift(url);
         });
 
@@ -433,9 +506,24 @@
 
     function getPreventaGalleryImages(item) {
         var urls = [];
-        getCuratedImages(item).forEach(function (url) { urls.push(url); });
+        var curatedSources = {};
+        var detailImages = item && Array.isArray(item.imagenes_detalle)
+            ? item.imagenes_detalle
+            : ((item && item.imagenes_originales) || []);
+
         ((item && item.imagenes) || []).forEach(function (image) {
-            var url = getImageUrl(image);
+            var sourceUrl = getCuratedSourceUrl(image);
+            if (sourceUrl) curatedSources[sourceUrl] = true;
+        });
+
+        getCuratedGalleryImages(item).forEach(function (url) { urls.push(url); });
+        ((item && item.imagenes) || []).forEach(function (image) {
+            var url = getGalleryImageUrl(image);
+            if (url) urls.push(url);
+        });
+        detailImages.forEach(function (image) {
+            var url = getGalleryImageUrl(image);
+            if (!url || curatedSources[url]) return;
             if (url) urls.push(url);
         });
 
