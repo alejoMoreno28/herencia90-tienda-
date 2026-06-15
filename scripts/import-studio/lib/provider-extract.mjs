@@ -1,5 +1,7 @@
 import * as cheerio from 'cheerio';
 
+import { extractYupooAlbumFromHtml, isYupooUrl } from './yupoo-album.mjs';
+
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36';
 
 export async function fetchProviderHtml(url) {
@@ -21,6 +23,10 @@ export async function fetchProviderHtml(url) {
 }
 
 export function extractImageCandidatesFromHtml(html, pageUrl) {
+  if (isYupooUrl(pageUrl)) {
+    return extractYupooAlbumFromHtml(html, pageUrl).candidates;
+  }
+
   const $ = cheerio.load(html);
   const urls = [];
 
@@ -53,6 +59,21 @@ export function extractImageCandidatesFromHtml(html, pageUrl) {
 export async function extractProviderCandidates(providerUrl) {
   const html = await fetchProviderHtml(providerUrl);
   return extractImageCandidatesFromHtml(html, providerUrl);
+}
+
+export async function extractProviderAlbum(providerUrl) {
+  const html = await fetchProviderHtml(providerUrl);
+  if (isYupooUrl(providerUrl)) {
+    return extractYupooAlbumFromHtml(html, providerUrl);
+  }
+
+  return {
+    title: '',
+    albumId: '',
+    providerUsername: '',
+    imageUrls: extractImageCandidatesFromHtml(html, providerUrl).map((candidate) => candidate.sourceUrl || candidate.url),
+    candidates: extractImageCandidatesFromHtml(html, providerUrl),
+  };
 }
 
 export function candidatesFromSourceImages(sourceImages) {

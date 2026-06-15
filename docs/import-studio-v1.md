@@ -4,6 +4,12 @@ Import Studio V1 is a local-first tool for preparing new `bajo pedido` / preorde
 
 It does not upload to Supabase, does not edit the live catalog, and does not publish products. It creates review and dry-run files so the owner can approve references first.
 
+For the full local UI app, use `docs/import-studio-local-app.md` and start it with:
+
+```powershell
+npm run import-studio:app
+```
+
 ## Input CSV
 
 Create a CSV with these columns:

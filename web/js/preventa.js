@@ -1218,7 +1218,7 @@
     function pvLoadFromSupabaseFallback() {
         return pvLoadSupabaseClient().then(function (client) {
             return client.from('preventa_catalogo')
-                .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox,pais_o_club,tags')
+                .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,imagenes_detalle,imagenes_originales,photo_count_gallery,gallery_status,destacado,descripcion,precio_aprox,pais_o_club,tags')
                 .eq('publicado', true)
                 .order('destacado', { ascending: false });
         }).then(function (res) {
@@ -1230,6 +1230,11 @@
     async function pvCargar() {
         var galSection = document.getElementById('pv-galeria');
         try {
+            var remoteInitialItems = await pvLoadFromSupabaseFallback();
+            pvIndexFullItems(remoteInitialItems);
+            pvSetCatalogItems(remoteInitialItems);
+            return;
+
             var listItems = await pvFetchJson(PV_LIST_URL);
             pvSetCatalogItems(listItems);
 

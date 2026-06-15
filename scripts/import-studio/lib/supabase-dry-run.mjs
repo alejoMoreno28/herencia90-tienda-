@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { buildPreventaCatalogRow } from './preventa-row.mjs';
+
 const DEFAULT_BUCKET = 'preventa-images';
 const DEFAULT_PREFIX = 'preventa-import/import-studio';
 
@@ -28,17 +30,15 @@ export function buildSupabaseDryRun(job, options = {}) {
     }
 
     upserts.push({
-      slug: reference.slug,
-      equipo: reference.title || reference.normalized?.teamName || reference.slug,
-      temporada: reference.normalized?.seasonLabel || '',
-      tipo: reference.normalized?.shirtType || '',
-      categoria: reference.normalized?.categoryPrimary || '',
-      precio: reference.normalized?.price || 0,
-      publicado: false,
-      yupoo_origen: reference.normalized?.providerUrl || '',
-      imagenes: galleryImages.map((image) => image.sourceUrl || image.url || ''),
-      imagenes_detalle: detailImages.map((image) => image.sourceUrl || image.url || ''),
+      ...buildPreventaCatalogRow(reference, images, {
+        jobId: job.jobId,
+        bucket,
+        prefix,
+        publicado: false,
+      }),
       import_studio_job_id: job.jobId,
+      preview_imagenes: galleryImages.map((image) => image.sourceUrl || image.url || ''),
+      preview_imagenes_detalle: detailImages.map((image) => image.sourceUrl || image.url || ''),
     });
   }
 

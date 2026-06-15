@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HERENCIA90 Import Studio</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">HERENCIA90 LOCAL TOOL</p>
+      <h1>Import Studio</h1>
+    </div>
+    <div class="system-status" id="system-status">
+      <span>Revisando entorno...</span>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="intake-panel">
+      <div class="panel-heading">
+        <p class="eyebrow">Entrada</p>
+        <h2>Links de Yupoo</h2>
+      </div>
+      <label class="field">
+        <span>Albumes</span>
+        <textarea id="links" spellcheck="false" placeholder="Pega uno o varios links, uno por linea">https://huiliyuan.x.yupoo.com/albums/193589600?uid=1&amp;isSubCate=false&amp;referrercate=</textarea>
+      </label>
+      <label class="field compact">
+        <span>Precio base COP</span>
+        <input id="default-price" type="number" value="120000" min="0" step="1000">
+      </label>
+      <button class="primary-action" id="create-job" type="button">
+        <span class="action-icon">+</span>
+        Analizar referencias
+      </button>
+      <div class="process-card">
+        <p class="eyebrow">Flujo seguro</p>
+        <ol>
+          <li>Extrae fotos grandes del proveedor.</li>
+          <li>Ordenas frente, espalda y detalles.</li>
+          <li>Generas dry-run sin tocar Supabase.</li>
+          <li>Importas como borrador o publicas con confirmacion.</li>
+        </ol>
+      </div>
+    </aside>
+
+    <section class="review-stage">
+      <div class="empty-state" id="empty-state">
+        <p class="eyebrow">Listo para trabajar</p>
+        <h2>Pega un album de Yupoo y revisa todo antes de subirlo.</h2>
+        <p>La app local mantiene la decision final en tus manos: ninguna referencia se publica sin confirmacion.</p>
+      </div>
+
+      <div class="job-shell hidden" id="job-shell">
+        <div class="job-toolbar">
+          <div>
+            <p class="eyebrow">Job activo</p>
+            <h2 id="job-title">Sin job</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="secondary-action" id="dry-run" type="button">Dry-run</button>
+            <button class="secondary-action" id="save-draft" type="button">Importar borrador</button>
+            <button class="danger-action" id="publish-now" type="button">Publicar</button>
+          </div>
+        </div>
+
+        <div class="notice" id="notice"></div>
+        <div class="references" id="references"></div>
+      </div>
+    </section>
+
+    <aside class="output-panel">
+      <div class="panel-heading">
+        <p class="eyebrow">Salida</p>
+        <h2>Manifiesto</h2>
+      </div>
+      <div class="summary-grid" id="summary-grid">
+        <div><strong>0</strong><span>Referencias</span></div>
+        <div><strong>0</strong><span>Imagenes</span></div>
+        <div><strong>0</strong><span>Warnings</span></div>
+      </div>
+      <label class="field">
+        <span>approval-manifest.json</span>
+        <textarea id="manifest-output" class="code-output" spellcheck="false"></textarea>
+      </label>
+      <label class="check-row">
+        <input id="remove-bg" type="checkbox">
+        <span>Quitar fondo en frente/espalda con BiRefNet local</span>
+      </label>
+      <label class="field compact">
+        <span>Confirmacion</span>
+        <input id="confirmation" placeholder="IMPORTAR o PUBLICAR">
+      </label>
+      <pre class="log-output" id="log-output">Esperando accion...</pre>
+    </aside>
+  </main>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

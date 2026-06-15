@@ -200,6 +200,8 @@ check('preventa gallery uses descriptive titles with season details', () => {
   assert.match(preventaScript, /titleAlreadyHasSeason\(title,\s*temporada\)/i);
   assert.match(preventaScript, /var displayTitle = getPreventaDisplayTitle\(item\)/i);
   assert.match(preventaScript, /function getCuratedGalleryImages\(item\)/i);
+  assert.match(preventaScript, /var remoteInitialItems = await pvLoadFromSupabaseFallback\(\)/i);
+  assert.match(preventaScript, /imagenes,imagenes_detalle,imagenes_originales,photo_count_gallery/i);
   assert.match(preventaScript, /photo_count_gallery/i);
   assert.match(preventaScript, /imagenes_detalle/i);
   assert.match(preventaScript, /imagenes_originales/i);
