@@ -635,7 +635,7 @@
             "L": 1,
             "M": 2,
             "S": 0,
-            "XL": 2
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533411187_37.webp",
@@ -651,7 +651,7 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 1
@@ -822,7 +822,7 @@
             "L": 1,
             "M": 0,
             "S": 0,
-            "XL": 1
+            "XL": 0
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533543503_7.webp",
