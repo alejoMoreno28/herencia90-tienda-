@@ -1447,6 +1447,11 @@
                     </div>
 
                     <!-- Buscador y Filtros Sencillos -->
+                    <div class="quick-state-tabs" style="display:flex; gap:10px; margin-bottom:10px; padding:0 15px;">
+                        <button id="qtab-all" onclick="setQuickFilter('all')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#fff; color:#333; border:2px solid #198754; font-weight:700;">📑 Todos</button>
+                        <button id="qtab-deuda" onclick="setQuickFilter('Pendiente')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">🔴 Con Deuda</button>
+                        <button id="qtab-pagado" onclick="setQuickFilter('Pagado')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">🟢 Pagados</button>
+                    </div>
                     <div class="table-container crm-filterbar" style="padding:15px; margin-bottom:20px;">
                         <div style="flex:2; min-width:200px; position:relative;">
                             <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none;">🔍</span>
@@ -3251,6 +3256,69 @@
             };
         }
 
+                function setQuickFilter(tipo) {
+            const tabs = ['all', 'Pendiente', 'Pagado'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(t === 'all' ? 'qtab-all' : (t === 'Pendiente' ? 'qtab-deuda' : 'qtab-pagado'));
+                if (btn) {
+                    btn.style.background = '#f1f3f5';
+                    btn.style.color = '#666';
+                    btn.style.border = '1px solid #dee2e6';
+                    btn.style.fontWeight = 'normal';
+                }
+            });
+
+            const activeBtn = document.getElementById(tipo === 'all' ? 'qtab-all' : (tipo === 'Pendiente' ? 'qtab-deuda' : 'qtab-pagado'));
+            if (activeBtn) {
+                activeBtn.style.background = '#fff';
+                activeBtn.style.color = '#333';
+                activeBtn.style.border = '2px solid #198754';
+                activeBtn.style.fontWeight = '700';
+            }
+
+            const selectPago = document.getElementById('pedidos-filter-pago');
+            if (selectPago) {
+                selectPago.value = tipo;
+            }
+            
+            resetPedidosPageAndRender();
+        }
+
+        async function moverPedidoAStock(id) {
+            const p = pedidosData.find(x => x.id == id);
+            if (!p) return;
+
+            if (!confirm(`¿Seguro que deseas mover esta camiseta (${p.equipo} - Talla ${p.talla}) al stock disponible en tu página web?\n\nEsta acción eliminará el pedido de esta tabla y sumará +1 al inventario físico.`)) return;
+
+            try {
+                if (p.producto_id) {
+                    const prodIdx = productData.findIndex(x => x.id == p.producto_id);
+                    if (prodIdx !== -1) {
+                        const tallas = productData[prodIdx].tallas || {};
+                        tallas[p.talla] = (parseInt(tallas[p.talla]) || 0) + 1;
+                        const { error: errStock } = await db.from('productos').update({ tallas }).eq('id', p.producto_id);
+                        if (errStock) {
+                            alert("Error sumando el stock en la base de datos: " + errStock.message);
+                            return;
+                        }
+                    } else {
+                        alert("Advertencia: No se encontró el producto en el catálogo. El pedido se eliminará pero no se sumó stock.");
+                    }
+                } else {
+                    alert("Advertencia: Este pedido no tiene producto en catálogo asociado. Se eliminará sin sumar stock.");
+                }
+
+                const { error: errDel } = await db.from('pedidos').delete().eq('id', id);
+                if (errDel) throw errDel;
+
+                showToast("Camiseta movida a Stock ✅");
+                await loadPedidos();
+                if (window.init) window.init();
+            } catch(e) {
+                alert("Error moviendo pedido a stock: " + e.message);
+            }
+        }
+
         let pedidosCurrentPage = 1;
         const pedidosPerPage = 15;
 
@@ -3389,8 +3457,8 @@
                     </td>
                     <td style="text-align:center;">
                         <div class="pedido-actions">                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="registrarPagoPedido(${p.id})" title="Sumar pago solo a esta camiseta">+ Pago</button>` : ''}
-                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="editarAbonoPedido(${p.id})" title="Editar abono total registrado">Editar abono</button>
-                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="registrarAbonoClienteDesdePedido(${p.id})" title="Repartir un abono del cliente en sus pedidos">Abono cliente</button>` : ''}
+                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="editarAbonoPedido(${p.id})" title="Editar abono total registrado">Editar abono</button>                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="registrarAbonoClienteDesdePedido(${p.id})" title="Repartir un abono del cliente en sus pedidos">Abono cliente</button>` : ''}
+                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#e3f2fd; color:#0d6efd; border:1px solid #b6d4fe; font-weight:600;" onclick="moverPedidoAStock(${p.id})" title="Mover físicamente esta unidad al inventario disponible">📦 Mover a Stock</button>
                             <button class="btn-danger" style="padding:4px 8px; font-size:10px; background:#fff5f5; color:#c92a2a; border:1px solid #ffe3e3; font-weight:600;" onclick="eliminarPedido(${p.id})">🗑️ Borrar</button>
                         </div>
                     </td>
