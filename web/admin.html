@@ -1450,10 +1450,10 @@
                     <div class="table-container crm-filterbar" style="padding:15px; margin-bottom:20px;">
                         <div style="flex:2; min-width:200px; position:relative;">
                             <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none;">🔍</span>
-                            <input type="text" id="pedidos-search" placeholder="Busca por cliente o camiseta..." oninput="renderPedidos()" style="padding-left:32px; font-size:13px;">
+                            <input type="text" id="pedidos-search" placeholder="Busca por cliente o camiseta..." oninput="resetPedidosPageAndRender()" style="padding-left:32px; font-size:13px;">
                         </div>
                         <div style="flex:1; min-width:120px;">
-                            <select id="pedidos-filter-pago" onchange="renderPedidos()" style="font-size:13px;">
+                            <select id="pedidos-filter-pago" onchange="resetPedidosPageAndRender()" style="font-size:13px;">
                                 <option value="all">Todos los pagos</option>
                                 <option value="Pendiente">Deuda Pendiente</option>
                                 <option value="Abonado">Abonado</option>
@@ -1461,14 +1461,19 @@
                             </select>
                         </div>
                         <div style="flex:1; min-width:120px;">
-                            <select id="pedidos-filter-entrega" onchange="renderPedidos()" style="font-size:13px;">
+                            <select id="pedidos-filter-entrega" onchange="resetPedidosPageAndRender()" style="font-size:13px;">
                                 <option value="all">Todas las entregas</option>
                                 <option value="Pendiente">Pendiente de entrega</option>
                                 <option value="Entregado">Entregado</option>
                             </select>
                         </div>
                         <div style="flex:1; min-width:120px;">
-                            <select id="pedidos-filter-canal" onchange="renderPedidos()" style="font-size:13px;">
+                            <select id="pedidos-filter-lote" onchange="resetPedidosPageAndRender()" style="font-size:13px;">
+                                <option value="all">Todos los lotes</option>
+                            </select>
+                        </div>
+                        <div style="flex:1; min-width:120px;">
+                            <select id="pedidos-filter-canal" onchange="resetPedidosPageAndRender()" style="font-size:13px;">
                                 <option value="all">Todos los canales</option>
                                 <option value="Amigos/Confianza">Amigos/Confianza</option>
                                 <option value="WhatsApp">WhatsApp</option>
@@ -1521,6 +1526,13 @@
                                     <tr><td colspan="10" style="text-align:center; color:#aaa; padding:30px;">No hay pedidos registrados en este filtro.</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div id="pedidos-pagination" style="display:none; justify-content:space-between; align-items:center; margin-top:15px; padding:10px 15px; background:#fbfaf7; border-top:1px solid #eee; border-radius:0 0 8px 8px;">
+                            <span id="pedidos-page-info" style="font-size:12px; color:#666; font-weight:700;">Mostrando 0 pedidos</span>
+                            <div style="display:flex; gap:8px;">
+                                <button onclick="changePedidosPage(-1)" id="btn-pedidos-prev" class="btn-save" style="padding:6px 12px; background:#fff; border:1px solid #ddd; font-size:12px; color:#333;">Anterior</button>
+                                <button onclick="changePedidosPage(1)" id="btn-pedidos-next" class="btn-save" style="padding:6px 12px; background:#fff; border:1px solid #ddd; font-size:12px; color:#333;">Siguiente</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3239,6 +3251,19 @@
             };
         }
 
+        let pedidosCurrentPage = 1;
+        const pedidosPerPage = 15;
+
+        function resetPedidosPageAndRender() {
+            pedidosCurrentPage = 1;
+            renderPedidos();
+        }
+
+        function changePedidosPage(delta) {
+            pedidosCurrentPage += delta;
+            renderPedidos();
+        }
+
         function renderPedidos() {
             const tbody = document.getElementById('pedidos-crm-body');
             tbody.innerHTML = '';
@@ -3248,13 +3273,31 @@
             const filterPago = document.getElementById('pedidos-filter-pago').value;
             const filterEntrega = document.getElementById('pedidos-filter-entrega').value;
             const filterCanal = document.getElementById('pedidos-filter-canal').value;
+            const filterLoteSelect = document.getElementById('pedidos-filter-lote');
+            const filterLote = filterLoteSelect ? filterLoteSelect.value : 'all';
+
+            // Populate Lote filter if empty
+            if (filterLoteSelect && filterLoteSelect.options.length <= 1) {
+                const lotesUnique = [...new Set(pedidosData.map(p => p.lote_codigo || 'Manual'))].filter(Boolean).sort();
+                const currentVal = filterLoteSelect.value;
+                filterLoteSelect.innerHTML = '<option value="all">Todos los lotes</option>';
+                lotesUnique.forEach(lote => {
+                    const opt = document.createElement('option');
+                    opt.value = lote;
+                    opt.textContent = lote;
+                    filterLoteSelect.appendChild(opt);
+                });
+                filterLoteSelect.value = currentVal || 'all';
+            }
 
             let filtered = pedidosData.filter(p => {
+                const loteCode = p.lote_codigo || 'Manual';
                 const textMatch = (p.cliente || '').toLowerCase().includes(q) || (p.equipo || '').toLowerCase().includes(q);
                 const pagoMatch = filterPago === 'all' || getPedidoPaymentState(p).estado_pago === filterPago;
                 const entregaMatch = filterEntrega === 'all' || p.estado_entrega === filterEntrega;
                 const canalMatch = filterCanal === 'all' || p.canal === filterCanal;
-                return textMatch && pagoMatch && entregaMatch && canalMatch;
+                const loteMatch = filterLote === 'all' || loteCode === filterLote;
+                return textMatch && pagoMatch && entregaMatch && canalMatch && loteMatch;
             });
 
             // Actualizar tarjetas de métricas
@@ -3276,12 +3319,42 @@
             document.getElementById('stat-pedidos-pendientes-entrega').innerText = `${pendientesEntrega} uds`;
             document.getElementById('stat-pedidos-recaudado').innerText = formatter.format(totalRecaudado);
 
+            const paginationDiv = document.getElementById('pedidos-pagination');
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#aaa; padding:30px; font-weight:600;">No hay pedidos registrados con estos filtros.</td></tr>`;
+                if (paginationDiv) paginationDiv.style.display = 'none';
                 return;
             }
 
-            filtered.forEach(p => {
+            if (paginationDiv) paginationDiv.style.display = 'flex';
+            
+            const totalPages = Math.ceil(filtered.length / pedidosPerPage) || 1;
+            if (pedidosCurrentPage > totalPages) pedidosCurrentPage = totalPages;
+            if (pedidosCurrentPage < 1) pedidosCurrentPage = 1;
+
+            const startIndex = (pedidosCurrentPage - 1) * pedidosPerPage;
+            const endIndex = startIndex + pedidosPerPage;
+            const paginatedItems = filtered.slice(startIndex, endIndex);
+
+            const pageInfo = document.getElementById('pedidos-page-info');
+            if (pageInfo) {
+                pageInfo.textContent = `Mostrando ${startIndex + 1} a ${Math.min(endIndex, filtered.length)} de ${filtered.length} pedidos`;
+            }
+
+            const btnPrev = document.getElementById('btn-pedidos-prev');
+            const btnNext = document.getElementById('btn-pedidos-next');
+            if (btnPrev) {
+                btnPrev.disabled = pedidosCurrentPage === 1;
+                btnPrev.style.opacity = btnPrev.disabled ? '0.5' : '1';
+                btnPrev.style.cursor = btnPrev.disabled ? 'not-allowed' : 'pointer';
+            }
+            if (btnNext) {
+                btnNext.disabled = pedidosCurrentPage === totalPages;
+                btnNext.style.opacity = btnNext.disabled ? '0.5' : '1';
+                btnNext.style.cursor = btnNext.disabled ? 'not-allowed' : 'pointer';
+            }
+
+            paginatedItems.forEach(p => {
                 const tr = document.createElement('tr');
 
                 const bEntrega = p.estado_entrega === 'Entregado' ? 'badge-in' : 'badge-out';
