@@ -758,6 +758,7 @@ function parseStockQty(qty) {
 
 function getSortedSizeEntries(tallas) {
     return Object.entries(tallas || {})
+        .filter(([size]) => !size.startsWith('R_'))
         .map(([size, qty]) => ({ size, stock: parseStockQty(qty) }))
         .sort((a, b) => (SIZE_ORDER[a.size] || 99) - (SIZE_ORDER[b.size] || 99));
 }

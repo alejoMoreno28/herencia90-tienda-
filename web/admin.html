@@ -2444,36 +2444,8 @@
 
                     const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
 
-                    let photos = `<ul class="photo-list">` + (p.imagenes||[]).map((img, ix)=>`<li><a href="/${img}" target="_blank">📷</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#eee;padding:2px;display:block;text-align:center;margin-top:2px;">[+]<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
-
-                    html += `<tr class="${stockCls}">
-                        <td>${p.id}</td>
-                        <td><select onchange="uD(${i},'categoria',this.value)">${CATEGORIAS_INV.map(c=>`<option value="${c}" ${c===p.categoria?'selected':''}>${c}</option>`).join('')}</select></td>
-                        <td><input type="text" value="${p.equipo}" onchange="uD(${i},'equipo',this.value)"></td>
-                        <td><input type="number" class="cost-input" step="0.01" value="${p.costo_usd||''}" onchange="uD(${i},'costo_usd',this.value)"></td>
-                        <td style="color:#777; font-weight:600;">${formatter.format(pCOP)}</td>
-                        <td><input type="number" class="price-input" value="${p.precio}" onchange="uD(${i},'precio',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="uS(${i},'S',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="uS(${i},'M',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="uS(${i},'L',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="uS(${i},'XL',this.value)"></td>
-                        <td style="width:180px;">
-                            <textarea onchange="uD(${i},'descripcion',this.value)" rows="1" style="font-size:10px">${p.descripcion||''}</textarea>
-                            ${photos}
-                        </td>
-                        <td><button class="btn-danger" onclick="delP(${i})">Borrar</button></td>
-                    </tr>`;
-                });
-                cnt.innerHTML += html + `</tbody></table></div>`;
-            });
-            calculateInventoryValuation();
-        }
-
-        function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
-        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); calculateInventoryValuation(); }
-
         function getProductStock(p) {
-            return Object.values(p.tallas || {}).reduce((a,b)=>a+(parseInt(b||0) || 0),0);
+            return Object.entries(p.tallas || {}).reduce((sum, [k,v]) => sum + (k.startsWith('R_') ? 0 : (parseInt(v||0)||0)), 0);
         }
 
         function updateInventorySummary(items) {
@@ -2570,14 +2542,14 @@
                     </tr></thead><tbody>`;
 
                 items.forEach(({p,i,stock}) => {
-                    const stockCls = stock === 0 ? 'low-stock' : '';
-                    const stockTone = stock === 0 ? 'empty' : stock <= 2 ? 'low' : 'ok';
-                    const stockLabel = stock === 0 ? 'Agotada' : `${stock} uds`;
+                    const reserved = Object.entries(p.tallas || {}).reduce((sum, [k,v]) => sum + (k.startsWith('R_') ? (parseInt(v||0)||0) : 0), 0);
+                    const stockTone = stock === 0 ? (reserved > 0 ? 'low' : 'empty') : (stock <= 2 ? 'low' : 'ok');
+                    const stockLabel = stock === 0 ? (reserved > 0 ? `Res: ${reserved}` : 'Agotada') : `${stock} uds`;
                     const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
                     const imageList = Array.isArray(p.imagenes) ? p.imagenes : [];
                     const photos = `<ul class="photo-list">` + imageList.map((img, ix)=>`<li draggable="true" ondragstart="startPhotoDrag(${ix})" ondragover="event.preventDefault()" ondrop="handlePhotoDrop(event, ${i}, ${ix})"><a href="${escapeHtml(img)}" target="_blank" rel="noopener" title="Ver foto original"><img src="${escapeHtml(img)}" alt="Foto ${ix + 1}"></a><span class="remove-img" title="Borrar foto" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label class="add-photo-btn" style="font-size:10px;cursor:pointer;background:#f3f0e8;border:1px dashed #d9c391;border-radius:5px;padding:6px 8px;display:block;margin-top:5px;font-weight:800;text-align:center;width:100%;box-sizing:border-box;transition:all 0.2s;" ondragover="event.preventDefault(); this.style.background='#e8e3d5'; this.style.borderColor='#997d3d';" ondragleave="this.style.background='#f3f0e8'; this.style.borderColor='#d9c391';" ondrop="this.style.background='#f3f0e8'; this.style.borderColor='#d9c391'; handleDropImg(event, ${i}, this)">+ Añadir Fotos (Arrastra o haz clic)<input type="file" multiple style="display:none" onchange="addImg(event,${i})"></label>`;
 
-                    html += `<tr class="${stockCls}">
+                    html += `<tr class="${(stock === 0 && reserved === 0) ? 'low-stock' : ''}">
                         <td><b>#${p.id}</b></td>
                         <td><span class="stock-pill ${stockTone}">${stockLabel}</span></td>
                         <td><select onchange="uD(${i},'categoria',this.value)">${CATEGORIAS_INV.map(c=>`<option value="${escapeHtml(c)}" ${c===p.categoria?'selected':''}>${escapeHtml(c)}</option>`).join('')}</select></td>
@@ -2585,10 +2557,10 @@
                         <td><input type="number" class="cost-input" step="0.01" value="${p.costo_usd||''}" onchange="uD(${i},'costo_usd',this.value)"></td>
                         <td style="color:#777; font-weight:800;">${formatter.format(pCOP)}</td>
                         <td><input type="number" class="price-input" value="${p.precio}" onchange="uD(${i},'precio',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.S||0}" onchange="uS(${i},'S',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.M||0}" onchange="uS(${i},'M',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.L||0}" onchange="uS(${i},'L',this.value)"></td>
-                        <td><input type="number" class="stock-input" value="${p.tallas.XL||0}" onchange="uS(${i},'XL',this.value)"></td>
+                        ${renderSizeCell(p, i, 'S')}
+                        ${renderSizeCell(p, i, 'M')}
+                        ${renderSizeCell(p, i, 'L')}
+                        ${renderSizeCell(p, i, 'XL')}
                         <td class="inventory-desc">
                             <textarea onchange="uD(${i},'descripcion',this.value)" rows="2">${escapeHtml(p.descripcion||'')}</textarea>
                             ${photos}
@@ -2603,6 +2575,34 @@
 
         function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria'||f==='precio') renderInventory(); else calculateInventoryValuation(); }
         function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); renderInventory(); }
+
+        function resSize(i, size) {
+            if ((productData[i].tallas[size] || 0) > 0) {
+                productData[i].tallas[size]--;
+                productData[i].tallas['R_'+size] = (productData[i].tallas['R_'+size] || 0) + 1;
+                renderInventory(); saveInventory();
+            }
+        }
+
+        function libSize(i, size) {
+            if ((productData[i].tallas['R_'+size] || 0) > 0) {
+                productData[i].tallas['R_'+size]--;
+                productData[i].tallas[size] = (productData[i].tallas[size] || 0) + 1;
+                renderInventory(); saveInventory();
+            }
+        }
+
+        function renderSizeCell(p, i, size) {
+            const avail = p.tallas[size] || 0;
+            const res = p.tallas['R_' + size] || 0;
+            return `<td>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <input type="number" class="stock-input" value="${avail}" onchange="uS(${i},'${size}',this.value)" title="Stock disponible">
+                    ${avail > 0 ? `<button class="btn-warning" style="font-size:8px; padding:1px 3px; cursor:pointer; line-height:1;" onclick="resSize(${i},'${size}')" title="Reservar 1 unidad">Reservar</button>` : ''}
+                    ${res > 0 ? `<div style="font-size:9px; color:#d97706; cursor:pointer; font-weight:bold; background:#fef3c7; padding:2px 4px; border-radius:3px; border:1px solid #fcd34d; line-height:1;" onclick="libSize(${i},'${size}')" title="Clic para liberar 1 unidad">R: ${res}</div>` : ''}
+                </div>
+            </td>`;
+        }
 
         async function addProduct() {
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
