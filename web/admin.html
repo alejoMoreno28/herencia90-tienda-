@@ -2621,13 +2621,15 @@
         }
 
         function renderSizeCell(p, i, size) {
-            const avail = p.tallas[size] || 0;
-            const res = p.tallas['R_' + size] || 0;
+            const avail = parseInt(p.tallas[size]) || 0;
+            const res = parseInt(p.tallas['R_' + size]) || 0;
             return `<td>
-                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
                     <input type="number" class="stock-input" value="${avail}" onchange="uS(${i},'${size}',this.value)" title="Stock disponible">
-                    ${avail > 0 ? `<button class="btn-warning" style="font-size:8px; padding:1px 3px; cursor:pointer; line-height:1;" onclick="resSize(${i},'${size}')" title="Reservar 1 unidad">Reservar</button>` : ''}
-                    ${res > 0 ? `<div style="font-size:9px; color:#d97706; cursor:pointer; font-weight:bold; background:#fef3c7; padding:2px 4px; border-radius:3px; border:1px solid #fcd34d; line-height:1;" onclick="libSize(${i},'${size}')" title="Clic para liberar 1 unidad">R: ${res}</div>` : ''}
+                    ${avail > 0 
+                        ? `<button style="font-size:9px; padding:2px 4px; cursor:pointer; line-height:1; background-color:#f59e0b; color:white; border:none; border-radius:3px; font-weight:bold;" onclick="resSize(${i},'${size}')" title="Reservar 1 unidad">Reservar</button>` 
+                        : `<button disabled style="font-size:9px; padding:2px 4px; cursor:not-allowed; line-height:1; background-color:#e5e7eb; color:#9ca3af; border:none; border-radius:3px;">Reservar</button>`}
+                    ${res > 0 ? `<div style="font-size:10px; color:#b45309; cursor:pointer; font-weight:900; background:#fef3c7; padding:3px 6px; border-radius:4px; border:1px solid #fcd34d; line-height:1; margin-top:2px;" onclick="libSize(${i},'${size}')" title="Clic para liberar 1 unidad">R: ${res}</div>` : ''}
                 </div>
             </td>`;
         }
