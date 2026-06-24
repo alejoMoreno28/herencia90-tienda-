@@ -2,6 +2,24 @@
 
 These rules exist to prevent Codex Desktop from overloading the PC with large Git operations.
 
+## Working Contract
+
+- Inspect before editing. Read the relevant HTML, CSS, JS, scripts, docs, and generated data before making a change.
+- Documentation-only tasks must not modify application code.
+- Make small, safe, narrowly scoped changes. Preserve the current static HTML/CSS/JavaScript architecture unless Camilo explicitly asks for a larger migration.
+- Do not add dependencies unless they are necessary and approved or clearly justified by the task.
+- Do not modify secrets or copy values from `.env` into docs, code, commits, examples, or logs.
+- If something is unclear, mark it as `Needs confirmation` instead of guessing.
+- For HERENCIA90 customer-facing wording, preserve the brand convention `HERENCIA90` / `Herencia 90`, WhatsApp as support/sales channel, and prefer `bajo pedido` / `pre orden` where appropriate.
+- For preorder/gallery/import work, audit first and import/upload later. Do not bulk upload, upsert, or replace Supabase assets until Camilo approves the reviewed output.
+
+## Verification
+
+- Run the smallest available checks that match the change.
+- There is currently no declared `npm run build`, `npm run lint`, or `npm test` script. Prefer direct checks such as `node --test <test files>`, `node tests\site-seo.test.mjs`, or `node --check <script>` when relevant.
+- For docs-only changes, proofread the changed Markdown and confirm no app files changed.
+- Summarize files changed and commands run in the final response.
+
 ## Git Safety
 
 - Never run or trigger a broad staging command such as `git add --`, `git add .`, `git add -A`, or any "stage all changes" action in this repository.
