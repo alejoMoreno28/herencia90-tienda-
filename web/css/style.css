@@ -64,6 +64,9 @@ h1, h2, h3, .product-price, .hero-title {
     display: inline-flex;
     animation: marquee 28s linear infinite;
     white-space: nowrap;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    contain: content;
 }
 
 .promo-track:hover {
@@ -82,8 +85,8 @@ h1, h2, h3, .product-price, .hero-title {
 }
 
 @keyframes marquee {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
 }
 
 /* ─── DESKTOP HEADER ─────────────────────────────────────── */
@@ -264,6 +267,7 @@ h1, h2, h3, .product-price, .hero-title {
 }
 .mega-col { flex: 1; min-width: 140px; }
 .mega-col-title {
+    display: block;
     font-family: 'Oswald', sans-serif;
     font-size: 0.75rem;
     letter-spacing: 2px;
@@ -2595,7 +2599,7 @@ body.grid-single .product-grid-inner {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) rotate(-12deg);
-    background: rgba(179, 151, 93, 0.95);
+    background: var(--gold-dark);
     color: #ffffff;
     border: 2px solid rgba(255, 255, 255, 0.45);
     padding: 7px 16px;

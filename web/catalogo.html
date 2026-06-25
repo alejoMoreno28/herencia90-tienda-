@@ -43,6 +43,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preload" href="/productos.json" as="fetch" crossorigin="anonymous">
+    <link rel="preload" as="image" href="/img/brasil_2026_version_fan_1-card.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="/img/colombia_2026_mujer_corta_2-card.webp" fetchpriority="high">
     <link rel="stylesheet" href="/css/style.css?v=1781320800000">
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -145,6 +147,7 @@
     
 
     <main class="container" id="catalogo">
+        <h2 class="sr-only">Productos disponibles</h2>
         <div class="product-grid catalog-skeleton-active" id="productGrid" aria-busy="true">
             <div class="catalog-skeleton-toolbar" aria-hidden="true"></div>
             <div class="product-grid-inner catalog-skeleton-grid" aria-hidden="true">
@@ -186,7 +189,7 @@
     <!-- Modal de Producto -->
     <div id="productModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" id="closeModal">&times;</span>
+            <span class="close-btn" id="closeModal" role="button" tabindex="0" aria-label="Cerrar detalles del producto">&times;</span>
             <div class="modal-body">
                 <div class="modal-gallery">
                     <div id="mainImageContainer" class="main-image-container">
@@ -230,7 +233,7 @@
     <div class="cart-drawer" id="cartDrawer">
         <div class="cart-header">
             <h3><i class="ph-bold ph-shopping-cart"></i> Mi Carrito</h3>
-            <button class="cart-close" id="cartClose">&times;</button>
+            <button class="cart-close" id="cartClose" aria-label="Cerrar carrito">&times;</button>
         </div>
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer" id="cartFooter" style="display:none;">
@@ -253,7 +256,7 @@
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
             <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="drawer-logo" width="220" height="249" loading="lazy" decoding="async"></a>
-            <button class="category-drawer-close" id="categoryDrawerClose">&times;</button>
+            <button class="category-drawer-close" id="categoryDrawerClose" aria-label="Cerrar categor&iacute;as">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
             <!-- Se llenar&aacute; din&aacute;micamente desde app.js -->
@@ -266,7 +269,7 @@
 
     <!-- Search Overlay (m&oacute;vil) -->
     <div class="search-overlay" id="searchOverlay">
-        <button class="search-back-btn" id="searchOverlayClose">
+        <button class="search-back-btn" id="searchOverlayClose" aria-label="Cerrar b&uacute;squeda">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>

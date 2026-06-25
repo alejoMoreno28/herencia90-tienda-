@@ -373,6 +373,7 @@ function renderCartDrawer() {
     let total = 0;
     container.innerHTML = cart.map(item => {
         total += item.precio * item.cantidad;
+        const itemLabel = escapeHtml(`${item.equipo} talla ${item.talla}`);
         return `
             <div class="cart-item">
                 <img src="${item.imagen}" alt="${item.equipo}" class="cart-item-img" onerror="this.style.opacity='0.3'">
@@ -381,12 +382,12 @@ function renderCartDrawer() {
                     <p class="cart-item-talla">Talla: ${item.talla}</p>
                     <p class="cart-item-price">${formatPrice(item.precio * item.cantidad)}</p>
                     <div class="cart-item-qty">
-                        <button onclick="changeQty(${item.id}, '${item.talla}', -1)">−</button>
+                        <button onclick="changeQty(${item.id}, '${item.talla}', -1)" aria-label="Disminuir cantidad de ${itemLabel}">−</button>
                         <span>${item.cantidad}</span>
-                        <button onclick="changeQty(${item.id}, '${item.talla}', 1)">+</button>
+                        <button onclick="changeQty(${item.id}, '${item.talla}', 1)" aria-label="Aumentar cantidad de ${itemLabel}">+</button>
                     </div>
                 </div>
-                <button class="cart-item-remove" onclick="removeFromCart(${item.id}, '${item.talla}')" title="Quitar">×</button>
+                <button class="cart-item-remove" onclick="removeFromCart(${item.id}, '${item.talla}')" title="Quitar" aria-label="Quitar ${itemLabel} del carrito">×</button>
             </div>`;
     }).join('');
     const totalEl = byId('cartTotal');
@@ -580,9 +581,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    runAfterIdleDelay(() => {
-        loadExternalScript('https://unpkg.com/@phosphor-icons/web').catch(function(){});
-    }, 1600, 1800);
+    runAfterFirstInteraction(() => {
+        runWhenIdle(() => {
+            loadExternalScript('https://unpkg.com/@phosphor-icons/web').catch(function(){});
+        }, 1800);
+    }, 18000);
 
     // Registrar visita a la página
     runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);
@@ -629,6 +632,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal close
     const modal = byId('productModal');
     onId('closeModal', 'click', () => setProductModalVisible(false));
+    onId('closeModal', 'keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setProductModalVisible(false);
+        }
+    });
     window.addEventListener('click', (e) => { if (modal && e.target === modal) setProductModalVisible(false); });
 
     // Zoom en imagen principal
@@ -1052,7 +1061,7 @@ function renderNavigation() {
             </a>
             <div class="mega-menu">
                 <div class="mega-col">
-                    <h4 class="mega-col-title">Selecciones</h4>
+                    <span class="mega-col-title">Selecciones</span>
                     <a href="/categorias/mundial-2026" class="mega-link"><i class="ph-fill ph-globe-hemisphere-west"></i> Mundial 2026</a>
                     <a href="/categorias/colombia" class="mega-link"><i class="ph-fill ph-flag"></i> Colombia</a>
                     <a href="/categorias/argentina" class="mega-link"><i class="ph-fill ph-flag"></i> Argentina</a>
@@ -1062,7 +1071,7 @@ function renderNavigation() {
                     <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todas</a>
                 </div>
                 <div class="mega-col">
-                    <h4 class="mega-col-title">Clubes</h4>
+                    <span class="mega-col-title">Clubes</span>
                     <a href="/categorias/real-madrid" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Real Madrid</a>
                     <a href="/categorias/barcelona" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Barcelona</a>
                     <a href="/categorias/arsenal" class="mega-link"><i class="ph-fill ph-soccer-ball"></i> Arsenal</a>
@@ -1072,7 +1081,7 @@ function renderNavigation() {
                     <a href="/catalogo.html" class="mega-link mega-link-all"><i class="ph-fill ph-arrow-right"></i> Ver todos</a>
                 </div>
                 <div class="mega-col">
-                    <h4 class="mega-col-title">Colecciones</h4>
+                    <span class="mega-col-title">Colecciones</span>
                     <a href="/categorias/temporada-25-26" class="mega-link"><i class="ph-fill ph-star"></i> Temporada 25/26</a>
                     <a href="/categorias/retro" class="mega-link"><i class="ph-fill ph-clock-counter-clockwise"></i> Leyendas Retro</a>
                     <a href="/categorias/mujer" class="mega-link"><i class="ph-fill ph-heart"></i> Women&#39;s Collection</a>

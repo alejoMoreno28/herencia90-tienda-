@@ -1781,9 +1781,9 @@
             }
         }, { passive: true });
 
-        setTimeout(function () {
+        pvRunAfterFirstInteraction(function () {
             pvRunWhenIdle(function () { pvLoadPhosphorIcons(); }, 1800);
-        }, 1600);
+        }, 18000);
 
         pvApplySearchFromUrl();
         pvCargar();
