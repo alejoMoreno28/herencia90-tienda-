@@ -143,13 +143,16 @@ check('category pages preserve shared navigation and dynamic catalog rendering',
   }
 });
 
-check('storefront loads live products from Supabase before falling back to local JSON', () => {
+check('storefront renders local products before deferred Supabase refresh', () => {
   const app = read('web/js/app.js');
+  const loadProductsBlock = app.match(/async function loadProducts\(\)[\s\S]*?\n}/i)?.[0] || '';
 
   assert.match(app, /async function fetchProductsFromSupabaseRest\(\)/i);
   assert.match(app, /rest\/v1\/productos\?select=\*&order=id\.asc/i);
-  assert.match(app, /async function loadProducts\(\)[\s\S]*fetchProductsFromSupabaseRest\(\)[\s\S]*return mergeLiveProducts/i);
-  assert.match(app, /Fallo Supabase inicial, usando productos locales/i);
+  assert.match(loadProductsBlock, /return loadLocalProducts\(\)/i);
+  assert.doesNotMatch(loadProductsBlock, /fetchProductsFromSupabaseRest\(\)/i);
+  assert.match(app, /refreshProductsFromSupabase\(allProducts\)/i);
+  assert.match(app, /runAfterFirstInteraction\(\(\) => \{/i);
 });
 check('generator syncs products from Supabase and automation workflow exists', () => {
   const generatorScript = read('scripts/generate-product-pages.mjs');
@@ -193,14 +196,16 @@ check('static preventa pages exist and expose Product schema', () => {
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/preventa\/barcelona-1998-1999-local/i);
 });
 
-check('preventa gallery uses descriptive titles with season details', () => {
+check('preventa gallery uses descriptive titles with local-first loading', () => {
   const preventaScript = read('web/js/preventa.js');
 
   assert.match(preventaScript, /function getPreventaDisplayTitle\(item\)/i);
   assert.match(preventaScript, /titleAlreadyHasSeason\(title,\s*temporada\)/i);
   assert.match(preventaScript, /var displayTitle = getPreventaDisplayTitle\(item\)/i);
   assert.match(preventaScript, /function getCuratedGalleryImages\(item\)/i);
-  assert.match(preventaScript, /var remoteInitialItems = await pvLoadFromSupabaseFallback\(\)/i);
+  assert.match(preventaScript, /var listItems = await pvFetchJson\(PV_LIST_URL\)/i);
+  assert.match(preventaScript, /function pvRefreshFromSupabaseLater\(\)/i);
+  assert.match(preventaScript, /pvLoadFromSupabaseFallback\(\)/i);
   assert.match(preventaScript, /imagenes,imagenes_detalle,imagenes_originales,photo_count_gallery/i);
   assert.match(preventaScript, /photo_count_gallery/i);
   assert.match(preventaScript, /imagenes_detalle/i);

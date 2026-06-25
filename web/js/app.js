@@ -249,18 +249,8 @@ async function fetchProductsFromSupabaseRest() {
 }
 
 async function loadProducts() {
-    const localProducts = await loadLocalProducts();
-    try {
-        const liveProducts = await withTimeout(
-            fetchProductsFromSupabaseRest(),
-            PRODUCT_FETCH_TIMEOUT_MS,
-            'Supabase productos'
-        );
-        return mergeLiveProducts(liveProducts, localProducts);
-    } catch (error) {
-        console.warn('Fallo Supabase inicial, usando productos locales', error);
-        return localProducts;
-    }
+    // El primer render no debe depender de Supabase; el refresco vivo corre diferido.
+    return loadLocalProducts();
 }
 
 // ── Analytics ────────────────────────────────────────────────────────────────
@@ -555,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // El poster pinta el hero; el video arranca despues para no competir con LCP.
         const requestHeroPlayback = () => {
+            if (prefersReducedMotion || isTouchDevice || isConstrainedNetwork) return;
             hydrateHeroVideo();
             heroVideo.play().catch(() => {
             // Si el navegador bloquea la reproducción por políticas o ahorro de batería,
@@ -588,6 +579,10 @@ document.addEventListener('DOMContentLoaded', () => {
             el.removeAttribute('data-aos-delay');
         });
     }
+
+    runAfterIdleDelay(() => {
+        loadExternalScript('https://unpkg.com/@phosphor-icons/web').catch(function(){});
+    }, 1600, 1800);
 
     // Registrar visita a la página
     runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);

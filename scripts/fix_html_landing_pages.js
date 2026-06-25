@@ -49,7 +49,6 @@ teams.forEach(team => {
     <link rel="stylesheet" href="/css/style.css?v=20260525-usability">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",

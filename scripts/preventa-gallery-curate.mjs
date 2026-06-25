@@ -27,9 +27,44 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
-function writeJson(filePath, value) {
+function writeJson(filePath, value, options = {}) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  const spacing = options.compact ? 0 : 2;
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, spacing)}\n`, 'utf8');
+}
+
+function compactListImage(image) {
+  if (!image || typeof image === 'string') return image;
+  const cardUrl = image.card_url || image.url || image.src || image.href || '';
+  const masterUrl = image.master_url || image.url || image.card_url || image.src || image.href || '';
+  return {
+    card_url: cardUrl,
+    master_url: masterUrl,
+    source_url: image.source_url || image.sourceUrl || '',
+    gallery_role: image.gallery_role || ''
+  };
+}
+
+function compactListItem(item) {
+  return {
+    id: item.id,
+    slug: item.slug,
+    equipo: item.equipo,
+    temporada: item.temporada,
+    tipo: item.tipo,
+    categoria: item.categoria,
+    pais_o_club: item.pais_o_club,
+    decada: item.decada,
+    descripcion: item.descripcion,
+    precio_aprox: item.precio_aprox,
+    destacado: item.destacado,
+    orden: item.orden,
+    tags: item.tags || [],
+    photo_count: item.photo_count_gallery || item.photo_count || 0,
+    photo_count_gallery: item.photo_count_gallery || item.photo_count || 0,
+    gallery_status: item.gallery_status || null,
+    imagenes: (item.imagenes || []).map(compactListImage)
+  };
 }
 
 function loadCache() {
@@ -432,7 +467,7 @@ const summary = {
 };
 
 writeJson(fullCatalogPath, fullCatalog);
-writeJson(listCatalogPath, listCatalog);
+writeJson(listCatalogPath, listCatalog.map(compactListItem), { compact: true });
 writeJson(reportPath, { summary, items: reportItems });
 saveCache(cache);
 

@@ -1227,21 +1227,88 @@
         });
     }
 
+    var _pvDeferredRefreshStarted = false;
+    var _pvPhosphorPromise = null;
+
+    function pvHasConstrainedNetwork() {
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        return !!(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+    }
+
+    function pvRunWhenIdle(callback, timeout) {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(callback, { timeout: timeout || 1800 });
+            return;
+        }
+        setTimeout(callback, Math.min(timeout || 1800, 1200));
+    }
+
+    function pvRunAfterFirstInteraction(callback, fallbackDelay) {
+        var fired = false;
+        var run = function () {
+            if (fired) return;
+            fired = true;
+            window.removeEventListener('pointerdown', run);
+            window.removeEventListener('keydown', run);
+            window.removeEventListener('scroll', run);
+            window.removeEventListener('touchstart', run);
+            callback();
+        };
+        window.addEventListener('pointerdown', run, { passive: true });
+        window.addEventListener('keydown', run);
+        window.addEventListener('scroll', run, { passive: true });
+        window.addEventListener('touchstart', run, { passive: true });
+        setTimeout(run, fallbackDelay || 18000);
+    }
+
+    function pvLoadPhosphorIcons() {
+        if (_pvPhosphorPromise) return _pvPhosphorPromise;
+        _pvPhosphorPromise = new Promise(function (resolve, reject) {
+            var existing = document.querySelector('script[data-pv-phosphor]');
+            if (existing) {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+                return;
+            }
+            var script = document.createElement('script');
+            script.src = 'https://unpkg.com/@phosphor-icons/web';
+            script.async = true;
+            script.defer = true;
+            script.dataset.pvPhosphor = 'true';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        }).catch(function () {});
+        return _pvPhosphorPromise;
+    }
+
+    function pvRefreshFromSupabaseLater() {
+        if (_pvDeferredRefreshStarted || pvHasConstrainedNetwork()) return;
+        _pvDeferredRefreshStarted = true;
+        pvRunAfterFirstInteraction(function () {
+            pvRunWhenIdle(function () {
+                pvLoadFromSupabaseFallback().then(function (remoteItems) {
+                    if (!Array.isArray(remoteItems) || !remoteItems.length) return;
+                    pvIndexFullItems(remoteItems);
+                    pvSetCatalogItems(remoteItems);
+                }).catch(function () {});
+            }, 2400);
+        }, 18000);
+    }
+
     async function pvCargar() {
         var galSection = document.getElementById('pv-galeria');
         try {
-            var remoteInitialItems = await pvLoadFromSupabaseFallback();
-            pvIndexFullItems(remoteInitialItems);
-            pvSetCatalogItems(remoteInitialItems);
-            return;
-
             var listItems = await pvFetchJson(PV_LIST_URL);
-            pvSetCatalogItems(listItems);
-
+            pvIndexFullItems(listItems);
+            if (pvSetCatalogItems(listItems)) pvRefreshFromSupabaseLater();
+            return;
         } catch (e) {
             try {
                 var fullItems = await pvLoadFullCatalog();
-                pvSetCatalogItems(fullItems);
+                pvIndexFullItems(fullItems);
+                if (pvSetCatalogItems(fullItems)) pvRefreshFromSupabaseLater();
+                return;
             } catch (fallbackError) {
                 try {
                     var remoteItems = await pvLoadFromSupabaseFallback();
@@ -1252,7 +1319,7 @@
                     console.warn('[pv-galeria] Error cargando catalogo:', remoteError.message || fallbackError.message || e.message);
                 }
             }
-            console.warn('[pv-galeria] Error cargando catálogo:', e.message);
+            console.warn('[pv-galeria] Error cargando catalogo local:', e.message);
         }
     }
 
@@ -1713,6 +1780,10 @@
                 pvLbShowImg(diff > 0 ? _pvLbIdx + 1 : _pvLbIdx - 1);
             }
         }, { passive: true });
+
+        setTimeout(function () {
+            pvRunWhenIdle(function () { pvLoadPhosphorIcons(); }, 1800);
+        }, 1600);
 
         pvApplySearchFromUrl();
         pvCargar();
