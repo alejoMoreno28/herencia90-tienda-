@@ -8,7 +8,7 @@
         "costo_usd": 10.44,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
@@ -192,10 +192,10 @@
         "costo_usd": 10.44,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0,
-            "R_L": 1
+            "R_L": 0
         },
         "imagenes": [
             "img/brasil_2026_version_fan_1.webp",
@@ -1035,7 +1035,7 @@
         "costo_usd": 14,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
