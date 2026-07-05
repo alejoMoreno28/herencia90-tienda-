@@ -7,10 +7,11 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
-            "XL": 0
+            "XL": 0,
+            "R_L": 1
         },
         "imagenes": [
             "img/alemania_2026_version_fan_1.webp",
@@ -191,11 +192,11 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0,
-            "R_L": 0
+            "R_L": 1
         },
         "imagenes": [
             "img/brasil_2026_version_fan_1.webp",
@@ -595,7 +596,7 @@
         "tallas": {
             "L": 1,
             "M": 1,
-            "S": 1,
+            "S": 0,
             "XL": 0
         },
         "imagenes": [
@@ -616,9 +617,10 @@
         "tallas": {
             "L": 0,
             "M": 0,
-            "S": 1,
+            "S": 0,
             "XL": 0,
-            "R_L": 1
+            "R_L": 0,
+            "R_S": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578533835_59.webp",
