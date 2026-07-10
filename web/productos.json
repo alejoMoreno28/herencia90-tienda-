@@ -10,7 +10,8 @@
             "L": 0,
             "M": 0,
             "S": 0,
-            "XL": 0
+            "XL": 0,
+            "R_L": 1
         },
         "imagenes": [
             "img/alemania_2026_version_fan_1.webp",
@@ -30,15 +31,15 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 0,
-            "M": 0,
+            "L": 1,
+            "M": 1,
             "S": 0,
             "XL": 0
         },
         "imagenes": [
             "img/argnetina_2026_home_fan_1.webp",
-            "img/argnetina_2026_home_fan_2.webp",
-            "img/argnetina_2026_home_fan_3.webp"
+            "img/argnetina_2026_home_fan_3.webp",
+            "img/argnetina_2026_home_fan_2.webp"
         ]
     },
     {
@@ -261,7 +262,7 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 1,
             "S": 0,
             "XL": 0
@@ -381,7 +382,7 @@
         "precio": 110000,
         "costo_usd": 13.44,
         "tallas": {
-            "L": 0,
+            "L": 1,
             "M": 0,
             "S": 0,
             "XL": 0
@@ -574,7 +575,7 @@
         "tallas": {
             "L": 0,
             "M": 0,
-            "S": 0,
+            "S": 2,
             "XL": 0
         },
         "imagenes": [
@@ -593,8 +594,8 @@
         "precio": 120000,
         "costo_usd": 15,
         "tallas": {
-            "L": 0,
-            "M": 0,
+            "L": 1,
+            "M": 1,
             "S": 0,
             "XL": 0
         },
@@ -618,7 +619,8 @@
             "M": 0,
             "S": 0,
             "XL": 0,
-            "R_L": 1
+            "R_L": 0,
+            "R_S": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780578533835_59.webp",
@@ -634,13 +636,13 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0,
-            "R_L": 0,
-            "R_M": 2,
-            "R_XL": 1
+            "R_L": 1,
+            "R_M": 1,
+            "R_XL": 0
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533411187_37.webp",
@@ -747,12 +749,12 @@
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-3.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-4.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-5.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-6.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-7.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-8.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-8.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ia-scraper/retro-bayern-munich-9920-1780256353507-3.webp"
         ]
     },
     {
@@ -825,7 +827,7 @@
         "costo_usd": 15,
         "tallas": {
             "L": 1,
-            "M": 0,
+            "M": 1,
             "S": 0,
             "XL": 0
         },
@@ -846,7 +848,7 @@
         "tallas": {
             "L": 0,
             "M": 0,
-            "S": 0,
+            "S": 1,
             "XL": 0
         },
         "imagenes": [
@@ -968,6 +970,255 @@
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780770372445_17.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780770375041_18.webp"
+        ]
+    },
+    {
+        "id": 52,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Colombia 2026 Visitante Mujer Azul",
+        "descripcion": "Camiseta Colombia 2026 Visitante Mujer Azul version fan woman. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332157861_10.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332159053_11.webp"
+        ]
+    },
+    {
+        "id": 53,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta España 2026 Vsitante Mujer",
+        "descripcion": "Camiseta España 2026 Vsitante Mujer version fan woman. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332105664_13.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332106488_14.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332104654_15.webp"
+        ]
+    },
+    {
+        "id": 54,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Portugal Local 2026 ",
+        "descripcion": "Camiseta Portugal Local 26 version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332111517_16.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332110077_18.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332112806_17.webp"
+        ]
+    },
+    {
+        "id": 55,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Brasil 2026 Azul Visitante",
+        "descripcion": "Camiseta Brasil 2026 Azul Visitante version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332115909_19.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332117383_20.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332114507_21.webp"
+        ]
+    },
+    {
+        "id": 56,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Francia Local 2026",
+        "descripcion": "Camiseta Francia Local 2026 version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332119172_22.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332120316_23.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332118123_24.webp"
+        ]
+    },
+    {
+        "id": 57,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid Lfstlr",
+        "descripcion": "Camiseta Real Madrid Lfstlr version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332126186_39.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332125279_40.webp"
+        ]
+    },
+    {
+        "id": 58,
+        "categoria": "Retro",
+        "equipo": "Camiseta Manchester United 2007/08 Manga Larga Retro",
+        "descripcion": "Camiseta Manchester United 2007/08 Manga Larga Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "precio": 150000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332124140_25.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332128917_29.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332127654_28.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332122827_30.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332126339_27.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332125118_26.webp"
+        ]
+    },
+    {
+        "id": 59,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Barcelona 26/27 Local",
+        "descripcion": "Camiseta Barcelona 2026/27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332133017_31.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332134404_32.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332130117_33.webp"
+        ]
+    },
+    {
+        "id": 60,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid 26 /27 Local",
+        "descripcion": "Camiseta Real Madrid 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332153236_4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332154038_5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332152510_6.webp"
+        ]
+    },
+    {
+        "id": 61,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Arsenal 26/27 Local",
+        "descripcion": "Camiseta Arsenal 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332149553_1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332150304_2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332148802_3.webp"
+        ]
+    },
+    {
+        "id": 62,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Argentina Mundial 2026 Visitante",
+        "descripcion": "",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332144505_7.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332145712_8.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332141885_9.webp"
+        ]
+    },
+    {
+        "id": 63,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid 26 27 Local Version Player",
+        "descripcion": "Camiseta Real Madrid 26 27 Local Version Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332138393_34.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332139551_35.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332140633_36.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332142186_37.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332137505_38.webp"
+        ]
+    },
+    {
+        "id": 64,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta 100 Años Blanca Mujer Version Player",
+        "descripcion": "Camiseta 100 Años Blanca Mujer Version Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332333442_41.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332332152_42.webp"
         ]
     }
 ]
