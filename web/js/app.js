@@ -21,7 +21,7 @@ let aosPromise = null;
 
 let allProducts = [];
 let catalogSearchTerm = '';
-let catalogSort = 'recommended';
+let catalogSort = 'recent';
 let catalogPage = 1;
 const CATALOG_PAGE_SIZE = 24;
 const CATALOG_INITIAL_RENDER_COUNT = 8;
