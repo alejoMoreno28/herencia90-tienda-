@@ -2,13 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-576MFSV66N');
+      (function(){
+        var loaded = false;
+        var loadGtag = function(){
+          if (loaded) return;
+          loaded = true;
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
+          document.head.appendChild(script);
+          gtag('js', new Date());
+          gtag('config', 'G-576MFSV66N');
+        };
+        var schedule = function(){ setTimeout(loadGtag, 4500); };
+        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
+        window.addEventListener('keydown', loadGtag, { once: true });
+        window.addEventListener('load', schedule, { once: true });
+      })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colombia | Herencia 90</title>
@@ -28,8 +41,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="/css/style.css?v=1781320800000">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -81,6 +95,7 @@
     </script>
 </head>
 <body data-category="colombia">
+    <h1 class="sr-only">Camisetas de la Selección Colombia | Herencia 90</h1>
     <!-- Scroll Progress Bar (CSS Scroll-Driven Animation) -->
     <div class="scroll-progress" aria-hidden="true"></div>
 

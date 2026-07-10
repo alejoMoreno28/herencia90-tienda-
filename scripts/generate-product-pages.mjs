@@ -531,7 +531,9 @@ function renderCollectionPage(collection) {
   <meta name="twitter:image" content="${firstImage}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
@@ -1177,7 +1179,9 @@ function renderPreventaPage(item) {
   <link rel="icon" href="/img/logo.webp" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root { --bg:#050505; --panel:rgba(20,20,20,.84); --gold:#d9c391; --text:#fff; --muted:#aaa; --line:rgba(217,195,145,.16); --wa:#0f7a41; }
@@ -1329,7 +1333,9 @@ function renderProductPage(product) {
   <meta name="twitter:image" content="${imageUrls[0]}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
@@ -1904,6 +1910,10 @@ function buildSitemap() {
   const urls = [
     `${siteUrl}/`,
     `${siteUrl}/preventa`,
+    `${siteUrl}/catalogo`,
+    `${siteUrl}/nosotros`,
+    `${siteUrl}/preguntas-frecuentes`,
+    ...['mundial-2026', 'alemania', 'argentina', 'arsenal', 'bayern-munich', 'brasil', 'liverpool', 'manchester-city', 'manchester-united', 'portugal', 'psg', 'mujer'].map((s) => `${siteUrl}/categorias/${s}`),
     ...seoCollections.map((collection) => getCollectionUrl(collection)),
     ...products.flatMap((product) => getProductUrls(product)),
     ...preventaItems.map((item) => getPreventaUrl(item))
