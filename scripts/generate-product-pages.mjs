@@ -1,5 +1,11 @@
 ﻿import fs from 'node:fs';
 import path from 'node:path';
+import {
+  absoluteAssetUrl as normalizeAssetUrl,
+  buildProductSchemaDescription,
+  getSellableSizes,
+  getSellableStock,
+} from './lib/catalog-seo.mjs';
 
 const root = process.cwd();
 const siteUrl = 'https://www.herencia90.shop';
@@ -16,6 +22,14 @@ const preventaCatalogPath = path.join(root, 'web', 'preventa-catalogo.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
 const useLocalCatalogs = process.env.H90_GENERATE_LOCAL === '1';
+const legacyProductSlugsById = new Map([
+  [1, ['camiseta-local-alemania-26']],
+  [2, ['camiseta-local-argentina-26']],
+  [9, ['camiseta-local-brasil-26']],
+  [10, ['camiseta-local-colombia-26']],
+  [17, ['camiseta-edicion-especial-portugal-26']],
+  [24, ['camiseta-local-colombia-26-mujer']],
+]);
 
 async function loadProducts() {
   if (useLocalCatalogs) {
@@ -292,17 +306,15 @@ function truncateText(value, maxLength = 160) {
 }
 
 function absoluteAssetUrl(assetPath) {
-  return `${siteUrl}/${assetPath.replace(/^\/+/, '')}`;
+  return normalizeAssetUrl(assetPath, siteUrl);
 }
 
 function getAvailableSizes(product) {
-  return Object.entries(product.tallas || {})
-    .filter(([, qty]) => qty > 0)
-    .map(([size]) => size);
+  return getSellableSizes(product.tallas);
 }
 
 function getStockTotal(product) {
-  return Object.values(product.tallas || {}).reduce((sum, qty) => sum + Number(qty || 0), 0);
+  return getSellableStock(product.tallas);
 }
 
 function getProductUrl(product) {
@@ -313,6 +325,10 @@ function getProductAliasSlug(product) {
   if (product.id === 10) return 'camiseta-local-colombia-26';
   if (product.id === 24) return 'camiseta-local-colombia-26-mujer';
   return null;
+}
+
+function getProductLegacySlugs(product) {
+  return legacyProductSlugsById.get(Number(product.id)) || [];
 }
 
 function getProductUrls(product) {
@@ -993,7 +1009,7 @@ function renderCollectionPage(collection) {
 
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
+        .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
         .map(([size]) => size);
     }
 
@@ -1281,7 +1297,7 @@ function renderProductPage(product) {
     '@type': 'Product',
     name: product.equipo,
     image: imageUrls,
-    description: product.descripcion,
+    description: buildProductSchemaDescription(product, availableSizes),
     brand: {
       '@type': 'Brand',
       name: 'Herencia 90'
@@ -1791,7 +1807,7 @@ function renderProductPage(product) {
 
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
+        .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
         .map(([size]) => size);
     }
 
@@ -1930,15 +1946,34 @@ function buildRobots() {
   return `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
 }
 
+function removeStaleGeneratedPages(directory, expectedFiles) {
+  const resolvedDirectory = path.resolve(directory);
+  for (const name of fs.readdirSync(resolvedDirectory)) {
+    if (!name.endsWith('.html') || expectedFiles.has(name)) continue;
+    const target = path.resolve(resolvedDirectory, name);
+    if (path.dirname(target) !== resolvedDirectory) {
+      throw new Error(`Ruta generada fuera del directorio permitido: ${target}`);
+    }
+    fs.unlinkSync(target);
+  }
+}
+
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(preventaOutputDir, { recursive: true });
 fs.mkdirSync(categoryOutputDir, { recursive: true });
 fs.mkdirSync(cityOutputDir, { recursive: true });
 
+const expectedProductFiles = new Set();
 for (const product of products) {
-  const filePath = path.join(outputDir, `${slugify(product.equipo)}.html`);
-  fs.writeFileSync(filePath, renderProductPage(product), 'utf8');
+  const slugs = [...new Set([slugify(product.equipo), ...getProductLegacySlugs(product)])];
+  const page = renderProductPage(product);
+  for (const slug of slugs) {
+    const filename = `${slug}.html`;
+    expectedProductFiles.add(filename);
+    fs.writeFileSync(path.join(outputDir, filename), page, 'utf8');
+  }
 }
+removeStaleGeneratedPages(outputDir, expectedProductFiles);
 
 for (const item of preventaItems) {
   const filePath = path.join(preventaOutputDir, `${slugify(item.slug || item.equipo)}.html`);
