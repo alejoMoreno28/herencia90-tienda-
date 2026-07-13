@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camiseta local Arsenal 25/26 | Herencia 90 Colombia</title>
   <meta name="description" content="Camiseta local Arsenal 25/26 en Herencia 90. Camiseta local del Arsenal para la temporada 2025-26. El rojo intenso de Emirates Stadium con detalles en blanco...">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="https://www.herencia90.shop/camisetas/camiseta-local-arsenal-25-26">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
@@ -20,10 +21,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript></noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Camiseta local Arsenal 25/26","image":["https://www.herencia90.shop/img/arsenal_25-26_home_fan_1.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_2.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_3.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_4.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_5.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_6.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_7.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_8.webp","https://www.herencia90.shop/img/arsenal_25-26_home_fan_9.webp"],"description":"Camiseta local del Arsenal para la temporada 2025-26. El rojo intenso de Emirates Stadium con detalles en blanco y el escudo de los Gunners. Versión Fan con tela ligera y transpirable.","brand":{"@type":"Brand","name":"Herencia 90"},"sku":"HERENCIA90-4","category":"Temporada 25/26","url":"https://www.herencia90.shop/camisetas/camiseta-local-arsenal-25-26","offers":{"@type":"Offer","url":"https://www.herencia90.shop/camisetas/camiseta-local-arsenal-25-26","priceCurrency":"COP","price":99000,"availability":"https://schema.org/InStock","itemCondition":"https://schema.org/NewCondition","seller":{"@type":"Organization","name":"Herencia 90"}}}</script>
@@ -487,6 +486,13 @@
     </section>
   </main>
 
+  <footer class="legal-footer-links" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px 20px;padding:28px 18px;border-top:1px solid rgba(217,195,145,.22);background:#050505;font:600 12px Montserrat,Arial,sans-serif">
+  <a style="color:#d9c391" href="/privacidad">Privacidad</a>
+  <a style="color:#d9c391" href="/envios">Envios</a>
+  <a style="color:#d9c391" href="/cambios-devoluciones">Cambios y devoluciones</a>
+  <a style="color:#d9c391" href="/terminos">Terminos</a>
+</footer>
+
   <div class="mobile-buy-bar" aria-label="Compra rapida">
     <div class="mobile-buy-copy">
       <strong id="mobileBuyTitle">Camiseta local Arsenal 25/26</strong>
@@ -510,7 +516,7 @@
 
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
+        .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
         .map(([size]) => size);
     }
 
@@ -572,15 +578,26 @@
     }
 
     async function trackEvent(eventType, product) {
-      try {
-        await db.from('analytics_events').insert({
-          event_type: eventType,
-          product_id: product && product.id ? product.id : null,
-          product_name: product && product.equipo ? product.equipo : null,
-          category: product && product.categoria ? product.categoria : null,
-          extra: { source: 'seo_product_page' },
-          referrer: document.referrer || null
+      if (!window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: eventType,
+        product_id: product && product.id ? product.id : null,
+        product_name: product && product.equipo ? product.equipo : null,
+        category: product && product.categoria ? product.categoria : null,
+        extra: { source: 'seo_product_page' },
+        referrer: document.referrer || null
+      });
+      if (!payload) return;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventType, {
+          item_id: payload.product_id,
+          item_name: payload.product_name,
+          item_category: payload.category,
+          ...payload.extra
         });
+      }
+      try {
+        await db.from('analytics_events').insert(payload);
       } catch (error) {
         // Analytics nunca interrumpe la experiencia del usuario
       }
@@ -597,10 +614,19 @@
     }
 
     bindThumbs();
-    trackEvent('page_view', STATIC_PRODUCT);
-    trackEvent('modal_open', STATIC_PRODUCT);
-    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
-    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
+    let initialProductEventsTracked = false;
+    function trackInitialProductEvents() {
+      if (initialProductEventsTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      initialProductEventsTracked = true;
+      trackEvent('page_view', STATIC_PRODUCT);
+      trackEvent('view_item', STATIC_PRODUCT);
+    }
+    trackInitialProductEvents();
+    window.addEventListener('h90:analytics-consent', (event) => {
+      if (event.detail && event.detail.decision === 'accepted') trackInitialProductEvents();
+    });
+    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
+    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
     refreshProductFromSupabase();
     db.channel('seo-product-live-camiseta-local-arsenal-25-26')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.4' }, (payload) => {
