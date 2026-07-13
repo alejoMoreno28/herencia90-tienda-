@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import adminSecurity from './_lib/admin-security.cjs';
+import storagePaths from './_lib/storage-paths.cjs';
 
 const { applyAdminCors, authorizeAdminRequest, hasOversizedJsonBody } = adminSecurity;
+const { createStoragePrefix } = storagePaths;
 
 const BUCKET = 'product-images';
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
@@ -44,20 +46,23 @@ export default async function handler(req, res) {
       return res.status(413).json({ error: 'Imagen demasiado pesada. Maximo 3 MB despues de optimizar.' });
     }
 
+    const extension = contentType === 'image/png' ? 'png' : contentType === 'image/jpeg' ? 'jpg' : 'webp';
+    const storagePath = `${createStoragePrefix('admin', filename)}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from(BUCKET)
-      .upload(filename, buffer, {
-        upsert: true,
+      .upload(storagePath, buffer, {
+        upsert: false,
         contentType: contentType || 'image/webp',
         cacheControl: '31536000'
       });
 
     if (uploadError) {
-      return res.status(500).json({ error: uploadError.message });
+      console.error('Storage rechazo admin upload:', uploadError);
+      return res.status(500).json({ error: 'No fue posible guardar la imagen.' });
     }
 
-    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(filename);
-    return res.status(200).json({ url: publicData.publicUrl, filename });
+    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+    return res.status(200).json({ url: publicData.publicUrl, filename: storagePath });
   } catch (error) {
     console.error('Error admin-upload-image:', error);
     return res.status(500).json({ error: 'Error subiendo imagen.' });

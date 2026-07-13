@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const {
     applyAdminCors,
     authorizeAdminRequest,
+    fetchExternalResource,
     hasOversizedJsonBody,
     validateExternalUrl,
 } = require('./_lib/admin-security.cjs');
@@ -36,7 +37,8 @@ async function searchNative(query, domain, longName) {
     }
 
     try {
-        const res = await fetch(searchUrl, {
+        const res = await fetchExternalResource(searchUrl, {
+            allowedHosts: [domain],
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
         });
         if (!res.ok) return null;
@@ -93,10 +95,11 @@ async function searchNative(query, domain, longName) {
     }
 }
 
-async function scrapeImages(url) {
+async function scrapeImages(url, fetcher = fetchExternalResource) {
     try {
         const baseUrl = new URL(url);
-        const res = await fetch(url, {
+        const res = await fetcher(url, {
+            allowedSuffixes: PROVIDERS,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
             redirect: 'error'
         });
@@ -243,8 +246,8 @@ async function scrapeImages(url) {
 }
 
 async function downloadAndUpload(supabase, imgUrl, storagePath) {
-    const validatedUrl = await validateExternalUrl(imgUrl);
-    const res = await fetch(validatedUrl, {
+    const res = await fetchExternalResource(imgUrl, {
+        maxBytes: MAX_DOWNLOAD_BYTES,
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
         redirect: 'error'
     });
@@ -269,7 +272,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
 
     const { error } = await supabase.storage
         .from(BUCKET)
-        .upload(storagePath, buffer, { contentType, upsert: true });
+        .upload(storagePath, buffer, { contentType, upsert: false });
     
     if (error) throw new Error(error.message);
 
@@ -280,7 +283,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
 async function searchShopifyApi(query, domain, longName) {
     try {
         const url = `https://${domain}/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product`;
-        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const r = await fetchExternalResource(url, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!r.ok) return [];
         const data = await r.json();
         const products = data.resources?.results?.products || [];
@@ -299,7 +302,7 @@ async function searchShopifyApi(query, domain, longName) {
         }
         
         const jsonUrl = `https://${domain}${bestProduct.url.split('?')[0]}.js`;
-        const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const pReq = await fetchExternalResource(jsonUrl, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!pReq.ok) return [];
         const pData = await pReq.json();
         return pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);
@@ -309,7 +312,7 @@ async function searchShopifyApi(query, domain, longName) {
 async function searchWooApi(query, domain, longName) {
     try {
         const url = `https://${domain}/wp-json/wc/store/products?search=${encodeURIComponent(query)}`;
-        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const r = await fetchExternalResource(url, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!r.ok) return [];
         const products = await r.json();
         if (products.length === 0) return [];
@@ -372,7 +375,7 @@ module.exports = async function handler(req, res) {
             if (safeExactUrl.includes('panitastienda.com')) {
                 // Tratar como shopify
                 const jsonUrl = safeExactUrl.split('?')[0] + '.js';
-                const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, redirect: 'error' });
+                const pReq = await fetchExternalResource(jsonUrl, { allowedSuffixes: PROVIDERS, headers: { 'User-Agent': 'Mozilla/5.0' } });
                 if (pReq.ok) {
                     const pData = await pReq.json();
                     candidateImages = pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);

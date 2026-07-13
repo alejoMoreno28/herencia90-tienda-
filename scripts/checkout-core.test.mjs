@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import test from 'node:test';
 
 const require = createRequire(import.meta.url);
+const root = resolve(import.meta.dirname, '..');
 const modulePath = resolve(import.meta.dirname, '..', 'web', 'js', 'checkout-core.js');
 
 function loadCheckoutCore() {
@@ -69,4 +70,15 @@ test('customer validation and WhatsApp summary require complete delivery data', 
   assert.match(order.message, /Colombia 1990/);
   assert.match(order.message, /\$120\.000/);
   assert.doesNotMatch(order.message, /pagado|pago exitoso/i);
+});
+
+test('checkout requests a fresh server quote instead of trusting the deployed catalog snapshot', () => {
+  const page = readFileSync(resolve(root, 'web/js/checkout.js'), 'utf8');
+  const endpoint = readFileSync(resolve(root, 'api/checkout-quote.js'), 'utf8');
+
+  assert.match(page, /fetch\(['"]\/api\/checkout-quote['"]/);
+  assert.doesNotMatch(page, /fetch\(['"]\/productos\.json['"]/);
+  assert.match(endpoint, /from\(['"]productos['"]\)/);
+  assert.match(endpoint, /Cache-Control['"],\s*['"]no-store/);
+  assert.doesNotMatch(endpoint, /return[^\n]+service[_-]?key/i);
 });

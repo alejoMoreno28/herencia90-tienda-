@@ -492,8 +492,7 @@ function renderCollectionProductCards(collectionProducts) {
       const availableSizes = getAvailableSizes(product);
       const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
       const productUrl = getProductAliasSlug(product) ? `/camisetas/${getProductAliasSlug(product)}` : `/camisetas/${slugify(product.equipo)}`;
-      return `
-        <article class="collection-product-card">
+      return `<article class="collection-product-card">
           <a class="collection-product-image" href="${productUrl}">
             <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
           </a>
@@ -510,8 +509,7 @@ function renderCollectionProductCards(collectionProducts) {
               <a class="mini-btn mini-btn-secondary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </div>
           </div>
-        </article>
-      `;
+        </article>`;
     })
     .join('');
 }
@@ -905,7 +903,7 @@ function renderCollectionPage(collection) {
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
-    <a href="/preventa">Pre-venta</a>
+    <a href="/preventa">Bajo pedido</a>
   </header>
 
   <main class="page-shell">
@@ -1062,7 +1060,7 @@ function renderCollectionPage(collection) {
       const sizes = getAvailableSizesClient(product);
       return '<article class="collection-product-card">' +
         '<a class="collection-product-image" href="' + buildProductUrlClient(product) + '">' +
-          '<img src="' + getImageClient(product) + '" alt="' + escapeHtmlClient(product.equipo) + '">' +
+          '<img src="' + escapeHtmlClient(getImageClient(product)) + '" alt="' + escapeHtmlClient(product.equipo) + '">' +
         '</a>' +
         '<div class="collection-product-copy">' +
           '<span class="collection-product-category">' + escapeHtmlClient(product.categoria || 'Herencia 90') + '</span>' +
@@ -1096,16 +1094,24 @@ function renderCollectionPage(collection) {
       root.innerHTML = safeProducts.map(buildCollectionCard).join('');
     }
 
+    let collectionPageTracked = false;
     async function trackCollectionPage() {
+      if (collectionPageTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: 'page_view',
+        product_id: null,
+        product_name: null,
+        category: STATIC_COLLECTION.name,
+        extra: { source: 'seo_collection_page' },
+        referrer: document.referrer || null
+      });
+      if (!payload) return;
+      collectionPageTracked = true;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', { item_category: payload.category, ...payload.extra });
+      }
       try {
-        await db.from('analytics_events').insert({
-          event_type: 'page_view',
-          product_id: null,
-          product_name: null,
-          category: STATIC_COLLECTION.name,
-          extra: { source: 'seo_collection_page' },
-          referrer: document.referrer || null
-        });
+        await db.from('analytics_events').insert(payload);
       } catch (error) {
         // Analytics nunca interrumpe la experiencia del usuario
       }
@@ -1124,6 +1130,9 @@ function renderCollectionPage(collection) {
     }
 
     trackCollectionPage();
+    window.addEventListener('h90:analytics-consent', (event) => {
+      if (event.detail && event.detail.decision === 'accepted') trackCollectionPage();
+    });
     refreshCollectionFromSupabase();
     db.channel('seo-collection-live-${collection.slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
@@ -1319,7 +1328,7 @@ function renderProductPage(product) {
   const slug = slugify(product.equipo);
   const availableSizes = getAvailableSizes(product);
   const sizeTags = availableSizes.length
-    ? availableSizes.map((size) => `<span>${escapeHtml(size)}</span>`).join('')
+    ? availableSizes.map((size) => `<button type="button" data-size="${escapeHtml(size)}" aria-pressed="false">${escapeHtml(size)}</button>`).join('')
     : '<span>Consultar</span>';
   const description = buildMetaDescription(product, availableSizes);
   const imageUrls = (product.imagenes?.length ? product.imagenes : ['img/logo.webp']).map(absoluteAssetUrl);
@@ -1580,7 +1589,8 @@ function renderProductPage(product) {
       gap: 10px;
       margin-bottom: 22px;
     }
-    .size-list span {
+    .size-list span,
+    .size-list button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1592,6 +1602,12 @@ function renderProductPage(product) {
       color: var(--gold-hover);
       font-weight: 700;
       font-size: 0.84rem;
+    }
+    .size-list button { cursor: pointer; font-family: inherit; }
+    .size-list button.selected {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
     }
     .actions {
       display: flex;
@@ -1613,12 +1629,20 @@ function renderProductPage(product) {
       letter-spacing: 0.8px;
       font-size: 0.82rem;
       transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
     }
     .btn:hover { transform: translateY(-2px); }
     .btn-primary {
-      background: var(--whatsapp);
-      color: white;
-      box-shadow: 0 10px 24px rgba(37,211,102,0.25);
+      background: var(--gold);
+      color: #111;
+      box-shadow: 0 10px 24px rgba(217,195,145,0.22);
+    }
+    .btn-whatsapp {
+      border: 1px solid rgba(26,127,69,0.75);
+      color: #7be0a7;
+      background: rgba(26,127,69,0.12);
     }
     .btn-secondary {
       border: 1px solid rgba(217, 195, 145, 0.32);
@@ -1790,11 +1814,11 @@ function renderProductPage(product) {
         <div id="productSizeList" class="size-list">${sizeTags}</div>
 
         <div class="actions">
-          <a id="productWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>
-          <a class="btn btn-secondary" href="/">Seguir viendo camisetas</a>
+          <button id="productAddCartBtn" class="btn btn-primary" type="button">Agregar y revisar pedido</button>
+          <a id="productWhatsAppBtn" class="btn btn-whatsapp" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
         </div>
 
-        <p class="microcopy">Si quieres nombre, numero o parches, tambien te cotizamos esos extras por WhatsApp.</p>
+        <p id="productPurchaseStatus" class="microcopy" aria-live="polite">Elige tu talla para continuar por la web. Si quieres extras, WhatsApp queda disponible como soporte.</p>
       </div>
     </section>
 
@@ -1823,7 +1847,7 @@ function renderProductPage(product) {
       <strong id="mobileBuyTitle">${escapeHtml(product.equipo)}</strong>
       <span id="mobileBuyPrice">${escapeHtml(formatPrice(product.precio))}</span>
     </div>
-    <a id="mobileWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar</a>
+    <button id="mobileAddCartBtn" class="btn btn-primary" type="button">Comprar</button>
   </div>
 
   <script>
@@ -1834,6 +1858,7 @@ function renderProductPage(product) {
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentProduct = STATIC_PRODUCT;
+    let selectedSize = '';
 
     function formatPriceClient(value) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
@@ -1845,6 +1870,83 @@ function renderProductPage(product) {
         .map(([size]) => size);
     }
 
+    function sanitizePublicDescriptionClient(value) {
+      return String(value || '')
+        .replace(/camiseta oficial de/gi, 'Camiseta de')
+        .replace(/parches oficiales/gi, 'parches disponibles');
+    }
+
+    function setPurchaseStatus(message) {
+      const status = document.getElementById('productPurchaseStatus');
+      if (status) status.textContent = message;
+    }
+
+    function selectProductSize(size) {
+      selectedSize = String(size || '');
+      document.querySelectorAll('#productSizeList [data-size]').forEach((button) => {
+        const active = button.dataset.size === selectedSize;
+        button.classList.toggle('selected', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      setPurchaseStatus(selectedSize ? 'Talla ' + selectedSize + ' seleccionada. Ya puedes revisar el pedido.' : 'Elige una talla para continuar.');
+      if (selectedSize) trackEvent('select_size', currentProduct);
+    }
+
+    function bindSizeOptions() {
+      document.querySelectorAll('#productSizeList [data-size]').forEach((button) => {
+        button.onclick = () => selectProductSize(button.dataset.size);
+      });
+    }
+
+    function renderSizeOptions(product) {
+      const container = document.getElementById('productSizeList');
+      if (!container) return;
+      const sizes = getAvailableSizesClient(product);
+      if (!sizes.includes(selectedSize)) selectedSize = '';
+      container.replaceChildren();
+      if (!sizes.length) {
+        const empty = document.createElement('span');
+        empty.textContent = 'Consultar';
+        container.appendChild(empty);
+        return;
+      }
+      sizes.forEach((size) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.size = size;
+        button.textContent = size;
+        button.setAttribute('aria-pressed', size === selectedSize ? 'true' : 'false');
+        if (size === selectedSize) button.classList.add('selected');
+        container.appendChild(button);
+      });
+      bindSizeOptions();
+    }
+
+    function addCurrentProductToCart() {
+      const sizes = getAvailableSizesClient(currentProduct);
+      if (!selectedSize || !sizes.includes(selectedSize)) {
+        setPurchaseStatus('Selecciona una talla disponible antes de continuar.');
+        const firstSize = document.querySelector('#productSizeList [data-size]');
+        if (firstSize) firstSize.focus();
+        return;
+      }
+
+      let cart = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem('herencia90_cart') || '[]');
+        if (Array.isArray(stored)) cart = stored;
+      } catch (error) {
+        cart = [];
+      }
+
+      const existing = cart.find((item) => String(item.id) === String(currentProduct.id) && item.talla === selectedSize);
+      if (existing) existing.cantidad = Math.min(10, Math.max(1, Number(existing.cantidad) || 1) + 1);
+      else cart.push({ id: currentProduct.id, talla: selectedSize, cantidad: 1 });
+      localStorage.setItem('herencia90_cart', JSON.stringify(cart));
+      trackEvent('add_to_cart', currentProduct);
+      window.location.assign('/checkout');
+    }
+
     function buildWhatsAppClient(product) {
       const sizes = getAvailableSizesClient(product);
       const sizeText = sizes.length > 0 ? ' Tallas disponibles: ' + sizes.join(', ') + '.' : '';
@@ -1852,12 +1954,21 @@ function renderProductPage(product) {
       return 'https://wa.me/573126428153?text=' + encodeURIComponent(message);
     }
 
-    function buildThumbGrid(images, title) {
-      return images.map((image, index) => {
+    function renderThumbGrid(container, images, title) {
+      container.replaceChildren();
+      images.forEach((image, index) => {
         const src = image.startsWith('http') ? image : '../' + image.replace(/^\\/+/, '');
-        const activeClass = index === 0 ? ' active' : '';
-        return '<button class="thumb' + activeClass + '" type="button" data-image="' + src + '"><img src="' + src + '" alt="' + title + ' vista ' + (index + 1) + '"></button>';
-      }).join('');
+        const button = document.createElement('button');
+        const thumbnail = document.createElement('img');
+        button.className = index === 0 ? 'thumb active' : 'thumb';
+        button.type = 'button';
+        button.dataset.image = src;
+        thumbnail.src = src;
+        thumbnail.alt = title + ' vista ' + (index + 1);
+        button.appendChild(thumbnail);
+        container.appendChild(button);
+      });
+      bindThumbs();
     }
 
     function bindThumbs() {
@@ -1882,12 +1993,11 @@ function renderProductPage(product) {
       document.getElementById('productTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
       document.getElementById('productPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('mobileBuyPrice').textContent = formatPriceClient(product.precio);
-      document.getElementById('productDescription').textContent = product.descripcion || '';
+      document.getElementById('productDescription').textContent = sanitizePublicDescriptionClient(product.descripcion);
       document.getElementById('productSizesSummary').textContent = sizes.join(', ') || 'Consultar';
-      document.getElementById('productSizeList').innerHTML = (sizes.length ? sizes : ['Consultar']).map((size) => '<span>' + size + '</span>').join('');
+      renderSizeOptions(product);
       document.getElementById('productWhatsAppBtn').href = buildWhatsAppClient(product);
       document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
-      document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
 
       const mainImage = document.getElementById('productMainImage');
       if (mainImage) {
@@ -1897,8 +2007,7 @@ function renderProductPage(product) {
 
       const thumbGrid = document.querySelector('.thumb-grid');
       if (thumbGrid) {
-        thumbGrid.innerHTML = buildThumbGrid(images, product.equipo || STATIC_PRODUCT.equipo);
-        bindThumbs();
+        renderThumbGrid(thumbGrid, images, product.equipo || STATIC_PRODUCT.equipo);
       }
     }
 
@@ -1939,6 +2048,7 @@ function renderProductPage(product) {
     }
 
     bindThumbs();
+    bindSizeOptions();
     let initialProductEventsTracked = false;
     function trackInitialProductEvents() {
       if (initialProductEventsTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
@@ -1951,7 +2061,8 @@ function renderProductPage(product) {
       if (event.detail && event.detail.decision === 'accepted') trackInitialProductEvents();
     });
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
-    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
+    document.getElementById('productAddCartBtn').addEventListener('click', addCurrentProductToCart);
+    document.getElementById('mobileAddCartBtn').addEventListener('click', addCurrentProductToCart);
     refreshProductFromSupabase();
     db.channel('seo-product-live-${slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
@@ -2084,16 +2195,20 @@ for (const product of products) {
 }
 removeStaleGeneratedPages(outputDir, expectedProductFiles);
 
+const expectedPreventaFiles = new Set(['index.html']);
 for (const item of preventaItems) {
-  const filePath = path.join(preventaOutputDir, `${slugify(item.slug || item.equipo)}.html`);
+  const filename = `${slugify(item.slug || item.equipo)}.html`;
+  expectedPreventaFiles.add(filename);
+  const filePath = path.join(preventaOutputDir, filename);
   fs.writeFileSync(filePath, renderPreventaPage(item), 'utf8');
 }
+removeStaleGeneratedPages(preventaOutputDir, expectedPreventaFiles);
 
 for (const collection of seoCollections) {
   const filePath = collection.type === 'city' 
     ? path.join(cityOutputDir, `${collection.slug}.html`)
     : path.join(categoryOutputDir, `${collection.slug}.html`);
-  if (!fs.existsSync(filePath)) {
+  if (collection.type === 'city' || !fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
   }
 }

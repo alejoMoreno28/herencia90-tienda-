@@ -232,6 +232,31 @@ check('static city pages exist and are included in the sitemap', () => {
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/ciudades\/ibague/i);
 });
 
+check('generated collections always refresh and stale pre-order pages are removed', () => {
+  const generator = read('scripts/generate-product-pages.mjs');
+  const catalog = JSON.parse(read('web/productos.json'));
+  const productsById = new Map(catalog.map((product) => [String(product.id), product]));
+  assert.match(generator, /collection\.type\s*===\s*['"]city['"]\s*\|\|\s*!fs\.existsSync\(filePath\)/);
+  assert.match(generator, /expectedPreventaFiles/);
+  assert.match(generator, /removeStaleGeneratedPages\(preventaOutputDir, expectedPreventaFiles\)/);
+
+  for (const city of ['bogota', 'medellin', 'cali', 'barranquilla', 'ibague']) {
+    const cityPage = `web/ciudades/${city}.html`;
+    const html = read(cityPage);
+    const officialClaims = html.match(/Camiseta oficial de/gi) || [];
+    assert.equal(officialClaims.length, 1, `${cityPage} solo debe conservar la regla que elimina el claim obsoleto`);
+    const payload = html.match(/const STATIC_COLLECTION = (\{.*\});\r?\n/)?.[1];
+    assert.ok(payload, `${cityPage} debe incluir un catálogo estático verificable`);
+    for (const embedded of JSON.parse(payload).products) {
+      const source = productsById.get(String(embedded.id));
+      assert.ok(source, `${cityPage} contiene el producto ${embedded.id}`);
+      assert.equal(embedded.precio, source.precio, `${cityPage} precio ${embedded.id}`);
+      assert.deepEqual(embedded.tallas, source.tallas, `${cityPage} stock ${embedded.id}`);
+      assert.equal(embedded.descripcion, source.descripcion, `${cityPage} descripción ${embedded.id}`);
+    }
+  }
+});
+
 if (failures.length > 0) {
   process.exitCode = 1;
 }

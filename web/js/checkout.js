@@ -91,10 +91,16 @@
     async function initialize() {
         const form = byId('checkoutForm');
         try {
-            const response = await fetch('/productos.json', { headers: { Accept: 'application/json' } });
-            if (!response.ok) throw new Error('No fue posible cargar el catálogo');
-            const catalog = await response.json();
-            checkout = window.H90CheckoutCore.buildCheckout(readCart(), catalog);
+            const response = await fetch('/api/checkout-quote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ cart: readCart() })
+            });
+            if (!response.ok) throw new Error('No fue posible validar el pedido');
+            checkout = await response.json();
+            if (!checkout || !Array.isArray(checkout.lines) || !Array.isArray(checkout.errors)) {
+                throw new Error('La cotización recibida no es válida');
+            }
             renderCheckout(checkout);
         } catch (error) {
             checkout = { lines: [], errors: [{ blocking: true, message: 'No pudimos verificar el catálogo. Intenta de nuevo.' }], subtotal: 0, total: 0, ready: false };

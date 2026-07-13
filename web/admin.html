@@ -828,8 +828,22 @@
             };
         }
 
-        db.auth.getSession().then(({ data }) => {
-            if (!data.session) window.location.href = '/login.html';
+        async function verifyAdminSession(session) {
+            if (!session || !session.access_token) return false;
+            try {
+                const response = await fetch('/api/admin-session', {
+                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        db.auth.getSession().then(async ({ data }) => {
+            if (await verifyAdminSession(data.session)) return;
+            if (data.session) await db.auth.signOut();
+            window.location.href = '/login.html?error=forbidden';
         });
 
         let GLOBAL_TRM = 3714.0;

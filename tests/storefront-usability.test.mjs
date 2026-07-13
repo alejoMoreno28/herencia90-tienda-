@@ -209,6 +209,48 @@ check('cart continues to a local review page with policy links', () => {
   );
 });
 
+check('generated product pages select a size and continue through the website checkout', () => {
+  const generator = read('scripts/generate-product-pages.mjs');
+  const sample = read('web/camisetas/camiseta-argentina-mundial-2026.html');
+
+  for (const source of [generator, sample]) {
+    assert.match(source, /id="productAddCartBtn"/i);
+    assert.match(source, /herencia90_cart/i);
+    assert.match(source, /window\.location\.assign\(['"]\/checkout['"]\)/i);
+    assert.match(source, /data-size=/i);
+    assert.match(source, /sanitizePublicDescriptionClient\(product\.descripcion\)/i);
+  }
+  assert.match(sample, /Consultar por WhatsApp/i);
+});
+
+check('generated live galleries build image controls without injecting database HTML', () => {
+  const generator = read('scripts/generate-product-pages.mjs');
+  const sample = read('web/camisetas/camiseta-argentina-mundial-2026.html');
+
+  for (const source of [generator, sample]) {
+    assert.match(source, /function renderThumbGrid\(/i);
+    assert.match(source, /document\.createElement\(['"]img['"]\)/i);
+    assert.doesNotMatch(source, /thumbGrid\.innerHTML\s*=\s*buildThumbGrid/i);
+  }
+});
+
+check('generated city analytics waits for explicit visitor consent', () => {
+  const generator = read('scripts/generate-product-pages.mjs');
+  const city = read('web/ciudades/medellin.html');
+
+  for (const source of [generator, city]) {
+    assert.match(source, /H90AnalyticsConsent\.canTrack\(\)/i);
+    assert.match(source, /h90:analytics-consent/i);
+    assert.match(source, /sanitizeEvent\(/i);
+  }
+});
+
+check('login follows the same consent-first analytics contract as public storefront pages', () => {
+  const login = read('web/login.html');
+  assert.match(login, /js\/analytics-consent\.js/i);
+  assert.doesNotMatch(login, /setTimeout\(loadGtag|googletagmanager\.com\/gtag\/js/i);
+});
+
 check('primary storefront colors meet readable text contrast on light backgrounds', () => {
   const css = read('web/css/style.css');
   const gold = cssVariable(css, '--gold');

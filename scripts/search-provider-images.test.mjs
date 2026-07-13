@@ -10,8 +10,7 @@ test('provider image extraction exposes up to 8 review photos', () => {
 });
 
 test('scrapeImages extracts relative and lazy product image urls', async () => {
-  const previousFetch = global.fetch;
-  global.fetch = async () => ({
+  const fetcher = async () => ({
     ok: true,
     text: async () => `
       <main id="content">
@@ -32,22 +31,17 @@ test('scrapeImages extracts relative and lazy product image urls', async () => {
     `,
   });
 
-  try {
-    const images = await _private.scrapeImages('https://www.camisetafutboles.com/camiseta-test.html');
+  const images = await _private.scrapeImages('https://leyendasdelfutbol.com/camiseta-test.html', fetcher);
 
-    assert.deepEqual(images, [
-      'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-front-800x800.jpg',
-      'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-back-800x800.jpg',
-      'https://www.camisetafutboles.com/image/cache/catalog/product/spain-2026-detail-900x900.webp',
-    ]);
-  } finally {
-    global.fetch = previousFetch;
-  }
+  assert.deepEqual(images, [
+    'https://leyendasdelfutbol.com/image/cache/catalog/product/spain-2026-front-800x800.jpg',
+    'https://leyendasdelfutbol.com/image/cache/catalog/product/spain-2026-back-800x800.jpg',
+    'https://leyendasdelfutbol.com/image/cache/catalog/product/spain-2026-detail-900x900.webp',
+  ]);
 });
 
 test('scrapeImages keeps only one size variant for the same gallery photo', async () => {
-  const previousFetch = global.fetch;
-  global.fetch = async () => ({
+  const fetcher = async () => ({
     ok: true,
     text: async () => `
       <main>
@@ -63,14 +57,10 @@ test('scrapeImages keeps only one size variant for the same gallery photo', asyn
     `,
   });
 
-  try {
-    const images = await _private.scrapeImages('https://futboldeprimera.com.co/producto/brasil-2004');
+  const images = await _private.scrapeImages('https://futboldeprimera.com.co/producto/brasil-2004', fetcher);
 
-    assert.deepEqual(images, [
-      'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-front.jpg',
-      'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-back.jpg',
-    ]);
-  } finally {
-    global.fetch = previousFetch;
-  }
+  assert.deepEqual(images, [
+    'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-front.jpg',
+    'https://futboldeprimera.com.co/wp-content/uploads/2026/05/brasil-back.jpg',
+  ]);
 });

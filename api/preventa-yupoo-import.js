@@ -23,9 +23,11 @@ const sharp = require('sharp');
 const {
   applyAdminCors,
   authorizeAdminRequest,
+  fetchExternalResource,
   hasOversizedJsonBody,
   validateExternalUrl,
 } = require('./_lib/admin-security.cjs');
+const { createStoragePrefix } = require('./_lib/storage-paths.cjs');
 
 const BUCKET = 'preventa-images';
 const MAX_DEFAULT = 8;
@@ -68,14 +70,15 @@ function slugify(str) {
 
 async function fetchHtml(url) {
   const origin = new URL(url).origin;
-  const res = await fetch(url, {
+  const res = await fetchExternalResource(url, {
+    allowedSuffixes: YUPOO_SUFFIXES,
+    maxBytes: 2 * 1024 * 1024,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8',
       'Referer': origin,
     },
-    redirect: 'error',
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} al obtener ${url}`);
   return res.text();
@@ -190,14 +193,13 @@ function parseJsonScript(html, baseUrl) {
 // ────────────────────────────────────────────────
 
 async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
-  const validatedUrl = await validateExternalUrl(imgUrl);
-  const res = await fetch(validatedUrl, {
+  const res = await fetchExternalResource(imgUrl, {
+    maxBytes: MAX_DOWNLOAD_BYTES,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       'Referer': referer,
       'Accept': 'image/webp,image/avif,image/*,*/*;q=0.8',
     },
-    redirect: 'error',
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} descargando imagen`);
   const declaredBytes = Number(res.headers?.get?.('content-length') || 0);
@@ -220,7 +222,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
 
   const { error } = await supabase.storage
     .from(BUCKET)
-    .upload(storagePath, buffer, { contentType, upsert: true });
+    .upload(storagePath, buffer, { contentType, upsert: false });
   if (error) throw new Error(`Supabase Storage: ${error.message}`);
 
   const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
@@ -250,7 +252,8 @@ async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_
   }
 
   const { titulo, imageUrls } = parsed;
-  const slug = slug_hint || slugify(titulo) || `album-${Date.now()}`;
+  const slug = slugify(slug_hint || titulo) || 'album';
+  const storagePrefix = createStoragePrefix('yupoo', slug);
   const referer = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
   const supabase = getSupabase();
 
@@ -259,7 +262,7 @@ async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_
   const imagenes = [];
 
   for (let i = 0; i < toDownload.length; i++) {
-    const storagePath = `${slug}/${i + 1}.webp`;
+    const storagePath = `${storagePrefix}/${i + 1}.webp`;
     try {
       const url = await downloadAndUpload(supabase, toDownload[i], storagePath, referer);
       imagenes.push({ path: storagePath, url });
