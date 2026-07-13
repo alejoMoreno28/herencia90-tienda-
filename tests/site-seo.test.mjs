@@ -97,9 +97,11 @@ check('product pages preserve analytics and refresh live product data', () => {
   const sampleHtml = fs.readFileSync(samplePage, 'utf8');
 
   assert.match(sampleHtml, /analytics_events/i);
+  assert.match(sampleHtml, /js\/analytics-consent\.js/i);
   assert.match(sampleHtml, /trackEvent\('page_view'/i);
-  assert.match(sampleHtml, /trackEvent\('modal_open'/i);
-  assert.match(sampleHtml, /trackEvent\('whatsapp_click'/i);
+  assert.match(sampleHtml, /trackEvent\('view_item'/i);
+  assert.match(sampleHtml, /trackEvent\('whatsapp_support'/i);
+  assert.match(sampleHtml, /H90AnalyticsConsent\.canTrack\(\)/i);
   assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.eq\('id'/i);
   assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
 });

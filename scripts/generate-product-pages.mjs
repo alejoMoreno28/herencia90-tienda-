@@ -22,6 +22,12 @@ const preventaCatalogPath = path.join(root, 'web', 'preventa-catalogo.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
 const useLocalCatalogs = process.env.H90_GENERATE_LOCAL === '1';
+const legalFooterLinksHtml = `<footer class="legal-footer-links" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px 20px;padding:28px 18px;border-top:1px solid rgba(217,195,145,.22);background:#050505;font:600 12px Montserrat,Arial,sans-serif">
+  <a style="color:#d9c391" href="/privacidad">Privacidad</a>
+  <a style="color:#d9c391" href="/envios">Envios</a>
+  <a style="color:#d9c391" href="/cambios-devoluciones">Cambios y devoluciones</a>
+  <a style="color:#d9c391" href="/terminos">Terminos</a>
+</footer>`;
 const legacyProductSlugsById = new Map([
   [1, ['camiseta-local-alemania-26']],
   [2, ['camiseta-local-argentina-26']],
@@ -979,6 +985,8 @@ function renderCollectionPage(collection) {
     </section>
   </main>
 
+  ${legalFooterLinksHtml}
+
   <script>
     const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
     const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
@@ -1282,6 +1290,7 @@ function renderPreventaPage(item) {
     </section>
     ${relatedCards ? `<section class="related"><h2>Tambien puede gustarte</h2><div class="related-grid">${relatedCards}</div></section>` : ''}
   </main>
+  ${legalFooterLinksHtml}
 </body>
 </html>`;
 }
@@ -1787,6 +1796,8 @@ function renderProductPage(product) {
     </section>
   </main>
 
+  ${legalFooterLinksHtml}
+
   <div class="mobile-buy-bar" aria-label="Compra rapida">
     <div class="mobile-buy-copy">
       <strong id="mobileBuyTitle">${escapeHtml(product.equipo)}</strong>
@@ -1952,6 +1963,10 @@ function buildSitemap() {
     `${siteUrl}/catalogo`,
     `${siteUrl}/nosotros`,
     `${siteUrl}/preguntas-frecuentes`,
+    `${siteUrl}/privacidad`,
+    `${siteUrl}/envios`,
+    `${siteUrl}/cambios-devoluciones`,
+    `${siteUrl}/terminos`,
     ...['mundial-2026', 'alemania', 'argentina', 'arsenal', 'bayern-munich', 'brasil', 'liverpool', 'manchester-city', 'manchester-united', 'portugal', 'psg', 'mujer'].map((s) => `${siteUrl}/categorias/${s}`),
     ...seoCollections.map((collection) => getCollectionUrl(collection)),
     ...products.flatMap((product) => getProductUrls(product)),
@@ -1978,6 +1993,40 @@ function removeStaleGeneratedPages(directory, expectedFiles) {
       throw new Error(`Ruta generada fuera del directorio permitido: ${target}`);
     }
     fs.unlinkSync(target);
+  }
+}
+
+function ensureStaticPageContract(filePath) {
+  let html = fs.readFileSync(filePath, 'utf8');
+  const original = html;
+  const directAnalytics = /\s*<script>\s*window\.dataLayer\s*=\s*window\.dataLayer\s*\|\|\s*\[\];[\s\S]*?<\/script>/i;
+
+  if (directAnalytics.test(html)) {
+    html = html.replace(directAnalytics, '\n    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>');
+  } else if (!html.includes('/js/analytics-consent.js')) {
+    html = html.replace(/(<meta\s+charset="UTF-8"\s*>)/i, '$1\n    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>');
+  }
+
+  if (!html.includes('href="/privacidad"')) {
+    const policyNavigation = `<nav class="legal-footer-links" aria-label="Politicas de la tienda">
+      <a href="/privacidad">Privacidad</a>
+      <a href="/envios">Envios</a>
+      <a href="/cambios-devoluciones">Cambios y devoluciones</a>
+      <a href="/terminos">Terminos</a>
+    </nav>`;
+    if (html.includes('</footer>')) {
+      html = html.replace('</footer>', `${policyNavigation}\n    </footer>`);
+    } else {
+      html = html.replace('</body>', `${legalFooterLinksHtml}\n</body>`);
+    }
+  }
+
+  if (html !== original) fs.writeFileSync(filePath, html, 'utf8');
+}
+
+function ensureStaticDirectoryContracts(directory) {
+  for (const file of fs.readdirSync(directory).filter((name) => name.endsWith('.html'))) {
+    ensureStaticPageContract(path.join(directory, file));
   }
 }
 
@@ -2011,6 +2060,9 @@ for (const collection of seoCollections) {
     fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
   }
 }
+
+ensureStaticDirectoryContracts(categoryOutputDir);
+ensureStaticDirectoryContracts(cityOutputDir);
 
 fs.writeFileSync(sitemapPath, buildSitemap(), 'utf8');
 fs.writeFileSync(robotsPath, buildRobots(), 'utf8');
