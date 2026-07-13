@@ -165,6 +165,50 @@ check('modal image placeholders use real fallback images', () => {
   }
 });
 
+check('product dialogs expose accessible semantics and focus management', () => {
+  const pages = [
+    'web/index.html',
+    'web/catalogo.html',
+    ...listHtmlFiles('web/categorias'),
+  ];
+
+  for (const page of pages) {
+    const html = read(page);
+    assert.match(html, /id="productModal"[^>]+role="dialog"[^>]+aria-modal="true"/i, `${page} should expose a dialog`);
+    assert.match(html, /aria-labelledby="modalTitle"/i, `${page} should name the dialog`);
+    assert.match(html, /<button[^>]+id="closeModal"[^>]+aria-label="Cerrar detalles del producto"/i, `${page} should use a real close button`);
+  }
+
+  const app = read('web/js/app.js');
+  assert.match(app, /lastModalTrigger/);
+  assert.match(app, /trapProductModalFocus/);
+  assert.match(app, /e\.key === 'Escape'/);
+  assert.match(app, /lastModalTrigger\.focus\(\)/);
+
+  const landingGenerator = read('scripts/fix_html_landing_pages.js');
+  assert.match(landingGenerator, /role="dialog"[^>]+aria-modal="true"/i);
+  assert.match(landingGenerator, /js\/analytics-consent\.js/i);
+  assert.match(landingGenerator, /href="\/privacidad"/i);
+  assert.doesNotMatch(landingGenerator, /window\.dataLayer\s*=|googletagmanager\.com\/gtag\/js/i);
+});
+
+check('cart continues to a local review page with policy links', () => {
+  const app = read('web/js/app.js');
+  const checkout = read('web/checkout.html');
+  const vercel = JSON.parse(read('vercel.json'));
+  assert.match(app, /window\.location\.assign\(['"]\/checkout['"]\)/);
+  assert.match(checkout, /<h1[^>]*>Revisa tu pedido<\/h1>/i);
+  assert.match(checkout, /id="checkoutForm"/i);
+  assert.match(checkout, /href="\/privacidad"/i);
+  assert.match(checkout, /href="\/envios"/i);
+  assert.match(checkout, /href="\/cambios-devoluciones"/i);
+  assert.doesNotMatch(checkout, /pago exitoso|payment successful/i);
+  assert.ok(
+    vercel.rewrites?.some((rule) => rule.source === '/checkout' && rule.destination === '/checkout.html'),
+    'Vercel should route /checkout to the review page'
+  );
+});
+
 check('primary storefront colors meet readable text contrast on light backgrounds', () => {
   const css = read('web/css/style.css');
   const gold = cssVariable(css, '--gold');

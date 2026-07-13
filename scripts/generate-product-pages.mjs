@@ -2021,6 +2021,23 @@ function ensureStaticPageContract(filePath) {
     }
   }
 
+  if (html.includes('id="productModal"')) {
+    html = html.replace(
+      '<div id="productModal" class="modal">',
+      '<div id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription" aria-hidden="true">'
+    );
+    html = html.replace(
+      /<span class="close-btn" id="closeModal"[^>]*>&times;<\/span>/i,
+      '<button type="button" class="close-btn" id="closeModal" aria-label="Cerrar detalles del producto">&times;</button>'
+    );
+    html = html.replace('<h2 id="modalTitle"></h2>', '<h2 id="modalTitle" tabindex="-1"></h2>');
+  }
+
+  html = html.replace(
+    /(<button class="btn-checkout" id="cartCheckout"[^>]*>)[\s\S]*?(<\/button>)/i,
+    '$1Revisar pedido$2'
+  );
+
   if (html !== original) fs.writeFileSync(filePath, html, 'utf8');
 }
 
