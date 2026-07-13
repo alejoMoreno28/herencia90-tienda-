@@ -411,6 +411,12 @@ function openCheckoutReview() {
     window.location.assign('/checkout');
 }
 
+function sanitizePublicDescription(value) {
+    return String(value || '')
+        .replace(/camiseta oficial de/gi, 'Camiseta de')
+        .replace(/parches oficiales/gi, 'parches disponibles');
+}
+
 let lastModalTrigger = null;
 
 function getProductModalFocusable(modal) {
@@ -1529,7 +1535,7 @@ function openModal(productIndex, triggerElement = document.activeElement) {
 
     // Descripción con aviso de preventa
     const descEl = document.getElementById('modalDescription');
-    let descText = product.descripcion || '';
+    let descText = sanitizePublicDescription(product.descripcion);
     if (isBajoPedido) {
         descText = `✈️ BAJO PEDIDO: Tiempo de entrega estimado de 15 a 20 días hábiles.\n\n` + descText;
     }

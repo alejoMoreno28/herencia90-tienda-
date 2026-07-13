@@ -37,10 +37,23 @@ const legacyProductSlugsById = new Map([
   [24, ['camiseta-local-colombia-26-mujer']],
 ]);
 
+function sanitizePublicDescription(value) {
+  return String(value || '')
+    .replace(/camiseta oficial de/gi, 'Camiseta de')
+    .replace(/parches oficiales/gi, 'parches disponibles');
+}
+
+function sanitizePublicProduct(product) {
+  return {
+    ...product,
+    descripcion: sanitizePublicDescription(product?.descripcion)
+  };
+}
+
 async function loadProducts() {
   if (useLocalCatalogs) {
     console.warn('Using local products catalog');
-    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8')).map(sanitizePublicProduct);
   }
 
   try {
@@ -61,11 +74,12 @@ async function loadProducts() {
       throw new Error('Supabase no devolvio productos');
     }
 
-    fs.writeFileSync(productsPath, `${JSON.stringify(liveProducts, null, 4)}\n`, 'utf8');
-    return liveProducts;
+    const publicProducts = liveProducts.map(sanitizePublicProduct);
+    fs.writeFileSync(productsPath, `${JSON.stringify(publicProducts, null, 4)}\n`, 'utf8');
+    return publicProducts;
   } catch (error) {
     console.warn(`No fue posible sincronizar productos desde Supabase: ${error.message}`);
-    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8')).map(sanitizePublicProduct);
   }
 }
 
@@ -1016,6 +1030,12 @@ function renderCollectionPage(collection) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
     }
 
+    function sanitizePublicDescriptionClient(value) {
+      return String(value || '')
+        .replace(/camiseta oficial de/gi, 'Camiseta de')
+        .replace(/parches oficiales/gi, 'parches disponibles');
+    }
+
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
         .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
@@ -1047,7 +1067,7 @@ function renderCollectionPage(collection) {
         '<div class="collection-product-copy">' +
           '<span class="collection-product-category">' + escapeHtmlClient(product.categoria || 'Herencia 90') + '</span>' +
           '<h2><a href="' + buildProductUrlClient(product) + '">' + escapeHtmlClient(product.equipo) + '</a></h2>' +
-          '<p>' + escapeHtmlClient(product.descripcion || 'Consulta disponibilidad por WhatsApp.') + '</p>' +
+          '<p>' + escapeHtmlClient(sanitizePublicDescriptionClient(product.descripcion) || 'Consulta disponibilidad por WhatsApp.') + '</p>' +
           '<div class="collection-product-meta">' +
             '<span>' + formatPriceClient(product.precio) + '</span>' +
             '<span>' + escapeHtmlClient(sizes.join(', ') || 'Consultar') + '</span>' +

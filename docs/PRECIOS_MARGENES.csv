@@ -1,0 +1,6 @@
+linea;precio_referencia_cop;contribucion_objetivo_pct;estado_costo;formula_piso;decision
+entrada_colombia;79000;35;Needs confirmation: TRM flete impuestos empaque;(costo_puesto_en_medellin+700*1.19)/(1-0.35-(0.0265*1.19));No pautar ni descontar hasta confirmar costo puesto en Medellin
+fan_core;99000;45;Needs confirmation: TRM flete impuestos empaque;(costo_puesto_en_medellin+700*1.19)/(1-0.45-(0.0265*1.19));Mantener como ancla si cumple piso y calidad demostrable
+especial;110000;45;Needs confirmation: TRM flete impuestos empaque;(costo_puesto_en_medellin+700*1.19)/(1-0.45-(0.0265*1.19));Usar para version player o detalle adicional verificado
+retro;130000;45;Needs confirmation: TRM flete impuestos empaque;(costo_puesto_en_medellin+700*1.19)/(1-0.45-(0.0265*1.19));Sostener con historia fotos propias y control de acabados
+retro_hero;140000;45;Needs confirmation: TRM flete impuestos empaque;(costo_puesto_en_medellin+700*1.19)/(1-0.45-(0.0265*1.19));Reservar para referencias escasas con demanda comprobada
