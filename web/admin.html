@@ -837,6 +837,16 @@
         const { createClient } = window.supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        async function buildAdminApiHeaders() {
+            const { data } = await db.auth.getSession();
+            const token = data && data.session && data.session.access_token;
+            if (!token) throw new Error('Sesion de admin expirada. Vuelve a iniciar sesion.');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
         db.auth.getSession().then(({ data }) => {
             if (!data.session) window.location.href = '/login.html';
         });
@@ -2716,16 +2726,9 @@
         }
 
         async function uploadProductImage(filename, optimized) {
-            const { data: sessionData } = await db.auth.getSession();
-            const token = sessionData && sessionData.session && sessionData.session.access_token;
-            if (!token) throw new Error('Sesion de admin expirada. Vuelve a iniciar sesion.');
-
             const response = await fetch('/api/admin-upload-image', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: await buildAdminApiHeaders(),
                 body: JSON.stringify({
                     filename,
                     contentType: optimized.type || 'image/webp',
@@ -2945,10 +2948,7 @@
             try {
                 const res = await fetch('/api/preventa-yupoo-import', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer herencia2026'
-                    },
+                    headers: await buildAdminApiHeaders(),
                     body: JSON.stringify({ yupoo_album_url: url, max_imagenes: max })
                 });
                 const data = await res.json();
@@ -3933,7 +3933,7 @@
                         try {
                             const res = await fetch('/api/optimize-product', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: await buildAdminApiHeaders(),
                                 body: JSON.stringify({ rawName: raw })
                             });
                             if (res.ok) aiResults[raw] = await res.json();
@@ -4074,7 +4074,7 @@
                     try {
                         const res = await fetch('/api/optimize-product', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: await buildAdminApiHeaders(),
                             body: JSON.stringify({ rawName: raw })
                         });
                         if (res.ok) {
@@ -4302,14 +4302,14 @@
                 try {
                     const resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
                     });
                     if (resLocal.ok) data = await resLocal.json();
                 } catch (errLocal) {
                     const resCloud = await fetch('/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
                     });
                     if (resCloud.ok) data = await resCloud.json();
@@ -4607,7 +4607,7 @@
                 try {
                     let resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: url, query: item.queryStr })
                     });
                     if (resLocal.ok) data = await resLocal.json();
@@ -4615,7 +4615,7 @@
                     // Fallback nube
                     let resCloud = await fetch('/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: url, query: item.queryStr })
                     });
                     if (resCloud.ok) data = await resCloud.json();
