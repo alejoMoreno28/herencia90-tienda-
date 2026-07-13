@@ -14,7 +14,6 @@ function displayCategory(name) {
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
 const SUPABASE_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-const ENABLE_PUBLIC_ANALYTICS = false;
 let db = null;
 let supabasePromise = null;
 let aosPromise = null;
@@ -265,17 +264,29 @@ async function refreshProductsFromSupabase(localProducts) {
 }
 
 async function trackEvent(eventType, productData = {}) {
-    if (!ENABLE_PUBLIC_ANALYTICS) return;
+    if (!window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+    const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: eventType,
+        product_id: productData.id || null,
+        product_name: productData.equipo || productData.product_name || null,
+        category: productData.categoria || productData.category || null,
+        extra: productData.extra || {},
+        referrer: document.referrer || null
+    });
+    if (!payload) return;
+
+    if (typeof window.gtag === 'function') {
+        window.gtag('event', eventType, {
+            item_id: payload.product_id,
+            item_name: payload.product_name,
+            item_category: payload.category,
+            ...payload.extra
+        });
+    }
+
     try {
         const client = await ensureSupabaseClient();
-        await client.from('analytics_events').insert({
-            event_type: eventType,
-            product_id: productData.id || null,
-            product_name: productData.equipo || productData.product_name || null,
-            category: productData.categoria || productData.category || null,
-            extra: productData.extra || {},
-            referrer: document.referrer || null
-        });
+        await client.from('analytics_events').insert(payload);
     } catch (e) {
         // Analytics nunca interrumpe la experiencia del usuario
     }
@@ -317,7 +328,7 @@ function addToCart(product, size) {
     }
     saveCart();
     showToast();
-    trackEvent('cart_add', { ...product, extra: { talla: size } });
+    trackEvent('add_to_cart', { ...product, extra: { talla: size } });
 }
 
 function removeFromCart(id, talla) {
@@ -403,7 +414,7 @@ function checkoutWhatsApp() {
     });
     const total = cart.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
     msg += `\n💰 *Total: ${formatPrice(total)}*\n\nPor favor confirmar talla, corte, disponibilidad y forma de pago 🙏`;
-    trackEvent('checkout', { extra: { items: cart.length, total } });
+    trackEvent('begin_checkout', { extra: { items: cart.length, total } });
     window.open(`https://wa.me/573126428153?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -588,7 +599,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 18000);
 
     // Registrar visita a la página
-    runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);
+    let pageViewTracked = false;
+    const trackPageViewOnce = () => {
+        if (pageViewTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+        pageViewTracked = true;
+        trackEvent('page_view', {});
+    };
+    window.addEventListener('h90:analytics-consent', (event) => {
+        if (event.detail && event.detail.decision === 'accepted') trackPageViewOnce();
+    });
+    runAfterIdleDelay(trackPageViewOnce, 2500, 1800);
 
     applySearchFromUrl();
 
@@ -1443,7 +1463,7 @@ function openModal(productIndex) {
     const product = allProducts[productIndex];
     if (!product) return;
     const modal = document.getElementById('productModal');
-    trackEvent('modal_open', product);
+    trackEvent('view_item', product);
 
     document.getElementById('modalTitle').innerText = product.equipo;
     document.getElementById('modalPrice').innerText = formatPrice(product.precio);
@@ -1510,6 +1530,7 @@ function openModal(productIndex) {
     wsBtn.style.display = 'inline-flex';
     wsBtn.style.pointerEvents = 'none';
     wsBtn.style.opacity = '0.4';
+    wsBtn.onclick = null;
     wsBtn.className = 'btn-whatsapp';
     wsBtn.innerHTML = `
         <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.233-.002.332-.002c.099-.001.233-.037.363.275.13.312.443 1.08.482 1.159.039.079.065.171.017.266-.048.096-.073.155-.138.229-.065.074-.136.162-.195.226-.065.069-.133.143-.058.272.075.129.333.551.713.889.49.438.905.576 1.033.64.128.064.204.053.28-.032.076-.085.328-.376.415-.506.087-.13.174-.108.291-.064.117.044.743.349.871.413.128.064.212.096.242.148.03.052.03.303-.114.708zM12 2C6.477 2 2 6.477 2 12c0 1.758.455 3.425 1.29 4.903L2 22l5.226-1.213C8.68 21.554 10.312 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
@@ -1535,7 +1556,7 @@ function openModal(productIndex) {
             btn.onclick = () => {
                 Array.from(sizeContainer.children).forEach(c => c.classList.remove('selected'));
                 btn.classList.add('selected');
-                trackEvent('whatsapp_click', { ...product, extra: { talla: size } });
+                trackEvent('select_size', { ...product, extra: { talla: size } });
                 
                 const stockLine = !isBajoPedido && stock <= LOW_STOCK_THRESHOLD
                     ? ` Quedan ${stock} unidad${stock === 1 ? '' : 'es'} disponible${stock === 1 ? '' : 's'} en esa talla.`
@@ -1547,6 +1568,7 @@ function openModal(productIndex) {
                     : `Hola Herencia 90, me interesa comprar la camiseta: ${product.equipo} en Talla ${size}.${stockLine}${confirmLine}`;
                 const msg = encodeURIComponent(msgText);
                 wsBtn.href = `https://wa.me/573126428153?text=${msg}`;
+                wsBtn.onclick = () => trackEvent('whatsapp_support', { ...product, extra: { talla: size } });
                 wsBtn.style.pointerEvents = 'auto';
                 wsBtn.style.opacity = '1';
                 wsBtn.className = 'btn-whatsapp green';

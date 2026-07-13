@@ -534,6 +534,7 @@ function renderCollectionPage(collection) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(collection.title)}</title>
   <meta name="description" content="${escapeHtml(collection.shortDescription)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getCollectionUrl(collection)}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Herencia 90">
@@ -1181,6 +1182,7 @@ function renderPreventaPage(item) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)} | Pre-venta Herencia 90</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getPreventaUrl(item)}">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
@@ -1335,6 +1337,7 @@ function renderProductPage(product) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(product.equipo)} | Herencia 90 Colombia</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getProductUrl(product)}">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
@@ -1869,15 +1872,26 @@ function renderProductPage(product) {
     }
 
     async function trackEvent(eventType, product) {
-      try {
-        await db.from('analytics_events').insert({
-          event_type: eventType,
-          product_id: product && product.id ? product.id : null,
-          product_name: product && product.equipo ? product.equipo : null,
-          category: product && product.categoria ? product.categoria : null,
-          extra: { source: 'seo_product_page' },
-          referrer: document.referrer || null
+      if (!window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: eventType,
+        product_id: product && product.id ? product.id : null,
+        product_name: product && product.equipo ? product.equipo : null,
+        category: product && product.categoria ? product.categoria : null,
+        extra: { source: 'seo_product_page' },
+        referrer: document.referrer || null
+      });
+      if (!payload) return;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventType, {
+          item_id: payload.product_id,
+          item_name: payload.product_name,
+          item_category: payload.category,
+          ...payload.extra
         });
+      }
+      try {
+        await db.from('analytics_events').insert(payload);
       } catch (error) {
         // Analytics nunca interrumpe la experiencia del usuario
       }
@@ -1894,10 +1908,19 @@ function renderProductPage(product) {
     }
 
     bindThumbs();
-    trackEvent('page_view', STATIC_PRODUCT);
-    trackEvent('modal_open', STATIC_PRODUCT);
-    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
-    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
+    let initialProductEventsTracked = false;
+    function trackInitialProductEvents() {
+      if (initialProductEventsTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      initialProductEventsTracked = true;
+      trackEvent('page_view', STATIC_PRODUCT);
+      trackEvent('view_item', STATIC_PRODUCT);
+    }
+    trackInitialProductEvents();
+    window.addEventListener('h90:analytics-consent', (event) => {
+      if (event.detail && event.detail.decision === 'accepted') trackInitialProductEvents();
+    });
+    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
+    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
     refreshProductFromSupabase();
     db.channel('seo-product-live-${slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
