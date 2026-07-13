@@ -18,6 +18,7 @@ import path                           from 'path';
 import { fileURLToPath }              from 'url';
 import sharp                          from 'sharp';
 import ExcelJS                        from 'exceljs';
+import { readOrderRows }              from './lib/order-workbook-reader.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT      = path.join(__dirname, '..');
@@ -446,16 +447,7 @@ async function run() {
   }
 
   console.log('Leyendo datos de:', path.basename(srcFile));
-  const { default: xlsx } = await import('xlsx');
-  const srcWb = xlsx.readFile(srcFile);
-
-  // Detectar hoja de pedido
-  const sheetName = srcWb.SheetNames.includes('Pedido 2') ? 'Pedido 2'
-                  : srcWb.SheetNames.includes('ORDER')    ? 'ORDER'
-                  : srcWb.SheetNames[0];
-
-  const srcWs   = srcWb.Sheets[sheetName];
-  const rawRows = xlsx.utils.sheet_to_json(srcWs, { header: 1 });
+  const { rows: rawRows } = await readOrderRows(srcFile, ['Pedido 2', 'ORDER']);
 
   // Fila de headers: buscar la que tenga "Version" o "TYPE"
   let dataStart = 1;
