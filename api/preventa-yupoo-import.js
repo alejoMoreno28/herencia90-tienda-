@@ -11,7 +11,7 @@
  *   B) img[data-origin-src] lazy-load (template 2019-2022)
  *   C) img[data-src] / JSON embed en <script> (legacy)
  *
- * Auth: Authorization: Bearer <ADMIN_TOKEN>
+ * Auth: Authorization: Bearer <Supabase admin session>
  * Input body: { yupoo_album_url, slug_hint?, max_imagenes? }
  */
 
@@ -20,9 +20,19 @@
 const { createClient } = require('@supabase/supabase-js');
 const { load: cheerioLoad } = require('cheerio');
 const sharp = require('sharp');
+const {
+  applyAdminCors,
+  authorizeAdminRequest,
+  fetchExternalResource,
+  hasOversizedJsonBody,
+  validateExternalUrl,
+} = require('./_lib/admin-security.cjs');
+const { createStoragePrefix } = require('./_lib/storage-paths.cjs');
 
 const BUCKET = 'preventa-images';
 const MAX_DEFAULT = 8;
+const MAX_DOWNLOAD_BYTES = 12 * 1024 * 1024;
+const YUPOO_SUFFIXES = ['yupoo.com', 'yupoos.com'];
 
 function getSupabase() {
   return createClient(
@@ -60,14 +70,15 @@ function slugify(str) {
 
 async function fetchHtml(url) {
   const origin = new URL(url).origin;
-  const res = await fetch(url, {
+  const res = await fetchExternalResource(url, {
+    allowedSuffixes: YUPOO_SUFFIXES,
+    maxBytes: 2 * 1024 * 1024,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8',
       'Referer': origin,
     },
-    redirect: 'follow',
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} al obtener ${url}`);
   return res.text();
@@ -182,7 +193,8 @@ function parseJsonScript(html, baseUrl) {
 // ────────────────────────────────────────────────
 
 async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
-  const res = await fetch(imgUrl, {
+  const res = await fetchExternalResource(imgUrl, {
+    maxBytes: MAX_DOWNLOAD_BYTES,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       'Referer': referer,
@@ -190,7 +202,10 @@ async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
     },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} descargando imagen`);
+  const declaredBytes = Number(res.headers?.get?.('content-length') || 0);
+  if (declaredBytes > MAX_DOWNLOAD_BYTES) throw new Error('Imagen externa demasiado pesada');
   const rawBuffer = Buffer.from(await res.arrayBuffer());
+  if (rawBuffer.length > MAX_DOWNLOAD_BYTES) throw new Error('Imagen externa demasiado pesada');
 
   let buffer = rawBuffer;
   let contentType = 'image/webp';
@@ -207,7 +222,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
 
   const { error } = await supabase.storage
     .from(BUCKET)
-    .upload(storagePath, buffer, { contentType, upsert: true });
+    .upload(storagePath, buffer, { contentType, upsert: false });
   if (error) throw new Error(`Supabase Storage: ${error.message}`);
 
   const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
@@ -219,21 +234,15 @@ async function downloadAndUpload(supabase, imgUrl, storagePath, referer) {
 // ────────────────────────────────────────────────
 
 async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_DEFAULT }) {
-  let parsedUrl;
-  try { parsedUrl = new URL(yupoo_album_url); } catch {
-    throw new Error('URL inválida');
-  }
-  const hostname = parsedUrl.hostname;
-  if (!hostname.includes('yupoo') && !hostname.includes('yupoos')) {
-    throw new Error('Solo se aceptan URLs de yupoo.com o yupoos.com');
-  }
+  const parsedUrl = await validateExternalUrl(yupoo_album_url, { allowedSuffixes: YUPOO_SUFFIXES });
+  const safeAlbumUrl = parsedUrl.href;
 
-  const html = await fetchHtml(yupoo_album_url);
+  const html = await fetchHtml(safeAlbumUrl);
 
   const parsed =
-    parsePreloadedState(html, yupoo_album_url) ||
-    parseJsonScript(html, yupoo_album_url) ||
-    parseImgTags(html, yupoo_album_url);
+    parsePreloadedState(html, safeAlbumUrl) ||
+    parseJsonScript(html, safeAlbumUrl) ||
+    parseImgTags(html, safeAlbumUrl);
 
   if (!parsed || !parsed.imageUrls.length) {
     throw new Error(
@@ -243,15 +252,17 @@ async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_
   }
 
   const { titulo, imageUrls } = parsed;
-  const slug = slug_hint || slugify(titulo) || `album-${Date.now()}`;
+  const slug = slugify(slug_hint || titulo) || 'album';
+  const storagePrefix = createStoragePrefix('yupoo', slug);
   const referer = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
   const supabase = getSupabase();
 
-  const toDownload = imageUrls.slice(0, max_imagenes);
+  const requestedImages = Math.max(1, Math.min(MAX_DEFAULT, Number(max_imagenes) || MAX_DEFAULT));
+  const toDownload = imageUrls.slice(0, requestedImages);
   const imagenes = [];
 
   for (let i = 0; i < toDownload.length; i++) {
-    const storagePath = `${slug}/${i + 1}.webp`;
+    const storagePath = `${storagePrefix}/${i + 1}.webp`;
     try {
       const url = await downloadAndUpload(supabase, toDownload[i], storagePath, referer);
       imagenes.push({ path: storagePath, url });
@@ -268,7 +279,7 @@ async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_
     );
   }
 
-  return { titulo, imagenes, yupoo_origen: yupoo_album_url };
+  return { titulo, imagenes, yupoo_origen: safeAlbumUrl };
 }
 
 // ────────────────────────────────────────────────
@@ -276,26 +287,28 @@ async function importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes = MAX_
 // ────────────────────────────────────────────────
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  const corsAllowed = applyAdminCors(req, res);
+  if (req.method === 'OPTIONS') return corsAllowed ? res.status(204).end() : res.status(403).end();
+  if (!corsAllowed) return res.status(403).json({ error: 'Origen no permitido.' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (hasOversizedJsonBody(req.body)) return res.status(413).json({ error: 'Solicitud demasiado grande.' });
 
-  const adminToken = process.env.ADMIN_TOKEN || 'herencia2026';
-  const token = (req.headers['authorization'] || '').replace('Bearer ', '');
-  if (token !== adminToken) return res.status(401).json({ error: 'No autorizado' });
+  const authorization = await authorizeAdminRequest(req, process.env, createClient);
+  if (!authorization.ok) return res.status(authorization.status).json({ error: authorization.error });
 
   const { yupoo_album_url, slug_hint, max_imagenes } = req.body || {};
   if (!yupoo_album_url) return res.status(400).json({ error: 'yupoo_album_url requerido' });
 
   try {
-    const result = await importFromYupoo({ yupoo_album_url, slug_hint, max_imagenes });
+    const safeAlbumUrl = (await validateExternalUrl(yupoo_album_url, { allowedSuffixes: YUPOO_SUFFIXES })).href;
+    const result = await importFromYupoo({ yupoo_album_url: safeAlbumUrl, slug_hint, max_imagenes });
     return res.status(200).json(result);
   } catch (err) {
     console.error('[yupoo-import] error:', err);
-    return res.status(500).json({ error: err.message });
+    const isInputError = /URL|proveedor|HTTPS|puerto|red no permitida|resolver/i.test(err.message || '');
+    return res.status(isInputError ? 400 : 500).json({
+      error: isInputError ? err.message : 'No fue posible importar el album.'
+    });
   }
 };
 

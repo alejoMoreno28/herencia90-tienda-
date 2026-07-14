@@ -97,9 +97,11 @@ check('product pages preserve analytics and refresh live product data', () => {
   const sampleHtml = fs.readFileSync(samplePage, 'utf8');
 
   assert.match(sampleHtml, /analytics_events/i);
+  assert.match(sampleHtml, /js\/analytics-consent\.js/i);
   assert.match(sampleHtml, /trackEvent\('page_view'/i);
-  assert.match(sampleHtml, /trackEvent\('modal_open'/i);
-  assert.match(sampleHtml, /trackEvent\('whatsapp_click'/i);
+  assert.match(sampleHtml, /trackEvent\('view_item'/i);
+  assert.match(sampleHtml, /trackEvent\('whatsapp_support'/i);
+  assert.match(sampleHtml, /H90AnalyticsConsent\.canTrack\(\)/i);
   assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.eq\('id'/i);
   assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
 });
@@ -228,6 +230,31 @@ check('static city pages exist and are included in the sitemap', () => {
   const sitemap = fs.readFileSync(path.join(root, 'web', 'sitemap.xml'), 'utf8');
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/ciudades\/medellin/i);
   assert.match(sitemap, /https:\/\/www\.herencia90\.shop\/ciudades\/ibague/i);
+});
+
+check('generated collections always refresh and stale pre-order pages are removed', () => {
+  const generator = read('scripts/generate-product-pages.mjs');
+  const catalog = JSON.parse(read('web/productos.json'));
+  const productsById = new Map(catalog.map((product) => [String(product.id), product]));
+  assert.match(generator, /collection\.type\s*===\s*['"]city['"]\s*\|\|\s*!fs\.existsSync\(filePath\)/);
+  assert.match(generator, /expectedPreventaFiles/);
+  assert.match(generator, /removeStaleGeneratedPages\(preventaOutputDir, expectedPreventaFiles\)/);
+
+  for (const city of ['bogota', 'medellin', 'cali', 'barranquilla', 'ibague']) {
+    const cityPage = `web/ciudades/${city}.html`;
+    const html = read(cityPage);
+    const officialClaims = html.match(/Camiseta oficial de/gi) || [];
+    assert.equal(officialClaims.length, 1, `${cityPage} solo debe conservar la regla que elimina el claim obsoleto`);
+    const payload = html.match(/const STATIC_COLLECTION = (\{.*\});\r?\n/)?.[1];
+    assert.ok(payload, `${cityPage} debe incluir un catálogo estático verificable`);
+    for (const embedded of JSON.parse(payload).products) {
+      const source = productsById.get(String(embedded.id));
+      assert.ok(source, `${cityPage} contiene el producto ${embedded.id}`);
+      assert.equal(embedded.precio, source.precio, `${cityPage} precio ${embedded.id}`);
+      assert.deepEqual(embedded.tallas, source.tallas, `${cityPage} stock ${embedded.id}`);
+      assert.equal(embedded.descripcion, source.descripcion, `${cityPage} descripción ${embedded.id}`);
+    }
+  }
 });
 
 if (failures.length > 0) {

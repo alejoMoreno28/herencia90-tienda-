@@ -1,13 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import adminSecurity from './_lib/admin-security.cjs';
+import storagePaths from './_lib/storage-paths.cjs';
+
+const { applyAdminCors, authorizeAdminRequest, hasOversizedJsonBody } = adminSecurity;
+const { createStoragePrefix } = storagePaths;
 
 const BUCKET = 'product-images';
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
-
-function getBearerToken(req) {
-  const header = req.headers.authorization || '';
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match ? match[1] : '';
-}
 
 function decodeBase64Data(data) {
   const clean = String(data || '').replace(/^data:[^;]+;base64,/, '');
@@ -15,8 +14,14 @@ function decodeBase64Data(data) {
 }
 
 export default async function handler(req, res) {
+  const corsAllowed = applyAdminCors(req, res);
+  if (req.method === 'OPTIONS') return corsAllowed ? res.status(204).end() : res.status(403).end();
+  if (!corsAllowed) return res.status(403).json({ error: 'Origen no permitido.' });
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+  if (hasOversizedJsonBody(req.body, 5 * 1024 * 1024)) {
+    return res.status(413).json({ error: 'Solicitud demasiado grande.' });
   }
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -26,17 +31,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const token = getBearerToken(req);
-    if (!token) return res.status(401).json({ error: 'Sesion de admin requerida.' });
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false }
-    });
-
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData?.user) {
-      return res.status(401).json({ error: 'Sesion de admin invalida o expirada.' });
-    }
+    const authorization = await authorizeAdminRequest(req, process.env, createClient);
+    if (!authorization.ok) return res.status(authorization.status).json({ error: authorization.error });
+    const supabase = authorization.supabase;
 
     const { filename, contentType, data } = req.body || {};
     if (!filename || !data) {
@@ -49,21 +46,25 @@ export default async function handler(req, res) {
       return res.status(413).json({ error: 'Imagen demasiado pesada. Maximo 3 MB despues de optimizar.' });
     }
 
+    const extension = contentType === 'image/png' ? 'png' : contentType === 'image/jpeg' ? 'jpg' : 'webp';
+    const storagePath = `${createStoragePrefix('admin', filename)}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from(BUCKET)
-      .upload(filename, buffer, {
-        upsert: true,
+      .upload(storagePath, buffer, {
+        upsert: false,
         contentType: contentType || 'image/webp',
         cacheControl: '31536000'
       });
 
     if (uploadError) {
-      return res.status(500).json({ error: uploadError.message });
+      console.error('Storage rechazo admin upload:', uploadError);
+      return res.status(500).json({ error: 'No fue posible guardar la imagen.' });
     }
 
-    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(filename);
-    return res.status(200).json({ url: publicData.publicUrl, filename });
+    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+    return res.status(200).json({ url: publicData.publicUrl, filename: storagePath });
   } catch (error) {
-    return res.status(500).json({ error: error.message || 'Error subiendo imagen.' });
+    console.error('Error admin-upload-image:', error);
+    return res.status(500).json({ error: 'Error subiendo imagen.' });
   }
 }

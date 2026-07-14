@@ -4,27 +4,8 @@
     <meta charset="UTF-8">
     <link rel="icon" href="/img/favicon.webp" type="image/webp">
     <meta name="theme-color" content="#050505">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      (function(){
-        var loaded = false;
-        var loadGtag = function(){
-          if (loaded) return;
-          loaded = true;
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
-          document.head.appendChild(script);
-          gtag('js', new Date());
-          gtag('config', 'G-576MFSV66N');
-        };
-        var schedule = function(){ setTimeout(loadGtag, 4500); };
-        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
-        window.addEventListener('keydown', loadGtag, { once: true });
-        window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
     <title>Preguntas Frecuentes | Herencia 90</title>
     <meta name="description" content="Resolvemos todas tus dudas sobre como comprar, envios, formas de pago y tiempo de entrega en Herencia 90.">
     <link rel="canonical" href="https://www.herencia90.shop/preguntas-frecuentes">
@@ -290,6 +271,10 @@
                 <a href="/nosotros">Nosotros</a>
                 <a href="/preguntas-frecuentes">Preguntas Frecuentes</a>
                 <a href="/preventa">Pre-Venta</a>
+                <a href="/privacidad">Privacidad</a>
+                <a href="/envios">Envíos</a>
+                <a href="/cambios-devoluciones">Cambios</a>
+                <a href="/terminos">Términos</a>
                 <a href="https://www.instagram.com/herencia90_/" target="_blank" rel="noopener">Instagram</a>
             </div>
             <p class="footer-legal">&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
@@ -306,7 +291,7 @@
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer" id="cartFooter" style="display:none;">
             <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
-            <button class="btn-checkout" id="cartCheckout">Pedir por WhatsApp</button>
+            <button class="btn-checkout" id="cartCheckout">Revisar pedido</button>
             <button class="btn-clear-cart" id="cartClear">Vaciar carrito</button>
         </div>
     </div>

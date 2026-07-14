@@ -1074,6 +1074,8 @@ body.grid-single .product-grid-inner {
     display: flex; align-items: center; justify-content: center;
     border-radius: 50%;
     background: rgba(255,255,255,0.05);
+    border: 0;
+    font-family: inherit;
 }
 .close-btn:hover { color: var(--gold); background: rgba(217,195,145,0.1); transform: rotate(90deg); }
 
@@ -2927,6 +2929,24 @@ body.grid-single .product-grid-inner {
     pointer-events: none;
     user-select: none;
     margin: 0 4px;
+}
+
+.legal-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 18px;
+    margin: 12px auto 0;
+}
+
+.legal-footer-links a {
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    text-decoration: none;
+}
+
+.legal-footer-links a:hover {
+    color: var(--gold);
 }
 .footer-legal {
     font-size: 0.7rem;

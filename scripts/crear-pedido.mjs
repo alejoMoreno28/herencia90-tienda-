@@ -18,6 +18,7 @@ import path                           from 'path';
 import { fileURLToPath }              from 'url';
 import sharp                          from 'sharp';
 import ExcelJS                        from 'exceljs';
+import { parseOrderRows, readOrderRows } from './lib/order-workbook-reader.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT      = path.join(__dirname, '..');
@@ -446,31 +447,9 @@ async function run() {
   }
 
   console.log('Leyendo datos de:', path.basename(srcFile));
-  const { default: xlsx } = await import('xlsx');
-  const srcWb = xlsx.readFile(srcFile);
+  const { rows: rawRows } = await readOrderRows(srcFile, ['Pedido 2', 'ORDER']);
 
-  // Detectar hoja de pedido
-  const sheetName = srcWb.SheetNames.includes('Pedido 2') ? 'Pedido 2'
-                  : srcWb.SheetNames.includes('ORDER')    ? 'ORDER'
-                  : srcWb.SheetNames[0];
-
-  const srcWs   = srcWb.Sheets[sheetName];
-  const rawRows = xlsx.utils.sheet_to_json(srcWs, { header: 1 });
-
-  // Fila de headers: buscar la que tenga "Version" o "TYPE"
-  let dataStart = 1;
-  if (rawRows[1] && (String(rawRows[1][2]).toUpperCase().includes('VERSION') || String(rawRows[1][2]).toUpperCase().includes('TYPE'))) {
-    dataStart = 2; // headers en fila 1 y 2 (ORDER sheet)
-  }
-
-  const orderRows = rawRows.slice(dataStart)
-    .filter(r => r[2] || r[3])
-    .map(r => ({
-      size:    String(r[1] || '').trim(),
-      version: String(r[2] || '').trim(),
-      comment: String(r[3] || '').trim(),
-      qty:     Number(r[4]) || 1,
-    }));
+  const orderRows = parseOrderRows(rawRows);
 
   console.log(`Referencias en el pedido: ${orderRows.length}\n`);
 

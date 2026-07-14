@@ -1,27 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      (function(){
-        var loaded = false;
-        var loadGtag = function(){
-          if (loaded) return;
-          loaded = true;
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
-          document.head.appendChild(script);
-          gtag('js', new Date());
-          gtag('config', 'G-576MFSV66N');
-        };
-        var schedule = function(){ setTimeout(loadGtag, 4500); };
-        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
-        window.addEventListener('keydown', loadGtag, { once: true });
-        window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    <meta charset="UTF-8">
+    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -423,6 +404,12 @@
 
     <footer class="footer" style="margin-top:0;">
         <p>&copy; 2026 Herencia 90. Todos los derechos reservados.</p>
+        <nav class="legal-footer-links" aria-label="Políticas de la tienda">
+            <a href="/privacidad">Privacidad</a>
+            <a href="/envios">Envíos</a>
+            <a href="/cambios-devoluciones">Cambios y devoluciones</a>
+            <a href="/terminos">Términos</a>
+        </nav>
     </footer>
 
     

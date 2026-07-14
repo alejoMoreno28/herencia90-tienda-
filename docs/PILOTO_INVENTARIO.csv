@@ -1,0 +1,12 @@
+prioridad;estado;referencia;catalogo_id;modo;corte;senal;S;M;L;XL;unidades_iniciales;reserva_si_gana;trigger_recompra;riesgo
+1;catalogo_stock_cero;Colombia Local 2026 Fan;10;stock;unisex;Demanda local y producto ancla de seleccion;1;2;2;1;6;4;Vender 3 unidades en 14 dias y margen de contribucion validado;Pico mundialista puede caer despues de julio
+2;catalogo_stock_cero;Colombia Visitante 2026 Azul;33;stock;unisex;Colombia visitante recibe elogios y falta stock libre;1;1;1;1;4;3;Vender 2 unidades en 14 dias y consultas por talla;Demanda dependiente de momento deportivo
+3;catalogo_stock_bajo;Colombia Retro 1990 Amarilla;31;stock;unisex;Nostalgia Colombia 1990 es una senal local repetida;1;1;1;0;3;3;Vender 2 unidades en 21 dias;Validar tono tela cuello y estampado
+4;catalogo_stock_bajo;Colombia Mujer 2026;24;stock;mujer;Linea mujer ya tiene presencia y poco surtido;2;1;1;0;4;3;Vender 2 unidades en 21 dias sin cambio por talla;Necesita fotos propias en cuerpo real
+5;catalogo_stock_bajo;Real Madrid Local 2026-27;60;stock;unisex;Marca global y nueva temporada;0;1;1;1;3;2;Vender 2 unidades en 21 dias;No sobrecomprar antes de datos propios
+6;catalogo_stock_bajo;Barcelona Local 2026-27;59;stock;unisex;Marca global y nueva temporada;0;1;1;1;3;2;Vender 2 unidades en 21 dias;No sobrecomprar antes de datos propios
+7;catalogo_stock_bajo;Argentina Local 2026;2;stock;unisex;Diseno y seleccion con demanda internacional consistente;0;1;1;0;2;1;Vender 1 unidad en 14 dias;Demanda puede bajar al terminar el torneo
+8;catalogo_stock_bajo;Brasil Local 2026;9;stock;unisex;Seleccion iconica con demanda estable;0;1;1;0;2;1;Vender 1 unidad en 21 dias;Evitar profundizar sin ventas locales
+9;muestra_por_aprobar;Mexico Local 2026;Needs confirmation;muestra_unica;unisex;Diseno repetido entre favoritos del Mundial;0;1;0;0;1;1;Aprobar muestra y recibir 3 pedidos bajo pedido;Proveedor calidad y derechos por confirmar
+10;muestra_por_aprobar;Japon Visitante 2026;Needs confirmation;muestra_unica;unisex;Ganadora de votaciones recientes de coleccionistas;0;0;1;0;1;0;Aprobar muestra y recibir 3 pedidos bajo pedido;Interes global no garantiza rotacion en Colombia
+11;muestra_por_aprobar;Atletico Nacional Local o Retro;Needs confirmation;muestra_unica;unisex;Relevancia local alta para Medellin;0;1;0;0;1;0;Aprobar muestra y recibir 5 solicitudes locales;No comprar lote sin proveedor aprobado

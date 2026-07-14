@@ -1,27 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      (function(){
-        var loaded = false;
-        var loadGtag = function(){
-          if (loaded) return;
-          loaded = true;
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
-          document.head.appendChild(script);
-          gtag('js', new Date());
-          gtag('config', 'G-576MFSV66N');
-        };
-        var schedule = function(){ setTimeout(loadGtag, 4500); };
-        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
-        window.addEventListener('keydown', loadGtag, { once: true });
-        window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Herencia 90 | Panel Admin Avanzado</title>
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
@@ -30,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-finance-metrics.js?v=1780613504326"></script>
     <script src="js/admin-inventory-guard.js?v=1780613504326"></script>
+    <script src="js/admin-inventory-editor.js?v=1780613504326"></script>
     <script src="js/admin-lote-photo-review.js?v=1780613504326"></script>
     <script src="js/admin-lote-workflow.js?v=1780613504326"></script>
     <script src="js/admin-pedido-payments.js?v=1780786400000"></script>
@@ -837,8 +818,32 @@
         const { createClient } = window.supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        db.auth.getSession().then(({ data }) => {
-            if (!data.session) window.location.href = '/login.html';
+        async function buildAdminApiHeaders() {
+            const { data } = await db.auth.getSession();
+            const token = data && data.session && data.session.access_token;
+            if (!token) throw new Error('Sesion de admin expirada. Vuelve a iniciar sesion.');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        async function verifyAdminSession(session) {
+            if (!session || !session.access_token) return false;
+            try {
+                const response = await fetch('/api/admin-session', {
+                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        db.auth.getSession().then(async ({ data }) => {
+            if (await verifyAdminSession(data.session)) return;
+            if (data.session) await db.auth.signOut();
+            window.location.href = '/login.html?error=forbidden';
         });
 
         let GLOBAL_TRM = 3714.0;
@@ -864,7 +869,7 @@
             <div class="trm-module">
                 <div><b>TRM Oficial:</b> <span id="trm-api">Consultando...</span></div>
                 <div><b>TRM Aplicada:</b> <input type="number" id="trm-custom" value="3714" onchange="updateCustomTRM()"></div>
-                <button class="btn-save" id="globalSaveBtn" style="display:none; padding: 6px 12px;" onclick="saveInventory()">Guardar Inventario</button>
+                <button class="btn-save" id="globalSaveBtn" style="display:none; padding: 6px 12px;" onclick="saveInventory()" disabled>Sin cambios</button>
             </div>
         </header>
 
@@ -1130,7 +1135,7 @@
                         </div>
                         <div class="inventory-actions">
                             <button class="btn-add" onclick="addProduct()">+ Nueva Referencia</button>
-                            <button class="btn-save" onclick="saveInventory()">Guardar Inventario</button>
+                            <button class="btn-save" id="inventorySaveBtn" onclick="saveInventory()" disabled>Sin cambios</button>
                         </div>
                     </div>
 
@@ -1738,6 +1743,8 @@
         }
 
         let productData = [];
+        let inventoryBaseline = [];
+        let inventorySaveInFlight = false;
         let financeData = { transacciones: [] };
         let CATEGORIAS_INV = [];
         let profitChart = null;
@@ -1747,12 +1754,16 @@
             fetchTRM(); // No blockear carga inicial si la API del gobierno está lenta
             try {
                 const { data: prods } = await db.from('productos').select('*').order('id');
-                if (prods) productData = prods;
+                if (prods) {
+                    productData = prods;
+                    inventoryBaseline = window.AdminInventoryEditor.snapshot(prods);
+                }
 
                 const { data: trans } = await db.from('transacciones').select('*').order('fecha', { ascending: false });
                 if (trans) financeData.transacciones = trans;
 
                 renderInventory();
+                actualizarBotonesInventario();
                 renderFinance();
                 calculateInventoryValuation();
             } catch(e) { console.error(e); }
@@ -2417,62 +2428,6 @@
             document.getElementById('stat-inv-prof').innerText = formatter.format(totalPotCOP - valCOP);
         }
 
-        function renderInventory() {
-            const cnt = document.getElementById('tablesContainer');
-            cnt.innerHTML = '';
-            CATEGORIAS_INV = [...new Set(productData.map(p=>p.categoria||'Otras'))];
-            if(!CATEGORIAS_INV.length) CATEGORIAS_INV=['Nueva'];
-
-            const renameSel = document.getElementById('renameCatSelect');
-            if(renameSel) renameSel.innerHTML = CATEGORIAS_INV.map(c=>`<option value="${c}">${c}</option>`).join('');
-
-            CATEGORIAS_INV.forEach(cat => {
-                const items = productData.map((p,i)=>({p,i})).filter(x=>x.p.categoria===cat);
-                if(!items.length) return;
-
-                let html = `<div class="category-section"><h3>${cat}</h3>
-                    <table class="inv-table"><thead><tr>
-                        <th>ID</th><th>Categoría</th><th>Referencia</th>
-                        <th title="En USD basado en facturas">Costo USD</th><th title="Valor base COP con TRM actual">Costo Real (COP)</th>
-                        <th>Precio Venta</th><th>S</th><th>M</th><th>L</th><th>XL</th>
-                        <th>Desc. y Fotos</th><th>...</th>
-                    </tr></thead><tbody>`;
-
-                items.forEach(({p,i}) => {
-                    if(!p.tallas) p.tallas={S:0,M:0,L:0,XL:0};
-                    const totQ = (p.tallas.S||0) + (p.tallas.M||0) + (p.tallas.L||0) + (p.tallas.XL||0);
-                    const stockCls = totQ === 0 ? 'low-stock' : '';
-
-                    const pCOP = (p.costo_usd || 0) * GLOBAL_TRM;
-
-                    let photos = `<ul class="photo-list">` + (p.imagenes||[]).map((img, ix)=>`<li><a href="/${img}" target="_blank">📷</a><span class="remove-img" onclick="rmImg(${i},${ix})">x</span></li>`).join('') + `</ul> <label style="font-size:10px;cursor:pointer;background:#eee;padding:2px;display:block;text-align:center;margin-top:2px;">[+]<input type="file" style="display:none" onchange="addImg(event,${i})"></label>`;
-
-                    html += `<tr class="${(stock === 0 && reserved === 0) ? 'low-stock' : ''}">
-                        <td>${p.id}</td>
-                        <td><select onchange="uD(${i},'categoria',this.value)">${CATEGORIAS_INV.map(c=>`<option value="${c}" ${c===p.categoria?'selected':''}>${c}</option>`).join('')}</select></td>
-                        <td><input type="text" value="${p.equipo}" onchange="uD(${i},'equipo',this.value)"></td>
-                        <td><input type="number" class="cost-input" step="0.01" value="${p.costo_usd||''}" onchange="uD(${i},'costo_usd',this.value)"></td>
-                        <td style="color:#777; font-weight:600;">${formatter.format(pCOP)}</td>
-                        <td><input type="number" class="price-input" value="${p.precio}" onchange="uD(${i},'precio',this.value)"></td>
-                        ${renderSizeCell(p, i, 'S')}
-                        ${renderSizeCell(p, i, 'M')}
-                        ${renderSizeCell(p, i, 'L')}
-                        ${renderSizeCell(p, i, 'XL')}
-                        <td style="width:180px;">
-                            <textarea onchange="uD(${i},'descripcion',this.value)" rows="1" style="font-size:10px">${p.descripcion||''}</textarea>
-                            ${photos}
-                        </td>
-                        <td><button class="btn-danger" onclick="delP(${i})">Borrar</button></td>
-                    </tr>`;
-                });
-                cnt.innerHTML += html + `</tbody></table></div>`;
-            });
-            calculateInventoryValuation();
-        }
-
-        function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria') renderInventory(); }
-        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); calculateInventoryValuation(); }
-
         function getProductStock(p) {
             return Object.entries(p.tallas || {}).reduce((sum, [k,v]) => sum + (k.startsWith('R_') ? 0 : (parseInt(v||0)||0)), 0);
         }
@@ -2602,23 +2557,69 @@
             calculateInventoryValuation();
         }
 
-        function uD(i,f,v) { if(['precio','costo_usd'].includes(f)) v=parseFloat(v)||0; productData[i][f]=v; if(f==='costo_usd'||f==='categoria'||f==='precio') renderInventory(); else calculateInventoryValuation(); }
-        function uS(i,s,v) { productData[i].tallas[s]=Math.max(0,parseInt(v)||0); renderInventory(); }
-
-        function resSize(i, size) {
-            if ((productData[i].tallas[size] || 0) > 0) {
-                productData[i].tallas[size]--;
-                productData[i].tallas['R_'+size] = (productData[i].tallas['R_'+size] || 0) + 1;
-                renderInventory(); saveInventory();
-            }
+        function getInventorySavePlan(onlyIds = null) {
+            return window.AdminInventoryEditor.buildSavePlan(productData, inventoryBaseline, onlyIds);
         }
 
-        function libSize(i, size) {
-            if ((productData[i].tallas['R_'+size] || 0) > 0) {
-                productData[i].tallas['R_'+size]--;
-                productData[i].tallas[size] = (productData[i].tallas[size] || 0) + 1;
-                renderInventory(); saveInventory();
+        function actualizarBotonesInventario() {
+            const plan = getInventorySavePlan();
+            const count = plan.ok ? plan.payload.length : 0;
+            const label = plan.ok
+                ? (count === 0 ? 'Sin cambios' : `Guardar ${count} cambio${count === 1 ? '' : 's'}`)
+                : 'Revisar inventario';
+            ['globalSaveBtn', 'inventorySaveBtn'].forEach(id => {
+                const button = document.getElementById(id);
+                if (!button) return;
+                button.textContent = label;
+                button.disabled = inventorySaveInFlight || (plan.ok && count === 0);
+                button.title = plan.ok ? '' : plan.errors.join('\n');
+            });
+            return plan;
+        }
+
+        function updateInventoryBaseline(savedProducts) {
+            const baselineById = new Map(inventoryBaseline.map(product => [String(product.id), product]));
+            savedProducts.forEach(product => baselineById.set(String(product.id), window.AdminInventoryEditor.snapshot([product])[0]));
+            inventoryBaseline = Array.from(baselineById.values());
+        }
+
+        function uD(i, f, v) {
+            if (['precio', 'costo_usd'].includes(f)) {
+                const numericValue = Number(v);
+                if (!Number.isFinite(numericValue) || numericValue < 0) {
+                    alert('Escribe un valor numerico igual o mayor que cero.');
+                    renderInventory();
+                    return;
+                }
+                v = numericValue;
             }
+            productData[i][f] = v;
+            if (f === 'costo_usd' || f === 'categoria' || f === 'precio') renderInventory();
+            else calculateInventoryValuation();
+            actualizarBotonesInventario();
+        }
+
+        function uS(i, s, v) {
+            const result = window.AdminInventoryEditor.setStock(productData, i, s, v);
+            if (!result.ok) alert(result.error);
+            renderInventory();
+            actualizarBotonesInventario();
+        }
+
+        async function resSize(i, size) {
+            const result = window.AdminInventoryEditor.moveReservation(productData, i, size, 'reserve');
+            if (!result.ok) { showToast(result.error); return; }
+            renderInventory();
+            actualizarBotonesInventario();
+            await saveInventory(true, [result.productId]);
+        }
+
+        async function libSize(i, size) {
+            const result = window.AdminInventoryEditor.moveReservation(productData, i, size, 'release');
+            if (!result.ok) { showToast(result.error); return; }
+            renderInventory();
+            actualizarBotonesInventario();
+            await saveInventory(true, [result.productId]);
         }
 
         function renderSizeCell(p, i, size) {
@@ -2636,32 +2637,56 @@
         }
 
         async function addProduct() {
+            if (!confirm('Crear una nueva referencia vacia en el catalogo?')) return;
             const mx = productData.length ? Math.max(...productData.map(p=>p.id)) : 0;
             const newP = { id:mx+1, categoria:CATEGORIAS_INV[0]||'Nueva', equipo:'Nuevo', descripcion:'', precio:99000, costo_usd:10.44, tallas:{S:0,M:0,L:0,XL:0}, imagenes:[] };
             const { error } = await db.from('productos').insert(newP);
             if (error) { alert("Error creando producto"); return; }
             productData.unshift(newP);
+            updateInventoryBaseline([newP]);
             renderInventory();
+            actualizarBotonesInventario();
         }
         async function delP(i) {
-            if (!confirm('Borrar?')) return;
+            if (!confirm(`Borrar definitivamente "${productData[i].equipo}"? Esta accion no se puede deshacer.`)) return;
             const id = productData[i].id;
             const { error } = await db.from('productos').delete().eq('id', id);
             if (error) { alert("Error borrando producto"); return; }
             productData.splice(i,1);
+            inventoryBaseline = inventoryBaseline.filter(product => String(product.id) !== String(id));
             renderInventory();
+            actualizarBotonesInventario();
         }
-        function renameCategory() {
+        async function renameCategory() {
             const o = document.getElementById('renameCatSelect').value, n = document.getElementById('renameCatInput').value.trim();
-            if(n && o!==n) { productData.forEach(p=>{if(p.categoria===o)p.categoria=n;}); renderInventory(); saveInventory(true); }
+            if (!n || o === n) return;
+            const affectedIds = productData.filter(product => product.categoria === o).map(product => product.id);
+            if (!confirm(`Renombrar ${affectedIds.length} referencias de "${o}" a "${n}"?`)) return;
+            productData.forEach(product => { if (product.categoria === o) product.categoria = n; });
+            renderInventory();
+            actualizarBotonesInventario();
+            await saveInventory(false, affectedIds);
         }
         async function rmImg(pI, iI) {
+            if (!confirm('Quitar esta foto de la referencia?')) return;
+            const productId = productData[pI].id;
+            const previousImages = [...productData[pI].imagenes];
             const url = productData[pI].imagenes[iI];
             const filename = url.split('/product-images/')[1];
-            if (filename) await db.storage.from('product-images').remove([filename]);
             productData[pI].imagenes.splice(iI,1);
             renderInventory();
-            await saveInventory(true);
+            actualizarBotonesInventario();
+            const saved = await saveInventory(true, [productId]);
+            if (!saved) {
+                productData[pI].imagenes = previousImages;
+                renderInventory();
+                actualizarBotonesInventario();
+                return;
+            }
+            if (filename) {
+                const { error } = await db.storage.from('product-images').remove([filename]);
+                if (error) console.warn('La referencia se guardo, pero no se pudo limpiar el archivo anterior:', error.message);
+            }
         }
         function safeStorageFilename(name, preferredExt) {
             const raw = String(name || 'imagen');
@@ -2716,16 +2741,9 @@
         }
 
         async function uploadProductImage(filename, optimized) {
-            const { data: sessionData } = await db.auth.getSession();
-            const token = sessionData && sessionData.session && sessionData.session.access_token;
-            if (!token) throw new Error('Sesion de admin expirada. Vuelve a iniciar sesion.');
-
             const response = await fetch('/api/admin-upload-image', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: await buildAdminApiHeaders(),
                 body: JSON.stringify({
                     filename,
                     contentType: optimized.type || 'image/webp',
@@ -2751,7 +2769,8 @@
                     productData[pI].imagenes.push(publicUrl);
                 }
                 renderInventory();
-                await saveInventory(true);
+                actualizarBotonesInventario();
+                await saveInventory(true, [productData[pI].id]);
             } catch (error) {
                 console.error(error);
                 alert('Error al subir imagen: ' + error.message);
@@ -2774,7 +2793,7 @@
 
         let draggedPhotoIndex = null;
         function startPhotoDrag(ix) { draggedPhotoIndex = ix; }
-        function handlePhotoDrop(e, pI, targetIx) {
+        async function handlePhotoDrop(e, pI, targetIx) {
             e.preventDefault();
             e.stopPropagation();
             if (draggedPhotoIndex === null || draggedPhotoIndex === targetIx) return;
@@ -2782,18 +2801,42 @@
             const item = imgs.splice(draggedPhotoIndex, 1)[0];
             imgs.splice(targetIx, 0, item);
             renderInventory();
-            saveInventory(true);
+            actualizarBotonesInventario();
+            await saveInventory(true, [productData[pI].id]);
             draggedPhotoIndex = null;
         }
 
-        async function saveInventory(silent=false) {
-            const b = document.getElementById('globalSaveBtn');
-            if (!silent) b.innerText = '...';
-            const { error } = await db.from('productos').upsert(productData);
-            if (!silent) {
-                b.innerText = 'Guardar Inventario';
-                if (!error) showToast('Inventario Editado');
-                else { console.error(error); alert("Error guardando inventario"); }
+        async function saveInventory(silent=false, onlyIds=null) {
+            if (inventorySaveInFlight) return false;
+            const plan = getInventorySavePlan(onlyIds);
+            if (!plan.ok) {
+                alert('No se guardo nada. Corrige estos datos:\n\n' + plan.errors.join('\n'));
+                actualizarBotonesInventario();
+                return false;
+            }
+            if (!plan.payload.length) {
+                if (!silent) showToast('No hay cambios por guardar');
+                actualizarBotonesInventario();
+                return true;
+            }
+            if (!silent && !confirm(`Guardar ${plan.payload.length} referencia${plan.payload.length === 1 ? '' : 's'} modificada${plan.payload.length === 1 ? '' : 's'}?`)) return false;
+
+            inventorySaveInFlight = true;
+            actualizarBotonesInventario();
+            try {
+                const { error } = await db.from('productos').upsert(plan.payload);
+                if (error) throw error;
+                updateInventoryBaseline(plan.payload);
+                showToast(`${plan.payload.length} referencia${plan.payload.length === 1 ? '' : 's'} guardada${plan.payload.length === 1 ? '' : 's'}`);
+                return true;
+            } catch (error) {
+                console.error(error);
+                if (!silent) alert('Error guardando inventario: ' + error.message);
+                else showToast('No se pudo guardar el cambio');
+                return false;
+            } finally {
+                inventorySaveInFlight = false;
+                actualizarBotonesInventario();
             }
         }
         function showToast(m){
@@ -2810,6 +2853,14 @@
             updateCategories();
             setMovementPreset('venta');
             init();
+        });
+
+        window.addEventListener('beforeunload', event => {
+            const plan = getInventorySavePlan();
+            if (!inventorySaveInFlight && plan.ok && plan.payload.length > 0) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
         });
 
         // ─── ANALYTICS ─────────────────────────────────────────────────────────
@@ -2945,10 +2996,7 @@
             try {
                 const res = await fetch('/api/preventa-yupoo-import', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer herencia2026'
-                    },
+                    headers: await buildAdminApiHeaders(),
                     body: JSON.stringify({ yupoo_album_url: url, max_imagenes: max })
                 });
                 const data = await res.json();
@@ -3193,9 +3241,15 @@
 
         async function loadPedidos() {
             try {
-                // Cargar productos por si acaso
-                const { data: prods } = await db.from('productos').select('*').order('id');
-                if (prods) productData = prods;
+                // Evita sobrescribir cambios de inventario que aun no se han guardado.
+                if (!productData.length) {
+                    const { data: prods } = await db.from('productos').select('*').order('id');
+                    if (prods) {
+                        productData = prods;
+                        inventoryBaseline = window.AdminInventoryEditor.snapshot(prods);
+                        actualizarBotonesInventario();
+                    }
+                }
 
                 // Cargar pedidos
                 const { data: peds, error } = await db.from('pedidos').select('*').order('id', { ascending: false });
@@ -3933,7 +3987,7 @@
                         try {
                             const res = await fetch('/api/optimize-product', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: await buildAdminApiHeaders(),
                                 body: JSON.stringify({ rawName: raw })
                             });
                             if (res.ok) aiResults[raw] = await res.json();
@@ -4074,7 +4128,7 @@
                     try {
                         const res = await fetch('/api/optimize-product', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: await buildAdminApiHeaders(),
                             body: JSON.stringify({ rawName: raw })
                         });
                         if (res.ok) {
@@ -4302,14 +4356,14 @@
                 try {
                     const resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
                     });
                     if (resLocal.ok) data = await resLocal.json();
                 } catch (errLocal) {
                     const resCloud = await fetch('/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: group.providerUrl, query: group.title })
                     });
                     if (resCloud.ok) data = await resCloud.json();
@@ -4607,7 +4661,7 @@
                 try {
                     let resLocal = await fetch('http://localhost:3001/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: url, query: item.queryStr })
                     });
                     if (resLocal.ok) data = await resLocal.json();
@@ -4615,7 +4669,7 @@
                     // Fallback nube
                     let resCloud = await fetch('/api/search-provider-images', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: await buildAdminApiHeaders(),
                         body: JSON.stringify({ exactUrl: url, query: item.queryStr })
                     });
                     if (resCloud.ok) data = await resCloud.json();

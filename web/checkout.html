@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisar pedido | Herencia 90</title>
+    <meta name="description" content="Revisa productos, tallas y precios de tu pedido en Herencia 90 antes de confirmar entrega y disponibilidad.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#060606">
+    <link rel="icon" href="/img/favicon.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/checkout.css">
+    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
+    <script src="/js/checkout-core.js"></script>
+    <script src="/js/checkout.js" defer></script>
+</head>
+<body>
+    <header class="checkout-header">
+        <a href="/" aria-label="Volver a HERENCIA90"><img src="/img/logo-ui.webp" alt="HERENCIA90" width="72" height="82"></a>
+        <a class="checkout-back" href="/catalogo">← Seguir comprando</a>
+    </header>
+
+    <main class="checkout-shell">
+        <p class="checkout-kicker">Paso previo a confirmar</p>
+        <h1>Revisa tu pedido</h1>
+        <p class="checkout-lead">Validamos otra vez precio, talla y stock usando el catálogo. El envío y el total final se confirman antes de aceptar el pedido.</p>
+        <ol class="checkout-steps" aria-label="Proceso de compra"><li>1. Revisión</li><li>2. Datos de entrega</li><li>3. Confirmación</li></ol>
+
+        <div class="checkout-grid">
+            <section class="checkout-panel" aria-labelledby="orderTitle">
+                <div class="checkout-panel-head">
+                    <h2 id="orderTitle">Tu selección</h2>
+                    <p>Los precios del carrito se verifican contra el catálogo actual.</p>
+                </div>
+                <div id="checkoutItems" class="checkout-items" aria-live="polite"></div>
+                <div id="checkoutIssues" class="checkout-issues" role="alert"></div>
+                <div id="checkoutSummary" class="checkout-summary" hidden>
+                    <div class="checkout-summary-row"><span>Subtotal verificado</span><strong id="checkoutSubtotal">$0</strong></div>
+                    <div class="checkout-summary-row"><span>Envío</span><strong>Por confirmar</strong></div>
+                    <div class="checkout-summary-row checkout-summary-total"><span>Total provisional</span><strong id="checkoutTotal">$0</strong></div>
+                </div>
+            </section>
+
+            <section class="checkout-panel" aria-labelledby="deliveryTitle">
+                <div class="checkout-panel-head">
+                    <h2 id="deliveryTitle">Datos de entrega</h2>
+                    <p>Solo se usan para preparar la solicitud que tú decides enviar.</p>
+                </div>
+                <form id="checkoutForm" class="checkout-form" novalidate>
+                    <div class="field">
+                        <label for="customerName">Nombre de quien recibe</label>
+                        <input id="customerName" name="name" autocomplete="name" maxlength="80" required>
+                        <span class="field-error" id="customerNameError"></span>
+                    </div>
+                    <div class="field">
+                        <label for="customerPhone">Teléfono</label>
+                        <input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" required>
+                        <span class="field-error" id="customerPhoneError"></span>
+                    </div>
+                    <div class="field">
+                        <label for="customerCity">Ciudad</label>
+                        <input id="customerCity" name="city" autocomplete="address-level2" maxlength="80" required>
+                        <span class="field-error" id="customerCityError"></span>
+                    </div>
+                    <div class="field">
+                        <label for="customerAddress">Dirección de entrega</label>
+                        <input id="customerAddress" name="address" autocomplete="street-address" maxlength="180" required>
+                        <span class="field-error" id="customerAddressError"></span>
+                    </div>
+                    <label class="checkout-consent">
+                        <input id="acceptPolicies" name="acceptPolicies" type="checkbox" required>
+                        <span>Confirmo que revisé tallas y acepto los <a href="/terminos" target="_blank">términos</a>, la política de <a href="/envios" target="_blank">envíos</a> y de <a href="/cambios-devoluciones" target="_blank">cambios</a>.</span>
+                    </label>
+                    <span class="field-error" id="acceptPoliciesError"></span>
+                    <button id="checkoutSubmit" class="checkout-submit" type="submit" disabled>Enviar para confirmación</button>
+                    <p class="checkout-note">Esta versión no realiza cobros. Abriremos WhatsApp con el resumen para confirmar disponibilidad, envío, total y forma de pago.</p>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="checkout-footer">
+        <nav aria-label="Políticas de la tienda"><a href="/privacidad">Privacidad</a><a href="/envios">Envíos</a><a href="/cambios-devoluciones">Cambios y devoluciones</a><a href="/terminos">Términos</a></nav>
+    </footer>
+</body>
+</html>

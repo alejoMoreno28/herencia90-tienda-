@@ -13,6 +13,7 @@ import ExcelJS from 'exceljs';
 import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { parseOrderRows, readOrderRows } from './lib/order-workbook-reader.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -295,20 +296,8 @@ async function run() {
   }
 
   // Leer datos del pedido original
-  const { default: xlsx } = await import('xlsx');
-  const srcWb = xlsx.readFile(srcFile);
-  const srcWs = srcWb.Sheets['Pedido 2'];
-  const rawRows = xlsx.utils.sheet_to_json(srcWs, { header: 1 });
-
-  // Extraer filas de datos (skip header row 0)
-  const orderRows = rawRows.slice(1)
-    .filter(r => r[2] || r[3]) // tiene version o comment
-    .map(r => ({
-      size:    String(r[1] || ''),
-      version: String(r[2] || ''),
-      comment: String(r[3] || ''),
-      qty:     Number(r[4]) || 1,
-    }));
+  const { rows: rawRows } = await readOrderRows(srcFile, ['Pedido 2', 'ORDER']);
+  const orderRows = parseOrderRows(rawRows);
 
   console.log(`Filas de pedido encontradas: ${orderRows.length}`);
 

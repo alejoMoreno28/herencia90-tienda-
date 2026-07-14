@@ -1,5 +1,11 @@
 ﻿import fs from 'node:fs';
 import path from 'node:path';
+import {
+  absoluteAssetUrl as normalizeAssetUrl,
+  buildProductSchemaDescription,
+  getSellableSizes,
+  getSellableStock,
+} from './lib/catalog-seo.mjs';
 
 const root = process.cwd();
 const siteUrl = 'https://www.herencia90.shop';
@@ -16,11 +22,38 @@ const preventaCatalogPath = path.join(root, 'web', 'preventa-catalogo.json');
 const sitemapPath = path.join(root, 'web', 'sitemap.xml');
 const robotsPath = path.join(root, 'web', 'robots.txt');
 const useLocalCatalogs = process.env.H90_GENERATE_LOCAL === '1';
+const legalFooterLinksHtml = `<footer class="legal-footer-links" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px 20px;padding:28px 18px;border-top:1px solid rgba(217,195,145,.22);background:#050505;font:600 12px Montserrat,Arial,sans-serif">
+  <a style="color:#d9c391" href="/privacidad">Privacidad</a>
+  <a style="color:#d9c391" href="/envios">Envios</a>
+  <a style="color:#d9c391" href="/cambios-devoluciones">Cambios y devoluciones</a>
+  <a style="color:#d9c391" href="/terminos">Terminos</a>
+</footer>`;
+const legacyProductSlugsById = new Map([
+  [1, ['camiseta-local-alemania-26']],
+  [2, ['camiseta-local-argentina-26']],
+  [9, ['camiseta-local-brasil-26']],
+  [10, ['camiseta-local-colombia-26']],
+  [17, ['camiseta-edicion-especial-portugal-26']],
+  [24, ['camiseta-local-colombia-26-mujer']],
+]);
+
+function sanitizePublicDescription(value) {
+  return String(value || '')
+    .replace(/camiseta oficial de/gi, 'Camiseta de')
+    .replace(/parches oficiales/gi, 'parches disponibles');
+}
+
+function sanitizePublicProduct(product) {
+  return {
+    ...product,
+    descripcion: sanitizePublicDescription(product?.descripcion)
+  };
+}
 
 async function loadProducts() {
   if (useLocalCatalogs) {
     console.warn('Using local products catalog');
-    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8')).map(sanitizePublicProduct);
   }
 
   try {
@@ -41,11 +74,12 @@ async function loadProducts() {
       throw new Error('Supabase no devolvio productos');
     }
 
-    fs.writeFileSync(productsPath, `${JSON.stringify(liveProducts, null, 4)}\n`, 'utf8');
-    return liveProducts;
+    const publicProducts = liveProducts.map(sanitizePublicProduct);
+    fs.writeFileSync(productsPath, `${JSON.stringify(publicProducts, null, 4)}\n`, 'utf8');
+    return publicProducts;
   } catch (error) {
     console.warn(`No fue posible sincronizar productos desde Supabase: ${error.message}`);
-    return JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(productsPath, 'utf8')).map(sanitizePublicProduct);
   }
 }
 
@@ -292,17 +326,15 @@ function truncateText(value, maxLength = 160) {
 }
 
 function absoluteAssetUrl(assetPath) {
-  return `${siteUrl}/${assetPath.replace(/^\/+/, '')}`;
+  return normalizeAssetUrl(assetPath, siteUrl);
 }
 
 function getAvailableSizes(product) {
-  return Object.entries(product.tallas || {})
-    .filter(([, qty]) => qty > 0)
-    .map(([size]) => size);
+  return getSellableSizes(product.tallas);
 }
 
 function getStockTotal(product) {
-  return Object.values(product.tallas || {}).reduce((sum, qty) => sum + Number(qty || 0), 0);
+  return getSellableStock(product.tallas);
 }
 
 function getProductUrl(product) {
@@ -313,6 +345,10 @@ function getProductAliasSlug(product) {
   if (product.id === 10) return 'camiseta-local-colombia-26';
   if (product.id === 24) return 'camiseta-local-colombia-26-mujer';
   return null;
+}
+
+function getProductLegacySlugs(product) {
+  return legacyProductSlugsById.get(Number(product.id)) || [];
 }
 
 function getProductUrls(product) {
@@ -456,8 +492,7 @@ function renderCollectionProductCards(collectionProducts) {
       const availableSizes = getAvailableSizes(product);
       const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
       const productUrl = getProductAliasSlug(product) ? `/camisetas/${getProductAliasSlug(product)}` : `/camisetas/${slugify(product.equipo)}`;
-      return `
-        <article class="collection-product-card">
+      return `<article class="collection-product-card">
           <a class="collection-product-image" href="${productUrl}">
             <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
           </a>
@@ -474,8 +509,7 @@ function renderCollectionProductCards(collectionProducts) {
               <a class="mini-btn mini-btn-secondary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </div>
           </div>
-        </article>
-      `;
+        </article>`;
     })
     .join('');
 }
@@ -518,6 +552,7 @@ function renderCollectionPage(collection) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(collection.title)}</title>
   <meta name="description" content="${escapeHtml(collection.shortDescription)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getCollectionUrl(collection)}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Herencia 90">
@@ -868,7 +903,7 @@ function renderCollectionPage(collection) {
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
     <img src="../img/logo.webp" alt="Herencia 90">
-    <a href="/preventa">Pre-venta</a>
+    <a href="/preventa">Bajo pedido</a>
   </header>
 
   <main class="page-shell">
@@ -962,6 +997,8 @@ function renderCollectionPage(collection) {
     </section>
   </main>
 
+  ${legalFooterLinksHtml}
+
   <script>
     const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
     const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
@@ -991,9 +1028,15 @@ function renderCollectionPage(collection) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
     }
 
+    function sanitizePublicDescriptionClient(value) {
+      return String(value || '')
+        .replace(/camiseta oficial de/gi, 'Camiseta de')
+        .replace(/parches oficiales/gi, 'parches disponibles');
+    }
+
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
+        .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
         .map(([size]) => size);
     }
 
@@ -1017,12 +1060,12 @@ function renderCollectionPage(collection) {
       const sizes = getAvailableSizesClient(product);
       return '<article class="collection-product-card">' +
         '<a class="collection-product-image" href="' + buildProductUrlClient(product) + '">' +
-          '<img src="' + getImageClient(product) + '" alt="' + escapeHtmlClient(product.equipo) + '">' +
+          '<img src="' + escapeHtmlClient(getImageClient(product)) + '" alt="' + escapeHtmlClient(product.equipo) + '">' +
         '</a>' +
         '<div class="collection-product-copy">' +
           '<span class="collection-product-category">' + escapeHtmlClient(product.categoria || 'Herencia 90') + '</span>' +
           '<h2><a href="' + buildProductUrlClient(product) + '">' + escapeHtmlClient(product.equipo) + '</a></h2>' +
-          '<p>' + escapeHtmlClient(product.descripcion || 'Consulta disponibilidad por WhatsApp.') + '</p>' +
+          '<p>' + escapeHtmlClient(sanitizePublicDescriptionClient(product.descripcion) || 'Consulta disponibilidad por WhatsApp.') + '</p>' +
           '<div class="collection-product-meta">' +
             '<span>' + formatPriceClient(product.precio) + '</span>' +
             '<span>' + escapeHtmlClient(sizes.join(', ') || 'Consultar') + '</span>' +
@@ -1051,16 +1094,24 @@ function renderCollectionPage(collection) {
       root.innerHTML = safeProducts.map(buildCollectionCard).join('');
     }
 
+    let collectionPageTracked = false;
     async function trackCollectionPage() {
+      if (collectionPageTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: 'page_view',
+        product_id: null,
+        product_name: null,
+        category: STATIC_COLLECTION.name,
+        extra: { source: 'seo_collection_page' },
+        referrer: document.referrer || null
+      });
+      if (!payload) return;
+      collectionPageTracked = true;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', { item_category: payload.category, ...payload.extra });
+      }
       try {
-        await db.from('analytics_events').insert({
-          event_type: 'page_view',
-          product_id: null,
-          product_name: null,
-          category: STATIC_COLLECTION.name,
-          extra: { source: 'seo_collection_page' },
-          referrer: document.referrer || null
-        });
+        await db.from('analytics_events').insert(payload);
       } catch (error) {
         // Analytics nunca interrumpe la experiencia del usuario
       }
@@ -1079,6 +1130,9 @@ function renderCollectionPage(collection) {
     }
 
     trackCollectionPage();
+    window.addEventListener('h90:analytics-consent', (event) => {
+      if (event.detail && event.detail.decision === 'accepted') trackCollectionPage();
+    });
     refreshCollectionFromSupabase();
     db.channel('seo-collection-live-${collection.slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
@@ -1165,6 +1219,7 @@ function renderPreventaPage(item) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)} | Pre-venta Herencia 90</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getPreventaUrl(item)}">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
@@ -1264,6 +1319,7 @@ function renderPreventaPage(item) {
     </section>
     ${relatedCards ? `<section class="related"><h2>Tambien puede gustarte</h2><div class="related-grid">${relatedCards}</div></section>` : ''}
   </main>
+  ${legalFooterLinksHtml}
 </body>
 </html>`;
 }
@@ -1272,7 +1328,7 @@ function renderProductPage(product) {
   const slug = slugify(product.equipo);
   const availableSizes = getAvailableSizes(product);
   const sizeTags = availableSizes.length
-    ? availableSizes.map((size) => `<span>${escapeHtml(size)}</span>`).join('')
+    ? availableSizes.map((size) => `<button type="button" data-size="${escapeHtml(size)}" aria-pressed="false">${escapeHtml(size)}</button>`).join('')
     : '<span>Consultar</span>';
   const description = buildMetaDescription(product, availableSizes);
   const imageUrls = (product.imagenes?.length ? product.imagenes : ['img/logo.webp']).map(absoluteAssetUrl);
@@ -1281,7 +1337,7 @@ function renderProductPage(product) {
     '@type': 'Product',
     name: product.equipo,
     image: imageUrls,
-    description: product.descripcion,
+    description: buildProductSchemaDescription(product, availableSizes),
     brand: {
       '@type': 'Brand',
       name: 'Herencia 90'
@@ -1319,6 +1375,7 @@ function renderProductPage(product) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(product.equipo)} | Herencia 90 Colombia</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>
   <link rel="canonical" href="${getProductUrl(product)}">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Herencia 90">
@@ -1532,7 +1589,8 @@ function renderProductPage(product) {
       gap: 10px;
       margin-bottom: 22px;
     }
-    .size-list span {
+    .size-list span,
+    .size-list button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1544,6 +1602,12 @@ function renderProductPage(product) {
       color: var(--gold-hover);
       font-weight: 700;
       font-size: 0.84rem;
+    }
+    .size-list button { cursor: pointer; font-family: inherit; }
+    .size-list button.selected {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
     }
     .actions {
       display: flex;
@@ -1565,12 +1629,20 @@ function renderProductPage(product) {
       letter-spacing: 0.8px;
       font-size: 0.82rem;
       transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
     }
     .btn:hover { transform: translateY(-2px); }
     .btn-primary {
-      background: var(--whatsapp);
-      color: white;
-      box-shadow: 0 10px 24px rgba(37,211,102,0.25);
+      background: var(--gold);
+      color: #111;
+      box-shadow: 0 10px 24px rgba(217,195,145,0.22);
+    }
+    .btn-whatsapp {
+      border: 1px solid rgba(26,127,69,0.75);
+      color: #7be0a7;
+      background: rgba(26,127,69,0.12);
     }
     .btn-secondary {
       border: 1px solid rgba(217, 195, 145, 0.32);
@@ -1742,11 +1814,11 @@ function renderProductPage(product) {
         <div id="productSizeList" class="size-list">${sizeTags}</div>
 
         <div class="actions">
-          <a id="productWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>
-          <a class="btn btn-secondary" href="/">Seguir viendo camisetas</a>
+          <button id="productAddCartBtn" class="btn btn-primary" type="button">Agregar y revisar pedido</button>
+          <a id="productWhatsAppBtn" class="btn btn-whatsapp" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
         </div>
 
-        <p class="microcopy">Si quieres nombre, numero o parches, tambien te cotizamos esos extras por WhatsApp.</p>
+        <p id="productPurchaseStatus" class="microcopy" aria-live="polite">Elige tu talla para continuar por la web. Si quieres extras, WhatsApp queda disponible como soporte.</p>
       </div>
     </section>
 
@@ -1768,12 +1840,14 @@ function renderProductPage(product) {
     </section>
   </main>
 
+  ${legalFooterLinksHtml}
+
   <div class="mobile-buy-bar" aria-label="Compra rapida">
     <div class="mobile-buy-copy">
       <strong id="mobileBuyTitle">${escapeHtml(product.equipo)}</strong>
       <span id="mobileBuyPrice">${escapeHtml(formatPrice(product.precio))}</span>
     </div>
-    <a id="mobileWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar</a>
+    <button id="mobileAddCartBtn" class="btn btn-primary" type="button">Comprar</button>
   </div>
 
   <script>
@@ -1784,6 +1858,7 @@ function renderProductPage(product) {
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentProduct = STATIC_PRODUCT;
+    let selectedSize = '';
 
     function formatPriceClient(value) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
@@ -1791,8 +1866,85 @@ function renderProductPage(product) {
 
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
+        .filter(([size, qty]) => !size.startsWith('R_') && Number(qty || 0) > 0)
         .map(([size]) => size);
+    }
+
+    function sanitizePublicDescriptionClient(value) {
+      return String(value || '')
+        .replace(/camiseta oficial de/gi, 'Camiseta de')
+        .replace(/parches oficiales/gi, 'parches disponibles');
+    }
+
+    function setPurchaseStatus(message) {
+      const status = document.getElementById('productPurchaseStatus');
+      if (status) status.textContent = message;
+    }
+
+    function selectProductSize(size) {
+      selectedSize = String(size || '');
+      document.querySelectorAll('#productSizeList [data-size]').forEach((button) => {
+        const active = button.dataset.size === selectedSize;
+        button.classList.toggle('selected', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      setPurchaseStatus(selectedSize ? 'Talla ' + selectedSize + ' seleccionada. Ya puedes revisar el pedido.' : 'Elige una talla para continuar.');
+      if (selectedSize) trackEvent('select_size', currentProduct);
+    }
+
+    function bindSizeOptions() {
+      document.querySelectorAll('#productSizeList [data-size]').forEach((button) => {
+        button.onclick = () => selectProductSize(button.dataset.size);
+      });
+    }
+
+    function renderSizeOptions(product) {
+      const container = document.getElementById('productSizeList');
+      if (!container) return;
+      const sizes = getAvailableSizesClient(product);
+      if (!sizes.includes(selectedSize)) selectedSize = '';
+      container.replaceChildren();
+      if (!sizes.length) {
+        const empty = document.createElement('span');
+        empty.textContent = 'Consultar';
+        container.appendChild(empty);
+        return;
+      }
+      sizes.forEach((size) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.size = size;
+        button.textContent = size;
+        button.setAttribute('aria-pressed', size === selectedSize ? 'true' : 'false');
+        if (size === selectedSize) button.classList.add('selected');
+        container.appendChild(button);
+      });
+      bindSizeOptions();
+    }
+
+    function addCurrentProductToCart() {
+      const sizes = getAvailableSizesClient(currentProduct);
+      if (!selectedSize || !sizes.includes(selectedSize)) {
+        setPurchaseStatus('Selecciona una talla disponible antes de continuar.');
+        const firstSize = document.querySelector('#productSizeList [data-size]');
+        if (firstSize) firstSize.focus();
+        return;
+      }
+
+      let cart = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem('herencia90_cart') || '[]');
+        if (Array.isArray(stored)) cart = stored;
+      } catch (error) {
+        cart = [];
+      }
+
+      const existing = cart.find((item) => String(item.id) === String(currentProduct.id) && item.talla === selectedSize);
+      if (existing) existing.cantidad = Math.min(10, Math.max(1, Number(existing.cantidad) || 1) + 1);
+      else cart.push({ id: currentProduct.id, talla: selectedSize, cantidad: 1 });
+      localStorage.setItem('herencia90_cart', JSON.stringify(cart));
+      trackEvent('add_to_cart', currentProduct);
+      window.location.assign('/checkout');
     }
 
     function buildWhatsAppClient(product) {
@@ -1802,12 +1954,21 @@ function renderProductPage(product) {
       return 'https://wa.me/573126428153?text=' + encodeURIComponent(message);
     }
 
-    function buildThumbGrid(images, title) {
-      return images.map((image, index) => {
+    function renderThumbGrid(container, images, title) {
+      container.replaceChildren();
+      images.forEach((image, index) => {
         const src = image.startsWith('http') ? image : '../' + image.replace(/^\\/+/, '');
-        const activeClass = index === 0 ? ' active' : '';
-        return '<button class="thumb' + activeClass + '" type="button" data-image="' + src + '"><img src="' + src + '" alt="' + title + ' vista ' + (index + 1) + '"></button>';
-      }).join('');
+        const button = document.createElement('button');
+        const thumbnail = document.createElement('img');
+        button.className = index === 0 ? 'thumb active' : 'thumb';
+        button.type = 'button';
+        button.dataset.image = src;
+        thumbnail.src = src;
+        thumbnail.alt = title + ' vista ' + (index + 1);
+        button.appendChild(thumbnail);
+        container.appendChild(button);
+      });
+      bindThumbs();
     }
 
     function bindThumbs() {
@@ -1832,12 +1993,11 @@ function renderProductPage(product) {
       document.getElementById('productTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
       document.getElementById('productPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('mobileBuyPrice').textContent = formatPriceClient(product.precio);
-      document.getElementById('productDescription').textContent = product.descripcion || '';
+      document.getElementById('productDescription').textContent = sanitizePublicDescriptionClient(product.descripcion);
       document.getElementById('productSizesSummary').textContent = sizes.join(', ') || 'Consultar';
-      document.getElementById('productSizeList').innerHTML = (sizes.length ? sizes : ['Consultar']).map((size) => '<span>' + size + '</span>').join('');
+      renderSizeOptions(product);
       document.getElementById('productWhatsAppBtn').href = buildWhatsAppClient(product);
       document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
-      document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
 
       const mainImage = document.getElementById('productMainImage');
       if (mainImage) {
@@ -1847,21 +2007,31 @@ function renderProductPage(product) {
 
       const thumbGrid = document.querySelector('.thumb-grid');
       if (thumbGrid) {
-        thumbGrid.innerHTML = buildThumbGrid(images, product.equipo || STATIC_PRODUCT.equipo);
-        bindThumbs();
+        renderThumbGrid(thumbGrid, images, product.equipo || STATIC_PRODUCT.equipo);
       }
     }
 
     async function trackEvent(eventType, product) {
-      try {
-        await db.from('analytics_events').insert({
-          event_type: eventType,
-          product_id: product && product.id ? product.id : null,
-          product_name: product && product.equipo ? product.equipo : null,
-          category: product && product.categoria ? product.categoria : null,
-          extra: { source: 'seo_product_page' },
-          referrer: document.referrer || null
+      if (!window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      const payload = window.H90AnalyticsConsent.sanitizeEvent({
+        event_type: eventType,
+        product_id: product && product.id ? product.id : null,
+        product_name: product && product.equipo ? product.equipo : null,
+        category: product && product.categoria ? product.categoria : null,
+        extra: { source: 'seo_product_page' },
+        referrer: document.referrer || null
+      });
+      if (!payload) return;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventType, {
+          item_id: payload.product_id,
+          item_name: payload.product_name,
+          item_category: payload.category,
+          ...payload.extra
         });
+      }
+      try {
+        await db.from('analytics_events').insert(payload);
       } catch (error) {
         // Analytics nunca interrumpe la experiencia del usuario
       }
@@ -1878,10 +2048,21 @@ function renderProductPage(product) {
     }
 
     bindThumbs();
-    trackEvent('page_view', STATIC_PRODUCT);
-    trackEvent('modal_open', STATIC_PRODUCT);
-    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
-    document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
+    bindSizeOptions();
+    let initialProductEventsTracked = false;
+    function trackInitialProductEvents() {
+      if (initialProductEventsTracked || !window.H90AnalyticsConsent || !window.H90AnalyticsConsent.canTrack()) return;
+      initialProductEventsTracked = true;
+      trackEvent('page_view', STATIC_PRODUCT);
+      trackEvent('view_item', STATIC_PRODUCT);
+    }
+    trackInitialProductEvents();
+    window.addEventListener('h90:analytics-consent', (event) => {
+      if (event.detail && event.detail.decision === 'accepted') trackInitialProductEvents();
+    });
+    document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_support', currentProduct));
+    document.getElementById('productAddCartBtn').addEventListener('click', addCurrentProductToCart);
+    document.getElementById('mobileAddCartBtn').addEventListener('click', addCurrentProductToCart);
     refreshProductFromSupabase();
     db.channel('seo-product-live-${slug}')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
@@ -1913,6 +2094,10 @@ function buildSitemap() {
     `${siteUrl}/catalogo`,
     `${siteUrl}/nosotros`,
     `${siteUrl}/preguntas-frecuentes`,
+    `${siteUrl}/privacidad`,
+    `${siteUrl}/envios`,
+    `${siteUrl}/cambios-devoluciones`,
+    `${siteUrl}/terminos`,
     ...['mundial-2026', 'alemania', 'argentina', 'arsenal', 'bayern-munich', 'brasil', 'liverpool', 'manchester-city', 'manchester-united', 'portugal', 'psg', 'mujer'].map((s) => `${siteUrl}/categorias/${s}`),
     ...seoCollections.map((collection) => getCollectionUrl(collection)),
     ...products.flatMap((product) => getProductUrls(product)),
@@ -1930,29 +2115,106 @@ function buildRobots() {
   return `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
 }
 
+function removeStaleGeneratedPages(directory, expectedFiles) {
+  const resolvedDirectory = path.resolve(directory);
+  for (const name of fs.readdirSync(resolvedDirectory)) {
+    if (!name.endsWith('.html') || expectedFiles.has(name)) continue;
+    const target = path.resolve(resolvedDirectory, name);
+    if (path.dirname(target) !== resolvedDirectory) {
+      throw new Error(`Ruta generada fuera del directorio permitido: ${target}`);
+    }
+    fs.unlinkSync(target);
+  }
+}
+
+function ensureStaticPageContract(filePath) {
+  let html = fs.readFileSync(filePath, 'utf8');
+  const original = html;
+  const directAnalytics = /\s*<script>\s*window\.dataLayer\s*=\s*window\.dataLayer\s*\|\|\s*\[\];[\s\S]*?<\/script>/i;
+
+  if (directAnalytics.test(html)) {
+    html = html.replace(directAnalytics, '\n    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>');
+  } else if (!html.includes('/js/analytics-consent.js')) {
+    html = html.replace(/(<meta\s+charset="UTF-8"\s*>)/i, '$1\n    <script src="/js/analytics-consent.js" data-ga-id="G-576MFSV66N"></script>');
+  }
+
+  if (!html.includes('href="/privacidad"')) {
+    const policyNavigation = `<nav class="legal-footer-links" aria-label="Politicas de la tienda">
+      <a href="/privacidad">Privacidad</a>
+      <a href="/envios">Envios</a>
+      <a href="/cambios-devoluciones">Cambios y devoluciones</a>
+      <a href="/terminos">Terminos</a>
+    </nav>`;
+    if (html.includes('</footer>')) {
+      html = html.replace('</footer>', `${policyNavigation}\n    </footer>`);
+    } else {
+      html = html.replace('</body>', `${legalFooterLinksHtml}\n</body>`);
+    }
+  }
+
+  if (html.includes('id="productModal"')) {
+    html = html.replace(
+      '<div id="productModal" class="modal">',
+      '<div id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription" aria-hidden="true">'
+    );
+    html = html.replace(
+      /<span class="close-btn" id="closeModal"[^>]*>&times;<\/span>/i,
+      '<button type="button" class="close-btn" id="closeModal" aria-label="Cerrar detalles del producto">&times;</button>'
+    );
+    html = html.replace('<h2 id="modalTitle"></h2>', '<h2 id="modalTitle" tabindex="-1"></h2>');
+  }
+
+  html = html.replace(
+    /(<button class="btn-checkout" id="cartCheckout"[^>]*>)[\s\S]*?(<\/button>)/i,
+    '$1Revisar pedido$2'
+  );
+
+  if (html !== original) fs.writeFileSync(filePath, html, 'utf8');
+}
+
+function ensureStaticDirectoryContracts(directory) {
+  for (const file of fs.readdirSync(directory).filter((name) => name.endsWith('.html'))) {
+    ensureStaticPageContract(path.join(directory, file));
+  }
+}
+
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(preventaOutputDir, { recursive: true });
 fs.mkdirSync(categoryOutputDir, { recursive: true });
 fs.mkdirSync(cityOutputDir, { recursive: true });
 
+const expectedProductFiles = new Set();
 for (const product of products) {
-  const filePath = path.join(outputDir, `${slugify(product.equipo)}.html`);
-  fs.writeFileSync(filePath, renderProductPage(product), 'utf8');
+  const slugs = [...new Set([slugify(product.equipo), ...getProductLegacySlugs(product)])];
+  const page = renderProductPage(product);
+  for (const slug of slugs) {
+    const filename = `${slug}.html`;
+    expectedProductFiles.add(filename);
+    fs.writeFileSync(path.join(outputDir, filename), page, 'utf8');
+  }
 }
+removeStaleGeneratedPages(outputDir, expectedProductFiles);
 
+const expectedPreventaFiles = new Set(['index.html']);
 for (const item of preventaItems) {
-  const filePath = path.join(preventaOutputDir, `${slugify(item.slug || item.equipo)}.html`);
+  const filename = `${slugify(item.slug || item.equipo)}.html`;
+  expectedPreventaFiles.add(filename);
+  const filePath = path.join(preventaOutputDir, filename);
   fs.writeFileSync(filePath, renderPreventaPage(item), 'utf8');
 }
+removeStaleGeneratedPages(preventaOutputDir, expectedPreventaFiles);
 
 for (const collection of seoCollections) {
   const filePath = collection.type === 'city' 
     ? path.join(cityOutputDir, `${collection.slug}.html`)
     : path.join(categoryOutputDir, `${collection.slug}.html`);
-  if (!fs.existsSync(filePath)) {
+  if (collection.type === 'city' || !fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
   }
 }
+
+ensureStaticDirectoryContracts(categoryOutputDir);
+ensureStaticDirectoryContracts(cityOutputDir);
 
 fs.writeFileSync(sitemapPath, buildSitemap(), 'utf8');
 fs.writeFileSync(robotsPath, buildRobots(), 'utf8');

@@ -4,22 +4,23 @@ const { createClient } = require('@supabase/supabase-js');
 const { load: cheerioLoad } = require('cheerio');
 const sharp = require('sharp');
 const crypto = require('crypto');
+const {
+    applyAdminCors,
+    authorizeAdminRequest,
+    fetchExternalResource,
+    hasOversizedJsonBody,
+    validateExternalUrl,
+} = require('./_lib/admin-security.cjs');
 
 const BUCKET = 'preventa-images'; // Reutilizamos el bucket existente
 const MAX_PROVIDER_IMAGES = 8;
+const MAX_DOWNLOAD_BYTES = 12 * 1024 * 1024;
 const PROVIDERS = [
     'futboldeprimera.com.co',
     'sportshirts.co',
     'panitastienda.com',
     'leyendasdelfutbol.com'
 ];
-
-function getSupabase() {
-    return createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_KEY
-    );
-}
 
 function slugify(str) {
     return str.toLowerCase()
@@ -36,7 +37,8 @@ async function searchNative(query, domain, longName) {
     }
 
     try {
-        const res = await fetch(searchUrl, {
+        const res = await fetchExternalResource(searchUrl, {
+            allowedHosts: [domain],
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
         });
         if (!res.ok) return null;
@@ -48,6 +50,11 @@ async function searchNative(query, domain, longName) {
             let link = $(el).attr('href');
             if (!link) return;
             if (link.startsWith('/')) link = `https://${domain}${link}`;
+            try {
+                if (new URL(link).hostname !== domain) return;
+            } catch {
+                return;
+            }
             
             // Ignorar links de admin o carritos
             if (link.includes('add-to-cart') || link.includes('?add-to-cart=')) return;
@@ -88,11 +95,13 @@ async function searchNative(query, domain, longName) {
     }
 }
 
-async function scrapeImages(url) {
+async function scrapeImages(url, fetcher = fetchExternalResource) {
     try {
         const baseUrl = new URL(url);
-        const res = await fetch(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+        const res = await fetcher(url, {
+            allowedSuffixes: PROVIDERS,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+            redirect: 'error'
         });
         if (!res.ok) return [];
         const html = await res.text();
@@ -237,11 +246,16 @@ async function scrapeImages(url) {
 }
 
 async function downloadAndUpload(supabase, imgUrl, storagePath) {
-    const res = await fetch(imgUrl, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    const res = await fetchExternalResource(imgUrl, {
+        maxBytes: MAX_DOWNLOAD_BYTES,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+        redirect: 'error'
     });
     if (!res.ok) throw new Error('Error descarga img');
+    const declaredBytes = Number(res.headers?.get?.('content-length') || 0);
+    if (declaredBytes > MAX_DOWNLOAD_BYTES) throw new Error('Imagen externa demasiado pesada');
     const rawBuffer = Buffer.from(await res.arrayBuffer());
+    if (rawBuffer.length > MAX_DOWNLOAD_BYTES) throw new Error('Imagen externa demasiado pesada');
     
     let buffer = rawBuffer;
     let contentType = 'image/webp';
@@ -258,7 +272,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
 
     const { error } = await supabase.storage
         .from(BUCKET)
-        .upload(storagePath, buffer, { contentType, upsert: true });
+        .upload(storagePath, buffer, { contentType, upsert: false });
     
     if (error) throw new Error(error.message);
 
@@ -269,7 +283,7 @@ async function downloadAndUpload(supabase, imgUrl, storagePath) {
 async function searchShopifyApi(query, domain, longName) {
     try {
         const url = `https://${domain}/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product`;
-        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const r = await fetchExternalResource(url, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!r.ok) return [];
         const data = await r.json();
         const products = data.resources?.results?.products || [];
@@ -288,7 +302,7 @@ async function searchShopifyApi(query, domain, longName) {
         }
         
         const jsonUrl = `https://${domain}${bestProduct.url.split('?')[0]}.js`;
-        const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const pReq = await fetchExternalResource(jsonUrl, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!pReq.ok) return [];
         const pData = await pReq.json();
         return pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);
@@ -298,7 +312,7 @@ async function searchShopifyApi(query, domain, longName) {
 async function searchWooApi(query, domain, longName) {
     try {
         const url = `https://${domain}/wp-json/wc/store/products?search=${encodeURIComponent(query)}`;
-        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const r = await fetchExternalResource(url, { allowedHosts: [domain], headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!r.ok) return [];
         const products = await r.json();
         if (products.length === 0) return [];
@@ -320,29 +334,48 @@ async function searchWooApi(query, domain, longName) {
 }
 
 module.exports = async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
+    const corsAllowed = applyAdminCors(req, res);
+    if (req.method === 'OPTIONS') return corsAllowed ? res.status(204).end() : res.status(403).end();
+    if (!corsAllowed) return res.status(403).json({ error: 'Origen no permitido.' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+    if (hasOversizedJsonBody(req.body)) return res.status(413).json({ error: 'Solicitud demasiado grande.' });
+
+    const authorization = await authorizeAdminRequest(req, process.env, createClient);
+    if (!authorization.ok) return res.status(authorization.status).json({ error: authorization.error });
     
     const debugLogs = [];
     const { query, longName, exactUrl } = req.body || {};
     
     // Si se pasa exactUrl, el query puede ser usado solo para el slug de guardado
     if (!query && !exactUrl) return res.status(400).json({ error: 'query o exactUrl requerido' });
+    if (String(query || '').length > 160 || String(longName || '').length > 240) {
+        return res.status(400).json({ error: 'Texto de busqueda demasiado largo.' });
+    }
 
-    console.log(`Buscando imagenes para: ${query || exactUrl} (longName: ${longName})`);
-    const supabase = getSupabase();
+    let safeExactUrl = '';
+    if (exactUrl) {
+        try {
+            safeExactUrl = (await validateExternalUrl(exactUrl, { allowedSuffixes: PROVIDERS })).href;
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    console.log(`Buscando imagenes para: ${query || safeExactUrl} (longName: ${longName})`);
+    const supabase = authorization.supabase;
     const slug = slugify(query || 'manual') || crypto.randomBytes(8).toString('hex');
     const timestamp = Date.now();
 
     // === MODO HIBRIDO: EXTRACCION POR URL DIRECTA ===
-    if (exactUrl) {
-        console.log(`Extrayendo directamente de URL: ${exactUrl}`);
+    if (safeExactUrl) {
+        console.log(`Extrayendo directamente de URL: ${safeExactUrl}`);
         let candidateImages = [];
         
         try {
-            if (exactUrl.includes('panitastienda.com')) {
+            if (safeExactUrl.includes('panitastienda.com')) {
                 // Tratar como shopify
-                const jsonUrl = exactUrl.split('?')[0] + '.js';
-                const pReq = await fetch(jsonUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+                const jsonUrl = safeExactUrl.split('?')[0] + '.js';
+                const pReq = await fetchExternalResource(jsonUrl, { allowedSuffixes: PROVIDERS, headers: { 'User-Agent': 'Mozilla/5.0' } });
                 if (pReq.ok) {
                     const pData = await pReq.json();
                     candidateImages = pData.images.map(img => img.startsWith('//') ? 'https:' + img : img);
@@ -351,7 +384,7 @@ module.exports = async function handler(req, res) {
             
             if (candidateImages.length === 0) {
                 // Scraper HTML generico
-                candidateImages = await scrapeImages(exactUrl);
+                candidateImages = await scrapeImages(safeExactUrl);
             }
         } catch(e) {
             console.error('Error extrayendo URL exacta:', e);
@@ -379,12 +412,12 @@ module.exports = async function handler(req, res) {
 
             return res.status(200).json({ 
                 source: 'Manual URL',
-                productUrl: exactUrl,
+                productUrl: safeExactUrl,
                 images: uploadedUrls,
-                debug: debugLogs 
+                debug: process.env.NODE_ENV === 'development' ? debugLogs : undefined
             });
         }
-        return res.status(200).json({ images: [], debug: debugLogs });
+        return res.status(200).json({ images: [], debug: process.env.NODE_ENV === 'development' ? debugLogs : undefined });
     }
     // === FIN MODO HIBRIDO ===
 
@@ -437,12 +470,12 @@ module.exports = async function handler(req, res) {
                 source: domain,
                 productUrl,
                 images: uploadedUrls,
-                debug: debugLogs 
+                debug: process.env.NODE_ENV === 'development' ? debugLogs : undefined
             });
         }
     }
 
-    return res.status(200).json({ images: [], debug: debugLogs });
+    return res.status(200).json({ images: [], debug: process.env.NODE_ENV === 'development' ? debugLogs : undefined });
 };
 
 module.exports._private = {
