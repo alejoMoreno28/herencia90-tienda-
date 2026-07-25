@@ -59,6 +59,13 @@
                 grouped.set(key, {
                     key,
                     title: item.queryStr || 'Referencia nueva',
+                    // Texto crudo del excel: sirve mejor que el nombre ya
+                    // procesado para traducir el equipo al chino y buscar
+                    // en el proveedor.
+                    rawDescription: item.rawDescription || item.queryStr || '',
+                    extrasText: item.extrasText || '',
+                    candidates: Array.isArray(previous.candidates) ? previous.candidates : [],
+                    searchInfo: previous.searchInfo || null,
                     itemIndexes: [],
                     rows: [],
                     providerUrl: previous.providerUrl || item.providerPhotoUrl || '',

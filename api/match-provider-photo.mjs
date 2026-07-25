@@ -38,8 +38,12 @@ export default async function handler(req, res) {
   const { store, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
   let { queries, season, sleeve } = req.body || {};
 
-  if (!store || !referencePhotoBase64) {
-    return res.status(400).json({ error: 'faltan store o referencePhotoBase64' });
+  // referencePhotoBase64 es OPCIONAL: si viene, se compara visualmente y el
+  // sistema puede decidir solo. Si no viene (caso tipico del admin, donde el
+  // excel se pega como texto y no trae las fotos), igual se busca y se
+  // devuelven los candidatos con miniaturas para que el usuario elija.
+  if (!store) {
+    return res.status(400).json({ error: 'falta store' });
   }
 
   let autoDerived = null;
@@ -97,6 +101,23 @@ export default async function handler(req, res) {
       return res.status(200).json({ ranking: [], decision: 'no-photos', candidates: candidateMeta });
     }
 
+    const searchInfo = autoDerived
+      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, source: autoDerived.source }
+      : { queries, season, sleeve, source: 'manual' };
+
+    // Sin foto de referencia no hay con que comparar: se devuelven los
+    // candidatos en el orden en que los dio el proveedor para que el
+    // usuario elija viendo las miniaturas.
+    if (!referencePhotoBase64) {
+      return res.status(200).json({
+        ranking: candidateMeta.map((c) => ({ ...c, score: null })),
+        decision: 'pick',
+        searchInfo,
+        winner: null,
+        gap: null,
+      });
+    }
+
     const compareRes = await fetch(`${PHOTO_SERVICE}/compare`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -114,7 +135,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ranking,
       decision: compareData.decision,
-      searchInfo: autoDerived ? { teamKey: autoDerived.teamKey, queries, season, sleeve, source: autoDerived.source } : { queries, season, sleeve, source: 'manual' },
+      searchInfo,
       winner: compareData.winner ? { ...metaByLabel[compareData.winner], score: compareData.ranking[0].score } : null,
       gap: compareData.gap,
     });

@@ -4220,10 +4220,12 @@
                             <span>${group.totalQty} uds</span>
                             <span>${escapeHtml(destinations)}</span>
                         </div>
-                        <input type="url" id="lote-photo-url-${idx}" value="${escapeHtml(group.providerUrl)}" placeholder="Pega aqui el link exacto del proveedor">
+                        <input type="url" id="lote-photo-url-${idx}" value="${escapeHtml(group.providerUrl)}" placeholder="Pega aqui el link exacto del proveedor (o usa Buscar automatico)">
                         ${group.error ? `<div class="lote-photo-note" style="color:#842029;font-weight:700;">${escapeHtml(group.error)}</div>` : ''}
+                        ${renderCandidatosProveedor(group, idx)}
                         ${thumbs}
                         <div class="lote-photo-actions">
+                            <button type="button" class="btn-save" style="background:#6f42c1;color:white;padding:7px 10px;font-size:11px;" onclick="buscarEnProveedorAuto(${idx})" title="Traduce el equipo al chino, busca en el proveedor y trae los candidatos">Buscar automatico</button>
                             <button type="button" class="btn-save" style="background:#0d6efd;color:white;padding:7px 10px;font-size:11px;" onclick="extraerFotosDeReferencia(${idx})">Extraer</button>
                             <label class="btn-save" style="background:#6c757d;color:white;padding:7px 10px;font-size:11px;cursor:pointer;margin:0;display:inline-block;line-height:normal;" ondragover="event.preventDefault(); this.style.background='#5b636a';" ondragleave="this.style.background='#6c757d';" ondrop="handleDropFotosManualesLote(event, ${idx}); this.style.background='#6c757d';">
                                 <span id="lbl-upload-text-${idx}">Subir Manual</span>
@@ -4282,6 +4284,130 @@
             if (btn) { btn.disabled = false; btn.innerText = 'Extraer fotos desde links'; }
             showToast('Extraccion terminada. Revisa y aprueba las fotos correctas.');
             renderLotePhotoReview();
+        }
+
+        // ── Busqueda automatica en el proveedor ────────────────────────────
+        // Traduce el equipo al chino, busca en yupoo y trae candidatos con
+        // miniatura. Requiere el robot local corriendo (Iniciar_Robot.bat).
+        const PROVEEDOR_STORE_RETRO = 'https://huiliyuan.x.yupoo.com';
+
+        function renderCandidatosProveedor(group, idx) {
+            if (!group.candidates || !group.candidates.length) return '';
+            const info = group.searchInfo
+                ? `<div class="lote-photo-note">Busque: ${escapeHtml((group.searchInfo.queries || []).join(' / '))}${group.searchInfo.source === 'gemini' ? ' (traducido con IA)' : ''}</div>`
+                : '';
+            const cards = group.candidates.map((c, cIdx) => {
+                const score = (typeof c.score === 'number') ? `<div style="font-size:10px;color:#666;">parecido: ${(c.score * 100).toFixed(0)}%</div>` : '';
+                return `
+                    <button type="button" style="border:2px solid #dee2e6;background:white;border-radius:8px;padding:6px;cursor:pointer;width:104px;text-align:center;"
+                        onclick="usarCandidatoProveedor(${idx}, ${cIdx})" title="${escapeHtml(c.title)}">
+                        <img src="data:image/jpeg;base64,${c.thumbnailBase64}" alt="${escapeHtml(c.title)}" style="width:88px;height:88px;object-fit:contain;display:block;margin:0 auto 4px;">
+                        <div style="font-size:10px;line-height:1.2;word-break:break-all;">${escapeHtml(c.title)}</div>
+                        <div style="font-size:10px;color:#666;">${c.photoCount} fotos</div>
+                        ${score}
+                    </button>`;
+            }).join('');
+            return `
+                <div style="background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:8px;margin:8px 0;">
+                    <div style="font-weight:700;font-size:12px;margin-bottom:6px;">Candidatos del proveedor — clic en el correcto:</div>
+                    ${info}
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${cards}</div>
+                </div>`;
+        }
+
+        async function buscarEnProveedorAuto(groupIdx) {
+            const group = lotePhotoGroups[groupIdx];
+            if (!group) return;
+
+            group.error = '';
+            group.candidates = [];
+            showToast('Buscando en el proveedor...');
+            renderLotePhotoReview();
+
+            try {
+                const res = await fetch('http://localhost:3001/api/match-provider-photo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        store: PROVEEDOR_STORE_RETRO,
+                        description: group.rawDescription || group.title,
+                        extrasText: group.extrasText || '',
+                        maxCandidates: 6
+                    })
+                });
+                if (!res.ok) throw new Error('El robot respondio ' + res.status);
+                const data = await res.json();
+
+                group.searchInfo = data.searchInfo || null;
+
+                if (data.decision === 'no-team-match') {
+                    group.error = 'No se reconocio el equipo. Pega el link a mano.';
+                    showToast('No se reconocio el equipo.', true);
+                    return;
+                }
+                if (!data.ranking || !data.ranking.length) {
+                    group.error = 'El proveedor no devolvio resultados. Pega el link a mano.';
+                    showToast('Sin resultados en el proveedor.', true);
+                    return;
+                }
+
+                group.candidates = data.ranking;
+                showToast(`${data.ranking.length} candidatos. Elige el correcto.`);
+            } catch (err) {
+                group.error = 'No se pudo conectar con el robot local. Abre Iniciar_Robot.bat y reintenta.';
+                showToast('Robot local no disponible.', true);
+            } finally {
+                renderLotePhotoReview();
+            }
+        }
+
+        async function usarCandidatoProveedor(groupIdx, candidateIdx) {
+            const group = lotePhotoGroups[groupIdx];
+            if (!group || !group.candidates || !group.candidates[candidateIdx]) return;
+            const candidate = group.candidates[candidateIdx];
+
+            group.error = '';
+            group.approved = false;
+            showToast('Procesando fotos (quitando fondo)...');
+            renderLotePhotoReview();
+
+            try {
+                const res = await fetch('http://localhost:3001/api/process-photo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        store: PROVEEDOR_STORE_RETRO,
+                        photoUrls: candidate.photoUrls,
+                        slugHint: group.title
+                    })
+                });
+                if (!res.ok) throw new Error('El robot respondio ' + res.status);
+                const data = await res.json();
+
+                const imgs = window.AdminLotePhotoReview.normalizeImageList(data.images);
+                if (!imgs.length) throw new Error('No se pudo procesar ninguna foto');
+
+                group.images = imgs;
+                group.selectedImages = imgs.map((_, i) => i);
+                group.providerUrl = candidate.yupooUrl;
+                group.candidates = [];
+                group.itemIndexes.forEach((itemIndex) => {
+                    const item = loteItems[itemIndex];
+                    if (!item) return;
+                    item.aiData = item.aiData || {};
+                    item.aiData.imagenes_extraidas = imgs.slice();
+                    item.aiData.imagenes_aprobadas = false;
+                    item.aiData.fuente_imagenes = candidate.yupooUrl;
+                    item.providerPhotoUrl = candidate.yupooUrl;
+                    item.selectedImageIndex = 0;
+                });
+                showToast('Fotos listas (sin fondo). Revisa y aprueba.');
+            } catch (err) {
+                group.error = err.message || 'Error procesando las fotos.';
+                showToast('Error procesando fotos.', true);
+            } finally {
+                renderLotePhotoReview();
+            }
         }
 
         async function extraerFotosDeReferencia(groupIdx, opts = {}) {
