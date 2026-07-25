@@ -7,10 +7,10 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
-const MASTER_SIZE = 1200;
-const CARD_SIZE = 640;
-const MASTER_FIT = 1168;
-const CARD_FIT = 620;
+export const MASTER_SIZE = 1200;
+export const CARD_SIZE = 640;
+export const MASTER_FIT = 1168;
+export const CARD_FIT = 620;
 
 function parseArgs(argv) {
   const args = {};
@@ -38,8 +38,8 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '') || 'preventa';
 }
 
-async function alphaStats(filePath) {
-  const { data, info } = await sharp(filePath)
+export async function alphaStats(input) {
+  const { data, info } = await sharp(input)
     .rotate()
     .ensureAlpha()
     .raw()
@@ -86,7 +86,7 @@ async function alphaStats(filePath) {
   };
 }
 
-async function writeSquareAsset(inputBuffer, size, fitSize, outputPath) {
+export async function buildSquareAssetBuffer(inputBuffer, size, fitSize) {
   const foreground = await sharp(inputBuffer)
     .resize({
       width: fitSize,
@@ -102,7 +102,7 @@ async function writeSquareAsset(inputBuffer, size, fitSize, outputPath) {
   const left = Math.round((size - meta.width) / 2);
   const top = Math.round((size - meta.height) / 2);
 
-  await sharp({
+  return sharp({
     create: {
       width: size,
       height: size,
@@ -116,7 +116,7 @@ async function writeSquareAsset(inputBuffer, size, fitSize, outputPath) {
       effort: 5,
       alphaQuality: 92,
     })
-    .toFile(outputPath);
+    .toBuffer();
 }
 
 async function processImage({ input, slug, outDir, minTransparentRatio, force }) {
@@ -143,8 +143,10 @@ async function processImage({ input, slug, outDir, minTransparentRatio, force })
   const masterPath = path.join(outputDir, `${cleanSlug}-1200.webp`);
   const cardPath = path.join(outputDir, `${cleanSlug}-card.webp`);
 
-  await writeSquareAsset(cropped, MASTER_SIZE, MASTER_FIT, masterPath);
-  await writeSquareAsset(cropped, CARD_SIZE, CARD_FIT, cardPath);
+  const masterBuffer = await buildSquareAssetBuffer(cropped, MASTER_SIZE, MASTER_FIT);
+  const cardBuffer = await buildSquareAssetBuffer(cropped, CARD_SIZE, CARD_FIT);
+  await fs.writeFile(masterPath, masterBuffer);
+  await fs.writeFile(cardPath, cardBuffer);
 
   return {
     slug: cleanSlug,

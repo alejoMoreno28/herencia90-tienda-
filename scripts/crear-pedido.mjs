@@ -25,42 +25,122 @@ const CACHE_DIR = path.join(ROOT, '.pedido-imagenes-cache');
 
 // ── Configuración del proveedor ───────────────────────────────────────────────
 // Para cambiar de proveedor: edita solo este bloque
-const PROVIDER = {
-  name:    'Huang X',
-  contact: '+86 180 5424 5771',
-  catalog: 'https://jingdongtiyu.x.yupoo.com/collections/3804419  (pass: 111999) | https://1022669895.x.yupoo.com',
-  notes:   'Football shoes: https://mzrycm102618.x.yupoo.com/albums',
+// ── Proveedores ────────────────────────────────────────────────────────────────
+// Cambiar ACTIVE_PROVIDER para generar el pedido con otro proveedor.
+const PROVIDERS = {
+  snake: {
+    name:    'Snake',
+    contact: '+86 178 7852 5090',
+    catalog: 'Fans: https://1040-td.x.yupoo.com/albums (pass: bmd56789) | https://bomandi.x.yupoo.com/albums'
+           + ' || Players: https://baike5555.x.yupoo.com/albums | https://3409834285.x.yupoo.com'
+           + ' || Retro: https://huiliyuan.x.yupoo.com/categories | https://yangdekun.x.yupoo.com/albums',
+    notes:   'Zapatos: https://lyzs88.x.yupoo.com | Chaquetas: https://sdfs888.x.yupoo.com',
+    prices: {
+      'FAN':                    11,
+      'FAN WOMAN':              11,
+      'SPECIAL EDITION FAN':    11,
+      'PLAYER':                 14,
+      'SPECIAL EDITION PLAYER': 14,
+      'RETRO':                  15,
+      'GOALKEEPER':             15,
+      'LONG SLEEVE':            15,
+      'POLO':                   15,
+      'TRAINING CLOTHES':       35,
+      "CHILDREN'S KIT":         13,
+      'JACKET SET':             40,
+      'NBA':                    20,
+      'F1':                     22,
+      'EMBROIDERED JERSEY':     30,
+    },
+    // Envio por cantidad total de piezas del pedido (lista real de Snake)
+    shippingTiers: [
+      { minUnits: 4, cost: 0 },
+      { minUnits: 3, cost: 3 },
+      { minUnits: 2, cost: 4 },
+      { minUnits: 1, cost: 5 },
+    ],
+    // Descuento por volumen: 50+ camisetas => 1 USD menos por unidad
+    volumeDiscount: { minUnits: 50, perUnit: 1 },
+    extras: { personalizacion: 3, patch: 1, tallaGrande: 1 },
+  },
+
+  huangx: {
+    name:    'Huang X',
+    contact: '+86 180 5424 5771',
+    catalog: 'https://jingdongtiyu.x.yupoo.com/collections/3804419  (pass: 111999) | https://1022669895.x.yupoo.com',
+    notes:   'Football shoes: https://mzrycm102618.x.yupoo.com/albums',
+    prices: {
+      'FAN':                    12,
+      'FAN WOMAN':              12,
+      'SPECIAL EDITION FAN':    12,
+      'SHORTS':                  8,
+      'RETRO':                  15,
+      'GOALKEEPER':             15,
+      'TRAINING CLOTHES':       15,
+      'POLO':                   15,
+      'LONG SLEEVE':            15,
+      'PLAYER':                 15,
+      'SPECIAL EDITION PLAYER': 15,
+      "CHILDREN'S KIT":         16,
+      'NBA':                    18,
+      'SOCKS':                   3,
+    },
+    shippingTiers: [
+      { minUnits: 5, cost: 0 },
+      { minUnits: 1, cost: 8 },
+    ],
+    volumeDiscount: null,
+    extras: { personalizacion: 2, patch: 1, tallaGrande: 1 },
+  },
 };
 
-// ── Precios por tipo ───────────────────────────────────────────────────────────
-const PRICES = {
-  'FAN':                    12,
-  'FAN WOMAN':              12,
-  'SPECIAL EDITION FAN':    12,
-  'SHORTS':                  8,
-  'RETRO':                  15,
-  'GOALKEEPER':             15,
-  'TRAINING CLOTHES':       15,
-  'POLO':                   15,
-  'LONG SLEEVE':            15,
-  'PLAYER':                 15,
-  'SPECIAL EDITION PLAYER': 15,
-  "CHILDREN'S KIT":         16,
-  'NBA':                    18,
-  'SOCKS':                   3,
-};
+const ACTIVE_PROVIDER = process.env.PEDIDO_PROVIDER || 'snake';
+const PROVIDER = PROVIDERS[ACTIVE_PROVIDER];
+if (!PROVIDER) {
+  throw new Error(`Proveedor desconocido: "${ACTIVE_PROVIDER}". Opciones: ${Object.keys(PROVIDERS).join(', ')}`);
+}
 
-const SHIPPING_1_4 = 8;
-const SHIPPING_5_PLUS = 0;
+const PRICES = PROVIDER.prices;
 
 // ── Tasa de cambio ─────────────────────────────────────────────────────────────
 // Actualizar antes de cada pedido según TRM del día (COP por 1 USD)
 const TRM = 3551; // TRM 25 abril 2026 — actualizar antes de cada pedido
 
 // ── Costos de extras ───────────────────────────────────────────────────────────
-const EXTRA_PERSONALIZACION = 2; // dorsal, nombre, número
-const EXTRA_PATCH           = 1; // parche/escudo
-const EXTRA_TALLA_GRANDE    = 1; // 2XL, 3XL, 4XL
+const EXTRA_PERSONALIZACION = PROVIDER.extras.personalizacion; // dorsal, nombre, número
+const EXTRA_PATCH           = PROVIDER.extras.patch;           // parche/escudo
+const EXTRA_TALLA_GRANDE    = PROVIDER.extras.tallaGrande;     // 2XL, 3XL, 4XL
+
+// Texto legible de la regla de envio, y formula de Excel equivalente.
+// tiers viene ordenado de mayor a menor minUnits.
+const SHIPPING_TIERS = PROVIDER.shippingTiers;
+
+function shippingRuleText() {
+  const parts = [];
+  const sorted = [...SHIPPING_TIERS].sort((a, b) => a.minUnits - b.minUnits);
+  for (let i = 0; i < sorted.length; i++) {
+    const t = sorted[i];
+    const next = sorted[i + 1];
+    const label = next ? (next.minUnits - t.minUnits === 1 ? `${t.minUnits}` : `${t.minUnits}-${next.minUnits - 1}`) : `${t.minUnits}+`;
+    parts.push(`${label} pcs: ${t.cost === 0 ? 'FREE' : '$' + t.cost}`);
+  }
+  return parts.join('  |  ');
+}
+
+/**
+ * Formula anidada de Excel para el envio segun la celda de unidades totales.
+ * OJO: se devuelve SIN el "=" inicial. En OOXML el contenido de <f> no lleva
+ * el signo igual; incluirlo genera <f>=...</f>, que es invalido y algunos
+ * lectores (Google Sheets, parsers estrictos) rechazan o muestran vacio.
+ */
+function shippingFormula(unitsCell) {
+  const sorted = [...SHIPPING_TIERS].sort((a, b) => b.minUnits - a.minUnits);
+  let formula = '0';
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    formula = `IF(${unitsCell}>=${sorted[i].minUnits},${sorted[i].cost},${formula})`;
+  }
+  return formula;
+}
 
 // ── Constantes de imagen ───────────────────────────────────────────────────────
 const IMG_W  = 70;
@@ -245,8 +325,19 @@ function addConfigSheet(wb) {
 
   ws.addRow([]);
   addHeader('SHIPPING');
-  addField('1–4 units', SHIPPING_1_4);
-  addField('5+ units',  SHIPPING_5_PLUS);
+  [...SHIPPING_TIERS].sort((a, b) => a.minUnits - b.minUnits).forEach((t, i, arr) => {
+    const next = arr[i + 1];
+    const label = next
+      ? (next.minUnits - t.minUnits === 1 ? `${t.minUnits} pc` : `${t.minUnits}–${next.minUnits - 1} pcs`)
+      : `${t.minUnits}+ pcs`;
+    addField(label, t.cost);
+  });
+
+  if (PROVIDER.volumeDiscount) {
+    ws.addRow([]);
+    addHeader('VOLUME DISCOUNT');
+    addField(`${PROVIDER.volumeDiscount.minUnits}+ units`, `-$${PROVIDER.volumeDiscount.perUnit} per unit`);
+  }
 
   ws.addRow([]);
   addHeader('EXCHANGE RATE  ← Update before each order');
@@ -311,16 +402,30 @@ async function addOrderSheet(wb, orderRows, trmRow) {
   const nData = orderRows.length;
   const lastDataRow = nData + 2;
 
+  // OJO con los rangos: deben cubrir SOLO las filas de datos (3..lastDataRow).
+  // Si el rango se pasa de lastDataRow y abajo hay una fila de subtotal, esa
+  // fila se suma otra vez y el total sale al doble (bug real encontrado en
+  // PEDIDO5/PEDIDO6: decian 102 y 12 unidades cuando eran 51 y 6).
+  const vd = PROVIDER.volumeDiscount;
+  const discountFormula = vd
+    ? `IF(M4>=${vd.minUnits},-M4*${vd.perUnit},0)`
+    : '0';
+
+  // NOTA: las formulas van SIN "=" inicial (ver shippingFormula()).
   const summaryItems = [
-    { r: 2,  label: 'Provider',           value: PROVIDER.name,                                                                  fmt: null },
-    { r: 3,  label: 'Contact',            value: PROVIDER.contact,                                                               fmt: null },
-    { r: 4,  label: 'Total units',        value: { formula: `=COUNTA(G3:G${lastDataRow})` },                                     fmt: null },
-    { r: 5,  label: 'Subtotal (USD)',     value: { formula: `=IFERROR(SUM(I3:I${lastDataRow}),"")` },                            fmt: MONEY },
-    { r: 6,  label: 'Shipping (USD)',     value: { formula: `=IF(M4>=5,0,${SHIPPING_1_4})` },                                    fmt: MONEY },
-    { r: 7,  label: 'TOTAL (USD)',        value: { formula: `=IFERROR(M5+M6,"")` },   fmt: MONEY, bold: true, bg: C.yellow },
-    { r: 8,  label: 'TRM  (1 USD = COP)',value: { formula: `=CONFIG!B${trmRow}` },    fmt: '"$ "#,##0' },
-    { r: 9,  label: 'TOTAL (COP)',        value: { formula: `=IFERROR(M7*M8,"")` },   fmt: '"$ "#,##0', bold: true, bg: C.yellow },
-    { r: 10, label: 'Shipping rule',      value: `1–4 units: $${SHIPPING_1_4}  |  5+: FREE`, fmt: null },
+    { r: 2,  label: 'Provider',            value: PROVIDER.name,                                                    fmt: null },
+    { r: 3,  label: 'Contact',             value: PROVIDER.contact,                                                 fmt: null },
+    // SUM (no COUNTA): COUNTA cuenta filas, no unidades — una fila con QTY 3
+    // contaba como 1 sola unidad.
+    { r: 4,  label: 'Total units',         value: { formula: `IFERROR(SUM(G3:G${lastDataRow}),0)` },                 fmt: null },
+    { r: 5,  label: 'Subtotal (USD)',      value: { formula: `IFERROR(SUM(I3:I${lastDataRow}),0)` },                 fmt: MONEY },
+    { r: 6,  label: 'Volume discount (USD)', value: { formula: discountFormula },                                   fmt: MONEY },
+    { r: 7,  label: 'Shipping (USD)',      value: { formula: shippingFormula('M4') },                               fmt: MONEY },
+    { r: 8,  label: 'TOTAL (USD)',         value: { formula: 'IFERROR(M5+M6+M7,0)' },  fmt: MONEY, bold: true, bg: C.yellow },
+    { r: 9,  label: 'TRM  (1 USD = COP)',  value: { formula: `CONFIG!B${trmRow}` },    fmt: '"$ "#,##0' },
+    { r: 10, label: 'TOTAL (COP)',         value: { formula: 'IFERROR(M8*M9,0)' },     fmt: '"$ "#,##0', bold: true, bg: C.yellow },
+    { r: 11, label: 'Shipping rule',       value: shippingRuleText(),                                               fmt: null },
+    { r: 12, label: 'Discount rule',       value: vd ? `${vd.minUnits}+ units: -$${vd.perUnit} per unit` : 'N/A',   fmt: null },
   ];
 
   for (const s of summaryItems) {
