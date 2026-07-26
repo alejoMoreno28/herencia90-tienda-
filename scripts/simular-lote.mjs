@@ -162,11 +162,24 @@ async function main() {
     const k = AdminLotePhotoReview.normalizeReferenceKey(it.queryStr) || it.queryStr;
     if (vistos.has(k)) continue;
     vistos.add(k);
-    const p = AdminLotePhotoReview.buildCatalogProductFromLoteItem(it, idFalso++, rowsByKey[k]);
+    const p = AdminLotePhotoReview.buildCatalogProductFromLoteItem(it, idFalso++);
+
+    // El producto se crea con stock en 0 y persistLoteItems() le suma
+    // despues las unidades de cada fila (solo las de destino STOCK).
+    // Aqui se replica esa suma para mostrar como quedaria de verdad.
+    const stockFinal = { ...p.tallas };
+    (rowsByKey[k] || []).forEach((row) => {
+      if (String(row.destino || '').toUpperCase() !== 'STOCK') return;
+      const size = String(row.size || '').trim().toUpperCase();
+      if (!size) return;
+      stockFinal[size] = (parseInt(stockFinal[size], 10) || 0) + (parseInt(row.qty, 10) || 0);
+    });
+
     linea(`\n  ${p.equipo}`);
     linea(`     categoria: ${p.categoria}`);
     linea(`     precio: $${p.precio.toLocaleString('es-CO')} | costo USD: ${p.costo_usd}`);
-    linea(`     tallas/stock: ${JSON.stringify(p.tallas)}`);
+    linea(`     tallas al crear: ${JSON.stringify(p.tallas)}`);
+    linea(`     stock final (tras sumar el lote): ${JSON.stringify(stockFinal)}`);
     linea(`     fotos: ${p.imagenes.length}`);
     linea(`     descripcion: ${(p.descripcion || '').slice(0, 110)}...`);
   }

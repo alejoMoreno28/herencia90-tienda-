@@ -152,27 +152,7 @@
         });
     }
 
-    /**
-     * Suma las unidades por talla que trae el excel para una referencia.
-     * Solo cuenta las filas con destino STOCK: lo que va a PREVENTA (bajo
-     * pedido) no es inventario fisico, asi que debe quedar en 0.
-     * Devuelve siempre las tallas base para que se puedan editar a mano.
-     */
-    function buildTallasFromRows(rows) {
-        const tallas = { S: 0, M: 0, L: 0, XL: 0 };
-        (rows || []).forEach((row) => {
-            const destino = String(row && row.destino || '').trim().toUpperCase();
-            if (destino && destino !== 'STOCK') return;
-            const size = String(row && row.size || '').trim().toUpperCase();
-            if (!size) return;
-            const qty = parseInt(row && row.qty, 10) || 0;
-            if (qty <= 0) return;
-            tallas[size] = (tallas[size] || 0) + qty;
-        });
-        return tallas;
-    }
-
-    function buildCatalogProductFromLoteItem(item, id, rows) {
+    function buildCatalogProductFromLoteItem(item, id) {
         const aiData = (item && item.aiData) || {};
         return {
             id,
@@ -181,7 +161,10 @@
             descripcion: aiData.descripcion || (item && item.generatedDescription) || '',
             precio: (item && item.precioVenta) || 99000,
             costo_usd: (item && item.costUsd) || 0,
-            tallas: buildTallasFromRows(rows),
+            // IMPORTANTE: nace en 0 a proposito. persistLoteItems() suma
+            // despues las unidades de cada fila del excel al stock del
+            // producto. Si aqui se precargaran, se contarian DOS VECES.
+            tallas: { S: 0, M: 0, L: 0, XL: 0 },
             imagenes: normalizeImageList(aiData.imagenes_extraidas),
         };
     }
@@ -207,7 +190,6 @@
         applyApprovedPhotosToItems,
         approvedImagesForGroup,
         normalizeImageList,
-        buildTallasFromRows,
         buildCatalogProductFromLoteItem,
         itemsForPhotoGroup,
         removePhotoGroupItems,

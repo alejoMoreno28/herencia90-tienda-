@@ -4866,15 +4866,6 @@
             let newIdCounter = mx + 1;
             const createdProductsMap = {};
 
-            // Todas las filas del excel que pertenecen a cada referencia, para
-            // poder precargar el stock por talla (una referencia suele venir
-            // en varias filas: una por talla).
-            const rowsByKey = {};
-            unmatchedItems.forEach((it) => {
-                const k = window.AdminLotePhotoReview.normalizeReferenceKey(it.queryStr) || it.queryStr;
-                (rowsByKey[k] = rowsByKey[k] || []).push({ size: it.size, qty: it.qty, destino: it.destino });
-            });
-
             for (const uItem of unmatchedItems) {
                 const creationKey = window.AdminLotePhotoReview.normalizeReferenceKey(uItem.queryStr) || uItem.queryStr;
                 if (createdProductsMap[creationKey]) {
@@ -4882,7 +4873,7 @@
                     continue;
                 }
 
-                const newP = window.AdminLotePhotoReview.buildCatalogProductFromLoteItem(uItem, newIdCounter++, rowsByKey[creationKey]);
+                const newP = window.AdminLotePhotoReview.buildCatalogProductFromLoteItem(uItem, newIdCounter++);
                 const { error } = await db.from('productos').insert(newP);
                 if (error) {
                     console.error('Error auto-creando producto:', error);
