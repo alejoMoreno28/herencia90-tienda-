@@ -29,6 +29,7 @@ export const TEAM_DICTIONARY = {
   'holanda':     { aliases: ['holanda', 'netherlands'],            zh: ['荷兰'],          isClub: false },      // VERIFICADO
   'mexico':      { aliases: ['mexico'],                            zh: ['墨西哥'],        isClub: false },      // VERIFICADO
   'colombia':    { aliases: ['colombia', 'seleccion colombia'],    zh: ['哥伦比亚'],      isClub: false },
+  'corea':       { aliases: ['corea', 'korea', 'south korea'],     zh: ['韩国'],          isClub: false },
   'japon':       { aliases: ['japon', 'japan'],                    zh: ['日本'],          isClub: false },      // VERIFICADO
   'croacia':     { aliases: ['croacia', 'croatia'],                zh: ['克罗地亚'],      isClub: false },
   'uruguay':     { aliases: ['uruguay'],                           zh: ['乌拉圭'],        isClub: false },
@@ -41,7 +42,10 @@ export const TEAM_DICTIONARY = {
   'inter':       { aliases: ['inter', 'inter milan', 'inter de milan'], zh: ['国米'],     isClub: true },       // VERIFICADO (no 国际米兰)
   'liverpool':   { aliases: ['liverpool'],                         zh: ['利物浦'],        isClub: true },       // VERIFICADO
   'manchester united': { aliases: ['manchester united', 'man united', 'man utd'], zh: ['曼联'], isClub: true }, // VERIFICADO
-  'manchester city':   { aliases: ['manchester city', 'man city'], zh: ['曼城'],          isClub: true },
+  // 'city' a secas: asi lo escribe el excel a veces. No choca con "manchester
+  // city" porque gana el alias que aparezca antes en el texto, y ambos caen
+  // en esta misma entrada.
+  'manchester city':   { aliases: ['manchester city', 'man city', 'city'], zh: ['曼城'],  isClub: true },
   'arsenal':     { aliases: ['arsenal'],                           zh: ['阿森纳'],        isClub: true },       // VERIFICADO
   'chelsea':     { aliases: ['chelsea'],                           zh: ['切尔西'],        isClub: true },       // VERIFICADO
   'bayern munich': { aliases: ['bayern munich', 'bayern'],         zh: ['拜仁'],          isClub: true },       // VERIFICADO
@@ -81,11 +85,15 @@ export function findTeamInDictionary(description) {
   for (const [key, entry] of TEAM_ENTRIES) {
     for (const alias of entry.aliases) {
       const normAlias = normalizeText(alias);
-      if (text.includes(normAlias)) {
-        if (!best || normAlias.length > best.matchedAlias.length) {
-          best = { key, entry, matchedAlias: normAlias };
-        }
-      }
+      const at = text.indexOf(normAlias);
+      if (at === -1) continue;
+      // Gana el que aparezca ANTES en el texto, no el alias mas largo. En las
+      // descripciones del excel el equipo va de primero ("brasil 1998 amarilla
+      // mundial francia 98"): con el criterio de longitud ganaba "francia" y se
+      // buscaba la camiseta equivocada. A igual posicion si gana el mas largo,
+      // para que "manchester united" le gane a "manchester".
+      const mejor = !best || at < best.at || (at === best.at && normAlias.length > best.matchedAlias.length);
+      if (mejor) best = { key, entry, matchedAlias: normAlias, at };
     }
   }
   return best;
