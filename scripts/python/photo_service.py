@@ -14,14 +14,22 @@ Expone:
 Todo corre local, sin nube, sin cuenta de terceros.
 """
 import io
+import os
+import sys
 import base64
 import threading
 
-from flask import Flask, request, jsonify
-from PIL import Image
-import torch
-import open_clip
-from rembg import remove, new_session
+# Debe ir ANTES de importar onnxruntime/rembg: registra las DLL de CUDA que
+# trae torch, para que onnxruntime pueda usar la GPU.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cuda_setup  # noqa: E402
+
+from flask import Flask, request, jsonify  # noqa: E402
+from PIL import Image  # noqa: E402
+import torch  # noqa: E402
+import open_clip  # noqa: E402
+import onnxruntime as ort  # noqa: E402
+from rembg import remove, new_session  # noqa: E402
 
 app = Flask(__name__)
 
@@ -29,14 +37,52 @@ GAP_THRESHOLD = 0.03
 
 print("Cargando modelos (una sola vez)...")
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print("  dispositivo:", device)
+print("  dispositivo CLIP:", device)
 
 _clip_model, _, _clip_preprocess = open_clip.create_model_and_transforms('ViT-B-32', pretrained='openai')
 _clip_model = _clip_model.to(device).eval()
 print("  CLIP listo")
 
-_bg_session = new_session("birefnet-general")
-print("  BiRefNet listo")
+
+# Ajustes del proveedor CUDA, medidos en esta maquina (RTX 4070 Ti, 12 GB):
+#  - SIN gpu_mem_limit onnxruntime reservaba 11.2 GB de 12.2 y dejaba la GPU
+#    sin aire: los tiempos se disparaban a 8-24s por foto de forma erratica.
+#    Con tope de 8 GB queda estable en ~0.5s.
+#  - NO usar arena_extend_strategy=kSameAsRequested: fragmenta la memoria y el
+#    modelo falla al pedir bloques grandes (probado, da error de asignacion).
+#  - cudnn_conv_algo_search=HEURISTIC evita el calentamiento inicial de ~60s
+#    que provoca EXHAUSTIVE (el valor por defecto).
+CUDA_PROVIDER_OPTIONS = {
+    'device_id': 0,
+    'gpu_mem_limit': 8 * 1024 * 1024 * 1024,
+    'cudnn_conv_algo_search': 'HEURISTIC',
+    'do_copy_in_default_stream': True,
+}
+
+
+def _make_bg_session():
+    """
+    Intenta crear la sesion de quitar-fondo en GPU (~15x mas rapido que CPU).
+    Si CUDA no esta disponible o falla, cae a CPU sin romper nada.
+    """
+    if cuda_setup.CUDA_DLLS_READY and 'CUDAExecutionProvider' in ort.get_available_providers():
+        try:
+            session = new_session(
+                "birefnet-general",
+                providers=[('CUDAExecutionProvider', CUDA_PROVIDER_OPTIONS), 'CPUExecutionProvider'],
+            )
+            active = session.inner_session.get_providers()
+            if 'CUDAExecutionProvider' in active:
+                return session, 'cuda'
+            # Se creo pero cayo a CPU: se usa igual, pero avisando
+            return session, 'cpu (CUDA no se activo)'
+        except Exception as exc:
+            print("  aviso: no se pudo usar GPU para quitar fondo ->", exc)
+    return new_session("birefnet-general"), 'cpu'
+
+
+_bg_session, _bg_device = _make_bg_session()
+print(f"  BiRefNet listo (quitar fondo en: {_bg_device})")
 
 _lock = threading.Lock()
 
@@ -56,7 +102,13 @@ def _embed(img):
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"ok": True, "device": device})
+    return jsonify({
+        "ok": True,
+        "device": device,
+        "clipDevice": device,
+        "bgDevice": _bg_device,
+        "cudaDlls": cuda_setup.CUDA_DLLS_READY,
+    })
 
 
 @app.route("/compare", methods=["POST"])

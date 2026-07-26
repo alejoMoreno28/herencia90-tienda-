@@ -1,1 +1,13 @@
 Pillow
+
+# ── Robot de fotos con IA (local, GPU opcional) ──────────────────────────
+# Instalar con el python real, no el stub de Microsoft Store.
+# Para GPU (unas 15x mas rapido en quitar fondo) hay que instalar torch con
+# CUDA 13, que ademas trae las DLL (cuBLAS/cuDNN) que necesita onnxruntime:
+#   pip install --force-reinstall --no-deps torch==2.13.0+cu130 torchvision \
+#       --index-url https://download.pytorch.org/whl/cu130
+#   pip install onnxruntime-gpu==1.28.0
+# Sin GPU, usar en su lugar: pip install torch onnxruntime
+rembg==2.0.77
+open_clip_torch
+flask
