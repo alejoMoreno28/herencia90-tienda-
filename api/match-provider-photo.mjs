@@ -7,7 +7,7 @@
  */
 'use strict';
 
-import { searchYupooAlbums, downloadAlbumPhotos } from '../scripts/lib/yupoo-search.mjs';
+import { searchYupooAlbums, downloadAlbumPhotos, storesForType } from '../scripts/lib/yupoo-search.mjs';
 import { buildQueriesWithGeminiFallback } from '../scripts/lib/team-translator.mjs';
 
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
@@ -35,16 +35,21 @@ function albumIdFromHref(href) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { store, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
+  const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
   let { queries, season, sleeve } = req.body || {};
+
+  // El proveedor separa el catalogo por seccion: la misma camiseta en version
+  // fan, player o retro vive en tiendas distintas. Se elige donde buscar
+  // segun el TYPE del excel. `store` sigue aceptandose para forzar una sola.
+  const stores = store ? [store] : storesForType(type);
+  if (!stores.length) {
+    return res.status(400).json({ error: 'falta store o type' });
+  }
 
   // referencePhotoBase64 es OPCIONAL: si viene, se compara visualmente y el
   // sistema puede decidir solo. Si no viene (caso tipico del admin, donde el
   // excel se pega como texto y no trae las fotos), igual se busca y se
   // devuelven los candidatos con miniaturas para que el usuario elija.
-  if (!store) {
-    return res.status(400).json({ error: 'falta store' });
-  }
 
   let autoDerived = null;
   if ((!queries || !queries.length) && description) {
@@ -65,32 +70,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    const foundByHref = new Map();
-    for (const q of queries) {
-      const results = await searchYupooAlbums(store, q);
-      for (const r of results) if (!foundByHref.has(r.href)) foundByHref.set(r.href, r);
+    // Se busca en todas las tiendas de la seccion; la clave del mapa incluye
+    // la tienda porque dos tiendas distintas pueden usar el mismo href.
+    const foundByKey = new Map();
+    for (const s of stores) {
+      for (const q of queries) {
+        try {
+          const results = await searchYupooAlbums(s, q);
+          for (const r of results) {
+            const key = `${s}${r.href}`;
+            if (!foundByKey.has(key)) foundByKey.set(key, { ...r, store: s });
+          }
+        } catch (err) {
+          console.warn(`[match-provider-photo] fallo buscando "${q}" en ${s}: ${err.message}`);
+        }
+      }
     }
-    let pool = [...foundByHref.values()];
+    let pool = [...foundByKey.values()];
     pool = filterBySeason(pool, season);
     pool = filterBySleeve(pool, sleeve);
     const candidates = pool.slice(0, maxCandidates);
 
     if (!candidates.length) {
-      return res.status(200).json({ ranking: [], decision: 'no-results', candidates: [] });
+      return res.status(200).json({ ranking: [], decision: 'no-results', candidates: [], storesSearched: stores });
     }
 
     const groups = [];
     const candidateMeta = [];
     for (const c of candidates) {
       const label = `album_${albumIdFromHref(c.href)}`;
-      const photos = await downloadAlbumPhotos(store, c.href, maxPhotosPerAlbum);
+      const photos = await downloadAlbumPhotos(c.store, c.href, maxPhotosPerAlbum);
       if (!photos.length) continue;
       groups.push({ label, photos_b64: photos.map((p) => p.buffer.toString('base64')) });
       candidateMeta.push({
         label,
         title: c.title,
         href: c.href,
-        yupooUrl: `${store}${c.href}`,
+        store: c.store,
+        yupooUrl: `${c.store}${c.href}`,
         thumbnailBase64: photos[0].buffer.toString('base64'),
         photoCount: photos.length,
         photoUrls: photos.map((p) => p.url),
@@ -102,8 +119,8 @@ export default async function handler(req, res) {
     }
 
     const searchInfo = autoDerived
-      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, source: autoDerived.source }
-      : { queries, season, sleeve, source: 'manual' };
+      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, source: autoDerived.source, storesSearched: stores }
+      : { queries, season, sleeve, source: 'manual', storesSearched: stores };
 
     // Sin foto de referencia no hay con que comparar: se devuelven los
     // candidatos en el orden en que los dio el proveedor para que el

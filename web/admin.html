@@ -4289,7 +4289,8 @@
         // ── Busqueda automatica en el proveedor ────────────────────────────
         // Traduce el equipo al chino, busca en yupoo y trae candidatos con
         // miniatura. Requiere el robot local corriendo (Iniciar_Robot.bat).
-        const PROVEEDOR_STORE_RETRO = 'https://huiliyuan.x.yupoo.com';
+        // El robot elige en que tienda buscar segun el TYPE del excel
+        // (fan / player / retro viven en tiendas distintas del proveedor).
 
         function renderCandidatosProveedor(group, idx) {
             if (!group.candidates || !group.candidates.length) return '';
@@ -4329,7 +4330,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        store: PROVEEDOR_STORE_RETRO,
+                        // sin `store`: el robot elige las tiendas segun el tipo
+                        type: group.type || '',
                         description: group.rawDescription || group.title,
                         extrasText: group.extrasText || '',
                         maxCandidates: 6
@@ -4376,7 +4378,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        store: PROVEEDOR_STORE_RETRO,
+                        // la tienda viene del candidato elegido: cada seccion
+                        // (fan/player/retro) es un dominio distinto
+                        store: candidate.store,
                         photoUrls: candidate.photoUrls,
                         slugHint: group.title
                     })
@@ -4862,6 +4866,15 @@
             let newIdCounter = mx + 1;
             const createdProductsMap = {};
 
+            // Todas las filas del excel que pertenecen a cada referencia, para
+            // poder precargar el stock por talla (una referencia suele venir
+            // en varias filas: una por talla).
+            const rowsByKey = {};
+            unmatchedItems.forEach((it) => {
+                const k = window.AdminLotePhotoReview.normalizeReferenceKey(it.queryStr) || it.queryStr;
+                (rowsByKey[k] = rowsByKey[k] || []).push({ size: it.size, qty: it.qty, destino: it.destino });
+            });
+
             for (const uItem of unmatchedItems) {
                 const creationKey = window.AdminLotePhotoReview.normalizeReferenceKey(uItem.queryStr) || uItem.queryStr;
                 if (createdProductsMap[creationKey]) {
@@ -4869,7 +4882,7 @@
                     continue;
                 }
 
-                const newP = window.AdminLotePhotoReview.buildCatalogProductFromLoteItem(uItem, newIdCounter++);
+                const newP = window.AdminLotePhotoReview.buildCatalogProductFromLoteItem(uItem, newIdCounter++, rowsByKey[creationKey]);
                 const { error } = await db.from('productos').insert(newP);
                 if (error) {
                     console.error('Error auto-creando producto:', error);

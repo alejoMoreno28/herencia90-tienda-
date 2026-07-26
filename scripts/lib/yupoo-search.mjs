@@ -14,6 +14,39 @@ import { load as cheerioLoad } from 'cheerio';
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
+/**
+ * Tiendas del proveedor Snake, por seccion. El proveedor separa el catalogo:
+ * la misma camiseta en version fan, player o retro vive en tiendas distintas,
+ * asi que hay que buscar en la que corresponde al TYPE del excel.
+ * Todas verificadas devolviendo resultados con el buscador nativo.
+ */
+export const PROVIDER_STORES = {
+  FAN: [
+    'https://bomandi.x.yupoo.com',
+    'https://1040-td.x.yupoo.com',
+  ],
+  PLAYER: [
+    'https://baike5555.x.yupoo.com',
+    'https://3409834285.x.yupoo.com',
+  ],
+  RETRO: [
+    'https://huiliyuan.x.yupoo.com',
+    'https://yangdekun.x.yupoo.com',
+  ],
+};
+
+/**
+ * Devuelve las tiendas donde buscar segun el TYPE del excel.
+ * Tipos no reconocidos buscan en todas (mejor de mas que de menos).
+ */
+export function storesForType(type) {
+  const t = String(type || '').trim().toUpperCase();
+  if (t.includes('RETRO')) return PROVIDER_STORES.RETRO;
+  if (t.includes('PLAYER')) return PROVIDER_STORES.PLAYER;
+  if (t.includes('FAN')) return PROVIDER_STORES.FAN;
+  return [...PROVIDER_STORES.RETRO, ...PROVIDER_STORES.FAN, ...PROVIDER_STORES.PLAYER];
+}
+
 async function fetchHtml(url) {
   const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
