@@ -62,9 +62,22 @@ async function main() {
   items.forEach((item, i) => {
     const clave = claves[i];
     if (!grupos.has(clave)) {
-      grupos.set(clave, { clave, titulo: item.queryStr, descripcion: item.rawDescription, extras: item.extrasText, tipo: item.type, prodId: item.prodId, filas: [] });
+      grupos.set(clave, {
+        clave,
+        titulo: item.queryStr,
+        descripcion: item.rawDescription,
+        extras: item.extrasText,
+        tipo: item.type,
+        prodId: item.prodId,
+        // Lo que el admin le pondria al producto si hay que crearlo.
+        categoria: item.generatedCategory,
+        descripcionCatalogo: item.generatedDescription,
+        precio: item.precioVenta,
+        costoUsd: item.costUsd,
+        filas: [],
+      });
     }
-    grupos.get(clave).filas.push({ talla: item.size, cantidad: item.qty });
+    grupos.get(clave).filas.push({ talla: item.size, cantidad: item.qty, destino: item.destino });
   });
 
   const resultados = [];
@@ -114,6 +127,10 @@ async function main() {
       titulo: grupo.titulo,
       tipo: grupo.tipo,
       prodIdExistente: grupo.prodId || null,
+      categoria: grupo.categoria,
+      descripcionCatalogo: grupo.descripcionCatalogo,
+      precio: grupo.precio,
+      costoUsd: grupo.costoUsd,
       filas: grupo.filas,
       decision: data.decision,
       queries: data.searchInfo?.queries || [],
