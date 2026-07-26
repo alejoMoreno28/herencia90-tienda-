@@ -98,6 +98,21 @@ export function findTeamInDictionary(description) {
 export function extractSeasonPattern(description, isClub) {
   const text = String(description || '');
 
+  // Formato que usa el excel para temporadas recientes: "26 27" o "25 26"
+  // (dos años de dos digitos separados por espacio). Sin esto no se filtraba
+  // nada y salian mezcladas todas las temporadas del equipo.
+  const looseMatch = text.match(/\b(\d{2})\s+(\d{2})\b/);
+  if (looseMatch && !/\b(?:19|20)\d{2}\b/.test(text)) {
+    const a = looseMatch[1];
+    const b = looseMatch[2];
+    const full = (yy) => (parseInt(yy, 10) >= 70 ? '19' : '20') + yy;
+    return [
+      `${a}-${b}`, `${a}/${b}`,
+      `${full(a)}-${b}`, `${full(a)}/${b}`,
+      `${full(a)}-${full(b)}`,
+    ].join('|');
+  }
+
   // rango explicito: 1995-1996, 1995-96, 95-96, 1995/96
   const rangeMatch = text.match(/\b((?:19|20)\d{2})\s*[-/]\s*(\d{2,4})\b/);
   if (rangeMatch) {
@@ -142,6 +157,33 @@ export function detectSleeve(description, extrasText) {
   return LONG_SLEEVE_RE.test(combined) ? 'long' : 'short';
 }
 
+/**
+ * Local / visitante / tercera. En los titulos del proveedor:
+ *   主场 = local, 客场 = visitante, 二客 = segunda visitante/tercera.
+ * Devuelve null si la descripcion no lo dice (entonces no se filtra).
+ */
+export function detectVariant(description) {
+  const t = normalizeText(description);
+  if (/\btercera\b|\bthird\b|\b2da visitante\b|二客/.test(t)) return 'third';
+  if (/\bvisitante\b|\baway\b|客场/.test(t)) return 'away';
+  if (/\blocal\b|\bhome\b|主场/.test(t)) return 'home';
+  return null;
+}
+
+export const VARIANT_ZH = { home: '主场', away: '客场', third: '二客' };
+
+/**
+ * El proveedor tiene version mujer (女装) y niño (童装) del mismo modelo.
+ * Si la descripcion no las pide, hay que excluirlas o se cuelan en los
+ * candidatos (pasa mucho en la tienda de fans).
+ */
+export function detectGender(description) {
+  const t = normalizeText(description);
+  if (/\bmujer\b|\bwoman\b|\bwomen\b|\bfemenin/.test(t)) return 'women';
+  if (/\bnino\b|\bnina\b|\bkids?\b|\binfantil\b/.test(t)) return 'kids';
+  return 'adult';
+}
+
 function queriesFromChineseTerms(zh, season) {
   const queries = new Set();
   for (const term of zh) {
@@ -171,6 +213,8 @@ export function buildQueriesFromDescription(description, { extrasText } = {}) {
     queries: queriesFromChineseTerms(match.entry.zh, season),
     season,
     sleeve,
+    variant: detectVariant(description),
+    gender: detectGender(description),
     source: 'dictionary',
   };
 }
@@ -240,6 +284,8 @@ export async function buildQueriesWithGeminiFallback(description, { extrasText, 
       queries: queriesFromChineseTerms(zh, season),
       season,
       sleeve,
+      variant: detectVariant(description),
+      gender: detectGender(description),
       source: 'gemini',
     };
   } catch (err) {

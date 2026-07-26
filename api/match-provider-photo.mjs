@@ -27,6 +27,37 @@ function filterBySleeve(candidates, sleeve) {
   return filtered.length ? filtered : candidates;
 }
 
+// El proveedor marca la variante en el titulo: 主场 local, 客场 visitante,
+// 二客 segunda visitante. Sin este filtro se mezclaban local y visitante.
+const VARIANT_RE = { home: /主场/, away: /客场/, third: /二客/ };
+
+function filterByVariant(candidates, variant) {
+  if (!variant || !VARIANT_RE[variant]) return candidates;
+  let filtered = candidates.filter((c) => VARIANT_RE[variant].test(c.title));
+  // "客场" tambien aparece dentro de "二客"... no, son distintos, pero la
+  // segunda visitante no debe colarse cuando se pidio la visitante normal.
+  if (variant === 'away') filtered = filtered.filter((c) => !VARIANT_RE.third.test(c.title));
+  return filtered.length ? filtered : candidates;
+}
+
+// 女装 = version mujer, 童装 = version niño. Si no se pidieron, se excluyen:
+// en la tienda de fans aparecen muchisimo y tapaban a la version normal.
+const WOMEN_RE = /女装|女款/;
+const KIDS_RE = /童装|儿童/;
+
+function filterByGender(candidates, gender) {
+  if (gender === 'women') {
+    const f = candidates.filter((c) => WOMEN_RE.test(c.title));
+    return f.length ? f : candidates;
+  }
+  if (gender === 'kids') {
+    const f = candidates.filter((c) => KIDS_RE.test(c.title));
+    return f.length ? f : candidates;
+  }
+  const f = candidates.filter((c) => !WOMEN_RE.test(c.title) && !KIDS_RE.test(c.title));
+  return f.length ? f : candidates;
+}
+
 function albumIdFromHref(href) {
   const m = href.match(/\/albums\/(\d+)/);
   return m ? m[1] : href.replace(/[^a-z0-9]/gi, '_');
@@ -36,7 +67,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
-  let { queries, season, sleeve } = req.body || {};
+  let { queries, season, sleeve, variant, gender } = req.body || {};
 
   // El proveedor separa el catalogo por seccion: la misma camiseta en version
   // fan, player o retro vive en tiendas distintas. Se elige donde buscar
@@ -63,6 +94,8 @@ export default async function handler(req, res) {
     queries = autoDerived.queries;
     season = season || autoDerived.season;
     sleeve = sleeve || autoDerived.sleeve;
+    variant = variant || autoDerived.variant;
+    gender = gender || autoDerived.gender;
   }
 
   if (!Array.isArray(queries) || !queries.length) {
@@ -89,6 +122,8 @@ export default async function handler(req, res) {
     let pool = [...foundByKey.values()];
     pool = filterBySeason(pool, season);
     pool = filterBySleeve(pool, sleeve);
+    pool = filterByVariant(pool, variant);
+    pool = filterByGender(pool, gender);
     const candidates = pool.slice(0, maxCandidates);
 
     if (!candidates.length) {
@@ -119,8 +154,8 @@ export default async function handler(req, res) {
     }
 
     const searchInfo = autoDerived
-      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, source: autoDerived.source, storesSearched: stores }
-      : { queries, season, sleeve, source: 'manual', storesSearched: stores };
+      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
+      : { queries, season, sleeve, variant, gender, source: 'manual', storesSearched: stores };
 
     // Sin foto de referencia no hay con que comparar: se devuelven los
     // candidatos en el orden en que los dio el proveedor para que el
