@@ -50,14 +50,19 @@ async function main() {
 
     const candidatos = [];
     for (const [i, cand] of item.ranking.slice(0, 4).entries()) {
-      let miniatura = '<div class="sinfoto">sin miniatura</div>';
-      const url = (cand.photoUrls || [])[0];
-      if (url) {
+      // Se muestran varias fotos, no solo la primera: hay albumes que arrancan
+      // con primeros planos de la etiqueta y con una sola miniatura no habia
+      // forma de saber que camiseta era.
+      const miniaturas = [];
+      for (const url of (cand.photoUrls || []).slice(0, 3)) {
         try {
           const buf = await downloadYupooPhoto(url, cand.store);
-          miniatura = `<img src="data:image/jpeg;base64,${buf.toString('base64')}" alt="candidato">`;
-        } catch { /* se deja el marcador de sin miniatura */ }
+          miniaturas.push(`<img src="data:image/jpeg;base64,${buf.toString('base64')}" alt="candidato">`);
+        } catch { /* si una foto falla se sigue con las demas */ }
       }
+      const miniatura = miniaturas.length
+        ? `<div class="tiras">${miniaturas.join('')}</div>`
+        : '<div class="sinfoto">sin miniatura</div>';
       const puntaje = cand.score == null ? '-' : `${(cand.score * 100).toFixed(1)}%`;
       candidatos.push(`
         <figure class="cand ${i === 0 ? 'elegido' : ''}">
@@ -99,10 +104,12 @@ async function main() {
   .fila { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
   .ref img { width: 190px; border-radius: 8px; border: 3px solid #111; display: block; }
   .cands { display: flex; gap: 12px; flex-wrap: wrap; }
-  .cand img { width: 130px; border-radius: 8px; display: block; }
+  .tiras { display: flex; gap: 3px; }
+  .tiras img:first-child { width: 130px; }
+  .tiras img { width: 62px; border-radius: 6px; display: block; object-fit: cover; align-self: flex-start; }
   .cand { margin: 0; padding: 6px; border-radius: 10px; border: 2px solid transparent; }
   .cand.elegido { border-color: #1a7f37; background: #f2fbf4; }
-  figcaption { font-size: 12px; margin-top: 6px; max-width: 140px; line-height: 1.35; }
+  figcaption { font-size: 12px; margin-top: 6px; max-width: 200px; line-height: 1.35; }
   .ref figcaption { font-weight: 600; max-width: 190px; }
   .titulo { color: #333; }
   .tag { background: #1a7f37; color: #fff; border-radius: 4px; padding: 1px 5px; font-size: 11px; }

@@ -100,6 +100,36 @@ def _embed(img):
     return feat
 
 
+# CLIP mira la forma y la composicion, y es flojo para el color: entre la Real
+# Madrid 2011-12 blanca y la negra de la misma temporada, las dos colgadas en
+# la misma pared, les daba practicamente el mismo puntaje. Y el color es
+# justamente lo que separa una version de otra.
+#
+# Por eso se calcula ademas un histograma de color de la zona central de la
+# foto (donde va la camiseta) y se usa para desempatar cuando CLIP no logra
+# separar dos candidatos.
+_COLOR_BINS = (6, 3, 3)  # tono, saturacion, brillo
+
+
+def _color_hist(img):
+    import numpy as np
+    ancho, alto = img.size
+    # Recorte central: deja la camiseta y bota buena parte de la pared.
+    caja = (int(ancho * 0.2), int(alto * 0.2), int(ancho * 0.8), int(alto * 0.8))
+    hsv = img.crop(caja).resize((96, 96)).convert("HSV")
+    datos = np.asarray(hsv, dtype=np.float32) / 255.0
+    idx = [np.clip((datos[:, :, c] * _COLOR_BINS[c]).astype(int), 0, _COLOR_BINS[c] - 1) for c in range(3)]
+    plano = (idx[0] * _COLOR_BINS[1] + idx[1]) * _COLOR_BINS[2] + idx[2]
+    hist = np.bincount(plano.ravel(), minlength=int(np.prod(_COLOR_BINS))).astype(np.float32)
+    norma = np.linalg.norm(hist)
+    return hist / norma if norma else hist
+
+
+def _color_sim(hist_a, hist_b):
+    import numpy as np
+    return float(np.dot(hist_a, hist_b))
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({
@@ -126,26 +156,56 @@ def compare():
         return jsonify({"error": "faltan reference_b64 o groups"}), 400
 
     with _lock:
-        ref_emb = _embed(_b64_to_image(ref_b64))
+        ref_img = _b64_to_image(ref_b64)
+        ref_emb = _embed(ref_img)
+        ref_hist = _color_hist(ref_img)
 
         ranking = []
         for g in groups:
             label = g.get("label", "")
             photos = g.get("photos_b64") or []
-            best_sim, best_idx = -1.0, -1
+            # Puntaje de CADA foto contra la referencia, no solo el mejor. El
+            # album del proveedor mezcla la camiseta completa con primeros
+            # planos de la etiqueta o el escudo; como la foto de referencia es
+            # la camiseta entera, las que mas se le parecen son justamente las
+            # que sirven para publicar en el catalogo.
+            photo_scores = []
             for i, p_b64 in enumerate(photos):
                 try:
-                    sim = (ref_emb @ _embed(_b64_to_image(p_b64)).T).item()
+                    img = _b64_to_image(p_b64)
+                    sim = (ref_emb @ _embed(img).T).item()
+                    color = _color_sim(ref_hist, _color_hist(img))
                 except Exception:
                     continue
-                if sim > best_sim:
-                    best_sim, best_idx = sim, i
-            if best_idx >= 0:
-                ranking.append({"label": label, "score": round(best_sim, 4), "best_photo_index": best_idx})
+                photo_scores.append({"index": i, "score": round(sim, 4), "color": round(color, 4)})
+            if not photo_scores:
+                continue
+            mejor = max(photo_scores, key=lambda p: p["score"])
+            ranking.append({
+                "label": label,
+                # El album se juzga por su MEJOR foto: que traiga primeros
+                # planos no significa que sea la camiseta equivocada.
+                "score": mejor["score"],
+                "color": max(p["color"] for p in photo_scores),
+                "best_photo_index": mejor["index"],
+                "photo_scores": photo_scores,
+            })
 
     ranking.sort(key=lambda r: r["score"], reverse=True)
+
+    # Desempate por color. Solo entra cuando CLIP dejo a varios candidatos
+    # practicamente empatados: ahi su puntaje ya no distingue nada y el color
+    # si. Si CLIP separo bien, no se toca el orden.
+    if len(ranking) > 1:
+        techo = ranking[0]["score"]
+        empatados = [r for r in ranking if techo - r["score"] < GAP_THRESHOLD]
+        if len(empatados) > 1:
+            empatados.sort(key=lambda r: r.get("color", 0.0), reverse=True)
+            resto = [r for r in ranking if techo - r["score"] >= GAP_THRESHOLD]
+            ranking = empatados + resto
+
     gap = ranking[0]["score"] - ranking[1]["score"] if len(ranking) > 1 else 1.0
-    decision = "auto" if gap >= GAP_THRESHOLD else "confirm"
+    decision = "auto" if abs(gap) >= GAP_THRESHOLD else "confirm"
 
     return jsonify({
         "ranking": ranking,

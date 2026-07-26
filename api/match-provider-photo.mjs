@@ -86,6 +86,18 @@ function filterByColor(candidates, color) {
   return sinOtroColor.length ? sinOtroColor : candidates;
 }
 
+// 欧冠 = Champions. El proveedor vende la misma camiseta en version liga y en
+// version champions, que traen parches distintos. Si la descripcion menciona
+// la champions se prefiere esa; si no la menciona se prefiere la de liga, que
+// es la normal.
+function filterByCompetition(candidates, competition) {
+  const esChampions = (c) => c.title.includes('欧冠');
+  const filtrados = competition === 'champions'
+    ? candidates.filter(esChampions)
+    : candidates.filter((c) => !esChampions(c));
+  return filtrados.length ? filtrados : candidates;
+}
+
 function albumIdFromHref(href) {
   const m = href.match(/\/albums\/(\d+)/);
   return m ? m[1] : href.replace(/[^a-z0-9]/gi, '_');
@@ -94,8 +106,13 @@ function albumIdFromHref(href) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
-  let { queries, season, sleeve, variant, gender, teamTerms, color } = req.body || {};
+  // maxPhotosPerAlbum: los albumes del proveedor traen entre 6 y 10 fotos, y
+  // muchas veces las de la camiseta completa van AL FINAL, despues de los
+  // primeros planos. Con un tope de 6 la camiseta entera no se llegaba a
+  // comparar y albumes correctos quedaban de segundos (paso con la Real Madrid
+  // 2011-12 blanca, cuya foto de cuerpo entero era la octava).
+  const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 12 } = req.body || {};
+  let { queries, season, sleeve, variant, gender, teamTerms, color, competition } = req.body || {};
 
   // El proveedor separa el catalogo por seccion: la misma camiseta en version
   // fan, player o retro vive en tiendas distintas. Se elige donde buscar
@@ -122,6 +139,7 @@ export default async function handler(req, res) {
     queries = autoDerived.queries;
     teamTerms = teamTerms || autoDerived.teamTerms;
     color = color || autoDerived.color;
+    competition = competition || autoDerived.competition;
     season = season || autoDerived.season;
     sleeve = sleeve || autoDerived.sleeve;
     variant = variant || autoDerived.variant;
@@ -153,6 +171,7 @@ export default async function handler(req, res) {
     pool = filterByTeam(pool, teamTerms);
     pool = filterBySeason(pool, season);
     pool = filterByColor(pool, color);
+    pool = filterByCompetition(pool, competition);
     pool = filterBySleeve(pool, sleeve);
     pool = filterByVariant(pool, variant);
     pool = filterByGender(pool, gender);
@@ -186,7 +205,7 @@ export default async function handler(req, res) {
     }
 
     const searchInfo = autoDerived
-      ? { teamKey: autoDerived.teamKey, teamTerms, color, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
+      ? { teamKey: autoDerived.teamKey, teamTerms, color, competition, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
       : { queries, season, sleeve, variant, gender, source: 'manual', storesSearched: stores };
 
     // Sin foto de referencia no hay con que comparar: se devuelven los

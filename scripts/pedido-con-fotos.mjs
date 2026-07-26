@@ -44,6 +44,21 @@ function leerFilas(ruta) {
     .map((fila) => fila.slice(1, 12).map((celda) => (celda == null ? '' : String(celda))));
 }
 
+/**
+ * Reordena las fotos del album dejando primero las que mas se parecen a la
+ * foto del excel. Sin puntajes (busqueda sin foto de referencia) se devuelven
+ * como vienen.
+ */
+function ordenarPorParecido(photoUrls, photoScores) {
+  const urls = photoUrls || [];
+  if (!Array.isArray(photoScores) || !photoScores.length) return urls;
+  return photoScores
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .map((p) => urls[p.index])
+    .filter(Boolean);
+}
+
 function claveDeFila(cols) {
   return String(cols[2] || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
@@ -135,7 +150,16 @@ async function main() {
       decision: data.decision,
       queries: data.searchInfo?.queries || [],
       ganador: data.winner || ranking[0] || null,
-      ranking: ranking.map((r) => ({ title: r.title, score: r.score, store: r.store, yupooUrl: r.yupooUrl, photoUrls: r.photoUrls })),
+      ranking: ranking.map((r) => ({
+        title: r.title,
+        score: r.score,
+        store: r.store,
+        yupooUrl: r.yupooUrl,
+        // Ordenadas de la que mas se parece a la foto del excel a la que
+        // menos: las primeras son la camiseta completa, las ultimas los
+        // primeros planos de etiquetas y escudos.
+        photoUrls: ordenarPorParecido(r.photoUrls, r.photo_scores),
+      })),
     });
   }
 

@@ -203,6 +203,17 @@ const COLORES = {
   roj: '红', rosa: '粉', gris: '灰', naranja: '橙', morad: '紫', violeta: '紫',
 };
 
+/**
+ * El proveedor vende la misma camiseta en version liga (联赛板) y version
+ * champions (欧冠板 / 欧冠版), con parches distintos. Se distinguen solo por el
+ * titulo, y la descripcion del excel suele decirlo ("final champions league").
+ */
+export function detectCompetition(description) {
+  const texto = normalizeText(description);
+  if (/champions|ucl|libertadores|mundial de clubes/.test(texto)) return 'champions';
+  return null;
+}
+
 export function detectColor(description) {
   const texto = normalizeText(description);
   for (const [palabra, zh] of Object.entries(COLORES)) {
@@ -244,6 +255,7 @@ export function buildQueriesFromDescription(description, { extrasText } = {}) {
     // resultados de otros equipos que yupoo devuelve solo por coincidir en el año.
     teamTerms: match.entry.zh.slice(),
     color: detectColor(description),
+    competition: detectCompetition(description),
     queries: queriesFromChineseTerms(match.entry.zh, season),
     season,
     sleeve,
@@ -317,6 +329,7 @@ export async function buildQueriesWithGeminiFallback(description, { extrasText, 
       teamKey: teamGuess,
       teamTerms: zh.slice(),
       color: detectColor(description),
+      competition: detectCompetition(description),
       queries: queriesFromChineseTerms(zh, season),
       season,
       sleeve,
