@@ -58,6 +58,17 @@ function filterByGender(candidates, gender) {
   return f.length ? f : candidates;
 }
 
+// La busqueda de yupoo es floja: al buscar "法国 1998" tambien devuelve
+// 1998摩洛哥主场 y 1998西班牙客场, que coinciden en el año pero son de otro
+// equipo. Si el titulo del album no nombra al equipo, no es esa camiseta.
+// Se deja como filtro suave (si no queda nada, se devuelve todo) por si algun
+// vendedor escribe el equipo distinto a como lo tenemos.
+function filterByTeam(candidates, teamTerms) {
+  if (!Array.isArray(teamTerms) || !teamTerms.length) return candidates;
+  const filtered = candidates.filter((c) => teamTerms.some((term) => c.title.includes(term)));
+  return filtered.length ? filtered : candidates;
+}
+
 function albumIdFromHref(href) {
   const m = href.match(/\/albums\/(\d+)/);
   return m ? m[1] : href.replace(/[^a-z0-9]/gi, '_');
@@ -67,7 +78,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
-  let { queries, season, sleeve, variant, gender } = req.body || {};
+  let { queries, season, sleeve, variant, gender, teamTerms } = req.body || {};
 
   // El proveedor separa el catalogo por seccion: la misma camiseta en version
   // fan, player o retro vive en tiendas distintas. Se elige donde buscar
@@ -92,6 +103,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ranking: [], decision: 'no-team-match', error: autoDerived.error || 'no se reconocio el equipo', candidates: [] });
     }
     queries = autoDerived.queries;
+    teamTerms = teamTerms || autoDerived.teamTerms;
     season = season || autoDerived.season;
     sleeve = sleeve || autoDerived.sleeve;
     variant = variant || autoDerived.variant;
@@ -120,6 +132,7 @@ export default async function handler(req, res) {
       }
     }
     let pool = [...foundByKey.values()];
+    pool = filterByTeam(pool, teamTerms);
     pool = filterBySeason(pool, season);
     pool = filterBySleeve(pool, sleeve);
     pool = filterByVariant(pool, variant);
@@ -154,7 +167,7 @@ export default async function handler(req, res) {
     }
 
     const searchInfo = autoDerived
-      ? { teamKey: autoDerived.teamKey, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
+      ? { teamKey: autoDerived.teamKey, teamTerms, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
       : { queries, season, sleeve, variant, gender, source: 'manual', storesSearched: stores };
 
     // Sin foto de referencia no hay con que comparar: se devuelven los

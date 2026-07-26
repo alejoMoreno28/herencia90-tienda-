@@ -37,7 +37,10 @@ export const TEAM_DICTIONARY = {
 
   // --- Clubes europeos ---
   'real madrid': { aliases: ['real madrid', 'r madrid', 'r. madrid'], zh: ['皇马'],       isClub: true },       // VERIFICADO
-  'barcelona':   { aliases: ['barcelona', 'barca'],                zh: ['巴塞'],          isClub: true },       // VERIFICADO (esta tienda usa 巴塞, no 巴萨)
+  // El proveedor usa LAS DOS grafias, a veces en la misma tienda: los albumes
+  // recientes dicen 巴塞 y varios retro dicen 巴萨. Con una sola se perdian los
+  // otros (la final de champions 05/06 y 08/09 quedaban por fuera).
+  'barcelona':   { aliases: ['barcelona', 'barca'],                zh: ['巴塞', '巴萨'],  isClub: true },       // VERIFICADO
   'ac milan':    { aliases: ['ac milan', 'milan'],                 zh: ['AC米兰', 'AC'],  isClub: true },       // VERIFICADO
   'inter':       { aliases: ['inter', 'inter milan', 'inter de milan'], zh: ['国米'],     isClub: true },       // VERIFICADO (no 国际米兰)
   'liverpool':   { aliases: ['liverpool'],                         zh: ['利物浦'],        isClub: true },       // VERIFICADO
@@ -218,6 +221,9 @@ export function buildQueriesFromDescription(description, { extrasText } = {}) {
 
   return {
     teamKey: match.key,
+    // Terminos "pelados" del equipo, sin temporada. Sirven para descartar los
+    // resultados de otros equipos que yupoo devuelve solo por coincidir en el año.
+    teamTerms: match.entry.zh.slice(),
     queries: queriesFromChineseTerms(match.entry.zh, season),
     season,
     sleeve,
@@ -289,6 +295,7 @@ export async function buildQueriesWithGeminiFallback(description, { extrasText, 
     const sleeve = detectSleeve(description, extrasText);
     return {
       teamKey: teamGuess,
+      teamTerms: zh.slice(),
       queries: queriesFromChineseTerms(zh, season),
       season,
       sleeve,
