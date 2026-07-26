@@ -49,6 +49,12 @@ async function api(ruta, opciones = {}) {
   return texto ? JSON.parse(texto) : null;
 }
 
+// Cuantas fotos se publican por producto. Del album se bajan hasta 12 para
+// poder compararlas, pero muchas son primeros planos de etiquetas y costuras.
+// Como vienen ordenadas de la que mas se parece a la foto del excel (o sea la
+// camiseta completa) a la que menos, con las primeras basta.
+const FOTOS_POR_PRODUCTO = 6;
+
 /** Procesa las fotos del album elegido: quita fondo y las deja en formato catalogo. */
 async function procesarFotos(item) {
   const ganador = item.ranking[0];
@@ -56,7 +62,11 @@ async function procesarFotos(item) {
   const res = await fetch(`${ROBOT}/api/process-photo`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ store: ganador.store, photoUrls: ganador.photoUrls, slugHint: item.titulo }),
+    body: JSON.stringify({
+      store: ganador.store,
+      photoUrls: ganador.photoUrls.slice(0, FOTOS_POR_PRODUCTO),
+      slugHint: item.titulo,
+    }),
   });
   if (!res.ok) throw new Error(`process-photo: ${res.status} ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
@@ -159,12 +169,25 @@ async function main() {
   }
 
   // ── Escritura real ──────────────────────────────────────────────────────
+  // Sumar el stock NO es repetible: correrlo dos veces duplica las unidades.
+  // Si una corrida anterior ya alcanzo a sumarlos y fallo despues, se retoma
+  // con --solo-nuevos para crear los productos que faltan sin volver a sumar.
+  if (process.argv.includes('--solo-nuevos')) {
+    console.log('(--solo-nuevos: no se vuelve a sumar el stock de los que ya existen)\n');
+    existentes.length = 0;
+  }
+
   for (const item of existentes) {
     const actual = await api(`productos?id=eq.${item.prodIdExistente}&select=tallas`);
     const tallas = sumarTallas(actual[0]?.tallas, item.filas);
     await api(`productos?id=eq.${item.prodIdExistente}`, { method: 'PATCH', body: JSON.stringify({ tallas }) });
     console.log(`SUMADO   id ${item.prodIdExistente} -> ${JSON.stringify(tallas)}`);
   }
+
+  // La tabla productos no genera el id sola: el admin lo asigna tomando el
+  // mayor que exista y sumando uno. Aqui se hace igual.
+  const ultimo = await api('productos?select=id&order=id.desc&limit=1');
+  let siguienteId = (ultimo[0]?.id || 0) + 1;
 
   for (const item of nuevos) {
     let imagenes = [];
@@ -176,6 +199,7 @@ async function main() {
     // Nace en cero y de una vez se le suman las unidades del lote, igual que
     // hace el admin en sus dos pasos.
     const producto = {
+      id: siguienteId++,
       categoria: item.categoria || 'Nueva Coleccion',
       equipo: item.titulo,
       descripcion: item.descripcionCatalogo || '',

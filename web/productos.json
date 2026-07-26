@@ -7,7 +7,7 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0,
@@ -149,7 +149,7 @@
             "L": 0,
             "M": 0,
             "S": 0,
-            "XL": 1
+            "XL": 0
         },
         "imagenes": [
             "img/bayern_munich_25-26_home_fan_1.webp",
@@ -386,7 +386,7 @@
             "M": 0,
             "S": 0,
             "XL": 0,
-            "R_L": 1
+            "R_L": 0
         },
         "imagenes": [
             "img/portugal_2026_especial_26-27_fan_1.webp",
@@ -515,8 +515,8 @@
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
-            "L": 0,
-            "M": 0,
+            "L": 1,
+            "M": 1,
             "S": 0,
             "XL": 1
         },
@@ -785,10 +785,10 @@
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
-            "L": 0,
-            "M": 0,
+            "L": 1,
+            "M": 1,
             "S": 0,
-            "XL": 0
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533513520_14.webp",
@@ -1057,7 +1057,7 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 1,
             "S": 0,
             "XL": 0
@@ -1135,10 +1135,10 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 2,
-            "M": 0,
+            "L": 4,
+            "M": 1,
             "S": 0,
-            "XL": 0
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332153236_4.webp",
@@ -1154,10 +1154,10 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 2,
-            "M": 0,
+            "L": 3,
+            "M": 1,
             "S": 0,
-            "XL": 0
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332149553_1.webp",
@@ -1221,6 +1221,314 @@
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332333442_41.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332332152_42.webp"
+        ]
+    },
+    {
+        "id": 65,
+        "categoria": "Retro",
+        "equipo": "Camiseta AC Milan 2006 Visitante Retro",
+        "descripcion": "Camiseta AC Milan 2006 Visitante Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ac-milan-2006-visitante-retro/1785103608860-6.webp"
+        ]
+    },
+    {
+        "id": 66,
+        "categoria": "Retro",
+        "equipo": "Camiseta Liverpool 1995-1996 Retro Verde Y Blanca",
+        "descripcion": "Camiseta Liverpool 1995-1996 Retro Verde Y Blanca version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 130000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-6.webp"
+        ]
+    },
+    {
+        "id": 67,
+        "categoria": "Retro",
+        "equipo": "Camiseta Francia 1998 Azúl Retro",
+        "descripcion": "Camiseta Francia 1998 Azúl Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-1998-azul-retro/1785103632474-6.webp"
+        ]
+    },
+    {
+        "id": 68,
+        "categoria": "Retro",
+        "equipo": "Camiseta Brasil 1998 Amarilla Mundial Francia 98 Retro",
+        "descripcion": "Camiseta Brasil 1998 Amarilla Mundial Francia 98 Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-6.webp"
+        ]
+    },
+    {
+        "id": 69,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Argentina Local 2006",
+        "descripcion": "Camiseta Retro Argentina Local 2006 version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-argentina-local-2006/1785103654132-1.webp"
+        ]
+    },
+    {
+        "id": 70,
+        "categoria": "Retro",
+        "equipo": "Camiseta Manchester United 2007-2008 Local Manga Larga Cristiano Ronaldo Retro",
+        "descripcion": "Camiseta Manchester United 2007-2008 Local Manga Larga Cristiano Ronaldo Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "precio": 150000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-2007-2008-local-manga-larga-cristiano-ronaldo-retro/1785103655862-6.webp"
+        ]
+    },
+    {
+        "id": 71,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Barcelona 2008-2009 Local Final Champions League",
+        "descripcion": "Camiseta Retro Barcelona 2008-2009 Local Final Champions League version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2008-2009-local-final-champions-league/1785103667276-6.webp"
+        ]
+    },
+    {
+        "id": 72,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Barcelona 2005-2006 Local Final Champions League Manga Larga",
+        "descripcion": "Camiseta Retro Barcelona 2005-2006 Local Final Champions League Manga Larga version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "precio": 150000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-barcelona-2005-2006-local-final-champions-league-manga-larga/1785103679794-6.webp"
+        ]
+    },
+    {
+        "id": 73,
+        "categoria": "Retro",
+        "equipo": "Camiseta Santos FC 2012/2013 Local Retro",
+        "descripcion": "Camiseta Santos FC 2012/2013 Local Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-6.webp"
+        ]
+    },
+    {
+        "id": 74,
+        "categoria": "Retro",
+        "equipo": "Camiseta Real Madrid 2011-2012 Blanca Retro",
+        "descripcion": "Camiseta Real Madrid 2011-2012 Blanca Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "precio": 140000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2011-2012-blanca-retro/1785103704672-6.webp"
+        ]
+    },
+    {
+        "id": 75,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Barcelona 26 27 Local Fan",
+        "descripcion": "Camiseta Barcelona 26 27 Local Fan version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 2,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-3.webp"
+        ]
+    },
+    {
+        "id": 76,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid 26 27 Rosa",
+        "descripcion": "Camiseta Real Madrid 26 27 Rosa version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-26-27-rosa/1785103721397-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-26-27-rosa/1785103721397-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-26-27-rosa/1785103721397-3.webp"
+        ]
+    },
+    {
+        "id": 77,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Manchester United 26 27 Local",
+        "descripcion": "Camiseta Manchester United 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-26-27-local/1785103727361-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-26-27-local/1785103727361-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-manchester-united-26-27-local/1785103727361-3.webp"
+        ]
+    },
+    {
+        "id": 78,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta Korea 27 27 Local Version Player",
+        "descripcion": "Camiseta Korea 27 27 Local Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-korea-27-27-local-version-player/1785103732729-1.webp"
+        ]
+    },
+    {
+        "id": 79,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta City 26 27 Local Kit",
+        "descripcion": "Camiseta City 26 27 Local Kit version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-city-26-27-local-kit/1785103734495-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-city-26-27-local-kit/1785103734495-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-city-26-27-local-kit/1785103734495-3.webp"
         ]
     }
 ]
