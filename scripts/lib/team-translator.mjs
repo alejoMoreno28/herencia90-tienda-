@@ -195,6 +195,25 @@ export function detectGender(description) {
   return 'adult';
 }
 
+// El color que se escribe en la descripcion ("amarilla", "blanca") tambien
+// aparece en el titulo del proveedor (黄色, 白色). Es una pista fuerte cuando el
+// mismo equipo y temporada tiene varias versiones de color.
+const COLORES = {
+  amarill: '黄', verde: '绿', blanc: '白', azul: '蓝', negr: '黑',
+  roj: '红', rosa: '粉', gris: '灰', naranja: '橙', morad: '紫', violeta: '紫',
+};
+
+export function detectColor(description) {
+  const texto = normalizeText(description);
+  for (const [palabra, zh] of Object.entries(COLORES)) {
+    if (texto.includes(palabra)) return zh;
+  }
+  return null;
+}
+
+/** Todos los caracteres de color que se saben reconocer, para descartar. */
+export const COLOR_CHARS = [...new Set(Object.values(COLORES))];
+
 function queriesFromChineseTerms(zh, season) {
   const queries = new Set();
   for (const term of zh) {
@@ -224,6 +243,7 @@ export function buildQueriesFromDescription(description, { extrasText } = {}) {
     // Terminos "pelados" del equipo, sin temporada. Sirven para descartar los
     // resultados de otros equipos que yupoo devuelve solo por coincidir en el año.
     teamTerms: match.entry.zh.slice(),
+    color: detectColor(description),
     queries: queriesFromChineseTerms(match.entry.zh, season),
     season,
     sleeve,
@@ -296,6 +316,7 @@ export async function buildQueriesWithGeminiFallback(description, { extrasText, 
     return {
       teamKey: teamGuess,
       teamTerms: zh.slice(),
+      color: detectColor(description),
       queries: queriesFromChineseTerms(zh, season),
       season,
       sleeve,

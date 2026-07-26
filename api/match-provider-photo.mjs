@@ -8,7 +8,7 @@
 'use strict';
 
 import { searchYupooAlbums, downloadAlbumPhotos, storesForType } from '../scripts/lib/yupoo-search.mjs';
-import { buildQueriesWithGeminiFallback } from '../scripts/lib/team-translator.mjs';
+import { buildQueriesWithGeminiFallback, COLOR_CHARS } from '../scripts/lib/team-translator.mjs';
 
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
 const LONG_SLEEVE_RE = /长袖|manga\s*larga|long\s*sleeve/i;
@@ -69,6 +69,23 @@ function filterByTeam(candidates, teamTerms) {
   return filtered.length ? filtered : candidates;
 }
 
+/**
+ * Usa el color de la descripcion para descartar versiones del mismo equipo y
+ * temporada. La comparacion visual sola se equivocaba aqui: para "brasil 1998
+ * AMARILLA" elegia 1998巴西绿色 (la verde) por encima de la amarilla.
+ *
+ * Primero se intenta quedarse con los albumes que nombran ese color. Si
+ * ninguno lo nombra (el color de local no suele escribirse, va implicito en
+ * 主场), al menos se botan los que nombran OTRO color.
+ */
+function filterByColor(candidates, color) {
+  if (!color) return candidates;
+  const delColor = candidates.filter((c) => c.title.includes(color));
+  if (delColor.length) return delColor;
+  const sinOtroColor = candidates.filter((c) => !COLOR_CHARS.some((otro) => otro !== color && c.title.includes(otro)));
+  return sinOtroColor.length ? sinOtroColor : candidates;
+}
+
 function albumIdFromHref(href) {
   const m = href.match(/\/albums\/(\d+)/);
   return m ? m[1] : href.replace(/[^a-z0-9]/gi, '_');
@@ -78,7 +95,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const { store, type, referencePhotoBase64, description, extrasText, maxCandidates = 8, maxPhotosPerAlbum = 6 } = req.body || {};
-  let { queries, season, sleeve, variant, gender, teamTerms } = req.body || {};
+  let { queries, season, sleeve, variant, gender, teamTerms, color } = req.body || {};
 
   // El proveedor separa el catalogo por seccion: la misma camiseta en version
   // fan, player o retro vive en tiendas distintas. Se elige donde buscar
@@ -104,6 +121,7 @@ export default async function handler(req, res) {
     }
     queries = autoDerived.queries;
     teamTerms = teamTerms || autoDerived.teamTerms;
+    color = color || autoDerived.color;
     season = season || autoDerived.season;
     sleeve = sleeve || autoDerived.sleeve;
     variant = variant || autoDerived.variant;
@@ -134,6 +152,7 @@ export default async function handler(req, res) {
     let pool = [...foundByKey.values()];
     pool = filterByTeam(pool, teamTerms);
     pool = filterBySeason(pool, season);
+    pool = filterByColor(pool, color);
     pool = filterBySleeve(pool, sleeve);
     pool = filterByVariant(pool, variant);
     pool = filterByGender(pool, gender);
@@ -167,7 +186,7 @@ export default async function handler(req, res) {
     }
 
     const searchInfo = autoDerived
-      ? { teamKey: autoDerived.teamKey, teamTerms, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
+      ? { teamKey: autoDerived.teamKey, teamTerms, color, queries, season, sleeve, variant, gender, source: autoDerived.source, storesSearched: stores }
       : { queries, season, sleeve, variant, gender, source: 'manual', storesSearched: stores };
 
     // Sin foto de referencia no hay con que comparar: se devuelven los
