@@ -260,11 +260,6 @@
       "permanent": true
     },
     {
-      "source": "/camisetas/camiseta-argentina-mundial-2026-visitante",
-      "destination": "/camisetas/camiseta-argentina-edicion-especial-negra-campeones-2022",
-      "permanent": true
-    },
-    {
       "source": "/camisetas/camiseta-100-anos-blanca-mujer-version-player",
       "destination": "/camisetas/camiseta-colombia-100-anos-blanca-mujer-version-player",
       "permanent": true
