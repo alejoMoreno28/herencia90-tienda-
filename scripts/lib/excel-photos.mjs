@@ -71,7 +71,24 @@ function leerAnclas(xml) {
  * `row` es el indice de fila base 0, igual que el que usa sheet_to_json con
  * header:1, para poder cruzarlo directo con las filas del pedido.
  */
-export function extraerFotosDeExcel(rutaXlsx, nombreHoja = 'ORDER') {
+export function extraerFotosDeExcel(xlsx, nombreHoja = 'ORDER') {
+  // Acepta una ruta o el archivo ya en memoria. Con buffer se escribe a un
+  // temporal porque el lector usa unzip, que trabaja sobre archivos.
+  let rutaXlsx = xlsx;
+  let temporal = null;
+  if (Buffer.isBuffer(xlsx)) {
+    temporal = path.join(os.tmpdir(), `lote-${process.pid}-${Buffer.from(String(xlsx.length)).toString('hex')}.xlsx`);
+    fs.writeFileSync(temporal, xlsx);
+    rutaXlsx = temporal;
+  }
+  try {
+    return extraerDeRuta(rutaXlsx, nombreHoja);
+  } finally {
+    if (temporal) { try { fs.unlinkSync(temporal); } catch { /* da igual si no se puede borrar */ } }
+  }
+}
+
+function extraerDeRuta(rutaXlsx, nombreHoja) {
   const entradas = listarZip(rutaXlsx);
 
   // 1. Que numero de hoja es la que nos interesa.

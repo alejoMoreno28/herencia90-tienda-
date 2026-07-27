@@ -17,7 +17,32 @@ decide cual de los candidatos del proveedor es el correcto es la comparacion
 visual contra esa foto. Asi una errata en la descripcion no termina bajando
 las fotos de otra camiseta.
 
-## Paso a paso
+## La forma facil: la pantalla del cargador
+
+Doble clic a **`CARGAR-PEDIDO.bat`** en la carpeta del proyecto. Arranca el
+robot y abre el navegador solo (la primera vez tarda porque carga los modelos
+en la tarjeta grafica). No cerrar esa ventana negra mientras se trabaja.
+
+En la pantalla:
+
+1. Soltar el `.xlsx` del pedido.
+2. Esperar. Va mostrando el avance, unos 10 a 20 segundos por camiseta.
+3. Revisar. Cada referencia sale con la foto del excel al lado de lo que
+   encontro, y el elegido marcado en verde. Las que necesitan ojo salen
+   resaltadas y hay una casilla para ver solo esas.
+   - Para cambiar de camiseta, clic en otra de las miniaturas.
+   - Donde pregunta *"¿esta camiseta ya la tienes en el catalogo?"*, elegir el
+     producto o dejar "es una referencia NUEVA".
+4. **Cargar al catalogo**. Antes de escribir muestra el resumen exacto.
+5. Publicar para SEO (ver el paso 8 mas abajo). Eso sigue siendo por consola.
+
+Si el mismo archivo ya se cargo antes, la pantalla lo dice y salta lo que ya
+esta guardado: no se puede duplicar el inventario por volver a subirlo.
+
+El resto de esta guia es el mismo flujo por linea de comandos, util para
+depurar o para correr solo un paso.
+
+## Paso a paso (por consola)
 
 ### 1. Levantar el robot
 
@@ -176,6 +201,16 @@ league") y ahora se usa.
 **La tabla `productos` no genera el id.** Lo asigna el admin tomando el mayor
 que exista y sumando uno. El cargador hace lo mismo.
 
+**Cargar dos veces el mismo pedido duplicaba el inventario.** La proteccion
+contra reintentos anotaba por separado lo "creado" y lo "sumado". El problema
+es que la rama cambia entre corridas: la primera vez una referencia se crea,
+pero en la segunda esa misma referencia ya existe en el catalogo y por lo tanto
+le toca sumar stock, y la anotacion de "creada" no la protegia ahi. Se detecto
+probando la pantalla con el PEDIDO5 ya cargado: creo 2 productos repetidos y
+duplico el stock de 15. Ahora se anota **una entrada por referencia** y se
+consulta **antes** de decidir si crear o sumar. Hay pruebas en
+`scripts/lote-carga.test.mjs`.
+
 **Las formulas del excel estaban rotas.** El total de unidades se sumaba a si
 mismo y daba el doble: el PEDIDO5 decia 102 unidades cuando son 51. Ya esta
 arreglado en `scripts/crear-pedido.mjs`.
@@ -198,6 +233,11 @@ arreglado en `scripts/crear-pedido.mjs`.
 | `scripts/cargar-lote.mjs` | escribe en el catalogo |
 | `scripts/snapshot-finanzas.mjs` | foto de los numeros, antes y despues |
 | `scripts/simular-lote.mjs` | replica el flujo del admin sin guardar nada |
+| `CARGAR-PEDIDO.bat` | abre la pantalla del cargador |
+| `scripts/lote-studio/` | la pantalla y sus endpoints |
+| `scripts/lib/lote-analisis.mjs` | excel a referencias listas para revisar |
+| `scripts/lib/lote-carga.mjs` | escritura al catalogo y proteccion de reintentos |
+| `scripts/lote-carga.test.mjs` | pruebas de esa proteccion |
 
 Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 `scripts/lib/yupoo-search.mjs`.

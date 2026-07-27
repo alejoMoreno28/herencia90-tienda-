@@ -1,0 +1,139 @@
+:root {
+  --fondo: #f4f5f7;
+  --panel: #fff;
+  --borde: #e0e2e6;
+  --texto: #14161a;
+  --tenue: #6b7280;
+  --verde: #1a7f37;
+  --verde-suave: #eef8f1;
+  --ambar: #8a6100;
+  --ambar-suave: #fff6dd;
+  --rojo: #b42318;
+  --acento: #1f2937;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 20px 64px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 17px; margin: 0 0 12px; }
+
+.pill {
+  font-size: 12px; padding: 4px 10px; border-radius: 999px;
+  background: #e5e7eb; color: var(--tenue);
+}
+.pill.ok { background: var(--verde-suave); color: var(--verde); }
+.pill.mal { background: #fdecea; color: var(--rojo); }
+
+.tarjeta {
+  background: var(--panel); border: 1px solid var(--borde);
+  border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+
+.oculto { display: none !important; }
+.tenue { color: var(--tenue); font-size: 13px; }
+.centro { text-align: center; }
+.grande { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+
+/* Soltar archivo */
+.soltar {
+  border: 2px dashed #c7cbd1; border-radius: 12px;
+  padding: 52px 20px; text-align: center; transition: .15s;
+  cursor: pointer;
+}
+.soltar.encima { border-color: var(--verde); background: var(--verde-suave); }
+.enlace {
+  background: none; border: none; padding: 0; font: inherit;
+  color: #1d4ed8; text-decoration: underline; cursor: pointer;
+}
+
+/* Progreso */
+.barra { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+#barraRelleno { height: 100%; width: 0; background: var(--verde); transition: width .3s; }
+
+/* Resumen */
+.resumen { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; position: sticky; top: 12px; z-index: 5; }
+#contadores { display: flex; gap: 22px; flex-wrap: wrap; }
+.cuenta strong { display: block; font-size: 22px; line-height: 1.1; }
+.cuenta span { font-size: 12px; color: var(--tenue); }
+.acciones { display: flex; align-items: center; gap: 16px; }
+.chk { font-size: 13px; color: var(--tenue); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+.btn {
+  padding: 10px 18px; border-radius: 8px; border: 1px solid var(--borde);
+  background: #fff; font: inherit; font-weight: 600; cursor: pointer;
+}
+.btn.primario { background: var(--acento); color: #fff; border-color: var(--acento); }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* Referencias */
+.ref {
+  background: var(--panel); border: 1px solid var(--borde);
+  border-left: 4px solid var(--verde); border-radius: 12px;
+  padding: 16px; margin-bottom: 14px;
+}
+.ref.revisar { border-left-color: #d9a300; }
+.ref.malo { border-left-color: var(--rojo); }
+
+.ref-cabeza { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 2px; }
+.ref-cabeza h3 { font-size: 15px; margin: 0; }
+.etiqueta { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-weight: 600; }
+.etiqueta.ok { background: var(--verde-suave); color: var(--verde); }
+.etiqueta.duda { background: var(--ambar-suave); color: var(--ambar); }
+.etiqueta.mal { background: #fdecea; color: var(--rojo); }
+.ref-meta { font-size: 12px; color: var(--tenue); margin: 0 0 12px; }
+
+.comparacion { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.excel img { width: 168px; border-radius: 8px; border: 3px solid var(--acento); display: block; }
+.excel p { font-size: 12px; font-weight: 600; margin: 6px 0 0; }
+.sin-foto {
+  width: 168px; height: 168px; border-radius: 8px; background: #eee;
+  display: grid; place-items: center; font-size: 12px; color: var(--tenue); text-align: center; padding: 10px;
+}
+
+.candidatos { display: flex; gap: 10px; flex-wrap: wrap; }
+.cand {
+  border: 2px solid transparent; border-radius: 10px; padding: 6px;
+  cursor: pointer; background: none; font: inherit; text-align: left;
+}
+.cand.elegido { border-color: var(--verde); background: var(--verde-suave); }
+.cand .tira { display: flex; gap: 3px; }
+.cand .tira img { border-radius: 6px; display: block; background: #eee; }
+.cand .tira img:first-child { width: 118px; height: 118px; object-fit: cover; }
+.cand .tira img + img { width: 56px; height: 118px; object-fit: cover; }
+.cand figcaption { font-size: 11px; margin-top: 6px; max-width: 180px; line-height: 1.35; color: var(--tenue); }
+.cand figcaption b { color: var(--texto); }
+
+/* Decision de duplicado */
+.duplicado {
+  margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+  background: var(--ambar-suave); border: 1px solid #f0dda5;
+}
+.duplicado p { margin: 0 0 8px; font-size: 13px; }
+.duplicado select { font: inherit; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--borde); max-width: 100%; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.modal-caja { background: #fff; border-radius: 14px; padding: 24px; max-width: 560px; width: 100%; max-height: 84vh; overflow: auto; }
+.modal-botones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.nota { font-size: 13px; color: var(--verde); background: var(--verde-suave); padding: 10px 12px; border-radius: 8px; }
+.linea { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.linea:last-child { border-bottom: none; }
+
+.aviso { background: var(--ambar-suave); border: 1px solid #f0dda5; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; }
+.error { background: #fdecea; border: 1px solid #f5c2bd; color: var(--rojo); border-radius: 8px; padding: 12px 14px; font-size: 13px; }
+
+/* Ya cargada en una corrida anterior: se muestra apagada para que se note que
+   no va a volver a escribirse. */
+.ref.ya { border-left-color: #9aa1ab; opacity: .62; }
+.etiqueta.ya { background: #eceef1; color: #4b5563; }

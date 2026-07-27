@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cargar pedido — Herencia 90</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Cargar pedido al catálogo</h1>
+  <div id="estadoRobot" class="pill">comprobando…</div>
+</header>
+
+<!-- Paso 1: soltar el archivo -->
+<section id="pasoSubir" class="tarjeta">
+  <div id="zonaSoltar" class="soltar">
+    <p class="grande">Suelta aquí el excel del pedido</p>
+    <p class="tenue">o <button type="button" id="btnElegir" class="enlace">búscalo en tu PC</button></p>
+    <input type="file" id="archivo" accept=".xlsx" hidden>
+  </div>
+  <p class="tenue centro">Lee las fotos que están pegadas en el excel y busca cada camiseta en el proveedor.</p>
+</section>
+
+<!-- Paso 2: trabajando -->
+<section id="pasoTrabajando" class="tarjeta oculto">
+  <h2 id="tituloTrabajando">Buscando las camisetas…</h2>
+  <div class="barra"><div id="barraRelleno"></div></div>
+  <p id="textoProgreso" class="tenue"></p>
+  <p class="tenue">Se demora entre 10 y 20 segundos por camiseta. Puedes dejar esta ventana abierta.</p>
+</section>
+
+<!-- Paso 3: revisar -->
+<section id="pasoRevisar" class="oculto">
+  <div class="tarjeta resumen">
+    <div id="contadores"></div>
+    <div class="acciones">
+      <label class="chk"><input type="checkbox" id="soloDudosas"> Ver solo las que hay que revisar</label>
+      <button type="button" id="btnCargar" class="btn primario">Cargar al catálogo</button>
+    </div>
+  </div>
+  <div id="listaReferencias"></div>
+</section>
+
+<!-- Paso 4: confirmar -->
+<div id="modalConfirmar" class="modal oculto">
+  <div class="modal-caja">
+    <h2>Antes de guardar</h2>
+    <div id="resumenCarga"></div>
+    <p class="nota">No se toca tu contabilidad: nada de transacciones, pedidos, ventas ni saldos.</p>
+    <div class="modal-botones">
+      <button type="button" id="btnCancelar" class="btn">Cancelar</button>
+      <button type="button" id="btnConfirmar" class="btn primario">Sí, cargar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Paso 5: resultado -->
+<section id="pasoResultado" class="tarjeta oculto">
+  <h2 id="tituloResultado"></h2>
+  <div id="detalleResultado"></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

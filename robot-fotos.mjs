@@ -5,6 +5,7 @@ import path from 'node:path';
 import searchProviderImagesHandler from './api/search-provider-images.js';
 import matchProviderPhotoHandler from './api/match-provider-photo.mjs';
 import processPhotoHandler from './api/process-photo.mjs';
+import { crearRouterLoteStudio } from './scripts/lote-studio/server.mjs';
 
 try {
     loadEnvFile('.env');
@@ -73,6 +74,10 @@ app.post('/api/search-provider-images', wrap(searchProviderImagesHandler));
 app.post('/api/match-provider-photo', wrap(matchProviderPhotoHandler));
 app.post('/api/process-photo', wrap(processPhotoHandler));
 
+// Pantalla para cargar un pedido sin usar la terminal. Va aqui porque el
+// trabajo pesado (comparar y quitar fondo) corre en la GPU de este PC.
+app.use(crearRouterLoteStudio());
+
 app.get('/health', async (req, res) => {
     let photoServiceOk = false;
     try {
@@ -91,8 +96,9 @@ app.listen(PORT, async () => {
     console.log('✅ ROBOT DE FOTOS ESTÁ ACTIVO Y ESCUCHANDO');
     console.log('======================================================');
     console.log('👉 Mantén esta ventana abierta.');
-    console.log('👉 Ve a herencia90.shop/admin y usa "Ingresar nuevo lote" normalmente.');
-    console.log(`(Puerto Node: ${PORT})`);
+    console.log('');
+    console.log(`📦 Para cargar un pedido:  http://localhost:${PORT}/cargador`);
+    console.log('👉 O ve a herencia90.shop/admin y usa "Ingresar nuevo lote".');
     console.log('\nEsperando a que el servicio de IA de fotos termine de cargar (puede tardar la primera vez)...');
     const ready = await waitForPhotoService();
     if (ready) {
