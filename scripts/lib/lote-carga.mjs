@@ -5,11 +5,16 @@
  * linea de comandos como la pantalla del cargador, para que los dos hagan
  * exactamente lo mismo y las protecciones no dependan de por donde se entre.
  *
- * Hace lo mismo que el admin al guardar un lote y NADA mas:
+ * Hace lo mismo que el admin al guardar un lote:
  *   1. crea un producto por cada referencia nueva
- *   2. le SUMA a las tallas las unidades de cada fila del excel
+ *   2. suma al stock las unidades con destino STOCK
+ *   3. crea un registro en `pedidos` por cada unidad de PREVENTA (una camiseta
+ *      ya encargada por un cliente, que no cuenta como inventario disponible)
+ *   4. registra en `transacciones` el gasto de lo que costo el lote
  *
- * No escribe en `transacciones` ni en `pedidos`.
+ * Lo unico que NO hace es registrar cobros a clientes: los de preventa no
+ * pagan al encargar, se les cobra al entregar, y ese ingreso se registra
+ * despues desde el admin.
  */
 'use strict';
 
@@ -52,9 +57,14 @@ export async function traerProductos() {
   }
 }
 
+/**
+ * Suma al stock SOLO las filas con destino STOCK. Las de preventa ya estan
+ * vendidas a un cliente: no son inventario disponible, viven en `pedidos`.
+ * Es el mismo criterio que usa el admin.
+ */
 export function sumarTallas(tallasActuales, filas) {
   const tallas = { S: 0, M: 0, L: 0, XL: 0, ...(tallasActuales || {}) };
-  for (const fila of filas) {
+  for (const fila of filas.filter(esStock)) {
     const talla = String(fila.talla || '').trim().toUpperCase();
     if (!talla) continue;
     tallas[talla] = (parseInt(tallas[talla], 10) || 0) + (parseInt(fila.cantidad, 10) || 0);
@@ -69,13 +79,37 @@ export function unidadesDe(referencias) {
   );
 }
 
+export const esPreventa = (fila) => String(fila.destino || '').toUpperCase() === 'PREVENTA';
+export const esStock = (fila) => !esPreventa(fila);
+
 /**
- * Las filas de PREVENTA generan pedidos y movimientos de plata. Esta carga no
- * las toca a proposito: van por el admin, que es quien sabe registrar el
- * anticipo y el cliente.
+ * Una referencia puede traer filas de los dos tipos: en un mismo pedido suele
+ * haber unidades para stock y otras ya encargadas por un cliente.
  */
 export function referenciasConPreventa(referencias) {
-  return referencias.filter((ref) => ref.filas.some((f) => String(f.destino || '').toUpperCase() === 'PREVENTA'));
+  return referencias.filter((ref) => ref.filas.some(esPreventa));
+}
+
+export function unidadesPorDestino(referencias) {
+  let stock = 0;
+  let preventa = 0;
+  for (const ref of referencias) {
+    for (const fila of ref.filas) {
+      const cantidad = parseInt(fila.cantidad, 10) || 0;
+      if (esPreventa(fila)) preventa += cantidad; else stock += cantidad;
+    }
+  }
+  return { stock, preventa, total: stock + preventa };
+}
+
+/** Costo total en USD de las referencias dadas, para el gasto de la compra. */
+export function costoUsdDe(referencias) {
+  return referencias.reduce(
+    (total, ref) => total + ref.filas.reduce(
+      (s, f) => s + ((parseFloat(ref.costoUsd) || 0) * (parseInt(f.cantidad, 10) || 0)), 0,
+    ),
+    0,
+  );
 }
 
 /**
@@ -99,10 +133,18 @@ export function aplicarDecisiones(referencias, decisiones = {}) {
 export function resumirCarga(referencias) {
   const nuevos = referencias.filter((r) => !r.prodIdExistente);
   const existentes = referencias.filter((r) => r.prodIdExistente);
+  const unidades = unidadesPorDestino(referencias);
   return {
     nuevos: nuevos.length,
     existentes: existentes.length,
-    unidades: unidadesDe(referencias),
+    unidades: unidades.total,
+    unidadesStock: unidades.stock,
+    unidadesPreventa: unidades.preventa,
+    costoUsd: Math.round(costoUsdDe(referencias) * 100) / 100,
+    // Cuantos clientes quedarian sin nombre, para poder avisarlo antes.
+    preventaSinCliente: referencias
+      .filter((r) => r.filas.some(esPreventa) && !String(r.cliente || '').trim())
+      .reduce((s, r) => s + r.filas.filter(esPreventa).reduce((n, f) => n + (parseInt(f.cantidad, 10) || 0), 0), 0),
     detalleNuevos: nuevos.map((r) => ({ titulo: r.titulo, tallas: sumarTallas(null, r.filas) })),
     detalleExistentes: existentes.map((r) => ({ titulo: r.titulo, prodId: r.prodIdExistente })),
   };
@@ -169,29 +211,120 @@ async function procesarFotos(referencia, maxFotos) {
     .filter(Boolean);
 }
 
+// Misma categoria que usa el usuario cuando registra la compra a mano.
+const CATEGORIA_COMPRA = 'Compra Inventario';
+
 /**
- * Escribe el lote en el catalogo.
+ * Filas de preventa de una referencia, convertidas en registros de `pedidos`:
+ * uno por unidad, igual que hace el admin.
+ *
+ * El cliente no paga nada al encargar, se le cobra cuando recibe la camiseta,
+ * asi que nacen en Pendiente con abono en cero. El pago se registra despues
+ * desde el admin, que es donde se lleva el detalle de cada cliente.
+ */
+function pedidosDePreventa(referencia, prodId, equipo, basics) {
+  const pedidos = [];
+  const costoUsd = parseFloat(referencia.costoUsd) || 0;
+  for (const fila of referencia.filas.filter(esPreventa)) {
+    const cantidad = parseInt(fila.cantidad, 10) || 0;
+    for (let i = 0; i < cantidad; i++) {
+      pedidos.push({
+        cliente: String(referencia.cliente || '').trim() || 'Pendiente por Asignar',
+        canal: referencia.canal || 'Amigos/Confianza',
+        producto_id: prodId,
+        equipo,
+        talla: fila.talla,
+        cantidad: 1,
+        precio_venta: referencia.precio || 99000,
+        costo_usd: costoUsd,
+        costo_landed_cop: costoUsd * basics.trm,
+        trm: basics.trm,
+        estado_pago: 'Pendiente',
+        abono: 0,
+        estado_entrega: 'Pendiente',
+        lote_codigo: basics.loteNombre,
+        fecha_pedido: new Date().toISOString().split('T')[0],
+      });
+    }
+  }
+  return pedidos;
+}
+
+/**
+ * Registra en finanzas lo que costo el lote, como hace el admin: un gasto de
+ * "Compra Inventario". Si ya existe uno de este mismo lote le suma, en vez de
+ * crear otro, para que cargar el pedido en varias tandas no lo parta en
+ * muchos gastos sueltos.
+ *
+ * Solo se le pasa el costo de lo que se ESCRIBIO en esta corrida. Lo que se
+ * salto por estar ya cargado no vuelve a sumar, asi que reintentar no infla
+ * el gasto.
+ */
+async function registrarGastoDeCompra(basics, totales) {
+  if (!(totales.costoUsd > 0)) return null;
+  const montoCop = Math.round(totales.costoUsd * basics.trm);
+  const detalle = `${totales.total} und (${totales.stock} stock / ${totales.preventa} preventa)`;
+  const descripcion = `[Compra Lote] ${basics.loteNombre} - ${detalle}`;
+
+  const existentes = await api(
+    `transacciones?select=id,monto,usd_amount,descripcion&tipo=eq.gasto`
+    + `&categoria=eq.${encodeURIComponent(CATEGORIA_COMPRA)}`
+    + `&descripcion=ilike.${encodeURIComponent(`[Compra Lote] ${basics.loteNombre}%`)}`
+    + '&order=id.asc&limit=1',
+  );
+
+  if (existentes.length) {
+    const previo = existentes[0];
+    await api(`transacciones?id=eq.${previo.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        monto: (parseFloat(previo.monto) || 0) + montoCop,
+        usd_amount: (parseFloat(previo.usd_amount) || 0) + totales.costoUsd,
+      }),
+    });
+    return { id: previo.id, montoAgregado: montoCop, actualizado: true };
+  }
+
+  // La tabla de transacciones tampoco genera el id sola.
+  const ultima = await api('transacciones?select=id&order=id.desc&limit=1');
+  const creada = await api('transacciones', {
+    method: 'POST',
+    body: JSON.stringify({
+      id: (ultima[0]?.id || 0) + 1,
+      tipo: 'gasto',
+      categoria: CATEGORIA_COMPRA,
+      fecha: new Date().toISOString().split('T')[0],
+      monto: montoCop,
+      usd_amount: totales.costoUsd,
+      trm: basics.trm,
+      descripcion,
+    }),
+  });
+  return { id: creada[0].id, montoAgregado: montoCop, actualizado: false };
+}
+
+/**
+ * Escribe el lote: productos, stock, pedidos de preventa y el gasto de la
+ * compra. No toca nada mas de finanzas; los cobros a clientes se registran
+ * despues desde el admin.
  *
  * @param referencias   ya con las decisiones aplicadas
+ * @param opciones.basics         { loteNombre, trm }
  * @param opciones.carpetaEstado  donde anotar lo que ya se hizo
  * @param opciones.idLote         identifica este lote entre corridas
  * @param opciones.maxFotos       cuantas fotos publicar por producto
  * @param opciones.alAvanzar      callback(paso) para mostrar progreso
  */
 export async function cargarLote(referencias, opciones = {}) {
-  const { carpetaEstado, idLote, maxFotos = 6, alAvanzar = () => {} } = opciones;
+  const { carpetaEstado, idLote, basics, maxFotos = 6, alAvanzar = () => {} } = opciones;
   if (!carpetaEstado || !idLote) throw new Error('faltan carpetaEstado e idLote');
-
-  const conPreventa = referenciasConPreventa(referencias);
-  if (conPreventa.length) {
-    throw new Error(
-      `hay filas de PREVENTA (${conPreventa.map((r) => r.titulo).join(', ')}). `
-      + 'Esas generan pedidos y movimientos de plata: van por el admin.',
-    );
-  }
+  if (!basics?.loteNombre) throw new Error('falta el nombre del lote');
+  if (!(parseFloat(basics.trm) > 0)) throw new Error('falta la TRM de compra del lote');
 
   const estado = leerEstado(carpetaEstado, idLote);
-  const resultado = { sumados: [], creados: [], saltados: [] };
+  const resultado = { sumados: [], creados: [], preventa: [], saltados: [], gasto: null };
+  // Solo lo escrito en ESTA corrida cuenta para el gasto.
+  const aplicadasAhora = [];
 
   // Se pregunta por la referencia, no por la operacion: da igual si la vez
   // pasada se creo y esta vez tocaria sumar, si ya se aplico no se vuelve a
@@ -216,16 +349,38 @@ export async function cargarLote(referencias, opciones = {}) {
     guardarEstado(carpetaEstado, idLote, estado);
   };
 
+  // Las filas de preventa de una referencia se guardan junto con ella, no
+  // aparte: asi una referencia mixta (unas para stock y otras ya encargadas)
+  // queda completa o no queda, y nunca a medias.
+  const guardarPreventa = async (ref, prodId, equipo) => {
+    const pedidos = pedidosDePreventa(ref, prodId, equipo, basics);
+    if (!pedidos.length) return;
+    await api('pedidos', { method: 'POST', body: JSON.stringify(pedidos) });
+    resultado.preventa.push({
+      titulo: equipo,
+      unidades: pedidos.length,
+      cliente: pedidos[0].cliente,
+    });
+  };
+
   // 1. Sumar stock a las que ya existen.
   for (const ref of referencias.filter((r) => r.prodIdExistente)) {
     if (yaSeAplico(ref)) continue;
     alAvanzar({ tipo: 'sumando', titulo: ref.titulo });
     const actual = await api(`productos?id=eq.${ref.prodIdExistente}&select=tallas,equipo`);
+    const equipo = actual[0]?.equipo || ref.titulo;
     const tallas = sumarTallas(actual[0]?.tallas, ref.filas);
-    await api(`productos?id=eq.${ref.prodIdExistente}`, { method: 'PATCH', body: JSON.stringify({ tallas }) });
+
+    // Solo se escribe si de verdad hay unidades para stock: una referencia
+    // 100% preventa no debe tocar el inventario disponible.
+    if (ref.filas.some(esStock)) {
+      await api(`productos?id=eq.${ref.prodIdExistente}`, { method: 'PATCH', body: JSON.stringify({ tallas }) });
+      resultado.sumados.push({ titulo: equipo, prodId: ref.prodIdExistente, tallas });
+    }
+    await guardarPreventa(ref, ref.prodIdExistente, equipo);
 
     anotar(ref, 'sumada', ref.prodIdExistente);
-    resultado.sumados.push({ titulo: actual[0]?.equipo || ref.titulo, prodId: ref.prodIdExistente, tallas });
+    aplicadasAhora.push(ref);
   }
 
   // 2. Crear las nuevas. La tabla no genera el id: lo asigna el admin tomando
@@ -256,14 +411,26 @@ export async function cargarLote(referencias, opciones = {}) {
       imagenes,
     };
     const creado = await api('productos', { method: 'POST', body: JSON.stringify(producto) });
+    await guardarPreventa(ref, creado[0].id, producto.equipo);
 
     anotar(ref, 'creada', creado[0].id);
+    aplicadasAhora.push(ref);
     resultado.creados.push({
       titulo: producto.equipo,
       prodId: creado[0].id,
       tallas: producto.tallas,
       fotos: imagenes.length,
       avisoFotos,
+    });
+  }
+
+  // 3. El gasto de la compra, solo por lo que se escribio ahora.
+  if (aplicadasAhora.length) {
+    alAvanzar({ tipo: 'gasto', titulo: 'registrando la compra en finanzas' });
+    const unidades = unidadesPorDestino(aplicadasAhora);
+    resultado.gasto = await registrarGastoDeCompra(basics, {
+      ...unidades,
+      costoUsd: costoUsdDe(aplicadasAhora),
     });
   }
 

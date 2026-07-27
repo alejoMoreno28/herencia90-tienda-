@@ -142,13 +142,14 @@ function pintarRevision() {
   const total = pendientes.length;
   const revisar = pendientes.filter(hayQueRevisar).length;
   const unidades = pendientes.reduce((s, r) => s + r.unidades, 0);
+  const enPreventa = pendientes.reduce((s, r) => s + r.unidadesPreventa, 0);
   const nuevas = pendientes.filter((r) => !decisionDe(r).prodId).length;
 
   $('contadores').innerHTML = `
     <div class="cuenta"><strong>${total}</strong><span>referencias</span></div>
     <div class="cuenta"><strong>${unidades}</strong><span>unidades</span></div>
+    ${enPreventa ? `<div class="cuenta"><strong>${enPreventa}</strong><span>ya encargadas</span></div>` : ''}
     <div class="cuenta"><strong>${nuevas}</strong><span>productos nuevos</span></div>
-    <div class="cuenta"><strong>${total - nuevas}</strong><span>suman stock</span></div>
     <div class="cuenta"><strong style="color:${revisar ? '#8a6100' : '#1a7f37'}">${revisar}</strong><span>por revisar</span></div>`;
 
   const soloDudosas = $('soloDudosas').checked;
@@ -163,6 +164,13 @@ function pintarRevision() {
 
   $('listaReferencias').innerHTML = avisoPrevio + (aMostrar.map(pintarReferencia).join('')
     || '<div class="tarjeta centro tenue">Nada por revisar.</div>');
+
+  // El nombre sale del archivo y la TRM de la ultima que se uso, para no
+  // tener que escribirlas desde cero cada vez.
+  if (!$('loteNombre').value) {
+    $('loteNombre').value = (lote.nombreArchivo || '').replace(/\.xlsx$/i, '').trim();
+  }
+  if (!$('loteTrm').value) $('loteTrm').value = localStorage.getItem('h90-trm') || '';
 
   const btn = $('btnCargar');
   btn.disabled = total === 0;
@@ -185,6 +193,11 @@ function pintarReferencia(ref) {
         : '<span class="etiqueta ok">lista</span>';
 
   const tallas = ref.filas.map((f) => `${f.talla} x${f.cantidad}`).join(', ');
+  const destino = ref.unidadesPreventa
+    ? (ref.unidadesStock
+      ? `<span class="etiqueta pre">${ref.unidadesStock} stock + ${ref.unidadesPreventa} preventa</span>`
+      : `<span class="etiqueta pre">${ref.unidadesPreventa} de preventa</span>`)
+    : '';
 
   const fotoExcel = ref.tieneFotoExcel
     ? `<img src="/api/lote/${lote.id}/foto-excel/${ref.indice}" alt="foto del excel">`
@@ -229,9 +242,19 @@ function pintarReferencia(ref) {
       </select>
     </div>` : '';
 
+  // Las de preventa ya estan vendidas: hace falta saber a quien. Si se deja
+  // vacio queda "Pendiente por Asignar", igual que en el admin.
+  const cliente = ref.unidadesPreventa ? `
+    <div class="cliente">
+      <p><b>${ref.unidadesPreventa} unidad(es) ya encargadas.</b> ¿Para quién son?</p>
+      <input type="text" class="inpCliente" data-clave="${escapar(ref.clave)}"
+             value="${escapar(decisiones[ref.clave]?.cliente || '')}"
+             placeholder="Nombre del cliente (si lo dejas vacío queda pendiente por asignar)">
+    </div>` : '';
+
   return `
     <article class="ref ${clase}">
-      <div class="ref-cabeza"><h3>${escapar(ref.titulo)}</h3>${etiqueta}</div>
+      <div class="ref-cabeza"><h3>${escapar(ref.titulo)}</h3>${etiqueta}${destino}</div>
       <p class="ref-meta">${escapar(ref.tipo)} · ${escapar(tallas)} · ${ref.unidades} unidades
         ${ref.queries.length ? ` · buscó: ${escapar(ref.queries.join(' / '))}` : ''}</p>
       <div class="comparacion">
@@ -239,6 +262,7 @@ function pintarReferencia(ref) {
         <div class="candidatos">${candidatos}</div>
       </div>
       ${duplicado}
+      ${cliente}
     </article>`;
 }
 
@@ -248,6 +272,13 @@ function conectarEventos() {
       const clave = boton.dataset.clave;
       decisiones[clave] = { ...(decisiones[clave] || {}), albumIndex: Number(boton.dataset.album) };
       pintarRevision();
+    });
+  });
+  document.querySelectorAll('.inpCliente').forEach((inp) => {
+    // Sin redibujar: redibujar en cada tecla haria perder el foco.
+    inp.addEventListener('input', () => {
+      const clave = inp.dataset.clave;
+      decisiones[clave] = { ...(decisiones[clave] || {}), cliente: inp.value };
     });
   });
   document.querySelectorAll('.selDuplicado').forEach((sel) => {
@@ -262,7 +293,21 @@ function conectarEventos() {
 $('soloDudosas').addEventListener('change', () => pintarRevision());
 
 // ── Paso 4: confirmar ────────────────────────────────────────────────────
+function datosDelLote() {
+  const loteNombre = $('loteNombre').value.trim();
+  const trm = parseFloat($('loteTrm').value) || 0;
+  $('loteNombre').parentElement.classList.toggle('falta', !loteNombre);
+  $('loteTrm').parentElement.classList.toggle('falta', !(trm > 0));
+  if (!loteNombre || !(trm > 0)) {
+    alert('Faltan el nombre del lote y la TRM de compra. Sin eso no se puede registrar el gasto ni los pedidos.');
+    return null;
+  }
+  localStorage.setItem('h90-trm', String(trm));
+  return { loteNombre, trm };
+}
+
 $('btnCargar').addEventListener('click', async () => {
+  if (!datosDelLote()) return;
   const r = await fetch(`/api/lote/${idLote}/resumen`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -270,19 +315,23 @@ $('btnCargar').addEventListener('click', async () => {
   });
   const resumen = await r.json();
 
-  if (resumen.preventa?.length) {
-    $('resumenCarga').innerHTML = `<div class="error">
-      Este pedido tiene filas de <b>PREVENTA</b> (${resumen.preventa.map(escapar).join(', ')}).
-      Esas generan pedidos y movimientos de plata, así que van por el admin, no por aquí.</div>`;
-    $('btnConfirmar').disabled = true;
-  } else {
-    $('resumenCarga').innerHTML = `
-      <div class="linea"><span>Productos nuevos que se crean</span><b>${resumen.nuevos}</b></div>
-      <div class="linea"><span>Productos a los que se les suma stock</span><b>${resumen.existentes}</b></div>
-      <div class="linea"><span>Unidades en total</span><b>${resumen.unidades}</b></div>
-      ${resumen.yaAplicadas ? `<div class="linea"><span>Se saltan (ya cargadas antes)</span><b>${resumen.yaAplicadas}</b></div>` : ''}`;
-    $('btnConfirmar').disabled = false;
-  }
+  const gastoCop = Math.round(resumen.costoUsd * datosDelLote().trm);
+
+  $('resumenCarga').innerHTML = `
+    <div class="linea"><span>Productos nuevos que se crean</span><b>${resumen.nuevos}</b></div>
+    <div class="linea"><span>Productos a los que se les suma stock</span><b>${resumen.existentes}</b></div>
+    <div class="linea"><span>Unidades que entran al inventario</span><b>${resumen.unidadesStock}</b></div>
+    ${resumen.unidadesPreventa ? `
+      <div class="linea"><span>Unidades ya encargadas (van a pedidos)</span><b>${resumen.unidadesPreventa}</b></div>` : ''}
+    ${resumen.yaAplicadas ? `
+      <div class="linea"><span>Se saltan (ya cargadas antes)</span><b>${resumen.yaAplicadas}</b></div>` : ''}
+    <div class="linea"><span>Gasto de la compra que se registra</span>
+      <b>$${gastoCop.toLocaleString('es-CO')} <small style="font-weight:400">(US$${resumen.costoUsd})</small></b></div>
+    ${resumen.preventaSinCliente ? `<div class="aviso" style="margin-top:12px">
+      ${resumen.preventaSinCliente} unidad(es) de preventa quedan como
+      <b>"Pendiente por Asignar"</b> porque no les pusiste cliente. Puedes asignarlo
+      después desde el admin.</div>` : ''}`;
+  $('btnConfirmar').disabled = false;
   $('modalConfirmar').classList.remove('oculto');
 });
 
@@ -291,11 +340,14 @@ $('btnCancelar').addEventListener('click', () => $('modalConfirmar').classList.a
 $('btnConfirmar').addEventListener('click', async () => {
   $('modalConfirmar').classList.add('oculto');
   $('btnConfirmar').disabled = true;
-  await fetch(`/api/lote/${idLote}/cargar`, {
+  const basics = datosDelLote();
+  if (!basics) return;
+  const res = await fetch(`/api/lote/${idLote}/cargar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ decisiones }),
+    body: JSON.stringify({ decisiones, ...basics }),
   });
+  if (!res.ok) { mostrarError((await res.json()).error); return; }
   seguirLote();
 });
 
@@ -316,11 +368,16 @@ function pintarResultado() {
   const sinFotos = (r.creados || []).filter((c) => c.avisoFotos);
 
   $('detalleResultado').innerHTML = `
-    <div class="nota">No se tocó tu contabilidad: transacciones, pedidos, ventas y saldos quedaron igual.</div>
+    <div class="nota">Lo único que se registra en finanzas es el gasto de la compra.
+      No se toca ninguna venta, cobro ni saldo tuyo.</div>
     ${escritas ? `
       <div class="linea"><span>Productos creados</span><b>${(r.creados || []).length}</b></div>
       <div class="linea"><span>Productos con stock sumado</span><b>${(r.sumados || []).length}</b></div>
-      <div class="linea"><span>Unidades cargadas</span><b>${unidades}</b></div>` : ''}
+      <div class="linea"><span>Unidades cargadas</span><b>${unidades}</b></div>
+      ${(r.preventa || []).length ? `<div class="linea"><span>Camisetas ya encargadas registradas</span>
+        <b>${r.preventa.reduce((s, p) => s + p.unidades, 0)}</b></div>` : ''}
+      ${r.gasto ? `<div class="linea"><span>Gasto de la compra registrado</span>
+        <b>${r.gasto.montoAgregado.toLocaleString('es-CO')}</b></div>` : ''}` : ''}
     ${(r.saltados || []).length ? `<div class="aviso" style="margin-top:14px">
       <b>${r.saltados.length} referencia(s) ya estaban guardadas de una carga anterior</b>, así que
       se saltaron. Tu inventario no se duplicó.

@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { prepararReferencias, analizarReferencias } from '../lib/lote-analisis.mjs';
 import {
   traerProductos, cargarLote, resumirCarga, aplicarDecisiones,
-  referenciasConPreventa, leerEstado, resumenEstado, sumarTallas,
+  leerEstado, resumenEstado, sumarTallas,
 } from '../lib/lote-carga.mjs';
 import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
 
@@ -61,6 +61,11 @@ function loteParaLaPantalla(lote) {
       unidades: ref.filas.reduce((s, f) => s + (parseInt(f.cantidad, 10) || 0), 0),
       tallasQueQuedarian: sumarTallas(null, ref.filas),
       tieneFotoExcel: !!ref.fotoExcel,
+      cliente: ref.cliente || '',
+      unidadesStock: ref.filas.filter((f) => String(f.destino || '').toUpperCase() !== 'PREVENTA')
+        .reduce((s, f) => s + (parseInt(f.cantidad, 10) || 0), 0),
+      unidadesPreventa: ref.filas.filter((f) => String(f.destino || '').toUpperCase() === 'PREVENTA')
+        .reduce((s, f) => s + (parseInt(f.cantidad, 10) || 0), 0),
       yaAplicada: !!ref.yaAplicada,
       prodIdExistente: ref.prodIdExistente,
       candidatosDuplicados: ref.candidatosDuplicados || [],
@@ -105,6 +110,11 @@ async function correrAnalisis(lote) {
     lote.estado = 'error';
     lote.error = err.message;
   }
+}
+
+/** Pega en cada referencia el nombre de cliente que se escribio en pantalla. */
+function conClientes(referencias, decisiones = {}) {
+  return referencias.map((ref) => ({ ...ref, cliente: (decisiones[ref.clave] || {}).cliente || '' }));
 }
 
 export function crearRouterLoteStudio() {
@@ -175,14 +185,13 @@ export function crearRouterLoteStudio() {
   router.post('/api/lote/:id/resumen', (req, res) => {
     const lote = lotes.get(req.params.id);
     if (!lote) return res.status(404).json({ error: 'lote no encontrado' });
-    const todas = aplicarDecisiones(lote.referencias, req.body?.decisiones || {});
+    const todas = conClientes(aplicarDecisiones(lote.referencias, req.body?.decisiones || {}), req.body?.decisiones);
     // Las que ya se aplicaron no cuentan: el resumen debe decir lo que de
     // verdad va a pasar, no prometer trabajo que se va a saltar.
     const pendientes = todas.filter((r, i) => !lote.referencias[i].yaAplicada);
     res.json({
       ...resumirCarga(pendientes),
       yaAplicadas: todas.length - pendientes.length,
-      preventa: referenciasConPreventa(pendientes).map((r) => r.titulo),
     });
   });
 
@@ -191,7 +200,14 @@ export function crearRouterLoteStudio() {
     if (!lote) return res.status(404).json({ error: 'lote no encontrado' });
     if (lote.estado === 'cargando') return res.status(409).json({ error: 'ya se esta cargando' });
 
-    const referencias = aplicarDecisiones(lote.referencias, req.body?.decisiones || {});
+    const basics = {
+      loteNombre: String(req.body?.loteNombre || '').trim(),
+      trm: parseFloat(req.body?.trm) || 0,
+    };
+    if (!basics.loteNombre) return res.status(400).json({ error: 'falta el nombre del lote' });
+    if (!(basics.trm > 0)) return res.status(400).json({ error: 'falta la TRM de compra' });
+
+    const referencias = conClientes(aplicarDecisiones(lote.referencias, req.body?.decisiones || {}), req.body?.decisiones);
     lote.estado = 'cargando';
     lote.progreso = { hechas: 0, total: referencias.length, actual: null };
     res.json({ ok: true });
@@ -201,6 +217,7 @@ export function crearRouterLoteStudio() {
       lote.resultado = await cargarLote(referencias, {
         carpetaEstado: CARPETA_ESTADO,
         idLote: lote.id,
+        basics,
         alAvanzar: (paso) => {
           lote.progreso = { hechas, total: referencias.length, actual: paso.titulo };
           if (paso.tipo !== 'saltado') hechas += 1;

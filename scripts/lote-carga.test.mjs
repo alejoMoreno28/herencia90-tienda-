@@ -11,7 +11,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { leerEstado, resumenEstado, sumarTallas, resumirCarga, aplicarDecisiones, referenciasConPreventa } from './lib/lote-carga.mjs';
+import {
+  leerEstado, resumenEstado, sumarTallas, resumirCarga, aplicarDecisiones,
+  referenciasConPreventa, unidadesPorDestino, costoUsdDe,
+} from './lib/lote-carga.mjs';
 
 function carpetaTemporal() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'lote-test-'));
@@ -76,12 +79,63 @@ test('el resumen del estado cuenta creadas y sumadas por separado', () => {
   fs.rmSync(carpeta, { recursive: true, force: true });
 });
 
-test('las filas de PREVENTA se detectan para no cargarlas por aqui', () => {
+test('las filas de PREVENTA se detectan', () => {
   const refs = [
     { titulo: 'A', filas: [{ talla: 'M', cantidad: 1, destino: 'STOCK' }] },
     { titulo: 'B', filas: [{ talla: 'L', cantidad: 1, destino: 'PREVENTA' }] },
   ];
   assert.deepEqual(referenciasConPreventa(refs).map((r) => r.titulo), ['B']);
+});
+
+test('las unidades de preventa NO entran al stock disponible', () => {
+  // Ya estan vendidas a un cliente: viven en `pedidos`, no en el inventario.
+  assert.deepEqual(
+    sumarTallas(null, [
+      { talla: 'M', cantidad: 1, destino: 'STOCK' },
+      { talla: 'L', cantidad: 5, destino: 'PREVENTA' },
+    ]),
+    { S: 0, M: 1, L: 0, XL: 0 },
+  );
+});
+
+test('una referencia mixta suma solo su parte de stock', () => {
+  assert.deepEqual(
+    sumarTallas(null, [
+      { talla: 'L', cantidad: 2, destino: 'STOCK' },
+      { talla: 'L', cantidad: 3, destino: 'PREVENTA' },
+    ]),
+    { S: 0, M: 0, L: 2, XL: 0 },
+  );
+});
+
+test('las unidades se cuentan separadas por destino', () => {
+  const refs = [{
+    filas: [
+      { talla: 'M', cantidad: 1, destino: 'STOCK' },
+      { talla: 'L', cantidad: 3, destino: 'PREVENTA' },
+    ],
+  }];
+  assert.deepEqual(unidadesPorDestino(refs), { stock: 1, preventa: 3, total: 4 });
+});
+
+test('el costo del lote cuenta todas las unidades, tambien las de preventa', () => {
+  // La camiseta de preventa tambien se le paga al proveedor.
+  const refs = [{
+    costoUsd: 10,
+    filas: [
+      { talla: 'M', cantidad: 1, destino: 'STOCK' },
+      { talla: 'L', cantidad: 2, destino: 'PREVENTA' },
+    ],
+  }];
+  assert.equal(costoUsdDe(refs), 30);
+});
+
+test('el resumen avisa cuantas unidades de preventa quedan sin cliente', () => {
+  const refs = [
+    { clave: 'a', titulo: 'A', prodIdExistente: 1, cliente: 'Juan', filas: [{ talla: 'M', cantidad: 1, destino: 'PREVENTA' }] },
+    { clave: 'b', titulo: 'B', prodIdExistente: 2, cliente: '  ', filas: [{ talla: 'L', cantidad: 2, destino: 'PREVENTA' }] },
+  ];
+  assert.equal(resumirCarga(refs).preventaSinCliente, 2);
 });
 
 test('una decision manda la referencia a un producto que ya existe', () => {

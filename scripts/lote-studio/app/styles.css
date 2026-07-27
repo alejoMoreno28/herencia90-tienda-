@@ -137,3 +137,19 @@ h2 { font-size: 17px; margin: 0 0 12px; }
    no va a volver a escribirse. */
 .ref.ya { border-left-color: #9aa1ab; opacity: .62; }
 .etiqueta.ya { background: #eceef1; color: #4b5563; }
+
+/* Datos que el excel no trae y hay que escribir */
+.datos-lote { display: flex; gap: 24px; flex-wrap: wrap; }
+.datos-lote label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
+.datos-lote input { font: inherit; font-weight: 400; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--borde); min-width: 220px; }
+.datos-lote small { font-weight: 400; color: var(--tenue); font-size: 12px; }
+.datos-lote label.falta input { border-color: var(--rojo); background: #fff8f7; }
+
+/* Cliente de una referencia de preventa */
+.cliente {
+  margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+  background: #eef4ff; border: 1px solid #c9d9f5;
+}
+.cliente p { margin: 0 0 8px; font-size: 13px; }
+.cliente input { font: inherit; padding: 8px 11px; border-radius: 6px; border: 1px solid var(--borde); min-width: 280px; max-width: 100%; }
+.etiqueta.pre { background: #e6efff; color: #1e40af; }

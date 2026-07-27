@@ -40,6 +40,19 @@
       <button type="button" id="btnCargar" class="btn primario">Cargar al catálogo</button>
     </div>
   </div>
+
+  <div class="tarjeta datos-lote">
+    <label>
+      <span>Nombre del lote</span>
+      <input type="text" id="loteNombre" placeholder="PEDIDO6">
+      <small>Para identificarlo en tus pedidos y en el gasto de la compra.</small>
+    </label>
+    <label>
+      <span>TRM de compra</span>
+      <input type="number" id="loteTrm" step="0.01" placeholder="3425.95">
+      <small>El dólar al que pagaste este pedido.</small>
+    </label>
+  </div>
   <div id="listaReferencias"></div>
 </section>
 
@@ -48,7 +61,7 @@
   <div class="modal-caja">
     <h2>Antes de guardar</h2>
     <div id="resumenCarga"></div>
-    <p class="nota">No se toca tu contabilidad: nada de transacciones, pedidos, ventas ni saldos.</p>
+    <p class="nota">Lo único que se registra en finanzas es el gasto de la compra. No se toca ninguna venta, cobro ni saldo tuyo.</p>
     <div class="modal-botones">
       <button type="button" id="btnCancelar" class="btn">Cancelar</button>
       <button type="button" id="btnConfirmar" class="btn primario">Sí, cargar</button>
