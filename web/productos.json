@@ -510,8 +510,8 @@
     {
         "id": 28,
         "categoria": "Retro",
-        "equipo": "Camiseta Retro Brasil Local 2004 ",
-        "descripcion": "Versión retro de Brasil local 2004 ",
+        "equipo": "Camiseta Retro Brasil Local 2004",
+        "descripcion": "Camiseta retro local de Brasil 2004 en el clásico amarillo con detalles en verde. Llega estampada con el dorsal de Ronaldinho #10, en plena época de su mejor fútbol con la selección.",
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
@@ -590,7 +590,7 @@
     {
         "id": 32,
         "categoria": "Retro",
-        "equipo": "Camiseta Retro Colombia Visitante 1990 Roja ",
+        "equipo": "Camiseta Retro Colombia Visitante 1990 Roja",
         "descripcion": "Versión femenina de la camiseta retro de Colombia visitante 1990 en color rojo, con detalles amarillos y corte para mujer. Una alternativa diferente para quienes buscan una prenda retro colombiana fuera del amarillo tradicional.",
         "precio": 120000,
         "costo_usd": 15,
@@ -842,7 +842,7 @@
     {
         "id": 45,
         "categoria": "Women's Collection",
-        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla ",
+        "equipo": "Camiseta Colombia corta 2026 Mujer Amarilla",
         "descripcion": "Camiseta Colombia local 2026 versión mujer en amarillo, con detalles tricolor y corte femenino. Una referencia esencial para público femenino de selección Colombia.",
         "precio": 99000,
         "costo_usd": 11,
@@ -977,7 +977,7 @@
         "id": 52,
         "categoria": "Selecciones Nacionales",
         "equipo": "Camiseta Colombia 2026 Visitante Mujer Azul",
-        "descripcion": "Camiseta Colombia 2026 Visitante Mujer Azul version fan woman. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta visitante de la Selección Colombia 2026 en azul, versión mujer. Corte femenino, cómodo y con tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -994,8 +994,8 @@
     {
         "id": 53,
         "categoria": "Selecciones Nacionales",
-        "equipo": "Camiseta España 2026 Vsitante Mujer",
-        "descripcion": "Camiseta España 2026 Vsitante Mujer version fan woman. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "equipo": "Camiseta España 2026 Visitante Mujer",
+        "descripcion": "Camiseta visitante de la Selección de España 2026, versión mujer. Corte femenino, cómodo y con tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1013,8 +1013,8 @@
     {
         "id": 54,
         "categoria": "Selecciones Nacionales",
-        "equipo": "Camiseta Portugal Local 2026 ",
-        "descripcion": "Camiseta Portugal Local 26 version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "equipo": "Camiseta Portugal Local 2026",
+        "descripcion": "Camiseta local de la Selección de Portugal 2026 en el rojo tradicional. Corte cómodo y tela transpirable. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1033,7 +1033,7 @@
         "id": 55,
         "categoria": "Selecciones Nacionales",
         "equipo": "Camiseta Brasil 2026 Azul Visitante",
-        "descripcion": "Camiseta Brasil 2026 Azul Visitante version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta visitante de la Selección de Brasil 2026 en azul, la alternativa al clásico amarillo. Corte cómodo y tela transpirable. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1053,7 +1053,7 @@
         "id": 56,
         "categoria": "Selecciones Nacionales",
         "equipo": "Camiseta Francia Local 2026",
-        "descripcion": "Camiseta Francia Local 2026 version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local de la Selección de Francia 2026 en azul. Corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1090,7 +1090,7 @@
         "id": 58,
         "categoria": "Retro",
         "equipo": "Camiseta Manchester United 2007/08 Manga Larga Retro",
-        "descripcion": "Camiseta Manchester United 2007/08 Manga Larga Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "descripcion": "Camiseta retro local del Manchester United 2007/08 en rojo, la temporada del doblete de Premier y Champions. Manga larga.",
         "precio": 150000,
         "costo_usd": 18,
         "tallas": {
@@ -1112,7 +1112,7 @@
         "id": 59,
         "categoria": "Equipos Europeos",
         "equipo": "Camiseta Barcelona 26/27 Local",
-        "descripcion": "Camiseta Barcelona 2026/27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local del FC Barcelona temporada 2026/27 con las franjas azulgranas de siempre. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1130,8 +1130,8 @@
     {
         "id": 60,
         "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Real Madrid 26 /27 Local",
-        "descripcion": "Camiseta Real Madrid 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "equipo": "Camiseta Real Madrid 26/27 Local",
+        "descripcion": "Camiseta local del Real Madrid temporada 2026/27 en el blanco de siempre. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1150,7 +1150,7 @@
         "id": 61,
         "categoria": "Equipos Europeos",
         "equipo": "Camiseta Arsenal 26/27 Local",
-        "descripcion": "Camiseta Arsenal 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local del Arsenal temporada 2026/27 en rojo con mangas blancas. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1187,8 +1187,8 @@
     {
         "id": 63,
         "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Real Madrid 26 27 Local Version Player",
-        "descripcion": "Camiseta Real Madrid 26 27 Local Version Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "equipo": "Camiseta Real Madrid 26/27 Local Versión Player",
+        "descripcion": "Camiseta local del Real Madrid temporada 2026/27, versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1209,7 +1209,7 @@
         "id": 64,
         "categoria": "Nueva Coleccion",
         "equipo": "Camiseta 100 Años Blanca Mujer Version Player",
-        "descripcion": "Camiseta 100 Años Blanca Mujer Version Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta blanca de la edición 100 años, versión Player para mujer: corte más ajustado y tela más ligera. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1227,7 +1227,7 @@
         "id": 65,
         "categoria": "Retro",
         "equipo": "Camiseta AC Milan 2006 Visitante Retro",
-        "descripcion": "Camiseta AC Milan 2006 Visitante Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta retro visitante del AC Milan temporada 2006/07 en color blanco, con el escudo rossonero y el patrocinador Bwin. Manga corta, de la temporada en que el Milan volvió a levantar la Champions.",
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
@@ -1249,7 +1249,7 @@
         "id": 66,
         "categoria": "Retro",
         "equipo": "Camiseta Liverpool 1995-1996 Retro Verde Y Blanca",
-        "descripcion": "Camiseta Liverpool 1995-1996 Retro Verde Y Blanca version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta retro del Liverpool 1995/96 en verde y blanco a cuadros, uno de los diseños más recordados y distintos de los noventa. Manga corta, para quien busca una pieza que no se ve en todas partes.",
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
@@ -1271,7 +1271,7 @@
         "id": 67,
         "categoria": "Retro",
         "equipo": "Camiseta Francia 1998 Azúl Retro",
-        "descripcion": "Camiseta Francia 1998 Azúl Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro de Francia 1998 en azul, la del Mundial que se ganó en casa. Llega estampada con el dorsal de Zidane #10, el hombre de la final. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1293,7 +1293,7 @@
         "id": 68,
         "categoria": "Retro",
         "equipo": "Camiseta Brasil 1998 Amarilla Mundial Francia 98 Retro",
-        "descripcion": "Camiseta Brasil 1998 Amarilla Mundial Francia 98 Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro de Brasil 1998 en el amarillo de siempre, la del Mundial de Francia. Llega estampada con el dorsal de Ronaldo #9, en el torneo que lo consagró como el mejor del mundo. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1315,7 +1315,7 @@
         "id": 69,
         "categoria": "Retro",
         "equipo": "Camiseta Retro Argentina Local 2006",
-        "descripcion": "Camiseta Retro Argentina Local 2006 version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro local de Argentina 2006 con las franjas celestes y blancas. Llega estampada con el dorsal de Messi #19, el número que usó en su primer Mundial. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1332,7 +1332,7 @@
         "id": 70,
         "categoria": "Retro",
         "equipo": "Camiseta Manchester United 2007-2008 Local Manga Larga Cristiano Ronaldo Retro",
-        "descripcion": "Camiseta Manchester United 2007-2008 Local Manga Larga Cristiano Ronaldo Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "descripcion": "Camiseta retro local del Manchester United 2007/08 en rojo, la temporada en que el equipo ganó la Premier y la Champions. Manga larga y estampada con el dorsal de Cristiano Ronaldo #7.",
         "precio": 150000,
         "costo_usd": 18,
         "tallas": {
@@ -1354,7 +1354,7 @@
         "id": 71,
         "categoria": "Retro",
         "equipo": "Camiseta Retro Barcelona 2008-2009 Local Final Champions League",
-        "descripcion": "Camiseta Retro Barcelona 2008-2009 Local Final Champions League version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro local del FC Barcelona 2008/09, versión de la final de Champions, con las franjas azulgranas y el escudo de UNICEF. Llega estampada con el dorsal de Messi #10, del año del sextete. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1376,7 +1376,7 @@
         "id": 72,
         "categoria": "Retro",
         "equipo": "Camiseta Retro Barcelona 2005-2006 Local Final Champions League Manga Larga",
-        "descripcion": "Camiseta Retro Barcelona 2005-2006 Local Final Champions League Manga Larga version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Esta fila viene marcada como manga larga y se cotiza como adicional. Extras detectados: Dorsal / personalizacion + Manga larga.",
+        "descripcion": "Camiseta retro local del FC Barcelona 2005/06, versión de la final de Champions ganada en París. Manga larga y estampada con el dorsal de Ronaldinho #10, en su mejor momento como blaugrana.",
         "precio": 150000,
         "costo_usd": 18,
         "tallas": {
@@ -1398,7 +1398,7 @@
         "id": 73,
         "categoria": "Retro",
         "equipo": "Camiseta Santos FC 2012/2013 Local Retro",
-        "descripcion": "Camiseta Santos FC 2012/2013 Local Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro local del Santos 2012/13 en blanco con detalles negros. Llega estampada con el dorsal de Neymar Jr. #11, de sus últimos años en Brasil antes de dar el salto a Europa. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1420,7 +1420,7 @@
         "id": 74,
         "categoria": "Retro",
         "equipo": "Camiseta Real Madrid 2011-2012 Blanca Retro",
-        "descripcion": "Camiseta Real Madrid 2011-2012 Blanca Retro version retro. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Extras detectados: Dorsal / personalizacion.",
+        "descripcion": "Camiseta retro local del Real Madrid 2011/12 en blanco con detalles dorados y el patrocinador Bwin, la temporada del récord de 100 puntos en Liga. Llega estampada con el dorsal de Cristiano Ronaldo #7. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
         "tallas": {
@@ -1442,7 +1442,7 @@
         "id": 75,
         "categoria": "Equipos Europeos",
         "equipo": "Camiseta Barcelona 26 27 Local Fan",
-        "descripcion": "Camiseta Barcelona 26 27 Local Fan version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local del FC Barcelona temporada 2026/27, versión Fan, con las franjas azulgranas de siempre. Corte cómodo y tela transpirable para el día a día o para el partido. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1461,7 +1461,7 @@
         "id": 76,
         "categoria": "Equipos Europeos",
         "equipo": "Camiseta Real Madrid 26 27 Rosa",
-        "descripcion": "Camiseta Real Madrid 26 27 Rosa version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta del Real Madrid temporada 2026/27 en rosa, una de las alternativas más llamativas del año. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1480,7 +1480,7 @@
         "id": 77,
         "categoria": "Equipos Europeos",
         "equipo": "Camiseta Manchester United 26 27 Local",
-        "descripcion": "Camiseta Manchester United 26 27 Local version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local del Manchester United temporada 2026/27 en el rojo tradicional de Old Trafford. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1499,7 +1499,7 @@
         "id": 78,
         "categoria": "Nueva Coleccion",
         "equipo": "Camiseta Korea 27 27 Local Version Player",
-        "descripcion": "Camiseta Korea 27 27 Local Version Player version player. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local de la selección de Corea del Sur, versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1516,7 +1516,7 @@
         "id": 79,
         "categoria": "Nueva Coleccion",
         "equipo": "Camiseta City 26 27 Local Kit",
-        "descripcion": "Camiseta City 26 27 Local Kit version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "descripcion": "Camiseta local del Manchester City temporada 2026/27 en celeste, con el escudo del club. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {

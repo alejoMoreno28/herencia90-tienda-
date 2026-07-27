@@ -223,16 +223,43 @@
         return 'Nueva Coleccion';
     }
 
-    function buildDescription(name, type, extrasInfo) {
-        const readableType = String(type || '').trim().toUpperCase();
-        const typeText = readableType && readableType !== 'FAN' ? ` version ${readableType.toLowerCase()}` : ' version fan premium';
-        const sleeveText = extrasInfo.sleeve === 'Manga larga'
-            ? ' Esta fila viene marcada como manga larga y se cotiza como adicional.'
-            : ' Manga corta como base; manga larga puede cotizarse como adicional cuando aplique.';
-        const extrasText = extrasInfo.labels.length
-            ? ` Extras detectados: ${extrasInfo.label}.`
-            : ' Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.';
-        return `${name}${typeText}. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada.${sleeveText}${extrasText}`;
+    // Esta descripcion la LEE EL CLIENTE en la ficha del producto, asi que no
+    // puede llevar lenguaje interno. La version anterior hablaba de "carga
+    // manual aprobada", "extras detectados" y de cotizar adicionales, y eso
+    // estaba publicado en la tienda.
+    function buildDescription(name, type, extrasInfo, extrasText) {
+        const tipo = String(type || '').trim().toUpperCase();
+        const version = tipo === 'RETRO' ? 'Versión retro'
+            : tipo === 'PLAYER' ? 'Versión Player, de corte más ajustado y tela más ligera'
+                : 'Versión Fan, de corte cómodo y tela transpirable';
+
+        const partes = [`${name}. ${version}.`];
+
+        // El nombre y numero impresos son de lo primero que pregunta quien
+        // compra retro, asi que van en la descripcion cuando el pedido los trae.
+        const dorsal = extraerDorsal(extrasText);
+        if (dorsal) partes.push(`Llega estampada con el dorsal de ${dorsal}.`);
+        else if (extrasInfo.hasCustomization) partes.push('Incluye dorsal personalizado.');
+
+        if (extrasInfo.patchCount > 0) {
+            partes.push(`Incluye ${extrasInfo.patchCount} parche${extrasInfo.patchCount === 1 ? '' : 's'}.`);
+        }
+        partes.push(`${extrasInfo.sleeve}.`);
+        return partes.join(' ');
+    }
+
+    /** "NAME:RONALDINHO,NUMBER;10" -> "Ronaldinho #10" */
+    function extraerDorsal(extrasText) {
+        const texto = String(extrasText || '');
+        const nombre = texto.match(/NAME\s*[:;]\s*([^,;]+)/i);
+        const numero = texto.match(/NUMBER\s*[:;]\s*(\d+)/i);
+        if (!nombre) return '';
+        const limpio = nombre[1].trim().replace(/\s+/g, ' ');
+        if (!limpio) return '';
+        const capitalizado = limpio.split(' ')
+            .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+            .join(' ');
+        return numero ? `${capitalizado} #${numero[1]}` : capitalizado;
     }
 
     function getDestino(cols) {
@@ -294,7 +321,7 @@
         const extrasInfo = inferExtras(extrasVal, extraUsd, descVal);
         const generatedName = displayNameFromRaw(descVal, typeVal, extrasInfo);
         const generatedCategory = inferCategory(generatedName, typeVal);
-        const generatedDescription = buildDescription(generatedName, typeVal, extrasInfo);
+        const generatedDescription = buildDescription(generatedName, typeVal, extrasInfo, extrasVal);
         const duplicateCandidates = findProductCandidates(generatedName, products);
         const safeCandidate = chooseSafeCandidate(duplicateCandidates);
         const precioVenta = safeCandidate && safeCandidate.precio
