@@ -49,6 +49,14 @@
             .replace(/\br\.?\s*madrid\b/ig, 'Real Madrid');
     }
 
+    // Una temporada son dos años seguidos. Solo se expande cuando el segundo es
+    // el siguiente del primero, para no confundir con cualquier par de numeros.
+    function esTemporada(start, end) {
+        const a = parseInt(start, 10);
+        const b = parseInt(end, 10);
+        return b === a + 1 || (a === 99 && b === 0);
+    }
+
     function normalizeYearsForSearch(value) {
         return String(value || '')
             .replace(/\b(19|20)(\d{2})\s*[/-]\s*(\d{2})\b/g, (_, century, start, end) => {
@@ -56,7 +64,14 @@
             })
             .replace(/\b(\d{2})\s*[/-]\s*(\d{2})\b/g, (_, start, end) => {
                 return `${expandTwoDigitYear(start)} ${expandTwoDigitYear(end)}`;
-            });
+            })
+            // El excel escribe la temporada separada por espacio ("26 27") y el
+            // catalogo con barra ("26/27"). Sin esto no se reconocian como la
+            // misma camiseta y se creaba un producto repetido con el stock
+            // partido en dos. Paso con la Barcelona 26/27.
+            .replace(/\b(\d{2})\s+(\d{2})\b/g, (texto, start, end) => (esTemporada(start, end)
+                ? `${expandTwoDigitYear(start)} ${expandTwoDigitYear(end)}`
+                : texto));
     }
 
     function normalizeYearsForDisplay(value) {

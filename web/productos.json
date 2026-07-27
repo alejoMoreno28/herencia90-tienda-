@@ -1116,15 +1116,18 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 2,
-            "M": 1,
+            "L": 4,
+            "M": 2,
             "S": 0,
-            "XL": 0
+            "XL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332133017_31.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332134404_32.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332130117_33.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332130117_33.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-3.webp"
         ]
     },
     {
@@ -1248,7 +1251,7 @@
     {
         "id": 66,
         "categoria": "Retro",
-        "equipo": "Camiseta Liverpool 1995-1996 Retro Verde Y Blanca",
+        "equipo": "Camiseta Retro Liverpool 1995/96 Verde y Blanca",
         "descripcion": "Camiseta retro del Liverpool 1995/96 en verde y blanco a cuadros, uno de los diseños más recordados y distintos de los noventa. Manga corta, para quien busca una pieza que no se ve en todas partes.",
         "precio": 130000,
         "costo_usd": 15,
@@ -1270,7 +1273,7 @@
     {
         "id": 67,
         "categoria": "Retro",
-        "equipo": "Camiseta Francia 1998 Azúl Retro",
+        "equipo": "Camiseta Retro Francia 1998 Azul",
         "descripcion": "Camiseta retro de Francia 1998 en azul, la del Mundial que se ganó en casa. Llega estampada con el dorsal de Zidane #10, el hombre de la final. Manga corta.",
         "precio": 140000,
         "costo_usd": 18,
@@ -1439,28 +1442,9 @@
         ]
     },
     {
-        "id": 75,
-        "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Barcelona 26 27 Local Fan",
-        "descripcion": "Camiseta local del FC Barcelona temporada 2026/27, versión Fan, con las franjas azulgranas de siempre. Corte cómodo y tela transpirable para el día a día o para el partido. Manga corta.",
-        "precio": 99000,
-        "costo_usd": 11,
-        "tallas": {
-            "L": 2,
-            "M": 1,
-            "S": 0,
-            "XL": 1
-        },
-        "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-2.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-fan/1785103715909-3.webp"
-        ]
-    },
-    {
         "id": 76,
         "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Real Madrid 26 27 Rosa",
+        "equipo": "Camiseta Real Madrid 26/27 Rosa",
         "descripcion": "Camiseta del Real Madrid temporada 2026/27 en rosa, una de las alternativas más llamativas del año. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
@@ -1479,7 +1463,7 @@
     {
         "id": 77,
         "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Manchester United 26 27 Local",
+        "equipo": "Camiseta Manchester United 26/27 Local",
         "descripcion": "Camiseta local del Manchester United temporada 2026/27 en el rojo tradicional de Old Trafford. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
@@ -1498,7 +1482,7 @@
     {
         "id": 78,
         "categoria": "Nueva Coleccion",
-        "equipo": "Camiseta Korea 27 27 Local Version Player",
+        "equipo": "Camiseta Corea del Sur 26/27 Local Versión Player",
         "descripcion": "Camiseta local de la selección de Corea del Sur, versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
@@ -1515,7 +1499,7 @@
     {
         "id": 79,
         "categoria": "Nueva Coleccion",
-        "equipo": "Camiseta City 26 27 Local Kit",
+        "equipo": "Camiseta Manchester City 26/27 Local",
         "descripcion": "Camiseta local del Manchester City temporada 2026/27 en celeste, con el escudo del club. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,

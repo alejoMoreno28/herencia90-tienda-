@@ -154,21 +154,106 @@
     }
   ],
   "redirects": [
-    { "source": "/camisetas/colombia-100-anos-blanca", "destination": "/camisetas/camiseta-colombia-100-anos-blanca", "permanent": true },
-    { "source": "/camisetas/colombia-100-anos-negra", "destination": "/camisetas/camiseta-colombia-100-anos-negra", "permanent": true },
-    { "source": "/camisetas/colombia-azul-2026", "destination": "/camisetas/camiseta-colombia-visitante-2026-azul", "permanent": true },
-    { "source": "/camisetas/espana-26-blanca", "destination": "/camisetas/camiseta-espana-visitante-2026-blanca", "permanent": true },
-    { "source": "/camisetas/retro-brasil-2004-home", "destination": "/camisetas/camiseta-retro-brasil-local-2004", "permanent": true },
-    { "source": "/camisetas/camiseta-retro-brasil-local-2004-ronaldo", "destination": "/camisetas/camiseta-retro-brasil-local-2004", "permanent": true },
-    { "source": "/camisetas/retro-colombia-90-anos-amarilla", "destination": "/camisetas/camiseta-retro-colombia-local-1990-amarilla", "permanent": true },
-    { "source": "/camisetas/retro-woman-colombia-90-anos-roja", "destination": "/camisetas/camiseta-retro-colombia-visitante-1990-roja", "permanent": true },
-    { "source": "/camisetas/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization", "destination": "/camisetas/camiseta-retro-ac-milan-visitante-2008-09-ronaldinho-80", "permanent": true },
-    { "source": "/camisetas/roma-25-26-blanca", "destination": "/camisetas/camiseta-as-roma-visitante-2025-26-blanca", "permanent": true },
-    { "source": "/camisetas/camiseta-edicion-especial-portugal-26", "destination": "/camisetas/camiseta-portugal-edicion-especial-mundial-2026", "permanent": true },
-    { "source": "/camisetas/camiseta-local-alemania-26", "destination": "/camisetas/camiseta-alemania-mundial-2026", "permanent": true },
-    { "source": "/camisetas/camiseta-local-argentina-26", "destination": "/camisetas/camiseta-argentina-mundial-2026", "permanent": true },
-    { "source": "/camisetas/camiseta-local-brasil-26", "destination": "/camisetas/camiseta-brasil-mundial-2026", "permanent": true },
-    { "source": "/camisetas/arsenal-local-25-26", "destination": "/camisetas/camiseta-local-arsenal-25-26", "permanent": true }
+    {
+      "source": "/camisetas/colombia-100-anos-blanca",
+      "destination": "/camisetas/camiseta-colombia-100-anos-blanca",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/colombia-100-anos-negra",
+      "destination": "/camisetas/camiseta-colombia-100-anos-negra",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/colombia-azul-2026",
+      "destination": "/camisetas/camiseta-colombia-visitante-2026-azul",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/espana-26-blanca",
+      "destination": "/camisetas/camiseta-espana-visitante-2026-blanca",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/retro-brasil-2004-home",
+      "destination": "/camisetas/camiseta-retro-brasil-local-2004",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-retro-brasil-local-2004-ronaldo",
+      "destination": "/camisetas/camiseta-retro-brasil-local-2004",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/retro-colombia-90-anos-amarilla",
+      "destination": "/camisetas/camiseta-retro-colombia-local-1990-amarilla",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/retro-woman-colombia-90-anos-roja",
+      "destination": "/camisetas/camiseta-retro-colombia-visitante-1990-roja",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization",
+      "destination": "/camisetas/camiseta-retro-ac-milan-visitante-2008-09-ronaldinho-80",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/roma-25-26-blanca",
+      "destination": "/camisetas/camiseta-as-roma-visitante-2025-26-blanca",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-edicion-especial-portugal-26",
+      "destination": "/camisetas/camiseta-portugal-edicion-especial-mundial-2026",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-local-alemania-26",
+      "destination": "/camisetas/camiseta-alemania-mundial-2026",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-local-argentina-26",
+      "destination": "/camisetas/camiseta-argentina-mundial-2026",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-local-brasil-26",
+      "destination": "/camisetas/camiseta-brasil-mundial-2026",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/arsenal-local-25-26",
+      "destination": "/camisetas/camiseta-local-arsenal-25-26",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-liverpool-1995-1996-retro-verde-y-blanca",
+      "destination": "/camisetas/camiseta-retro-liverpool-1995-96-verde-y-blanca",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-francia-1998-azul-retro",
+      "destination": "/camisetas/camiseta-retro-francia-1998-azul",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-korea-27-27-local-version-player",
+      "destination": "/camisetas/camiseta-corea-del-sur-26-27-local-version-player",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-city-26-27-local-kit",
+      "destination": "/camisetas/camiseta-manchester-city-26-27-local",
+      "permanent": true
+    },
+    {
+      "source": "/camisetas/camiseta-barcelona-26-27-local-fan",
+      "destination": "/camisetas/camiseta-barcelona-26-27-local",
+      "permanent": true
+    }
   ],
   "rewrites": [
     {
