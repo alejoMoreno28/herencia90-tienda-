@@ -88,10 +88,12 @@ async function seguirLote() {
 
   if (lote.estado === 'error') { mostrarError(lote.error); return; }
 
-  if (lote.estado === 'leyendo' || lote.estado === 'buscando') {
-    $('tituloTrabajando').textContent = lote.estado === 'leyendo'
-      ? 'Leyendo el archivo y sacando las fotos…'
-      : 'Buscando las camisetas en el proveedor…';
+  if (['leyendo', 'comparando', 'buscando'].includes(lote.estado)) {
+    $('tituloTrabajando').textContent = {
+      leyendo: 'Leyendo el archivo y sacando las fotos…',
+      comparando: 'Revisando si ya las tienes en el catálogo…',
+      buscando: 'Buscando las camisetas en el proveedor…',
+    }[lote.estado];
     pintarProgreso();
     return setTimeout(seguirLote, 1200);
   }
@@ -217,29 +219,40 @@ function pintarReferencia(ref) {
     : `<div class="error">No se encontró en el proveedor.${ref.error ? ` (${escapar(ref.error)})` : ''}
        Se puede cargar igual y ponerle las fotos después desde el admin.</div>`;
 
-  // El desplegable de duplicado solo aparece cuando de verdad hay dudas: o el
-  // sistema encontro parecidos, o ya la habia emparejado sola.
+  // La decision de "¿ya la tienes?" se hace mirando fotos, no leyendo nombres.
+  // Un nombre parecido no prueba nada; dos fotos iguales si.
   const opciones = [];
   const vistos = new Set();
-  if (ref.prodIdExistente) {
-    opciones.push({ id: ref.prodIdExistente, texto: `producto que ya existe (id ${ref.prodIdExistente})` });
-    vistos.add(ref.prodIdExistente);
+  if (ref.prodIdExistente && !ref.candidatosDuplicados.some((c) => c.id === ref.prodIdExistente)) {
+    opciones.push({ id: ref.prodIdExistente, equipo: `producto id ${ref.prodIdExistente}`, foto: null });
   }
   ref.candidatosDuplicados.forEach((c) => {
     if (vistos.has(c.id)) return;
     vistos.add(c.id);
-    opciones.push({ id: c.id, texto: `${c.equipo} (id ${c.id})` });
+    opciones.push(c);
   });
 
   const duplicado = opciones.length ? `
     <div class="duplicado">
-      <p><b>¿Esta camiseta ya la tienes en el catálogo?</b>
-         Si es la misma se le suma el stock; si no, se crea aparte.</p>
-      <select data-clave="${escapar(ref.clave)}" class="selDuplicado">
-        <option value="">Es una referencia NUEVA</option>
-        ${opciones.map((o) => `<option value="${o.id}" ${d.prodId === o.id ? 'selected' : ''}>
-           Es la misma: ${escapar(o.texto)}</option>`).join('')}
-      </select>
+      <p><b>¿Esta camiseta ya la tienes?</b> Si es la misma se le suma el stock; si no, se crea aparte.${
+        ref.enlazadaPorFoto ? ` <span class="segura">La foto dice que sí, ${(ref.enlazadaPorFoto * 100).toFixed(0)}% igual.</span>` : ''
+      }</p>
+      <div class="opciones">
+        <button type="button" class="opcion ${!d.prodId ? 'elegida' : ''}"
+                data-clave="${escapar(ref.clave)}" data-prod="">
+          <div class="sinfoto">es NUEVA</div>
+          <figcaption><b>Crear aparte</b></figcaption>
+        </button>
+        ${opciones.map((o) => `
+          <button type="button" class="opcion ${d.prodId === o.id ? 'elegida' : ''}"
+                  data-clave="${escapar(ref.clave)}" data-prod="${o.id}">
+            ${o.foto ? `<img src="${escapar(o.foto)}" alt="" loading="lazy">` : '<div class="sinfoto">sin foto</div>'}
+            <figcaption>
+              ${o.origen === 'foto' ? `<b>${(o.score * 100).toFixed(0)}% igual</b><br>` : '<span class="pornombre">nombre parecido</span><br>'}
+              ${escapar(o.equipo)}
+            </figcaption>
+          </button>`).join('')}
+      </div>
     </div>` : '';
 
   // Las de preventa ya estan vendidas: hace falta saber a quien. Si se deja
@@ -281,10 +294,10 @@ function conectarEventos() {
       decisiones[clave] = { ...(decisiones[clave] || {}), cliente: inp.value };
     });
   });
-  document.querySelectorAll('.selDuplicado').forEach((sel) => {
-    sel.addEventListener('change', () => {
-      const clave = sel.dataset.clave;
-      decisiones[clave] = { ...(decisiones[clave] || {}), prodId: sel.value ? Number(sel.value) : null };
+  document.querySelectorAll('.opcion').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      const clave = boton.dataset.clave;
+      decisiones[clave] = { ...(decisiones[clave] || {}), prodId: boton.dataset.prod ? Number(boton.dataset.prod) : null };
       pintarRevision();
     });
   });

@@ -24,6 +24,9 @@ import {
   leerEstado, resumenEstado, sumarTallas,
 } from '../lib/lote-carga.mjs';
 import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
+import {
+  prepararCatalogoVisual, buscarParecidosVisuales, combinarCandidatos, esElMismoSeguro,
+} from '../lib/duplicados-visuales.mjs';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const RAIZ = path.resolve(AQUI, '..', '..');
@@ -71,7 +74,10 @@ function loteParaLaPantalla(lote) {
         .reduce((s, f) => s + (parseInt(f.cantidad, 10) || 0), 0),
       yaAplicada: !!ref.yaAplicada,
       prodIdExistente: ref.prodIdExistente,
-      candidatosDuplicados: ref.candidatosDuplicados || [],
+      candidatosDuplicados: (ref.candidatosDuplicados || []).map((c) => ({
+        ...c, foto: lote.fotoDeProducto?.get(c.id) || null,
+      })),
+      enlazadaPorFoto: ref.enlazadaPorFoto || null,
       decision: ref.decision,
       error: ref.error || null,
       queries: ref.queries || [],
@@ -91,8 +97,34 @@ async function correrAnalisis(lote) {
     lote.estado = 'leyendo';
     const productos = await traerProductos();
     lote.productos = productos;
+    // La pantalla muestra la foto del producto del catalogo al lado de la del
+    // excel, para que decidir si son la misma sea mirar y no leer nombres.
+    lote.fotoDeProducto = new Map(productos.map((x) => [x.id, (x.imagenes || [])[0] || null]));
     lote.referencias = prepararReferencias(lote.buffer, productos);
     lote.progreso = { hechas: 0, total: lote.referencias.length, actual: null };
+
+    // Antes de buscar en el proveedor, se mira si la camiseta ya esta en el
+    // catalogo comparando fotos. Los nombres se escriben de mil formas; las
+    // fotos no mienten.
+    lote.estado = 'comparando';
+    const catalogoVisual = await prepararCatalogoVisual(productos, {
+      alAvanzar: ({ hechos, total }) => { lote.progreso = { hechas: hechos, total, actual: 'revisando el catalogo' }; },
+    });
+
+    let revisadas = 0;
+    for (const ref of lote.referencias) {
+      lote.progreso = { hechas: revisadas, total: lote.referencias.length, actual: ref.titulo };
+      const porFoto = await buscarParecidosVisuales(ref.fotoExcel?.buffer?.toString('base64'), catalogoVisual);
+      ref.candidatosDuplicados = combinarCandidatos(ref.candidatosDuplicados, porFoto);
+
+      // Si la foto no deja duda, se enlaza sola y una decision menos que tomar.
+      const seguro = esElMismoSeguro(ref.candidatosDuplicados);
+      if (seguro && !ref.prodIdExistente) {
+        ref.prodIdExistente = seguro.id;
+        ref.enlazadaPorFoto = seguro.score;
+      }
+      revisadas += 1;
+    }
 
     lote.estado = 'buscando';
     await analizarReferencias(lote.referencias, {

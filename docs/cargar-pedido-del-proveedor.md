@@ -338,7 +338,7 @@ haga daño en silencio.
 | Que una carga se corte a la mitad | Cada referencia se anota apenas se aplica. Al retomar, se salta sola. |
 | Que el excel venga con columnas movidas | Se revisa el encabezado antes de leer y se detiene con un mensaje claro. Sin esto el pedido entraba corrido sin avisar. |
 | Una fila con cantidad en cero | Se detiene y dice cual es. Antes creaba un producto con stock vacio. |
-| Crear repetido algo que ya esta en el catalogo | La deteccion de duplicados, que ya entiende "26 27" y "26/27" como la misma temporada. La pantalla pregunta cuando duda. |
+| Crear repetido algo que ya esta en el catalogo | Se compara la FOTO del excel contra las fotos del catalogo, no solo los nombres. Si el parecido es altisimo se enlaza sola; si hay dos parecidas, la pantalla las muestra para elegir. |
 | Que el robot o la GPU no esten | La pantalla lo muestra arriba en rojo antes de empezar. |
 | Que el proveedor no tenga la camiseta | Queda marcada como "no se encontro". Se puede cargar igual y ponerle fotos despues. |
 | Que la comparacion visual se equivoque | Sale marcada para revisar y se elige otra con un clic. |
@@ -348,8 +348,9 @@ haga daño en silencio.
 
 Lo que **sigue necesitando ojo humano**, a proposito:
 
-- Elegir entre dos camisetas muy parecidas del mismo equipo y temporada.
-- Decidir si una referencia es nueva o es una que ya esta en el catalogo.
+- Elegir entre dos camisetas muy parecidas del mismo equipo y temporada (tipico
+  entre la version Fan y la Player, que se ven casi identicas en foto).
+- Confirmar si una referencia es nueva cuando la foto no es concluyente.
 - Poner el nombre del cliente en las de preventa.
 - El nombre del lote y la TRM de compra.
 - Repasar las descripciones que quedaron con el texto basico.

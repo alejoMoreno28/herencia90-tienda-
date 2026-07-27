@@ -153,3 +153,19 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 .cliente p { margin: 0 0 8px; font-size: 13px; }
 .cliente input { font: inherit; padding: 8px 11px; border-radius: 6px; border: 1px solid var(--borde); min-width: 280px; max-width: 100%; }
 .etiqueta.pre { background: #e6efff; color: #1e40af; }
+
+/* Decidir "¿ya la tienes?" mirando fotos, no leyendo nombres */
+.duplicado .opciones { display: flex; gap: 10px; flex-wrap: wrap; }
+.opcion {
+  border: 2px solid var(--borde); border-radius: 10px; padding: 6px;
+  background: #fff; font: inherit; cursor: pointer; text-align: left; width: 118px;
+}
+.opcion.elegida { border-color: var(--verde); background: var(--verde-suave); }
+.opcion img, .opcion .sinfoto {
+  width: 104px; height: 104px; border-radius: 6px; display: block; object-fit: cover; background: #f0f0f0;
+}
+.opcion .sinfoto { display: grid; place-items: center; font-size: 11px; color: var(--tenue); text-align: center; }
+.opcion figcaption { font-size: 11px; margin-top: 5px; line-height: 1.3; color: var(--tenue); }
+.opcion figcaption b { color: var(--texto); }
+.pornombre { color: #8a6100; }
+.segura { color: var(--verde); font-weight: 600; }
