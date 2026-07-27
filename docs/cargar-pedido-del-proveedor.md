@@ -290,3 +290,36 @@ Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 - Dos productos quedaron con una sola foto (Argentina 2006 id 69, Korea id 78)
   porque esos albumes del proveedor solo tienen una.
 - El excel del PEDIDO5 dice "KOREA 27 27"; deberia ser 26 27.
+
+---
+
+## Al escribir titulos y descripciones
+
+Regla de oro: **el titulo lo pone quien tiene la camiseta en la mano.** No
+cambiarlo por deduccion. Si algo no cuadra, preguntar.
+
+Paso una vez: el titulo decia "Argentina Mundial 2026 Visitante" y se cambio a
+"Edicion Especial Campeones 2022" porque la foto mostraba el parche de campeon
+del mundo. Era al reves: Argentina gano en 2022 y por eso llega al Mundial 2026
+como campeona defensora, con ese parche puesto. La foto confirmaba el titulo.
+
+Y hay un limite de fondo: **el conocimiento del asistente tiene fecha de
+corte.** Sobre equipaciones de la temporada en curso puede estar
+desactualizado, aunque suene seguro.
+
+Que hacer entonces, en orden:
+
+1. **Lo que dice el excel y el proveedor manda.** El titulo del album en yupoo
+   trae la temporada y la variante (主场 local, 客场 visitante), y eso es dato
+   vivo, no memoria.
+2. **La foto sirve para lo verificable**: de que color es, que patrocinador
+   lleva, si dos productos son la misma camiseta. No sirve para decidir si una
+   camiseta es oficial ni de que temporada es.
+3. **Para lo reciente, buscar en internet antes de escribir.** Asi salio que la
+   suplente de Argentina 2026 esta inspirada en el fileteado porteño, un detalle
+   que vende y que no estaba en ninguna memoria.
+4. **Ante la duda, preguntar.** Un titulo cambiado por una suposicion rompe la
+   direccion de la pagina y desinforma al cliente.
+
+Para camisetas viejas (los retro de los 90 y 2000) el riesgo es bajo: esa
+historia no cambia. El riesgo esta en las temporadas recientes.
