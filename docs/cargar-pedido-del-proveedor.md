@@ -211,6 +211,22 @@ duplico el stock de 15. Ahora se anota **una entrada por referencia** y se
 consulta **antes** de decidir si crear o sumar. Hay pruebas en
 `scripts/lote-carga.test.mjs`.
 
+**Se creo un producto duplicado.** El excel escribe la temporada separada por
+espacio ("26 27") y el catalogo con barra ("26/27"), asi que al comparar
+nombres la Barcelona 26/27 del pedido nuevo no se reconocia como la que ya
+estaba y se creo aparte, con el stock partido entre dos fichas. Ahora tambien
+se entiende la forma con espacio.
+
+**Las descripciones llevaban lenguaje interno.** El texto que genera el admin
+al crear una referencia hablaba de "carga manual aprobada" y "extras
+detectados", y eso lo estaba leyendo el cliente en la ficha del producto. Ahora
+se escribe para quien compra, e incluye el dorsal impreso cuando el pedido lo
+trae.
+
+**El gasto de la compra no quedaba registrado.** El admin lo crea al guardar un
+lote; el cargador no lo hacia, asi que las camisetas entraban al catalogo pero
+lo que costaron no quedaba en las cuentas y el margen salia inflado.
+
 **Las formulas del excel estaban rotas.** El total de unidades se sumaba a si
 mismo y daba el doble: el PEDIDO5 decia 102 unidades cuando son 51. Ya esta
 arreglado en `scripts/crear-pedido.mjs`.
@@ -238,6 +254,9 @@ arreglado en `scripts/crear-pedido.mjs`.
 | `scripts/lib/lote-analisis.mjs` | excel a referencias listas para revisar |
 | `scripts/lib/lote-carga.mjs` | escritura al catalogo y proteccion de reintentos |
 | `scripts/lote-carga.test.mjs` | pruebas de esa proteccion |
+| `scripts/validar-lote-cargado.mjs` | compara un pedido cargado contra su excel |
+| `scripts/descripciones-catalogo.mjs` | descripciones escritas a mano |
+| `scripts/crear-excel-prueba.mjs` | arma un excel pequeño para probar el flujo |
 
 Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 `scripts/lib/yupoo-search.mjs`.
@@ -246,7 +265,14 @@ Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 
 ## Pendiente
 
-- **PEDIDO6** (6 unidades) sin cargar.
+- **PEDIDO6** (6 unidades) sin cargar. Es **todo preventa**: ninguna suma al
+  inventario disponible, todas van a `pedidos` esperando entrega.
+- **El id 57, "Camiseta Real Madrid Lfstlr"**, tiene un titulo que no se
+  entiende y sigue con la descripcion automatica vieja. Hay que preguntar que
+  camiseta es.
+- El gasto del PEDIDO5 se registro por los **US$767** que dice el excel. Si
+  Snake aplico el descuento por pasar de 50 unidades, serian US$716 y hay que
+  ajustarlo.
 - **Descuento por volumen**: el PEDIDO5 tiene 51 unidades, o sea paso de 50.
   Deberian ser 51 USD menos. Falta confirmarlo con Snake.
 - Dos productos quedaron con una sola foto (Argentina 2006 id 69, Korea id 78)
