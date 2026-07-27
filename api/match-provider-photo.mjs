@@ -61,12 +61,15 @@ function filterByGender(candidates, gender) {
 // La busqueda de yupoo es floja: al buscar "法国 1998" tambien devuelve
 // 1998摩洛哥主场 y 1998西班牙客场, que coinciden en el año pero son de otro
 // equipo. Si el titulo del album no nombra al equipo, no es esa camiseta.
-// Se deja como filtro suave (si no queda nada, se devuelve todo) por si algun
-// vendedor escribe el equipo distinto a como lo tenemos.
+//
+// A diferencia de los demas filtros, este NO deja pasar todo cuando no
+// encuentra nada: devuelve vacio. Si el proveedor no tiene ese equipo, es mejor
+// decir "no se encontro" que ofrecer otra camiseta cualquiera. Al buscar el
+// Chapecoense, que el proveedor no maneja, se acababa proponiendo una del
+// Olympiacos, y eso invita a elegir la equivocada.
 function filterByTeam(candidates, teamTerms) {
   if (!Array.isArray(teamTerms) || !teamTerms.length) return candidates;
-  const filtered = candidates.filter((c) => teamTerms.some((term) => c.title.includes(term)));
-  return filtered.length ? filtered : candidates;
+  return candidates.filter((c) => teamTerms.some((term) => c.title.includes(term)));
 }
 
 /**

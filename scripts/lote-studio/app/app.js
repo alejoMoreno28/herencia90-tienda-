@@ -216,7 +216,9 @@ function pintarReferencia(ref) {
                 <figcaption>${puntaje}${escapar(c.titulo)}</figcaption>
               </button>`;
     }).join('')
-    : `<div class="error">No se encontró en el proveedor.${ref.error ? ` (${escapar(ref.error)})` : ''}
+    : `<div class="error"><b>No se encontró en el proveedor.</b>
+       ${ref.motivoSinResultados ? `Motivo: ${escapar(ref.motivoSinResultados)}.` : ''}
+       ${ref.error ? `(${escapar(ref.error)})` : ''}
        Se puede cargar igual y ponerle las fotos después desde el admin.</div>`;
 
   // La decision de "¿ya la tienes?" se hace mirando fotos, no leyendo nombres.

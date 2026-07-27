@@ -34,6 +34,13 @@ export const TEAM_DICTIONARY = {
   'croacia':     { aliases: ['croacia', 'croatia'],                zh: ['克罗地亚'],      isClub: false },
   'uruguay':     { aliases: ['uruguay'],                           zh: ['乌拉圭'],        isClub: false },
   'usa':         { aliases: ['usa', 'estados unidos'],             zh: ['美国'],          isClub: false },
+  'belgica':     { aliases: ['belgica', 'belgium'],                zh: ['比利时'],        isClub: false },
+  'suiza':       { aliases: ['suiza', 'switzerland'],              zh: ['瑞士'],          isClub: false },
+  'marruecos':   { aliases: ['marruecos', 'morocco'],              zh: ['摩洛哥'],        isClub: false },
+  'nigeria':     { aliases: ['nigeria'],                           zh: ['尼日利亚'],      isClub: false },
+  'ecuador':     { aliases: ['ecuador'],                           zh: ['厄瓜多尔'],      isClub: false },
+  'peru':        { aliases: ['peru'],                              zh: ['秘鲁'],          isClub: false },
+  'chile':       { aliases: ['chile'],                             zh: ['智利'],          isClub: false },
 
   // --- Clubes europeos ---
   'real madrid': { aliases: ['real madrid', 'r madrid', 'r. madrid'], zh: ['皇马'],       isClub: true },       // VERIFICADO
@@ -44,7 +51,9 @@ export const TEAM_DICTIONARY = {
   'ac milan':    { aliases: ['ac milan', 'milan'],                 zh: ['AC米兰', 'AC'],  isClub: true },       // VERIFICADO
   'inter':       { aliases: ['inter', 'inter milan', 'inter de milan'], zh: ['国米'],     isClub: true },       // VERIFICADO (no 国际米兰)
   'liverpool':   { aliases: ['liverpool'],                         zh: ['利物浦'],        isClub: true },       // VERIFICADO
-  'manchester united': { aliases: ['manchester united', 'man united', 'man utd'], zh: ['曼联'], isClub: true }, // VERIFICADO
+  // "man ud" es como aparece en el excel, sin la T. Dependiamos de que Gemini
+  // lo adivinara, y el dia que fallo por cuota la camiseta se quedo sin buscar.
+  'manchester united': { aliases: ['manchester united', 'man united', 'man utd', 'man ud', 'manu'], zh: ['曼联', '红魔'], isClub: true }, // VERIFICADO
   // 'city' a secas: asi lo escribe el excel a veces. No choca con "manchester
   // city" porque gana el alias que aparezca antes en el texto, y ambos caen
   // en esta misma entrada.
@@ -65,6 +74,10 @@ export const TEAM_DICTIONARY = {
   'boca juniors': { aliases: ['boca juniors', 'boca'],             zh: ['博卡'],          isClub: true },
   'river plate':  { aliases: ['river plate', 'river'],             zh: ['河床'],          isClub: true },
   'santos':       { aliases: ['santos'],                           zh: ['桑托斯'],        isClub: true },
+  'chapecoense':  { aliases: ['chapecoense', 'chape'],             zh: ['沙佩科恩斯'],    isClub: true },
+  'flamengo':     { aliases: ['flamengo'],                         zh: ['弗拉门戈'],      isClub: true },
+  'palmeiras':    { aliases: ['palmeiras'],                        zh: ['帕尔梅拉斯'],    isClub: true },
+  'corinthians':  { aliases: ['corinthians'],                      zh: ['科林蒂安'],      isClub: true },
 };
 
 const TEAM_ENTRIES = Object.entries(TEAM_DICTIONARY);

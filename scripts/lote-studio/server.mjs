@@ -80,6 +80,7 @@ function loteParaLaPantalla(lote) {
       enlazadaPorFoto: ref.enlazadaPorFoto || null,
       decision: ref.decision,
       error: ref.error || null,
+      motivoSinResultados: ref.motivoSinResultados || null,
       queries: ref.queries || [],
       candidatos: (ref.ranking || []).map((c, i) => ({
         indice: i,
@@ -118,7 +119,7 @@ async function correrAnalisis(lote) {
       ref.candidatosDuplicados = combinarCandidatos(ref.candidatosDuplicados, porFoto);
 
       // Si la foto no deja duda, se enlaza sola y una decision menos que tomar.
-      const seguro = esElMismoSeguro(ref.candidatosDuplicados);
+      const seguro = esElMismoSeguro(ref.candidatosDuplicados, ref.titulo);
       if (seguro && !ref.prodIdExistente) {
         ref.prodIdExistente = seguro.id;
         ref.enlazadaPorFoto = seguro.score;

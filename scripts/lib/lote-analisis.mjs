@@ -174,6 +174,12 @@ export async function buscarReferencia(referencia, { maxCandidatos = 6 } = {}) {
 
   return {
     decision: data.decision || 'sin-resultados',
+    // Se guarda POR QUE no hubo resultados: no es lo mismo que no se reconozca
+    // el equipo (se arregla agregandolo al diccionario) a que el proveedor
+    // simplemente no tenga esa camiseta (toca buscarla a mano).
+    motivoSinResultados: data.decision === 'no-team-match'
+      ? 'no se reconoció el equipo en la descripción'
+      : (data.ranking || []).length ? null : 'el proveedor no tiene esta camiseta',
     queries: data.searchInfo?.queries || [],
     ranking: (data.ranking || []).map((r) => ({
       title: r.title,

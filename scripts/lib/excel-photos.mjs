@@ -160,12 +160,35 @@ export async function agruparFotosUnicas(fotos) {
  */
 export function asociarFotosAFilas(fotosUnicas, clavePorFila, desplazamientos = [-1, -2, 0]) {
   const porClave = new Map();
+
+  // Las referencias, en el orden en que aparecen en el excel.
+  const clavesEnOrden = [];
+  for (const clave of clavePorFila) {
+    if (clave != null && !clavesEnOrden.includes(clave)) clavesEnOrden.push(clave);
+  }
+
+  // Caso normal: hay una foto por referencia. Como las dos listas van en el
+  // mismo orden, se emparejan en orden y listo.
+  //
+  // Es mas fiable que mirar en que fila cae cada ancla. En un pedido corto las
+  // anclas se amontonan (en el PEDIDO6 dos caian en la misma fila y dos
+  // referencias quedaban sin foto), porque la imagen flota sobre la celda y su
+  // posicion depende del alto de cada fila.
+  if (fotosUnicas.length === clavesEnOrden.length) {
+    fotosUnicas.forEach((foto, i) => {
+      porClave.set(clavesEnOrden[i], { buffer: foto.buffer, ext: foto.ext, hash: foto.hash });
+    });
+    return porClave;
+  }
+
+  // Si no cuadran las cuentas (falta alguna foto, o sobra), se cae a mirar
+  // donde esta anclada cada una. Una referencia ya emparejada no se pisa.
   for (const foto of fotosUnicas) {
     const votos = new Map();
     for (const row of foto.rows) {
       for (const desp of desplazamientos) {
         const clave = clavePorFila[row + desp];
-        if (clave == null) continue;
+        if (clave == null || porClave.has(clave)) continue;
         // El primer desplazamiento de la lista es el mas probable, asi que
         // pesa mas. Los otros solo desempatan.
         const peso = desp === desplazamientos[0] ? 2 : 1;
@@ -174,7 +197,7 @@ export function asociarFotosAFilas(fotosUnicas, clavePorFila, desplazamientos = 
     }
     if (!votos.size) continue;
     const ganadora = [...votos.entries()].sort((a, b) => b[1] - a[1])[0][0];
-    if (!porClave.has(ganadora)) porClave.set(ganadora, { buffer: foto.buffer, ext: foto.ext, hash: foto.hash });
+    porClave.set(ganadora, { buffer: foto.buffer, ext: foto.ext, hash: foto.hash });
   }
   return porClave;
 }

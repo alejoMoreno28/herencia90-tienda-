@@ -57,10 +57,11 @@ export async function prepararCatalogoVisual(productos, { alAvanzar = () => {} }
  * Compara la foto del excel contra el catalogo y devuelve los productos que
  * mas se le parecen, de mayor a menor.
  *
- * @param umbral  por debajo de esto ni se menciona: son camisetas distintas y
- *                llenar la pantalla de parecidos flojos solo estorba.
+ * @param umbral  por debajo de esto ni se menciona. Es alto a proposito: casi
+ *                todas las fotos son una camiseta sobre fondo claro y se
+ *                parecen entre si aunque sean de equipos distintos.
  */
-export async function buscarParecidosVisuales(fotoExcelBase64, catalogoVisual, { umbral = 0.75, maximo = 4 } = {}) {
+export async function buscarParecidosVisuales(fotoExcelBase64, catalogoVisual, { umbral = 0.86, maximo = 4 } = {}) {
   if (!fotoExcelBase64 || !catalogoVisual.length) return [];
 
   const groups = catalogoVisual.map(({ producto, fotoBase64 }) => ({
@@ -114,17 +115,49 @@ export function combinarCandidatos(porNombre, porFoto) {
   });
 }
 
+const GENERICAS = new Set([
+  'camiseta', 'camisa', 'jersey', 'retro', 'local', 'visitante', 'tercera', 'version',
+  'player', 'fan', 'manga', 'larga', 'corta', 'edicion', 'especial', 'kit', 'mundial',
+  'temporada', 'final', 'champions', 'league', 'seleccion', 'blanca', 'blanco', 'negra',
+  'negro', 'azul', 'roja', 'rojo', 'verde', 'amarilla', 'amarillo', 'rosa', 'gris',
+]);
+
+const palabrasClave = (texto) => String(texto || '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  .split(/[^a-z0-9]+/)
+  .filter((p) => p.length > 2 && !GENERICAS.has(p));
+
+/** ¿Los dos nombres hablan del mismo equipo o temporada? */
+function compartenAlgo(a, b) {
+  const unas = new Set(palabrasClave(a));
+  return palabrasClave(b).some((p) => unas.has(p));
+}
+
 /**
- * Cuando el parecido visual es altisimo es la misma camiseta, sin discusion,
- * y no vale la pena hacer que alguien lo confirme.
+ * Decide si se puede dar por hecho que es la misma camiseta y enlazarla sola.
+ *
+ * Hacen falta DOS señales de acuerdo: que las fotos se parezcan mucho Y que los
+ * nombres compartan algo. Con una sola no alcanza.
+ *
+ * La foto sola no basta porque casi todas las fotos del catalogo son una
+ * camiseta colgada sobre fondo claro, asi que se parecen entre si aunque sean
+ * de equipos distintos: en el PEDIDO6 la Belgica visitante salio 91% parecida a
+ * una Real Madrid version Player. Si el umbral fuera solo visual, un dia
+ * enlazaria dos camisetas que no tienen nada que ver y mezclaria su stock.
+ *
+ * El nombre solo tampoco basta, que es lo que fallaba antes con "26 27" contra
+ * "26/27". Juntas, cada una tapa el hueco de la otra.
  */
-export function esElMismoSeguro(candidatos) {
+export function esElMismoSeguro(candidatos, tituloReferencia) {
   const mejor = (candidatos || [])[0];
   if (!mejor || mejor.origen !== 'foto') return null;
   if (mejor.score < 0.93) return null;
-  // Si hay otra casi igual de parecida, mejor que decida una persona: suelen
-  // ser la version local y la visitante del mismo equipo y temporada.
+
+  // Si hay otra casi igual de parecida, que decida una persona: suelen ser la
+  // version local y la visitante del mismo equipo y temporada.
   const segunda = candidatos[1];
   if (segunda && segunda.origen === 'foto' && mejor.score - segunda.score < 0.03) return null;
+
+  if (!compartenAlgo(tituloReferencia, mejor.equipo)) return null;
   return mejor;
 }
