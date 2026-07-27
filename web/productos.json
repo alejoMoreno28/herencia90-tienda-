@@ -327,7 +327,7 @@
     },
     {
         "id": 15,
-        "categoria": "Leyendas Clásicas",
+        "categoria": "Retro",
         "equipo": "Camiseta local Retro Manchester United 1998",
         "descripcion": "Camiseta retro del Manchester United temporada 1997-98, año del histórico doblete de Ferguson. El clásico rojo de Old Trafford con el escudo vintage y el diseño Sharp Electronics. Una joya para coleccionistas del fútbol inglés.",
         "precio": 130000,
@@ -861,7 +861,7 @@
         "id": 46,
         "categoria": "Retro",
         "equipo": "Camiseta Retro Adidas Colombia Originals Classic Edition",
-        "descripcion": "Revive la época dorada del fútbol con esta camiseta retro de Adidas, una pieza de colección que rinde homenaje a los diseños más icónicos de las décadas pasadas. Con el legendario logotipo del trébol y las clásicas tres rayas en las mangas, esta prenda captura la esencia del estilo vintage y la cultura urbana que definió una era inolvidable en el deporte rey.\n\nFabricada con un tejido técnico de alta calidad que combina poliéster y algodón, ofrece una suavidad excepcional y una gran durabilidad para el uso diario. Su corte clásico y holgado garantiza una comodidad óptima, ideal tanto para lucir en las gradas como para un look casual de inspiración retro.",
+        "descripcion": "Camiseta retro de la Selección Colombia por Adidas Originals, con el logo del trébol y las clásicas tres rayas en las mangas. Tejido suave que mezcla poliéster y algodón, y corte holgado cómodo para el día a día. Una pieza de estilo vintage, tanto para la tribuna como para la calle.",
         "precio": 130000,
         "costo_usd": 22,
         "tallas": {
@@ -1071,8 +1071,8 @@
     {
         "id": 57,
         "categoria": "Equipos Europeos",
-        "equipo": "Camiseta Real Madrid Lfstlr",
-        "descripcion": "Camiseta Real Madrid Lfstlr version fan premium. Referencia lista para catalogo Herencia 90 con fotos de proveedor o carga manual aprobada. Manga corta como base; manga larga puede cotizarse como adicional cuando aplique. Personalizacion, dorsales y parches se cotizan como adicionales cuando el cliente los pida.",
+        "equipo": "Camiseta Real Madrid Adidas Originals Negra",
+        "descripcion": "Camiseta Real Madrid x Adidas Originals en negro, con el logo del trébol, las tres rayas en las mangas y un monograma tono sobre tono. Más de calle que de cancha, para llevarla a diario. Manga corta.",
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
@@ -1171,8 +1171,8 @@
     {
         "id": 62,
         "categoria": "Selecciones Nacionales",
-        "equipo": "Camiseta Argentina Mundial 2026 Visitante",
-        "descripcion": "",
+        "equipo": "Camiseta Argentina Edición Especial Negra Campeones 2022",
+        "descripcion": "Camiseta edición especial de Argentina en negro con motivos azules, el escudo de la AFA con las tres estrellas y el parche de campeón del mundo 2022. Una pieza llamativa, distinta a las equipaciones de siempre. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1210,9 +1210,9 @@
     },
     {
         "id": 64,
-        "categoria": "Nueva Coleccion",
-        "equipo": "Camiseta 100 Años Blanca Mujer Version Player",
-        "descripcion": "Camiseta blanca de la edición 100 años, versión Player para mujer: corte más ajustado y tela más ligera. Manga corta.",
+        "categoria": "Women's Collection",
+        "equipo": "Camiseta Colombia 100 Años Blanca Mujer Versión Player",
+        "descripcion": "Camiseta conmemorativa de los 100 años de la Selección Colombia en blanco, con la franja tricolor al pecho y detalles dorados. Corte femenino en versión Player: más ajustado y con tela más ligera. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1481,7 +1481,7 @@
     },
     {
         "id": 78,
-        "categoria": "Nueva Coleccion",
+        "categoria": "Selecciones Nacionales",
         "equipo": "Camiseta Corea del Sur 26/27 Local Versión Player",
         "descripcion": "Camiseta local de la selección de Corea del Sur, versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
         "precio": 110000,
@@ -1498,7 +1498,7 @@
     },
     {
         "id": 79,
-        "categoria": "Nueva Coleccion",
+        "categoria": "Equipos Europeos",
         "equipo": "Camiseta Manchester City 26/27 Local",
         "descripcion": "Camiseta local del Manchester City temporada 2026/27 en celeste, con el escudo del club. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
         "precio": 99000,

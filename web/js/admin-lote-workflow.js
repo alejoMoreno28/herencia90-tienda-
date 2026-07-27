@@ -1,13 +1,19 @@
 (function () {
+    // Estas listas deciden la categoria del producto. Lo que no cae en ninguna
+    // termina en "Nueva Coleccion", que no le dice nada al cliente ni sirve para
+    // navegar el catalogo, asi que conviene mantenerlas al dia.
     const NATIONAL_TEAMS = [
-        'alemania', 'argentina', 'brasil', 'colombia', 'croacia', 'espana', 'francia',
-        'holanda', 'inglaterra', 'italia', 'portugal'
+        'alemania', 'argentina', 'brasil', 'colombia', 'corea', 'croacia', 'espana',
+        'estados unidos', 'francia', 'holanda', 'inglaterra', 'italia', 'japon',
+        'korea', 'mexico', 'paises bajos', 'portugal', 'uruguay'
     ];
     const SOUTH_AMERICAN_CLUBS = ['boca juniors', 'river plate', 'santos'];
     const EUROPEAN_CLUBS = [
         'ac milan', 'arsenal', 'barcelona', 'bayern munich', 'benfica', 'chelsea',
         'fiorentina', 'inter', 'juventus', 'liverpool', 'manchester city',
-        'manchester united', 'napoli', 'porto', 'psg', 'real madrid', 'roma'
+        'manchester united', 'napoli', 'porto', 'psg', 'real madrid', 'roma',
+        // "city" y "united" a secas: asi los escribe el excel a veces.
+        'city', 'united'
     ];
 
     function stripAccents(value) {
