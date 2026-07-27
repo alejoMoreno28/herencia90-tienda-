@@ -4,8 +4,8 @@ Guia del flujo automatizado que reemplaza el trabajo manual de buscar cada
 camiseta en yupoo, traducir el equipo al chino, bajar las fotos, quitarles el
 fondo en Canva y crearlas una por una en el admin.
 
-Ultima corrida real: **PEDIDO5, el 26 de julio de 2026** (15 referencias
-nuevas, 4 sumas de stock, 51 unidades).
+Ultima corrida real: **PEDIDO5, el 26 de julio de 2026** (14 referencias
+nuevas, 5 sumas de stock, 51 unidades).
 
 ---
 
@@ -154,12 +154,24 @@ que importa para SEO, salen de este generador.
 
 Hace exactamente lo mismo que el admin al guardar un lote:
 
-1. crea un producto por cada referencia nueva, con el stock en cero
-2. le **suma** a las tallas las unidades de cada fila del excel
+1. crea un producto por cada referencia nueva
+2. le **suma** al stock las unidades con destino STOCK
+3. crea un registro en `pedidos` por cada unidad de **PREVENTA**
+4. registra en `transacciones` el **gasto** de lo que costo el lote
 
-**No escribe en `transacciones` ni en `pedidos`.** Ventas, saldos, historial y
-margenes quedan intactos. Si el pedido trae filas de PREVENTA se niega a
-correr: esas generan pedidos y movimientos de plata, y van por el admin.
+Sobre la preventa: son unidades que ya estan vendidas a un cliente y solo hay
+que esperarlas para entregarlas. Por eso **no cuentan como inventario
+disponible** y viven en `pedidos`, no en las tallas del producto. Una misma
+referencia puede venir partida entre stock y preventa, y cada parte va a su
+sitio. El cliente se escribe en la pantalla; si se deja vacio queda "Pendiente
+por Asignar" y se le asigna despues desde el admin.
+
+Lo unico que **NO** hace es registrar cobros a clientes. Los de preventa no
+pagan al encargar, se les cobra al entregar, asi que cargar un pedido no genera
+ningun ingreso: ventas, abonos y saldos quedan intactos.
+
+Para el gasto hacen falta dos datos que el excel no trae, el **nombre del lote**
+y la **TRM de compra**, y la pantalla los pide antes de dejar cargar.
 
 ---
 
