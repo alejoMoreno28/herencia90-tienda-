@@ -38,16 +38,53 @@ export function claveDeReferencia(descripcion) {
   return String(descripcion || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+// El orden de las columnas esta fijo. Si alguien mueve una en el excel, todo
+// se lee corrido: las tallas quedan donde van las cantidades y el pedido entra
+// mal SIN dar error. Por eso se comprueba el encabezado antes de leer nada.
+const COLUMNAS_ESPERADAS = [
+  [1, 'SIZE'], [2, 'TYPE'], [3, 'DESCRIPTION'], [6, 'QTY'], [11, 'DESTINO'],
+];
+
+function revisarEncabezado(encabezado) {
+  const faltan = COLUMNAS_ESPERADAS.filter(([i, nombre]) => {
+    const celda = String(encabezado?.[i] || '').trim().toUpperCase();
+    return !celda.includes(nombre);
+  });
+  if (!faltan.length) return;
+  const detalle = faltan.map(([i, nombre]) => {
+    const hay = String(encabezado?.[i] || '(vacia)').trim();
+    return `en la columna ${String.fromCharCode(65 + i)} se esperaba "${nombre}" y dice "${hay}"`;
+  }).join('; ');
+  throw new Error(
+    `El excel no tiene el formato de siempre: ${detalle}. `
+    + 'Si se movieron columnas, el pedido se leeria mal sin avisar, asi que mejor se detiene aqui. '
+    + 'Genera el pedido con la plantilla de siempre (scripts/crear-pedido.mjs).',
+  );
+}
+
 /** Filas de datos del excel, recortadas a las columnas que usa el admin. */
 export function leerFilasDelExcel(buffer) {
   const wb = XLSX.read(buffer, { type: 'buffer' });
   const hoja = wb.Sheets.ORDER || wb.Sheets[wb.SheetNames[0]];
-  if (!hoja) throw new Error('el archivo no tiene una hoja ORDER');
+  if (!hoja) throw new Error('el archivo no tiene una hoja llamada ORDER');
   const filas = XLSX.utils.sheet_to_json(hoja, { header: 1, blankrows: false });
+  if (filas.length < 3) throw new Error('el archivo no tiene filas de pedido');
+  revisarEncabezado(filas[1]);
+
   const datos = filas.slice(2)
     .filter((fila) => fila[1] && fila[3])
     .map((fila) => fila.slice(1, 12).map((celda) => (celda == null ? '' : String(celda))));
   if (!datos.length) throw new Error('no se encontraron filas de pedido en el archivo');
+
+  // Una cantidad en cero o sin numero significa que la fila no aporta nada, y
+  // pasaria callada creando un producto con stock vacio.
+  const sinCantidad = datos.filter((c) => !(parseInt(c[5], 10) > 0));
+  if (sinCantidad.length) {
+    throw new Error(
+      `Hay ${sinCantidad.length} fila(s) sin cantidad valida en la columna QTY `
+      + `(por ejemplo "${sinCantidad[0][2]}"). Revisa el excel antes de cargar.`,
+    );
+  }
   return datos;
 }
 

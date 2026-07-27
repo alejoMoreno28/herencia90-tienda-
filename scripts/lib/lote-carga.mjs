@@ -20,6 +20,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { redactarFicha } from './ficha-producto.mjs';
 
 const ROBOT = process.env.ROBOT_URL || 'http://127.0.0.1:3001';
 
@@ -214,6 +215,52 @@ async function procesarFotos(referencia, maxFotos) {
 // Misma categoria que usa el usuario cuando registra la compra a mano.
 const CATEGORIA_COMPRA = 'Compra Inventario';
 
+/** "NAME:RONALDINHO,NUMBER;10" -> "Ronaldinho #10" */
+function dorsalDeExtras(extras) {
+  const nombre = String(extras || '').match(/NAME\s*[:;]\s*([^,;]+)/i);
+  if (!nombre) return null;
+  const limpio = nombre[1].trim().replace(/\s+/g, ' ');
+  if (!limpio) return null;
+  const numero = String(extras).match(/NUMBER\s*[:;]\s*(\d+)/i);
+  const capitalizado = limpio.split(' ')
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+  return numero ? `${capitalizado} #${numero[1]}` : capitalizado;
+}
+
+/**
+ * Redacta la ficha con la que sale el producto a la tienda. Se le pasa la foto
+ * que se acaba de publicar, que es la misma que va a ver el cliente.
+ */
+async function redactarFichaDeReferencia(ref, imagenes) {
+  const respaldo = {
+    titulo: ref.titulo,
+    descripcion: ref.descripcionCatalogo || '',
+    fuente: 'reglas',
+  };
+
+  let fotoBase64 = null;
+  if (imagenes.length) {
+    try {
+      const res = await fetch(imagenes[0]);
+      if (res.ok) fotoBase64 = Buffer.from(await res.arrayBuffer()).toString('base64');
+    } catch { /* sin foto se redacta igual, solo con los datos */ }
+  }
+
+  return redactarFicha({
+    descripcionExcel: ref.descripcion || ref.titulo,
+    tipo: ref.tipo,
+    manga: /manga\s*larga/i.test(`${ref.extras || ''} ${ref.titulo}`) ? 'Manga larga' : 'Manga corta',
+    dorsal: dorsalDeExtras(ref.extras),
+    tituloAlbum: ref.ranking?.[0]?.title || '',
+    tituloPorReglas: ref.titulo,
+    fotoBase64,
+    fotoMime: 'image/webp',
+  }, {
+    apiKey: process.env.GEMINI_API_KEY,
+    porReglas: respaldo.descripcion,
+  });
+}
+
 /**
  * Filas de preventa de una referencia, convertidas en registros de `pedidos`:
  * uno por unidad, igual que hace el admin.
@@ -400,11 +447,15 @@ export async function cargarLote(referencias, opciones = {}) {
       avisoFotos = err.message;
     }
 
+    // El titulo y la descripcion se redactan mirando la foto que se va a
+    // publicar. Si no se puede, quedan los que genero el admin por reglas.
+    const ficha = await redactarFichaDeReferencia(ref, imagenes);
+
     const producto = {
       id: siguienteId++,
       categoria: ref.categoria || 'Nueva Coleccion',
-      equipo: ref.titulo,
-      descripcion: ref.descripcionCatalogo || '',
+      equipo: ficha.titulo,
+      descripcion: ficha.descripcion,
       precio: ref.precio || 99000,
       costo_usd: ref.costoUsd || 0,
       tallas: sumarTallas(null, ref.filas),
@@ -421,6 +472,11 @@ export async function cargarLote(referencias, opciones = {}) {
       tallas: producto.tallas,
       fotos: imagenes.length,
       avisoFotos,
+      // De donde salio el texto de la ficha: 'modelo' si se redacto mirando la
+      // foto, 'reglas' si hubo que caer al automatico. Las de reglas conviene
+      // repasarlas.
+      fichaFuente: ficha.fuente,
+      avisoFicha: ficha.aviso || null,
     });
   }
 

@@ -27,7 +27,10 @@ import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const RAIZ = path.resolve(AQUI, '..', '..');
-const CARPETA_ESTADO = path.join(RAIZ, '.codex_tmp', 'lote-studio');
+// Va en el repo, no en una carpeta temporal: si este registro se pierde, volver
+// a cargar un pedido duplicaria el inventario sin avisar. Estando en git queda
+// respaldado. Ver lotes-cargados/LEEME.md.
+const CARPETA_ESTADO = path.join(RAIZ, 'lotes-cargados');
 
 // Los lotes viven en memoria mientras el robot este abierto. Lo que SI
 // sobrevive a un reinicio es el archivo de estado con lo que ya se escribio

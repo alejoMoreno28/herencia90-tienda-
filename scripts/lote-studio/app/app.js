@@ -384,6 +384,10 @@ function pintarResultado() {
       <details style="margin-top:8px"><summary style="cursor:pointer">ver cuáles</summary>
         <p style="margin:8px 0 0">${r.saltados.map((s) => escapar(s.titulo)).join(', ')}.</p>
       </details></div>` : ''}
+    ${(r.creados || []).filter((c) => c.fichaFuente === 'reglas').length ? `<div class="aviso" style="margin-top:14px">
+      A ${r.creados.filter((c) => c.fichaFuente === 'reglas').length} producto(s) no se les pudo escribir
+      la descripción automática y quedaron con el texto básico. Vale la pena repasarlos en el admin:
+      ${r.creados.filter((c) => c.fichaFuente === 'reglas').map((c) => escapar(c.titulo)).join(', ')}.</div>` : ''}
     ${sinFotos.length ? `<div class="aviso" style="margin-top:14px">
       Estas quedaron sin fotos y hay que ponérselas desde el admin:
       ${sinFotos.map((c) => escapar(c.titulo)).join(', ')}.</div>` : ''}

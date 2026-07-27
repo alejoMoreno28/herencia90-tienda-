@@ -105,7 +105,7 @@ async function main() {
   // exacto. Emparejar por parecido de nombre daba falsos positivos: confundia
   // referencias distintas del mismo equipo y reportaba tallas que no eran.
   const idLote = createHash('md5').update(fs.readFileSync(archivo)).digest('hex').slice(0, 12);
-  const aplicadas = leerEstado(path.join(process.cwd(), '.codex_tmp', 'lote-studio'), idLote).aplicadas;
+  const aplicadas = leerEstado(path.join(process.cwd(), 'lotes-cargados'), idLote).aplicadas;
   if (!Object.keys(aplicadas).length) {
     console.error('No hay registro de carga para este archivo, no se puede validar contra el excel.');
     process.exit(1);

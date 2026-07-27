@@ -1,0 +1,99 @@
+{
+ "aplicadas": {
+  "brasil 2004 local": {
+   "accion": "sumada",
+   "prodId": 28,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "ac milan 2006 visitante": {
+   "accion": "creada",
+   "prodId": 65,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta liverpool 1995-1996 retro verde y blanca": {
+   "accion": "creada",
+   "prodId": 66,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta francia 1998 azúl": {
+   "accion": "creada",
+   "prodId": 67,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta brasil 1998 amarilla mundial francia 98": {
+   "accion": "creada",
+   "prodId": 68,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta retro argentina local 2006": {
+   "accion": "creada",
+   "prodId": 69,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta manchester united 2007-2008 local manga larga cristiano ronaldo": {
+   "accion": "creada",
+   "prodId": 70,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "real madrid 1999 visitante": {
+   "accion": "sumada",
+   "prodId": 42,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta retro barcelona 2008-2009 local final champions league": {
+   "accion": "creada",
+   "prodId": 71,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta retro barcelona 2005-2006 local final champions league": {
+   "accion": "creada",
+   "prodId": 72,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "santos fc 2012/2013 local": {
+   "accion": "creada",
+   "prodId": 73,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "camiseta real madrid 2011-2012 blanca retro": {
+   "accion": "creada",
+   "prodId": 74,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "barcelona 26 27 local fan": {
+   "accion": "sumada",
+   "prodId": 59,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "real madrid 26 27 rosa": {
+   "accion": "creada",
+   "prodId": 76,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "arsenal 26 27 local": {
+   "accion": "sumada",
+   "prodId": 61,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "man ud 26 27 local": {
+   "accion": "creada",
+   "prodId": 77,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "real madrid 26 27": {
+   "accion": "sumada",
+   "prodId": 60,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "korea 27 27 local": {
+   "accion": "creada",
+   "prodId": 78,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  },
+  "city 26 27 local kit": {
+   "accion": "creada",
+   "prodId": 79,
+   "cuando": "2026-07-26T00:00:00.000Z"
+  }
+ }
+}

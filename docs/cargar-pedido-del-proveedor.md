@@ -323,3 +323,36 @@ Que hacer entonces, en orden:
 
 Para camisetas viejas (los retro de los 90 y 2000) el riesgo es bajo: esa
 historia no cambia. El riesgo esta en las temporadas recientes.
+
+---
+
+## Por donde se puede romper, y que lo protege
+
+Repaso de los puntos donde el flujo podria fallar y que hay puesto para que no
+haga daño en silencio.
+
+| Que puede pasar | Que lo protege |
+|---|---|
+| Cargar dos veces el mismo pedido | El registro en `lotes-cargados/`, que va en git. Salta lo ya escrito y la pantalla lo avisa. |
+| Que se pierda ese registro | Esta en git, no en una carpeta temporal. Antes vivia en `.codex_tmp/`, que se limpia. |
+| Que una carga se corte a la mitad | Cada referencia se anota apenas se aplica. Al retomar, se salta sola. |
+| Que el excel venga con columnas movidas | Se revisa el encabezado antes de leer y se detiene con un mensaje claro. Sin esto el pedido entraba corrido sin avisar. |
+| Una fila con cantidad en cero | Se detiene y dice cual es. Antes creaba un producto con stock vacio. |
+| Crear repetido algo que ya esta en el catalogo | La deteccion de duplicados, que ya entiende "26 27" y "26/27" como la misma temporada. La pantalla pregunta cuando duda. |
+| Que el robot o la GPU no esten | La pantalla lo muestra arriba en rojo antes de empezar. |
+| Que el proveedor no tenga la camiseta | Queda marcada como "no se encontro". Se puede cargar igual y ponerle fotos despues. |
+| Que la comparacion visual se equivoque | Sale marcada para revisar y se elige otra con un clic. |
+| Que el modelo escriba una descripcion inventada | Se valida antes de publicar: no puede cambiar el equipo ni la temporada, ni meter enlaces. Si no pasa, queda el texto por reglas. |
+| Que el modelo no responda | Reintenta con espera creciente. Si aun asi falla, texto por reglas y la pantalla dice a cuales repasar. |
+| Que se dañen las cuentas | La carga no toca ventas, cobros ni saldos. Solo agrega el gasto de la compra. Se comprueba con `snapshot-finanzas.mjs`. |
+
+Lo que **sigue necesitando ojo humano**, a proposito:
+
+- Elegir entre dos camisetas muy parecidas del mismo equipo y temporada.
+- Decidir si una referencia es nueva o es una que ya esta en el catalogo.
+- Poner el nombre del cliente en las de preventa.
+- El nombre del lote y la TRM de compra.
+- Repasar las descripciones que quedaron con el texto basico.
+
+Ninguna de esas se puede adivinar sin arriesgar el inventario o la ficha, asi
+que la pantalla las pregunta en vez de suponer.
