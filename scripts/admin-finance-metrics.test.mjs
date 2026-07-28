@@ -84,6 +84,46 @@ test('monthly series separates sales, cash movement, and realized profit', async
   assert.deepEqual(Array.from(metrics.monthly.netProfitRealized), [50000, 40000]);
 });
 
+test('partner cash withdrawals reduce physical cash without changing realized profit', async () => {
+  const { computeFinanceMetrics } = await loadAdminFinance();
+  const metrics = computeFinanceMetrics([
+    sale({ monto: 100000, costoUsd: 10, trm: 4000 })
+  ], {
+    globalTrm: 4000,
+    partnerMovements: [
+      partnerCash({ monto: 25000 }),
+      partnerProduct({ monto: 12000 })
+    ]
+  });
+
+  assert.equal(metrics.cashAvailableBeforePartnerWithdrawals, 100000);
+  assert.equal(metrics.partnerCashWithdrawals, 25000);
+  assert.equal(metrics.cashOutTotal, 25000);
+  assert.equal(metrics.cashAvailable, 75000);
+  assert.equal(metrics.netProfitRealized, 60000);
+});
+
+test('partner movements respect period filters and monthly cash series', async () => {
+  const { computeFinanceMetrics } = await loadAdminFinance();
+  const metrics = computeFinanceMetrics([
+    sale({ fecha: '2026-04-20', monto: 90000, costoUsd: 10, trm: 4000 }),
+    sale({ fecha: '2026-05-02', monto: 120000, costoUsd: 15, trm: 4000 })
+  ], {
+    globalTrm: 4000,
+    period: '2026-05',
+    partnerMovements: [
+      partnerCash({ fecha: '2026-04-30', monto: 10000 }),
+      partnerCash({ fecha: '2026-05-03', monto: 30000 }),
+      partnerCash({ fecha: '2026-05-04', monto: -5000, tipo: 'reversion' })
+    ]
+  });
+
+  assert.equal(metrics.partnerCashWithdrawals, 25000);
+  assert.equal(metrics.cashAvailable, 95000);
+  assert.deepEqual(Array.from(metrics.monthly.labels), ['2026-05']);
+  assert.deepEqual(Array.from(metrics.monthly.cashOut), [25000]);
+});
+
 function sale(overrides = {}) {
   return {
     tipo: 'ingreso',
@@ -113,5 +153,22 @@ function income(overrides = {}) {
     fecha: overrides.fecha || '2026-05-01',
     monto: overrides.monto ?? 10000,
     descripcion: 'Ingreso prueba'
+  };
+}
+
+function partnerCash(overrides = {}) {
+  return {
+    tipo: overrides.tipo || 'retiro_efectivo',
+    fecha: overrides.fecha || '2026-05-01',
+    efecto_caja_cop: overrides.monto ?? 10000
+  };
+}
+
+function partnerProduct(overrides = {}) {
+  return {
+    tipo: 'retiro_producto',
+    fecha: overrides.fecha || '2026-05-01',
+    efecto_caja_cop: 0,
+    valor_participacion_cop: overrides.monto ?? 10000
   };
 }

@@ -43,11 +43,17 @@
         const opts = options || {};
         const globalTrm = toNumber(opts.globalTrm);
         const scopedTransactions = filterByPeriod(Array.isArray(transactions) ? transactions : [], opts.period);
+        const scopedPartnerMovements = filterByPeriod(
+            Array.isArray(opts.partnerMovements) ? opts.partnerMovements : [],
+            opts.period
+        );
 
         const metrics = {
             cashInTotal: 0,
             cashOutTotal: 0,
             cashAvailable: 0,
+            cashAvailableBeforePartnerWithdrawals: 0,
+            partnerCashWithdrawals: 0,
             operatingCash: 0,
             investmentRecoveryBalance: 0,
             salesCash: 0,
@@ -104,6 +110,12 @@
             }
         });
 
+        metrics.cashAvailableBeforePartnerWithdrawals = metrics.cashInTotal - metrics.cashOutTotal;
+        metrics.partnerCashWithdrawals = scopedPartnerMovements.reduce(
+            (total, movement) => total + toNumber(movement.efecto_caja_cop),
+            0
+        );
+        metrics.cashOutTotal += metrics.partnerCashWithdrawals;
         metrics.cashAvailable = metrics.cashInTotal - metrics.cashOutTotal;
         metrics.operatingCash = metrics.cashInTotal - metrics.profitExpenses;
         metrics.investmentRecoveryBalance = metrics.operatingCash - metrics.inventoryPurchases;
@@ -116,24 +128,36 @@
         metrics.netMarginPct = metrics.salesRevenue ? (metrics.netProfitRealized / metrics.salesRevenue) * 100 : 0;
 
         if (opts.includeMonthly !== false) {
-            metrics.monthly = buildMonthlySeries(scopedTransactions, globalTrm);
+            metrics.monthly = buildMonthlySeries(scopedTransactions, globalTrm, scopedPartnerMovements);
         }
 
         return metrics;
     }
 
-    function buildMonthlySeries(transactions, globalTrm) {
+    function buildMonthlySeries(transactions, globalTrm, partnerMovements) {
         const groups = {};
+        const partnerGroups = {};
         transactions.forEach(transaction => {
             const month = getMonth(transaction.fecha);
             if (!groups[month]) groups[month] = [];
             groups[month].push(transaction);
         });
+        (partnerMovements || []).forEach(movement => {
+            const month = getMonth(movement.fecha);
+            if (!partnerGroups[month]) partnerGroups[month] = [];
+            partnerGroups[month].push(movement);
+        });
 
-        const labels = Object.keys(groups).filter(Boolean).sort();
+        const labels = Array.from(new Set([...Object.keys(groups), ...Object.keys(partnerGroups)]))
+            .filter(Boolean)
+            .sort();
         const series = { labels, salesRevenue: [], cashIn: [], cashOut: [], netProfitRealized: [] };
         labels.forEach(month => {
-            const metrics = computeFinanceMetrics(groups[month], { globalTrm, includeMonthly: false });
+            const metrics = computeFinanceMetrics(groups[month] || [], {
+                globalTrm,
+                includeMonthly: false,
+                partnerMovements: partnerGroups[month] || []
+            });
             series.salesRevenue.push(metrics.salesRevenue);
             series.cashIn.push(metrics.cashInTotal);
             series.cashOut.push(metrics.cashOutTotal);
