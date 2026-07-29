@@ -65,6 +65,9 @@
             if (movement.tipo === 'retiro_producto') {
                 partnerBalance.productWithdrawn += participation;
             }
+            if (movement.tipo === 'reversion' && toNumber(movement.efecto_caja_cop) === 0 && movement.producto_id) {
+                partnerBalance.productWithdrawn += participation;
+            }
         });
 
         Object.values(balances).forEach(partner => {

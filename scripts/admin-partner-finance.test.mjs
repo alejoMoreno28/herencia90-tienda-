@@ -99,6 +99,23 @@ test('signed reversals restore cash and partner balance without changing the app
   assert.equal(result.approvedCutsTotal, 1000000);
 });
 
+test('product reversals restore the displayed shirt total and partner balance', async () => {
+  const PartnerFinance = await loadPartnerFinance();
+  const result = PartnerFinance.computePartnerFinance({
+    operationalCash: 1000000,
+    creditCardDebt: 0,
+    cuts: [{ id: 13, estado: 'activo', monto_aprobado: 600000, monto_socio_1: 300000, monto_socio_2: 300000 }],
+    movements: [
+      { id: 20, socio_id: 1, tipo: 'retiro_producto', producto_id: 8, valor_participacion_cop: 50000, efecto_caja_cop: 0 },
+      { socio_id: 1, tipo: 'reversion', producto_id: 8, movimiento_revertido_id: 20, valor_participacion_cop: -50000, efecto_caja_cop: 0 }
+    ],
+    partners: twoPartners()
+  });
+
+  assert.equal(result.partnerBalances[1].productWithdrawn, 0);
+  assert.equal(result.partnerBalances[1].balance, 300000);
+});
+
 test('ignores annulled cuts and normalizes invalid numeric values', async () => {
   const PartnerFinance = await loadPartnerFinance();
   const result = PartnerFinance.computePartnerFinance({

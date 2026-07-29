@@ -29,10 +29,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-finance-metrics.js?v=1780613504326"></script>
+    <script src="js/admin-partner-finance.js?v=2026072801"></script>
+    <script src="js/admin-partner-ledger.js?v=2026072801"></script>
     <script src="js/admin-inventory-guard.js?v=1780613504326"></script>
     <script src="js/admin-lote-photo-review.js?v=1780613504326"></script>
     <script src="js/admin-lote-workflow.js?v=1780613504326"></script>
     <script src="js/admin-pedido-payments.js?v=1780786400000"></script>
+    <link rel="stylesheet" href="css/admin-partner-ledger.css?v=2026072801">
     <style>
         :root {
             --bg-color: #f6f4ef;
@@ -892,6 +895,8 @@
 
                 <div class="finance-alert" id="finance-alert" aria-live="polite"></div>
 
+                <div id="partner-ledger-root"></div>
+
                 <div class="finance-cards">
                     <div class="stat-card primary">
                         <h4>🏆 Ganancia neta realizada</h4>
@@ -998,7 +1003,6 @@
                                 <div class="movement-presets" aria-label="Acciones rápidas">
                                     <button type="button" class="movement-preset" data-preset="venta" onclick="setMovementPreset('venta')">Venta cobrada</button>
                                     <button type="button" class="movement-preset" data-preset="regalo" onclick="setMovementPreset('regalo')">Regalo / promo</button>
-                                    <button type="button" class="movement-preset" data-preset="retiro" onclick="setMovementPreset('retiro')">Retiro personal</button>
                                     <button type="button" class="movement-preset" data-preset="defectuoso" onclick="setMovementPreset('defectuoso')">Defectuosa</button>
                                     <button type="button" class="movement-preset" data-preset="compra_tarjeta" onclick="setMovementPreset('compra_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💳 Compra Tarjeta</button>
                                     <button type="button" class="movement-preset" data-preset="pago_tarjeta" onclick="setMovementPreset('pago_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💵 Pago a Tarjeta</button>
@@ -1735,6 +1739,7 @@
             renderInventory();
             calculateInventoryValuation();
             calcCOP();
+            if (window.AdminPartnerLedger) window.AdminPartnerLedger.render();
         }
 
         let productData = [];
@@ -1753,6 +1758,20 @@
                 if (trans) financeData.transacciones = trans;
 
                 renderInventory();
+                await window.AdminPartnerLedger.init({
+                    db,
+                    rootId: 'partner-ledger-root',
+                    getTransactions: () => financeData.transacciones || [],
+                    getProducts: () => productData || [],
+                    getTrm: () => GLOBAL_TRM,
+                    formatter,
+                    showToast,
+                    onChanged: () => {
+                        renderFinance();
+                        renderInventory();
+                        calculateInventoryValuation();
+                    }
+                });
                 renderFinance();
                 calculateInventoryValuation();
             } catch(e) { console.error(e); }
@@ -1775,12 +1794,6 @@
                 categoria: 'Regalo / Promoción',
                 monto: 0,
                 hint: 'Regalo o promo: no entra plata, pero la camiseta sale del inventario con trazabilidad.'
-            },
-            retiro: {
-                tipo: 'gasto',
-                categoria: 'Retiro Personal Socio',
-                monto: 0,
-                hint: 'Retiro personal: saca una camiseta del inventario sin mezclarla con ventas.'
             },
             defectuoso: {
                 tipo: 'gasto',
@@ -1964,6 +1977,11 @@
             e.preventDefault();
             const val = parseFloat(document.getElementById('t-monto').value);
             const categoryValue = document.getElementById('t-categoria').value;
+            if (categoryValue === 'Retiro Personal Socio') {
+                alert('Los retiros personales ahora se registran en Socios, al costo y con saldo individual.');
+                window.AdminPartnerLedger.openProductWithdrawal();
+                return;
+            }
             const isStockMovement = window.AdminInventoryGuard.isStockMovementCategory(categoryValue);
             const isSaleMovement = categoryValue.includes('Venta');
             if (!Number.isFinite(val) && (!isStockMovement || isSaleMovement)) {
@@ -2149,7 +2167,11 @@
             mesSelect.value = previousPeriod === 'all' || mesesStr.includes(previousPeriod) ? previousPeriod : 'all';
 
             const filtro = mesSelect.value;
-            const metrics = window.AdminFinance.computeFinanceMetrics(allTransactions, { globalTrm: GLOBAL_TRM, period: filtro });
+            const metrics = window.AdminFinance.computeFinanceMetrics(allTransactions, {
+                globalTrm: GLOBAL_TRM,
+                period: filtro,
+                partnerMovements: window.AdminPartnerLedger.getMovements()
+            });
             const periodTransactions = window.AdminFinance.filterByPeriod(allTransactions, filtro);
             const searchQuery = getTransactionSearchQuery();
             const visibleTransactions = searchQuery
@@ -2257,7 +2279,12 @@
             setText('stat-sales-count', `${metrics.salesCount} ventas`);
             setText('stat-gross-margin', `Margen bruto: ${formatPercent(metrics.grossMarginPct)}`);
             setText('stat-roi-detail', `Recuperado: ${formatPercent(roiPct)} · Inversión: ${formatter.format(metrics.inventoryPurchases)}.`);
-            setText('stat-cash-detail', 'Ventas cobradas - gastos operativos. No resta inventario ni utilidad contable.');
+            setText(
+                'stat-cash-detail',
+                metrics.partnerCashWithdrawals
+                    ? `Caja antes de socios: ${formatter.format(metrics.cashAvailableBeforePartnerWithdrawals)} · retiros socios: ${formatter.format(metrics.partnerCashWithdrawals)}.`
+                    : 'Ventas cobradas - gastos operativos. No resta inventario ni utilidad contable.'
+            );
             setText('finance-period-label', period === 'all' ? 'Todos los meses' : formatMonthLabel(period));
 
             const alertEl = document.getElementById('finance-alert');
