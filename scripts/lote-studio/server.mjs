@@ -27,6 +27,7 @@ import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
 import {
   prepararCatalogoVisual, buscarParecidosVisuales, combinarCandidatos, esElMismoSeguro,
 } from '../lib/duplicados-visuales.mjs';
+import { publicarCatalogo } from '../lib/publicar.mjs';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const RAIZ = path.resolve(AQUI, '..', '..');
@@ -359,6 +360,28 @@ export function crearRouterLoteStudio() {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  });
+
+  // ── Publicar en la pagina ───────────────────────────────────────────────
+  //
+  // Los productos se ven en la tienda apenas se guardan, pero las paginas
+  // estaticas que lee Google hay que regenerarlas y subirlas. Esto lo hacia la
+  // consola; aqui esta el mismo trabajo detras de un boton.
+
+  let publicando = null;
+
+  router.post('/api/publicar', (req, res) => {
+    if (publicando) return res.status(409).json({ error: 'ya se esta publicando' });
+    publicando = { estado: 'trabajando', paso: 'empezando…', pasos: [], mensaje: '' };
+    res.json({ ok: true });
+
+    publicarCatalogo({ alAvanzar: (paso) => { publicando.paso = paso; } })
+      .then((r) => { publicando = { estado: r.ok ? 'listo' : 'error', ...r }; })
+      .catch((e) => { publicando = { estado: 'error', ok: false, pasos: [], mensaje: e.message }; });
+  });
+
+  router.get('/api/publicar', (req, res) => {
+    res.json(publicando || { estado: 'quieto' });
   });
 
   return router;

@@ -190,3 +190,9 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 .buscar-otra { display: flex; gap: 10px; align-items: flex-end; margin: 14px 0 12px; flex-wrap: wrap; }
 .buscar-otra label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
 .buscar-otra input { font: inherit; font-weight: 400; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--borde); width: 380px; max-width: 100%; }
+
+
+/* Publicar */
+.publicar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.publicar p { margin: 4px 0 0; max-width: 640px; }
+#estadoPublicar:not(:empty) { margin-bottom: 16px; }

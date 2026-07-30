@@ -540,3 +540,42 @@ async function reemplazarFotos(id, candidato, boton) {
         del álbum ${escapar(d.album)}. Ya se ven en la tienda; para que entren en Google hay que publicar.</div>`
     : `<div class="error">${escapar(d.error)}</div>`;
 }
+
+
+// ── Publicar en la pagina ─────────────────────────────────────────────────
+//
+// La tienda ya lee los cambios de la base al instante. Esto regenera las
+// paginas estaticas y las sube, que es lo que necesita Google para verlas.
+
+$('btnPublicar').addEventListener('click', async () => {
+  $('btnPublicar').disabled = true;
+  $('estadoPublicar').innerHTML = '<div class="aviso">Publicando…</div>';
+  const r = await fetch('/api/publicar', { method: 'POST' });
+  if (!r.ok) {
+    const d = await r.json();
+    $('estadoPublicar').innerHTML = '<div class="error">' + escapar(d.error) + '</div>';
+    $('btnPublicar').disabled = false;
+    return;
+  }
+  seguirPublicacion();
+});
+
+async function seguirPublicacion() {
+  const r = await fetch('/api/publicar');
+  const d = await r.json();
+
+  if (d.estado === 'trabajando') {
+    $('estadoPublicar').innerHTML = '<div class="aviso">' + escapar(d.paso || 'trabajando…') + '</div>';
+    return setTimeout(seguirPublicacion, 1500);
+  }
+
+  const lista = (d.pasos || [])
+    .map((p) => '<div class="linea"><span>' + escapar(p.nombre) + '</span><b>'
+      + (p.ok ? '✓' : '✗') + (p.detalle ? ' <small style="font-weight:400">' + escapar(p.detalle) + '</small>' : '')
+      + '</b></div>').join('');
+
+  $('estadoPublicar').innerHTML = d.estado === 'listo'
+    ? '<div class="tarjeta"><div class="nota">' + escapar(d.mensaje) + '</div>' + lista + '</div>'
+    : '<div class="tarjeta"><div class="error">' + escapar(d.mensaje || 'algo falló') + '</div>' + lista + '</div>';
+  $('btnPublicar').disabled = false;
+}
