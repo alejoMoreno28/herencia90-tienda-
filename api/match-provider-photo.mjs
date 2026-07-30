@@ -7,7 +7,7 @@
  */
 'use strict';
 
-import { searchYupooAlbums, downloadAlbumPhotos, storesForType } from '../scripts/lib/yupoo-search.mjs';
+import { searchYupooAlbums, downloadAlbumPhotos, storesForTypeAndSeason } from '../scripts/lib/yupoo-search.mjs';
 import { buildQueriesWithGeminiFallback, COLOR_CHARS } from '../scripts/lib/team-translator.mjs';
 
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
@@ -124,7 +124,9 @@ export default async function handler(req, res) {
   // El proveedor separa el catalogo por seccion: la misma camiseta en version
   // fan, player o retro vive en tiendas distintas. Se elige donde buscar
   // segun el TYPE del excel. `store` sigue aceptandose para forzar una sola.
-  const stores = store ? [store] : storesForType(type);
+  // El año que diga la descripcion manda sobre el TYPE: una camiseta de hace
+  // varias temporadas esta en la seccion retro aunque el pedido diga FAN.
+  const stores = store ? [store] : storesForTypeAndSeason(type, description);
   if (!stores.length) {
     return res.status(400).json({ error: 'falta store o type' });
   }

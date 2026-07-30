@@ -47,6 +47,43 @@ export function storesForType(type) {
   return [...PROVIDER_STORES.RETRO, ...PROVIDER_STORES.FAN, ...PROVIDER_STORES.PLAYER];
 }
 
+/**
+ * Una camiseta de hace varias temporadas vive en la seccion retro del
+ * proveedor, aunque el pedido la marque como FAN o PLAYER: las tiendas de
+ * temporada solo manejan lo actual y lo del año pasado.
+ *
+ * Sin esto, al buscar la Liverpool 1995/96 en la tienda de fans salian
+ * candidatas de 25-26 y 26-27, porque ahi no existe nada mas viejo.
+ *
+ * @param anioActual se pasa desde afuera para poder probarlo con una fecha fija
+ */
+export function esDeTemporadaVieja(descripcion, anioActual = new Date().getFullYear()) {
+  const años = String(descripcion || '').match(/\b(?:19|20)\d{2}\b/g);
+  if (años && años.length) {
+    // El mas reciente que mencione manda: "mundial francia 98" en una del 2004
+    // no la vuelve del 98.
+    const masReciente = Math.max(...años.map((a) => parseInt(a, 10)));
+    return masReciente < anioActual - 1;
+  }
+  // Temporada corta al estilo del excel: "26 27", "25 26".
+  const corta = String(descripcion || '').match(/\b(\d{2})\s*[\s/-]\s*(\d{2})\b/);
+  if (corta) {
+    const cierre = parseInt(corta[2], 10);
+    const completo = (cierre >= 70 ? 1900 : 2000) + cierre;
+    return completo < anioActual - 1;
+  }
+  return false;
+}
+
+/**
+ * Igual que storesForType, pero mirando tambien de que año es la camiseta.
+ * Lo viejo se busca en retro sin importar como venga marcado.
+ */
+export function storesForTypeAndSeason(type, descripcion, anioActual) {
+  if (esDeTemporadaVieja(descripcion, anioActual)) return PROVIDER_STORES.RETRO;
+  return storesForType(type);
+}
+
 async function fetchHtml(url) {
   const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);

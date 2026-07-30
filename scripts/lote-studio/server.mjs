@@ -291,18 +291,23 @@ export function crearRouterLoteStudio() {
     if (!producto) return res.status(404).json({ error: 'producto no encontrado' });
 
     // Sin foto de referencia: aqui la persona ya sabe cual quiere y elige
-    // viendo. El tipo sale del titulo, que es de donde se puede deducir.
+    // viendo. Puede afinar el texto desde la pantalla, porque el titulo del
+    // catalogo no siempre es el mejor termino para buscar en el proveedor.
     const titulo = producto.equipo;
-    const tipo = /player/i.test(titulo) ? 'PLAYER' : /retro/i.test(titulo) ? 'RETRO' : 'FAN';
+    const busqueda = String(req.body && req.body.busqueda || '').trim() || titulo;
+    const tipo = /player/i.test(busqueda) ? 'PLAYER' : /retro/i.test(busqueda) ? 'RETRO' : 'FAN';
     try {
       const r = await fetch(`http://127.0.0.1:3001/api/match-provider-photo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: tipo, description: req.body?.busqueda || titulo, maxCandidates: 8 }),
+        body: JSON.stringify({ type: tipo, description: busqueda, maxCandidates: 8 }),
       });
       const data = await r.json();
       buscadas.set(id, data.ranking || []);
       res.json({
+        tipo,
+        buscadoCon: busqueda,
+        tiendas: (data.searchInfo?.storesSearched || []).map((s) => s.replace('https://', '').split('.')[0]),
         queries: data.searchInfo?.queries || [],
         candidatos: (data.ranking || []).map((c, i) => ({
           indice: i, titulo: c.title, yupooUrl: c.yupooUrl, fotos: Math.min((c.photoUrls || []).length, 3),

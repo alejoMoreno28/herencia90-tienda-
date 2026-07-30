@@ -457,54 +457,86 @@ function debounce(fn, ms) {
 async function elegirProducto(id, productos) {
   productoElegido = productos.find((p) => p.id === id);
   $('resultadosProducto').innerHTML = '';
-  $('corregirDetalle').innerHTML = `
-    <h3 style="font-size:15px;margin:16px 0 4px">${escapar(productoElegido.equipo)}</h3>
-    <p class="tenue">Fotos que tiene ahora:</p>
-    <div class="actuales">${productoElegido.fotos.slice(0, 5).map((f) => `<img src="${escapar(f)}" alt="">`).join('')}</div>
-    <p class="tenue">Buscando las correctas en el proveedor…</p>`;
+  pintarCorreccion('');
+  buscarEnProveedor(id, productoElegido.equipo);
+}
 
+// El titulo del catalogo no siempre es el mejor termino para buscar en el
+// proveedor: puede traer palabras que confunden ("verde y blanca" hizo que
+// saliera el album equivocado). Por eso el texto se puede editar y volver a
+// buscar sin salir de aqui.
+function pintarCorreccion(cuerpo, busqueda) {
+  const texto = busqueda != null ? busqueda : productoElegido.equipo;
+  const actuales = productoElegido.fotos.slice(0, 5)
+    .map((f) => '<img src="' + escapar(f) + '" alt="">').join('');
+
+  $('corregirDetalle').innerHTML = `
+    <h3 class="titulo-prod">${escapar(productoElegido.equipo)}</h3>
+    <p class="tenue">Fotos que tiene ahora:</p>
+    <div class="actuales">${actuales}</div>
+    <div class="buscar-otra">
+      <label><span>Buscar en el proveedor con este texto</span>
+        <input type="text" id="textoBusqueda" value="${escapar(texto)}"></label>
+      <button type="button" id="btnBuscarOtra" class="btn">Buscar</button>
+    </div>
+    <div id="resultadoBusqueda">${cuerpo}</div>`;
+
+  $('btnBuscarOtra').addEventListener('click', () => {
+    buscarEnProveedor(productoElegido.id, $('textoBusqueda').value.trim());
+  });
+  $('textoBusqueda').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('btnBuscarOtra').click();
+  });
+}
+
+async function buscarEnProveedor(id, busqueda) {
+  $('resultadoBusqueda').innerHTML = '<p class="tenue">Buscando en el proveedor… tarda unos segundos.</p>';
   const r = await fetch(`/api/producto/${id}/buscar-fotos`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ busqueda }),
   });
   const d = await r.json();
-  if (!r.ok) { $('corregirDetalle').innerHTML = `<div class="error">${escapar(d.error)}</div>`; return; }
+  if (!r.ok) {
+    $('resultadoBusqueda').innerHTML = '<div class="error">' + escapar(d.error) + '</div>';
+    return;
+  }
 
   const tarjetas = d.candidatos.map((c) => {
     const fotos = Array.from({ length: c.fotos }, (_, i) =>
       `<img src="/api/producto/${id}/foto/${c.indice}/${i}" alt="" loading="lazy">`).join('');
     return `<button type="button" class="cand" data-cand="${c.indice}">
       <div class="tira">${fotos}</div>
-      <figcaption>${escapar(c.titulo)}<br><a href="${escapar(c.yupooUrl)}" target="_blank" rel="noopener">ver en el proveedor</a></figcaption>
+      <figcaption>${escapar(c.titulo)}<br>
+        <a href="${escapar(c.yupooUrl)}" target="_blank" rel="noopener">ver en el proveedor</a></figcaption>
     </button>`;
   }).join('');
 
-  $('corregirDetalle').innerHTML = `
-    <h3 style="font-size:15px;margin:16px 0 4px">${escapar(productoElegido.equipo)}</h3>
-    <p class="tenue">Fotos que tiene ahora:</p>
-    <div class="actuales">${productoElegido.fotos.slice(0, 5).map((f) => `<img src="${escapar(f)}" alt="">`).join('')}</div>
-    <p class="tenue" style="margin-top:14px">Buscó: ${escapar((d.queries || []).join(' / '))}.
-      Elige el álbum correcto y se reemplazan las fotos.</p>
-    <div class="candidatos">${tarjetas || '<div class="error">No se encontró nada en el proveedor.</div>'}</div>`;
+  const sinNada = '<div class="error">No se encontró nada con ese texto. '
+    + 'Prueba con menos palabras, por ejemplo solo el equipo y el año.</div>';
 
-  document.querySelectorAll('#corregirDetalle .cand').forEach((b) => {
+  $('resultadoBusqueda').innerHTML = `
+    <p class="tenue">Buscó <b>${escapar((d.queries || []).join(' / '))}</b> en la sección
+      <b>${escapar(d.tipo)}</b> (${escapar((d.tiendas || []).join(', '))}).
+      Elige el álbum correcto y se reemplazan las fotos.</p>
+    <div class="candidatos">${tarjetas || sinNada}</div>`;
+
+  document.querySelectorAll('#resultadoBusqueda .cand').forEach((b) => {
     b.addEventListener('click', () => reemplazarFotos(id, Number(b.dataset.cand), b));
   });
 }
 
 async function reemplazarFotos(id, candidato, boton) {
   boton.classList.add('elegido');
-  const aviso = document.createElement('p');
-  aviso.className = 'tenue';
-  aviso.textContent = 'Quitando fondos y subiendo… esto tarda un poco.';
-  $('corregirDetalle').appendChild(aviso);
+  $('resultadoBusqueda').insertAdjacentHTML('beforeend',
+    '<p class="tenue">Quitando fondos y subiendo… esto tarda un poco.</p>');
 
   const r = await fetch(`/api/producto/${id}/reemplazar-fotos`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidato }),
   });
   const d = await r.json();
-  $('corregirDetalle').innerHTML = r.ok
+  $('resultadoBusqueda').innerHTML = r.ok
     ? `<div class="nota"><b>Listo.</b> ${escapar(productoElegido.equipo)} quedó con ${d.fotos} fotos nuevas,
         del álbum ${escapar(d.album)}. Ya se ven en la tienda; para que entren en Google hay que publicar.</div>`
     : `<div class="error">${escapar(d.error)}</div>`;
-  $('buscarProducto').value = '';
 }
