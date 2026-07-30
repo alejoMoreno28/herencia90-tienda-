@@ -201,7 +201,10 @@ async function procesarFotos(referencia, maxFotos) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       store: ganador.store,
-      photoUrls: ganador.photoUrls.slice(0, maxFotos),
+      // Se mandan todas las del album: process-photo descarta las que no se
+      // pueden recortar y para cuando junte las buenas que se le pidieron.
+      photoUrls: ganador.photoUrls,
+      maxFotos,
       slugHint: referencia.titulo,
     }),
   });

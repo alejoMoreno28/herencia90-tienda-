@@ -42,7 +42,16 @@ async function removeBackground(rawBuffer) {
     body: JSON.stringify({ image_b64: rawBuffer.toString('base64') }),
   });
   if (!bgRes.ok) throw new Error(`servicio de fotos IA fallo: ${await bgRes.text()}`);
-  const { image_b64 } = await bgRes.json();
+  const { image_b64, recortada, motivo } = await bgRes.json();
+
+  // El servicio devuelve la foto original, sin tocar, cuando el recorte se iba
+  // a comer la prenda. Pasa con los primeros planos del escudo o la etiqueta:
+  // la tela llena el encuadre, no hay fondo que quitar, y el modelo termina
+  // recortando la camiseta y dejando el logo flotando. Esas fotos no sirven
+  // para el catalogo, asi que se descartan aqui.
+  if (recortada === false) {
+    throw new Error(motivo || 'el recorte de fondo no funciono en esta foto');
+  }
   return Buffer.from(image_b64, 'base64');
 }
 
@@ -67,7 +76,10 @@ async function buildCatalogAssets(noBgBuffer) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { store, photoUrls, slugHint } = req.body || {};
+  // maxFotos: cuantas BUENAS se quieren. Se recorren mas de las que se piden
+  // porque algunas se descartan al no poder quitarles el fondo, y sin esto el
+  // producto quedaba con dos o tres fotos.
+  const { store, photoUrls, slugHint, maxFotos = 6 } = req.body || {};
   if (!store || !Array.isArray(photoUrls) || !photoUrls.length) {
     return res.status(400).json({ error: 'faltan store o photoUrls[]' });
   }

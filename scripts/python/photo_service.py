@@ -35,6 +35,12 @@ app = Flask(__name__)
 
 GAP_THRESHOLD = 0.03
 
+# Por debajo de esta proporcion de pixeles opacos se considera que el recorte
+# de fondo se comio la prenda en vez de quitarle el fondo. Calibrado mirando
+# fotos reales del proveedor: una camiseta completa sobre fondo claro deja
+# entre 0.30 y 0.60, y un recorte fallido baja de 0.10.
+MIN_PROPORCION_RECORTE = 0.18
+
 print("Cargando modelos (una sola vez)...")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("  dispositivo CLIP:", device)
@@ -240,11 +246,46 @@ def remove_bg():
     # normalizar a RGBA valido (rembg ya devuelve PNG con alpha, esto solo
     # protege contra formatos raros de entrada)
     img = Image.open(io.BytesIO(output_bytes)).convert("RGBA")
+
+    # ── Comprobar que el recorte no se comio la prenda ────────────────────
+    #
+    # En las fotos de detalle (un primer plano del escudo, del cuello, de la
+    # etiqueta) la tela llena todo el encuadre y no hay fondo que quitar. El
+    # modelo entonces se confunde y recorta la tela, dejando flotando solo el
+    # logo o el escudo. Paso con la Barcelona 08/09: quedo el swoosh de Nike,
+    # el escudo y la palabra UNICEF sobre el vacio, sin camiseta.
+    #
+    # Se mide cuanto queda opaco. Si queda muy poco, el recorte se comio la
+    # prenda y se devuelve la foto original sin tocar: mejor una foto con
+    # fondo que una foto rota.
+    import numpy as np
+    alpha = np.asarray(img.getchannel("A"), dtype=np.float32) / 255.0
+    proporcion = float((alpha > 0.5).mean())
+
+    if proporcion < MIN_PROPORCION_RECORTE:
+        original = Image.open(io.BytesIO(raw)).convert("RGBA")
+        buf = io.BytesIO()
+        original.save(buf, "PNG")
+        return jsonify({
+            "image_b64": base64.b64encode(buf.getvalue()).decode("ascii"),
+            "width": original.width,
+            "height": original.height,
+            "recortada": False,
+            "proporcion": round(proporcion, 3),
+            "motivo": "el recorte se comia la prenda, se dejo la foto original",
+        })
+
     buf = io.BytesIO()
     img.save(buf, "PNG")
     out_b64 = base64.b64encode(buf.getvalue()).decode("ascii")
 
-    return jsonify({"image_b64": out_b64, "width": img.width, "height": img.height})
+    return jsonify({
+        "image_b64": out_b64,
+        "width": img.width,
+        "height": img.height,
+        "recortada": True,
+        "proporcion": round(proporcion, 3),
+    })
 
 
 if __name__ == "__main__":

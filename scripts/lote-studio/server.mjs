@@ -342,7 +342,9 @@ export function crearRouterLoteStudio() {
       const r = await fetch('http://127.0.0.1:3001/api/process-photo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ store: cand.store, photoUrls: (cand.photoUrls || []).slice(0, 6), slugHint: producto.equipo }),
+        // Se mandan todas: process-photo descarta las que no se pueden
+        // recortar y para cuando junte seis buenas.
+        body: JSON.stringify({ store: cand.store, photoUrls: cand.photoUrls || [], maxFotos: 6, slugHint: producto.equipo }),
       });
       if (!r.ok) throw new Error(`process-photo: ${r.status}`);
       const data = await r.json();
