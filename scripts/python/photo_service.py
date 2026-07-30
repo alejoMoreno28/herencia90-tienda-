@@ -191,21 +191,23 @@ def compare():
                 "photo_scores": photo_scores,
             })
 
+    # Manda CLIP y nada mas.
+    #
+    # Hubo un desempate por color aqui y se quito: no medi­a lo que parecia. Las
+    # fotos del excel son recortes con otras imagenes alrededor, asi que el
+    # histograma sale dominado por el fondo y no por la camiseta. Los valores
+    # que devolvia eran 0.7%, 0.9%, 1.5% y de golpe 73.8%: ruido, no una señal.
+    #
+    # Se habia agregado porque acerto una vez con la Real Madrid 2011-12 blanca,
+    # pero al medirlo con mas casos se vio que fue suerte, y de paso rompio la
+    # Liverpool 95/96, donde CLIP ya habia elegido bien la visitante.
+    #
+    # El color se sigue calculando y devolviendo porque sirve para revisar y
+    # decidir a ojo, pero no reordena nada.
     ranking.sort(key=lambda r: r["score"], reverse=True)
 
-    # Desempate por color. Solo entra cuando CLIP dejo a varios candidatos
-    # practicamente empatados: ahi su puntaje ya no distingue nada y el color
-    # si. Si CLIP separo bien, no se toca el orden.
-    if len(ranking) > 1:
-        techo = ranking[0]["score"]
-        empatados = [r for r in ranking if techo - r["score"] < GAP_THRESHOLD]
-        if len(empatados) > 1:
-            empatados.sort(key=lambda r: r.get("color", 0.0), reverse=True)
-            resto = [r for r in ranking if techo - r["score"] >= GAP_THRESHOLD]
-            ranking = empatados + resto
-
     gap = ranking[0]["score"] - ranking[1]["score"] if len(ranking) > 1 else 1.0
-    decision = "auto" if abs(gap) >= GAP_THRESHOLD else "confirm"
+    decision = "auto" if gap >= GAP_THRESHOLD else "confirm"
 
     return jsonify({
         "ranking": ranking,

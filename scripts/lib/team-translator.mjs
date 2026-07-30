@@ -142,11 +142,22 @@ export function extractSeasonPattern(description, isClub) {
   if (rangeMatch) {
     const startFull = rangeMatch[1];
     const endRaw = rangeMatch[2];
-    const endFull = endRaw.length === 2 ? startFull.slice(0, 2) + endRaw : endRaw;
+    // Cambio de siglo: "1999/00" es 1999-2000, no 1999-1900. Si el año de
+    // cierre en dos digitos es menor que el de apertura, es que se paso de
+    // siglo. Sin esto, todas las retro de fin de los noventa buscaban mal.
+    let endFull = endRaw;
+    if (endRaw.length === 2) {
+      const siglo = parseInt(startFull.slice(0, 2), 10);
+      const cruzaSiglo = parseInt(endRaw, 10) < parseInt(startFull.slice(2), 10);
+      endFull = String(cruzaSiglo ? siglo + 1 : siglo) + endRaw;
+    }
     const startShort = startFull.slice(2);
     const endShort = endFull.slice(2);
     return [
       `${startFull}-${endFull}`, `${startFull}/${endFull}`,
+      // "1995-96": año completo al abrir y dos digitos al cerrar. Es como lo
+      // escribe el proveedor en casi todos sus albumes retro, y faltaba.
+      `${startFull}-${endShort}`, `${startFull}/${endShort}`,
       `${startShort}-${endShort}`, `${startShort}/${endShort}`,
     ].join('|');
   }

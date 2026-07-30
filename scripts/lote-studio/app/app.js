@@ -72,6 +72,8 @@ async function subir(archivo) {
 function mostrarPaso(cual) {
   ['pasoSubir', 'pasoTrabajando', 'pasoRevisar', 'pasoResultado']
     .forEach((p) => $(p).classList.toggle('oculto', p !== cual));
+  // La caja de corregir solo estorba mientras se carga un pedido.
+  $('pasoSubir2').classList.toggle('oculto', cual !== 'pasoSubir');
 }
 
 function mostrarError(mensaje) {
@@ -418,3 +420,91 @@ function escapar(t) {
 
 comprobarRobot();
 setInterval(comprobarRobot, 15000);
+
+
+// ── Corregir las fotos de un producto que ya esta en la tienda ─────────────
+//
+// Pasa: una camiseta queda con las fotos de otra parecida y uno se da cuenta
+// despues, viendola en la pagina. Aqui se arregla sin tocar nada mas del
+// producto: el titulo, la descripcion y el stock quedan igual.
+
+let productoElegido = null;
+
+const buscarProducto = debounce(async () => {
+  const q = $('buscarProducto').value.trim();
+  if (q.length < 2) { $('resultadosProducto').innerHTML = ''; return; }
+  const r = await fetch(`/api/producto/buscar?q=${encodeURIComponent(q)}`);
+  const productos = await r.json();
+  $('resultadosProducto').innerHTML = productos.length
+    ? productos.map((p) => `
+      <button type="button" class="resultado-prod" data-id="${p.id}">
+        ${p.fotos[0] ? `<img src="${escapar(p.fotos[0])}" alt="">` : '<img alt="">'}
+        <span><b>${escapar(p.equipo)}</b><br><small>${escapar(p.categoria)} · ${p.fotos.length} fotos</small></span>
+      </button>`).join('')
+    : '<p class="tenue">Ninguna camiseta con ese nombre.</p>';
+  document.querySelectorAll('.resultado-prod').forEach((b) => {
+    b.addEventListener('click', () => elegirProducto(Number(b.dataset.id), productos));
+  });
+}, 350);
+
+$('buscarProducto').addEventListener('input', buscarProducto);
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+async function elegirProducto(id, productos) {
+  productoElegido = productos.find((p) => p.id === id);
+  $('resultadosProducto').innerHTML = '';
+  $('corregirDetalle').innerHTML = `
+    <h3 style="font-size:15px;margin:16px 0 4px">${escapar(productoElegido.equipo)}</h3>
+    <p class="tenue">Fotos que tiene ahora:</p>
+    <div class="actuales">${productoElegido.fotos.slice(0, 5).map((f) => `<img src="${escapar(f)}" alt="">`).join('')}</div>
+    <p class="tenue">Buscando las correctas en el proveedor…</p>`;
+
+  const r = await fetch(`/api/producto/${id}/buscar-fotos`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+  });
+  const d = await r.json();
+  if (!r.ok) { $('corregirDetalle').innerHTML = `<div class="error">${escapar(d.error)}</div>`; return; }
+
+  const tarjetas = d.candidatos.map((c) => {
+    const fotos = Array.from({ length: c.fotos }, (_, i) =>
+      `<img src="/api/producto/${id}/foto/${c.indice}/${i}" alt="" loading="lazy">`).join('');
+    return `<button type="button" class="cand" data-cand="${c.indice}">
+      <div class="tira">${fotos}</div>
+      <figcaption>${escapar(c.titulo)}<br><a href="${escapar(c.yupooUrl)}" target="_blank" rel="noopener">ver en el proveedor</a></figcaption>
+    </button>`;
+  }).join('');
+
+  $('corregirDetalle').innerHTML = `
+    <h3 style="font-size:15px;margin:16px 0 4px">${escapar(productoElegido.equipo)}</h3>
+    <p class="tenue">Fotos que tiene ahora:</p>
+    <div class="actuales">${productoElegido.fotos.slice(0, 5).map((f) => `<img src="${escapar(f)}" alt="">`).join('')}</div>
+    <p class="tenue" style="margin-top:14px">Buscó: ${escapar((d.queries || []).join(' / '))}.
+      Elige el álbum correcto y se reemplazan las fotos.</p>
+    <div class="candidatos">${tarjetas || '<div class="error">No se encontró nada en el proveedor.</div>'}</div>`;
+
+  document.querySelectorAll('#corregirDetalle .cand').forEach((b) => {
+    b.addEventListener('click', () => reemplazarFotos(id, Number(b.dataset.cand), b));
+  });
+}
+
+async function reemplazarFotos(id, candidato, boton) {
+  boton.classList.add('elegido');
+  const aviso = document.createElement('p');
+  aviso.className = 'tenue';
+  aviso.textContent = 'Quitando fondos y subiendo… esto tarda un poco.';
+  $('corregirDetalle').appendChild(aviso);
+
+  const r = await fetch(`/api/producto/${id}/reemplazar-fotos`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidato }),
+  });
+  const d = await r.json();
+  $('corregirDetalle').innerHTML = r.ok
+    ? `<div class="nota"><b>Listo.</b> ${escapar(productoElegido.equipo)} quedó con ${d.fotos} fotos nuevas,
+        del álbum ${escapar(d.album)}. Ya se ven en la tienda; para que entren en Google hay que publicar.</div>`
+    : `<div class="error">${escapar(d.error)}</div>`;
+  $('buscarProducto').value = '';
+}

@@ -266,6 +266,94 @@ export function crearRouterLoteStudio() {
     }
   });
 
+  // ── Corregir las fotos de un producto que ya esta en la tienda ──────────
+  //
+  // Pasa: una camiseta queda con las fotos de otra parecida y uno se da cuenta
+  // despues, viendola en la pagina. Sin esto tocaria rehacerla a mano.
+
+  const buscadas = new Map();
+
+  router.get('/api/producto/buscar', async (req, res) => {
+    const q = String(req.query.q || '').trim().toLowerCase();
+    if (q.length < 2) return res.json([]);
+    const productos = await traerProductos();
+    const normal = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    res.json(productos
+      .filter((p) => normal(p.equipo).includes(normal(q)))
+      .slice(0, 12)
+      .map((p) => ({ id: p.id, equipo: p.equipo, categoria: p.categoria, fotos: (p.imagenes || []) })));
+  });
+
+  router.post('/api/producto/:id/buscar-fotos', async (req, res) => {
+    const id = Number(req.params.id);
+    const productos = await traerProductos();
+    const producto = productos.find((p) => p.id === id);
+    if (!producto) return res.status(404).json({ error: 'producto no encontrado' });
+
+    // Sin foto de referencia: aqui la persona ya sabe cual quiere y elige
+    // viendo. El tipo sale del titulo, que es de donde se puede deducir.
+    const titulo = producto.equipo;
+    const tipo = /player/i.test(titulo) ? 'PLAYER' : /retro/i.test(titulo) ? 'RETRO' : 'FAN';
+    try {
+      const r = await fetch(`http://127.0.0.1:3001/api/match-provider-photo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: tipo, description: req.body?.busqueda || titulo, maxCandidates: 8 }),
+      });
+      const data = await r.json();
+      buscadas.set(id, data.ranking || []);
+      res.json({
+        queries: data.searchInfo?.queries || [],
+        candidatos: (data.ranking || []).map((c, i) => ({
+          indice: i, titulo: c.title, yupooUrl: c.yupooUrl, fotos: Math.min((c.photoUrls || []).length, 3),
+        })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.get('/api/producto/:id/foto/:cand/:foto', async (req, res) => {
+    const cand = (buscadas.get(Number(req.params.id)) || [])[Number(req.params.cand)];
+    const url = cand?.photoUrls?.[Number(req.params.foto)];
+    if (!url) return res.sendStatus(404);
+    try {
+      res.type('image/jpeg').send(await downloadYupooPhoto(url, cand.store));
+    } catch {
+      res.sendStatus(502);
+    }
+  });
+
+  router.post('/api/producto/:id/reemplazar-fotos', async (req, res) => {
+    const id = Number(req.params.id);
+    const cand = (buscadas.get(id) || [])[Number(req.body?.candidato)];
+    if (!cand) return res.status(400).json({ error: 'primero hay que buscar las fotos' });
+
+    const productos = await traerProductos();
+    const producto = productos.find((p) => p.id === id);
+    if (!producto) return res.status(404).json({ error: 'producto no encontrado' });
+
+    try {
+      const r = await fetch('http://127.0.0.1:3001/api/process-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ store: cand.store, photoUrls: (cand.photoUrls || []).slice(0, 6), slugHint: producto.equipo }),
+      });
+      if (!r.ok) throw new Error(`process-photo: ${r.status}`);
+      const data = await r.json();
+      const imagenes = (data.images || [])
+        .map((x) => (typeof x === 'string' ? x : x.url || x.publicUrl || '')).filter(Boolean);
+      if (!imagenes.length) throw new Error('no se pudo procesar ninguna foto');
+
+      // Las viejas no se borran: si la nueva eleccion tampoco era la correcta,
+      // se puede volver atras desde el admin.
+      await api(`productos?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ imagenes }) });
+      res.json({ ok: true, fotos: imagenes.length, album: cand.title, anteriores: (producto.imagenes || []).length });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return router;
 }
 

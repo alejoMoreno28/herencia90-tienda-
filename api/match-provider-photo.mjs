@@ -73,18 +73,22 @@ function filterByTeam(candidates, teamTerms) {
 }
 
 /**
- * Usa el color de la descripcion para descartar versiones del mismo equipo y
- * temporada. La comparacion visual sola se equivocaba aqui: para "brasil 1998
- * AMARILLA" elegia 1998巴西绿色 (la verde) por encima de la amarilla.
+ * Descarta los albumes que dicen ser de un color DISTINTO al que pide la
+ * descripcion. Para "brasil 1998 amarilla" se caen 1998巴西绿色 y 1998巴西白色,
+ * y queda el 主场, que es el amarillo.
  *
- * Primero se intenta quedarse con los albumes que nombran ese color. Si
- * ninguno lo nombra (el color de local no suele escribirse, va implicito en
- * 主场), al menos se botan los que nombran OTRO color.
+ * Ojo con lo que NO hace: no prefiere el album que lleve ese color en el
+ * nombre. Antes si lo hacia y salio mal con la Liverpool 95/96 "verde y
+ * blanca": el proveedor tiene un album llamado 绿色 (verde) que es otra
+ * camiseta, y la que se queria era la 客场, que resulta ser verde y blanca
+ * aunque no lo diga en el titulo. El color en el nombre del album marca una
+ * version aparte, no describe la camiseta.
+ *
+ * Con solo descartar, la comparacion visual sigue mandando entre las que
+ * quedan, que es lo que mejor funciona.
  */
 function filterByColor(candidates, color) {
   if (!color) return candidates;
-  const delColor = candidates.filter((c) => c.title.includes(color));
-  if (delColor.length) return delColor;
   const sinOtroColor = candidates.filter((c) => !COLOR_CHARS.some((otro) => otro !== color && c.title.includes(otro)));
   return sinOtroColor.length ? sinOtroColor : candidates;
 }

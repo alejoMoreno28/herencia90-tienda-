@@ -169,3 +169,19 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 .opcion figcaption b { color: var(--texto); }
 .pornombre { color: #8a6100; }
 .segura { color: var(--verde); font-weight: 600; }
+
+
+/* Corregir las fotos de un producto ya publicado */
+#corregir summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.corregir-cuerpo { padding-top: 14px; }
+.corregir-cuerpo label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
+.corregir-cuerpo input { font: inherit; font-weight: 400; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--borde); max-width: 420px; }
+.resultado-prod {
+  display: flex; align-items: center; gap: 10px; padding: 8px; margin-top: 8px;
+  border: 1px solid var(--borde); border-radius: 8px; background: #fff; cursor: pointer; width: 100%; text-align: left; font: inherit;
+}
+.resultado-prod:hover { border-color: var(--acento); }
+.resultado-prod img { width: 44px; height: 44px; object-fit: cover; border-radius: 5px; background: #eee; }
+.resultado-prod small { color: var(--tenue); }
+.actuales { display: flex; gap: 6px; margin: 10px 0; }
+.actuales img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; border: 2px solid var(--rojo); }
