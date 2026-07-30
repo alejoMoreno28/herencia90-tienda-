@@ -489,14 +489,36 @@ function pintarCorreccion(cuerpo, busqueda) {
   });
 }
 
+// Abrir un producto ya lanza una busqueda sola. Si uno cambia el texto y le da
+// a Buscar antes de que la primera vuelva, quedan dos en el aire y pintaba la
+// que terminara de ultima, que no tiene por que ser la que uno pidio de ultimo.
+// Con este numero solo pinta la mas reciente.
+let ultimaBusqueda = 0;
+
 async function buscarEnProveedor(id, busqueda) {
+  const mia = ++ultimaBusqueda;
+  $('btnBuscarOtra').disabled = true;
   $('resultadoBusqueda').innerHTML = '<p class="tenue">Buscando en el proveedor… tarda unos segundos.</p>';
-  const r = await fetch(`/api/producto/${id}/buscar-fotos`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ busqueda }),
-  });
-  const d = await r.json();
+
+  let r; let d;
+  try {
+    r = await fetch(`/api/producto/${id}/buscar-fotos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ busqueda }),
+    });
+    d = await r.json();
+  } catch (err) {
+    if (mia !== ultimaBusqueda) return;
+    $('btnBuscarOtra').disabled = false;
+    $('resultadoBusqueda').innerHTML = '<div class="error">Se cortó la conexión con el robot. '
+      + 'Revisa que la ventana del cargador siga abierta.</div>';
+    return;
+  }
+
+  if (mia !== ultimaBusqueda) return; // llego tarde, ya hay otra busqueda mandando
+  $('btnBuscarOtra').disabled = false;
+
   if (!r.ok) {
     $('resultadoBusqueda').innerHTML = '<div class="error">' + escapar(d.error) + '</div>';
     return;
