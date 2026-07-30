@@ -30,7 +30,21 @@ async function waitForPhotoService(maxWaitMs = 120000) {
     return false;
 }
 
-function startPhotoService() {
+/**
+ * Arranca el servicio de fotos, PERO solo si no hay uno ya escuchando.
+ *
+ * Cada instancia carga CLIP y BiRefNet en la tarjeta grafica y reserva 8 GB.
+ * Antes esto arrancaba uno nuevo sin mirar, asi que cada reinicio del robot
+ * dejaba otro Python vivo peleandose la GPU: con tres corriendo, la tarjeta
+ * quedo al 100% con 11.6 de 12.2 GB ocupados y quitarle el fondo a una sola
+ * foto pasaba de menos de un segundo a dos minutos.
+ */
+async function startPhotoService() {
+    if (await photoServiceResponde()) {
+        console.log('🧠 El servicio de IA de fotos ya estaba corriendo, se reutiliza.');
+        return null;
+    }
+
     console.log('🧠 Iniciando servicio de IA de fotos (quitar fondo + comparar)...');
     console.log(`   (usando: ${PYTHON_PATH})`);
     const child = spawn(PYTHON_PATH, [path.join('scripts', 'python', 'photo_service.py')], {
@@ -44,7 +58,23 @@ function startPhotoService() {
     child.on('exit', (code) => {
         console.warn(`⚠️ El servicio de fotos IA se cerró (codigo ${code}). Quitar fondo / comparar no funcionara hasta reiniciar el robot.`);
     });
+
+    // Y al cerrar el robot se lleva el suyo, para no dejarlo ocupando la GPU.
+    const matarlo = () => { if (!child.killed) child.kill(); };
+    process.on('exit', matarlo);
+    for (const señal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+        process.on(señal, () => { matarlo(); process.exit(0); });
+    }
     return child;
+}
+
+async function photoServiceResponde() {
+    try {
+        const r = await fetch(`http://127.0.0.1:${PHOTO_SERVICE_PORT}/health`, { signal: AbortSignal.timeout(2000) });
+        return r.ok;
+    } catch {
+        return false;
+    }
 }
 
 const app = express();
@@ -89,9 +119,10 @@ app.get('/health', async (req, res) => {
 
 const PORT = 3001;
 
-startPhotoService();
+const servicioDeFotos = startPhotoService();
 
 app.listen(PORT, async () => {
+    await servicioDeFotos;
     console.log('======================================================');
     console.log('✅ ROBOT DE FOTOS ESTÁ ACTIVO Y ESCUCHANDO');
     console.log('======================================================');

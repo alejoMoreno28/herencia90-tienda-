@@ -535,10 +535,20 @@ async function prepararFotos(id, candidato, boton) {
   $('resultadoBusqueda').insertAdjacentHTML('beforeend',
     '<p class="tenue">Quitando fondos y encuadrando… esto tarda un poco.</p>');
 
-  const r = await fetch(`/api/producto/${id}/preparar-fotos`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidato }),
-  });
-  const d = await r.json();
+  // Si la peticion se cae (el robot cerrado, la red), sin esto la pantalla se
+  // quedaba en "Quitando fondos…" para siempre y no habia forma de saber que
+  // ya no estaba pasando nada.
+  let r; let d;
+  try {
+    r = await fetch(`/api/producto/${id}/preparar-fotos`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidato }),
+    });
+    d = await r.json();
+  } catch (err) {
+    $('resultadoBusqueda').innerHTML = '<div class="error">Se cortó la conexión con el robot. '
+      + 'Revisa que la ventana del cargador siga abierta y vuelve a intentar.</div>';
+    return;
+  }
   if (!r.ok) {
     $('resultadoBusqueda').innerHTML = `<div class="error">${escapar(d.error)}</div>`;
     return;
