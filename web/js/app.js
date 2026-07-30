@@ -866,9 +866,15 @@ function toWebp(src) {
     return newSrc;
 }
 
+// En la grilla la foto se ve a 640, asi que se sirve la version de 640 y no la
+// de 1200: pesa entre la mitad y la cuarta parte. Antes las fotos de Supabase
+// se saltaban esto y cargaban la grande, que es la mayoria del catalogo.
+//
+// Si a alguna le faltara su version liviana, bindProductImageFallback cae sola
+// a la grande (data-full-src), asi que no se rompe nada.
 function toCardImage(src) {
     const webpSrc = toWebp(src);
-    if (!webpSrc || webpSrc.startsWith('http')) return webpSrc;
+    if (!webpSrc) return webpSrc;
     return webpSrc.replace(/\.webp($|\?)/i, '-card.webp$1');
 }
 

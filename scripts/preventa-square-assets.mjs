@@ -177,7 +177,13 @@ async function main() {
   console.log(JSON.stringify(result, null, 2));
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+// Este archivo tambien se importa como libreria (process-photo y el cargador
+// usan buildSquareAssetBuffer). Sin esta guarda, importarlo corria el programa
+// de linea de comandos: imprimia el modo de uso y dejaba el codigo de salida en
+// 1 aunque todo hubiera ido bien.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
