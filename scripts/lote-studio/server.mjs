@@ -367,6 +367,87 @@ export function crearRouterLoteStudio() {
     }
   });
 
+  // ── Revisar las fotos de toda la tienda ─────────────────────────────────
+  //
+  // El borrador de fondos se comio la prenda en varios primeros planos antes de
+  // que se arreglara, y esas fotos quedaron publicadas. No se pueden encontrar
+  // solas: una vez publicada, la foto se recorto a su contenido y se centro en
+  // el cuadro, y eso borra justo lo que delataba el problema. Medido sobre el
+  // catalogo real, el escudo suelto de la Barcelona 08/09 da los mismos numeros
+  // que una camiseta sana (ocupa 0.69 contra 0.62 de mediana, misma proporcion).
+  //
+  // Asi que esto no adivina: pone todas las fotos juntas para mirarlas de un
+  // golpe y marcar las malas. Quitarlas es seguro y no necesita nada del
+  // proveedor. Para recuperar esa toma en condiciones se vuelve a elegir el
+  // album desde "¿Una camiseta quedó con las fotos equivocadas?".
+
+  // El catalogo guarda dos clases de ruta: las de los productos nuevos son URLs
+  // completas de Supabase, y las de los primeros son rutas locales dentro de
+  // web/ ("img/alemania_2026_version_fan_1.webp"). Para poder verlas todas en
+  // la misma hoja se sirve web/ desde aqui.
+  router.use('/catalogo-img', express.static(path.join(RAIZ, 'web')));
+
+  const paraVer = (url) => (/^https?:/i.test(url) ? url : `/catalogo-img/${String(url).replace(/^\/+/, '')}`);
+
+  router.get('/api/catalogo/fotos', async (req, res) => {
+    try {
+      const productos = await traerProductos();
+      res.json(productos
+        .filter((p) => (p.imagenes || []).length)
+        .map((p) => ({
+          id: p.id,
+          equipo: p.equipo,
+          // `url` es lo que esta guardado y lo que hay que mandar de vuelta
+          // para quitarla; `ver` es solo para pintarla en pantalla.
+          fotos: p.imagenes.map((url) => ({ url, ver: paraVer(url) })),
+        })));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.post('/api/catalogo/quitar-fotos', async (req, res) => {
+    const quitar = req.body?.quitar || {};
+    const ids = Object.keys(quitar).map(Number).filter((n) => Number.isInteger(n));
+    if (!ids.length) return res.status(400).json({ error: 'no se marco ninguna foto' });
+
+    try {
+      const productos = await traerProductos();
+      const cambios = [];
+
+      // Se revisa TODO antes de escribir nada: si una sola marca dejaria un
+      // producto sin fotos, no se toca ninguno. Es preferible que la persona
+      // desmarque una a que la tienda quede con un producto en blanco.
+      for (const id of ids) {
+        const producto = productos.find((p) => p.id === id);
+        if (!producto) return res.status(404).json({ error: `el producto ${id} ya no existe` });
+        const fuera = new Set(quitar[id] || []);
+        const quedan = (producto.imagenes || []).filter((u) => !fuera.has(u));
+        if (!quedan.length) {
+          return res.status(400).json({
+            error: `"${producto.equipo}" se quedaria sin ninguna foto. Desmarca al menos una y vuelve a intentar.`,
+          });
+        }
+        if (quedan.length !== (producto.imagenes || []).length) {
+          cambios.push({ id, equipo: producto.equipo, quedan, quitadas: (producto.imagenes || []).length - quedan.length });
+        }
+      }
+
+      for (const c of cambios) {
+        await api(`productos?id=eq.${c.id}`, { method: 'PATCH', body: JSON.stringify({ imagenes: c.quedan }) });
+      }
+
+      res.json({
+        ok: true,
+        productos: cambios.length,
+        fotos: cambios.reduce((s, c) => s + c.quitadas, 0),
+        detalle: cambios.map((c) => ({ id: c.id, equipo: c.equipo, quitadas: c.quitadas, quedan: c.quedan.length })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── Publicar en la pagina ───────────────────────────────────────────────
   //
   // Los productos se ven en la tienda apenas se guardan, pero las paginas

@@ -579,3 +579,110 @@ async function seguirPublicacion() {
     : '<div class="tarjeta"><div class="error">' + escapar(d.mensaje || 'algo falló') + '</div>' + lista + '</div>';
   $('btnPublicar').disabled = false;
 }
+
+
+// ── Revisar las fotos de toda la tienda ───────────────────────────────────
+//
+// Es una hoja de contacto: todas las fotos publicadas juntas, para mirarlas de
+// un golpe y marcar las danadas. No las detecta solas a proposito -- una vez
+// publicada, la foto se recorto a su contenido y se centro en el cuadro, y eso
+// borra lo que delataba el problema: medido sobre el catalogo, el escudo suelto
+// de la Barcelona 08/09 da los mismos numeros que una camiseta sana. El ojo
+// las ve en un segundo; un umbral se equivocaria en las dos direcciones.
+
+const marcadas = new Map(); // id -> Set(url)
+
+$('btnCargarFotos').addEventListener('click', async () => {
+  const boton = $('btnCargarFotos');
+  boton.disabled = true;
+  boton.textContent = 'Cargando…';
+  try {
+    const r = await fetch('/api/catalogo/fotos');
+    const productos = await r.json();
+    if (!r.ok) throw new Error(productos.error || 'no se pudo leer el catálogo');
+    pintarHojaFotos(productos);
+    boton.textContent = 'Volver a cargar';
+  } catch (e) {
+    $('hojaFotos').innerHTML = '<div class="error">' + escapar(e.message) + '</div>';
+    boton.textContent = 'Ver todas las fotos';
+  }
+  boton.disabled = false;
+});
+
+function pintarHojaFotos(productos) {
+  const total = productos.reduce((s, p) => s + p.fotos.length, 0);
+  $('hojaFotos').innerHTML = '<p class="tenue">' + total + ' fotos en ' + productos.length
+    + ' productos. Haz clic en las dañadas.</p>'
+    + productos.map((p) => `
+      <div class="hoja-grupo">
+        <div class="hoja-titulo">${escapar(p.equipo)} <small class="tenue">id ${p.id}</small></div>
+        <div class="hoja-fotos">
+          ${p.fotos.map((f) => `
+            <button type="button" class="hoja-foto" data-id="${p.id}" data-url="${escapar(f.url)}">
+              <img src="${escapar(f.ver)}" loading="lazy" alt="">
+            </button>`).join('')}
+        </div>
+      </div>`).join('');
+
+  $('hojaFotos').querySelectorAll('.hoja-foto').forEach((b) => {
+    b.addEventListener('click', () => alternarFoto(b));
+  });
+  marcadas.clear();
+  contarMarcadas();
+}
+
+function alternarFoto(boton) {
+  const id = Number(boton.dataset.id);
+  const url = boton.dataset.url;
+  if (!marcadas.has(id)) marcadas.set(id, new Set());
+  const set = marcadas.get(id);
+  if (set.has(url)) set.delete(url); else set.add(url);
+  if (!set.size) marcadas.delete(id);
+  boton.classList.toggle('marcada', set.has(url));
+  contarMarcadas();
+}
+
+function contarMarcadas() {
+  let fotos = 0;
+  marcadas.forEach((set) => { fotos += set.size; });
+  $('contadorMarcadas').textContent = fotos
+    ? fotos + ' foto(s) marcadas en ' + marcadas.size + ' producto(s)'
+    : '';
+  $('btnQuitarFotos').classList.toggle('oculto', !fotos);
+}
+
+$('btnQuitarFotos').addEventListener('click', async () => {
+  const boton = $('btnQuitarFotos');
+  const quitar = {};
+  marcadas.forEach((set, id) => { quitar[id] = [...set]; });
+
+  boton.disabled = true;
+  boton.textContent = 'Quitando…';
+  try {
+    const r = await fetch('/api/catalogo/quitar-fotos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quitar }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'no se pudieron quitar');
+
+    // Las quitadas desaparecen de la hoja sin recargar, para poder seguir
+    // revisando el resto sin perder el sitio.
+    marcadas.forEach((set, id) => {
+      set.forEach((url) => {
+        const b = $('hojaFotos').querySelector(`.hoja-foto[data-id="${id}"][data-url="${CSS.escape(url)}"]`);
+        if (b) b.remove();
+      });
+    });
+    marcadas.clear();
+    contarMarcadas();
+    $('hojaFotos').insertAdjacentHTML('afterbegin',
+      '<div class="nota">Se quitaron ' + d.fotos + ' foto(s) de ' + d.productos
+      + ' producto(s). Ya no se ven en la tienda. Dale a Publicar cuando termines.</div>');
+  } catch (e) {
+    $('hojaFotos').insertAdjacentHTML('afterbegin', '<div class="error">' + escapar(e.message) + '</div>');
+  }
+  boton.textContent = 'Quitar las marcadas';
+  boton.disabled = false;
+});

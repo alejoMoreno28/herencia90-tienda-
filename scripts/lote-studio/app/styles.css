@@ -196,3 +196,17 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 .publicar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .publicar p { margin: 4px 0 0; max-width: 640px; }
 #estadoPublicar:not(:empty) { margin-bottom: 16px; }
+
+/* Hoja de contacto: todas las fotos de la tienda juntas para revisarlas */
+.hoja-grupo { margin: 18px 0; }
+.hoja-titulo { font-weight: 600; margin-bottom: 6px; }
+.hoja-fotos { display: flex; flex-wrap: wrap; gap: 8px; }
+.hoja-foto {
+  width: 110px; height: 110px; padding: 0; cursor: pointer;
+  border: 2px solid #d8d4cc; border-radius: 8px; background: #fff; overflow: hidden;
+}
+.hoja-foto img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.hoja-foto:hover { border-color: #9a9384; }
+/* Marcada = se va a quitar. Roja y apagada, para que se lea de lejos. */
+.hoja-foto.marcada { border-color: #c0392b; border-width: 3px; }
+.hoja-foto.marcada img { opacity: .35; }
