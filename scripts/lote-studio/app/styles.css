@@ -229,3 +229,8 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 }
 .previa-botones button:disabled { opacity: .3; cursor: default; }
 .previa-botones button:hover:not(:disabled) { border-color: #1f2a44; }
+
+/* Mientras se prepara un album, los demas quedan apagados: solo se puede
+   procesar uno a la vez, y antes lanzar dos pintaba el que acabara de ultimo. */
+.cand.descartado { opacity: .35; }
+.cand:disabled { cursor: default; }

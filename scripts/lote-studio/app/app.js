@@ -521,6 +521,13 @@ async function buscarEnProveedor(id, busqueda) {
       Elige el álbum correcto y se reemplazan las fotos.</p>
     <div class="candidatos">${tarjetas || sinNada}</div>`;
 
+  // El enlace al proveedor va DENTRO de la tarjeta, asi que sin esto abrir el
+  // album en yupoo para mirarlo tambien contaba como elegirlo, y se ponia a
+  // procesar un album que uno solo queria ver.
+  document.querySelectorAll('#resultadoBusqueda .cand a').forEach((a) => {
+    a.addEventListener('click', (e) => e.stopPropagation());
+  });
+
   document.querySelectorAll('#resultadoBusqueda .cand').forEach((b) => {
     b.addEventListener('click', () => prepararFotos(id, Number(b.dataset.cand), b));
   });
@@ -530,7 +537,19 @@ async function buscarEnProveedor(id, busqueda) {
 // y se toca desde la vista previa; el producto no cambia hasta darle a guardar.
 let fotosPropuestas = [];
 
+// Mientras se prepara un album no se acepta otro. Antes se podian lanzar dos y
+// pintaba el que terminara de ultimo, asi que uno veia las fotos de un album
+// que no habia elegido.
+let preparando = false;
+
 async function prepararFotos(id, candidato, boton) {
+  if (preparando) return;
+  preparando = true;
+
+  document.querySelectorAll('#resultadoBusqueda .cand').forEach((c) => {
+    c.disabled = true;
+    if (c !== boton) c.classList.add('descartado');
+  });
   boton.classList.add('elegido');
   $('resultadoBusqueda').insertAdjacentHTML('beforeend',
     '<p class="tenue">Quitando fondos y encuadrando… esto tarda un poco.</p>');
@@ -545,10 +564,12 @@ async function prepararFotos(id, candidato, boton) {
     });
     d = await r.json();
   } catch (err) {
+    preparando = false;
     $('resultadoBusqueda').innerHTML = '<div class="error">Se cortó la conexión con el robot. '
       + 'Revisa que la ventana del cargador siga abierta y vuelve a intentar.</div>';
     return;
   }
+  preparando = false;
   if (!r.ok) {
     $('resultadoBusqueda').innerHTML = `<div class="error">${escapar(d.error)}</div>`;
     return;
