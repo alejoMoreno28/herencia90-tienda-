@@ -34,10 +34,42 @@ En la pantalla:
    - Donde pregunta *"¿esta camiseta ya la tienes en el catalogo?"*, elegir el
      producto o dejar "es una referencia NUEVA".
 4. **Cargar al catalogo**. Antes de escribir muestra el resumen exacto.
-5. Publicar para SEO (ver el paso 8 mas abajo). Eso sigue siendo por consola.
+5. **Publicar**. Es un boton en la misma pantalla: regenera las paginas
+   estaticas y las sube a GitHub, que es lo que dispara el despliegue. Ya no
+   hace falta la consola para esto.
 
 Si el mismo archivo ya se cargo antes, la pantalla lo dice y salta lo que ya
 esta guardado: no se puede duplicar el inventario por volver a subirlo.
+
+### Corregir las fotos de un producto ya publicado
+
+Seccion *"¿Una camiseta quedó con las fotos equivocadas?"*. Se busca el
+producto, se revisa el texto de busqueda, se elige el album y **sale una vista
+previa**: la portada marcada, si a cada foto se le quito el fondo o lleva el
+del proveedor, flechas para reordenar y una equis para quitar. El producto no
+cambia hasta darle a **Guardar estas fotos**.
+
+Sobre el texto de busqueda: **conviene dejar el que viene puesto** (el titulo
+del producto). Cuanto mas corto se escriba, mas candidatos irrelevantes salen y
+mas abajo queda el correcto. Con "Camiseta Retro Barcelona 2008-2009 Local
+Final Champions League" el album correcto sale de primero; con "barcelona retro
+08" sale de cuarto.
+
+### Revisar las fotos de toda la tienda
+
+Seccion *"Revisar las fotos de toda la tienda"*. Saca las fotos publicadas de
+todos los productos en una sola hoja, se marcan las malas con un clic y se
+quitan de una vez. Antes de escribir revisa todas las marcas: si una sola
+dejaria un producto sin ninguna foto, no toca ninguno.
+
+**Por que se revisan a ojo y no las detecta el programa.** Se midieron las 333
+fotos publicadas buscando una señal que delatara a las que el borrador de
+fondos rompio. No la hay: una vez publicada, la foto se recorta a su contenido
+y se centra en el cuadro, y eso borra justo lo que serviria. El escudo suelto
+de la Barcelona 08/09 daba ocupacion 0.69 y proporcion 0.99, practicamente lo
+mismo que una camiseta sana (0.62 y 1.00 de mediana). Un umbral fallaria en las
+dos direcciones. `scripts/revisar-fotos-catalogo.mjs` solo pilla el caso
+extremo (menos del 18% opaco).
 
 El resto de esta guia es el mismo flujo por linea de comandos, util para
 depurar o para correr solo un paso.
@@ -243,6 +275,70 @@ lo que costaron no quedaba en las cuentas y el margen salia inflado.
 mismo y daba el doble: el PEDIDO5 decia 102 unidades cuando son 51. Ya esta
 arreglado en `scripts/crear-pedido.mjs`.
 
+**El borrador de fondos rompia los acercamientos.** A todas las fotos del album
+se les quitaba el fondo. En un primer plano (el escudo, el cuello, la etiqueta)
+la tela llena el encuadre y no hay fondo que quitar, asi que el modelo recortaba
+la prenda misma: quedaban el swoosh y el escudo flotando en el vacio, y esas
+fotos rotas se publicaban. Ahora la decision se toma **antes de usar** el
+recorte: si la foto muestra la camiseta entera se publica sin fondo, y si es un
+acercamiento se publica la original del proveedor, intacta. Lo que las separa es
+el **borde** de la imagen, no la proporcion total: el recorte del cuello de la
+Barcelona 08/09 dejaba 0.54 opaco, igual que una camiseta entera, pero su borde
+daba 0.402 contra 0.001 de la completa.
+
+**El frente y la espalda se distinguen contando colores en el pecho.** Adelante
+van el escudo, el patrocinador y la marca; atras la tela es lisa. En la
+Barcelona 08/09: 80 colores contra 11. Hizo falta porque CLIP no separa una cara
+de la otra ni con la foto del excel como referencia.
+
+**Solo se bajaban las fotos servidas en `.jpeg`.** El proveedor usa las dos
+extensiones. El filtro pedia `big.jpeg`, asi que en un album servido en `.jpg`
+se caian TODAS las fotos grandes: la Liverpool 95/96 visitante se publico con
+una sola foto teniendo su album 9. Medido, el album 160694828 paso de 1 a 9.
+Pruebas en `scripts/tests/fotos-album.test.mjs`.
+
+**No escribir "champions" descartaba el album de Champions.**
+`filterByCompetition` tenia dos ramas: si se pedia champions filtraba a esos
+albumes, y si no se pedia **los excluia todos**. Por eso el album correcto de la
+Barcelona 08/09 (欧冠版) solo aparecia escribiendo el titulo completo del
+producto; buscando "barcelona retro 08" salian la 97-98, la 2002-03 y la
+2006-07. Se rastreo filtro por filtro sobre 114 albumes y el correcto sobrevivia
+hasta el de competicion. Ahora esos albumes van al final en vez de desaparecer.
+
+**"08" no se leia como año.** `extractSeasonPattern("barcelona retro 08")`
+devolvia null, asi que la busqueda iba sin filtro de temporada. Ahora un año
+suelto de dos cifras cuenta, pero **solo cuando el texto dice retro**: sin esa
+palabra un numero de dos cifras es casi siempre un dorsal ("messi 10") y
+filtrar por "10-11" dejaria la busqueda vacia.
+
+**Tres servicios de fotos peleandose la GPU.** `robot-fotos.mjs` arrancaba un
+`photo_service.py` nuevo sin mirar si ya habia uno, y no lo mataba al cerrarse.
+Cada instancia carga CLIP y BiRefNet y reserva 8 GB. Con tres corriendo la
+tarjeta quedo al 100% con 11.6 de 12.2 GB y quitarle el fondo a UNA foto pasaba
+de medio segundo a **dos minutos**. Parecia que la pantalla estaba colgada.
+Medido antes y despues de limpiarlos: 124 s -> 0.5 s. Ahora se reutiliza el que
+ya responda y el robot se lleva el suyo al cerrarse.
+
+**Carreras en la pantalla.** Tres formas de terminar viendo el album
+equivocado, todas del mismo tipo: el enlace "ver en el proveedor" va dentro de
+la tarjeta y abrirlo tambien contaba como elegir ese album; se podian lanzar
+varios procesados a la vez y pintaba el que terminara de ultimo; y abrir un
+producto lanza una busqueda sola, asi que cambiar el texto y darle a Buscar
+antes de que volviera dejaba dos en el aire. Ahora el enlace no dispara la
+tarjeta, solo se procesa uno a la vez, y el boton de buscar se bloquea mientras
+busca.
+
+**La pantalla del cargador se sirve sin cache** (`Cache-Control: no-store`). Se
+arregla a menudo, y una copia vieja guardada en el navegador hace perder mucho
+tiempo buscando fallos que ya estaban corregidos.
+
+**La grilla de la tienda cargaba la foto de 1200 px.** `toCardImage` se saltaba
+las URLs que empiezan por http, o sea las de Supabase, que son la mayoria del
+catalogo. Ademas solo 68 de las 333 fotos tenian generada su version de 640.
+Medido sobre las portadas de los 72 productos: 7.7 MB antes, 2.5 MB ahora.
+Las fotos grandes **no** se recomprimen: probado con las tres mas pesadas,
+volver a codificarlas a calidad 88 o 92 las deja mas pesadas (554 KB -> 625 KB).
+
 ---
 
 ## Piezas
@@ -269,6 +365,20 @@ arreglado en `scripts/crear-pedido.mjs`.
 | `scripts/validar-lote-cargado.mjs` | compara un pedido cargado contra su excel |
 | `scripts/descripciones-catalogo.mjs` | descripciones escritas a mano |
 | `scripts/crear-excel-prueba.mjs` | arma un excel pequeño para probar el flujo |
+| `scripts/probar-flujo-fotos.mjs` | prueba el flujo entero sin escribir nada |
+| `scripts/revisar-fotos-catalogo.mjs` | busca fotos rotas por id (ver limite abajo) |
+| `scripts/generar-fotos-card.mjs` | genera las versiones de 640 px que falten |
+
+Para probar el flujo de fotos sin tocar la base ni subir nada:
+
+```bash
+node --env-file=.env scripts/probar-flujo-fotos.mjs 71 66 15
+```
+
+Por cada producto busca en el proveedor como lo hace la pantalla, baja TODAS
+las fotos del album, les pasa el borrador de fondos y las encuadra, y reporta lo
+mismo que se veria en la vista previa. Corrido sobre 10 productos (6 retro y 4
+de temporada) los 10 salen con la prenda completa de portada.
 
 Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 `scripts/lib/yupoo-search.mjs`.
@@ -288,8 +398,12 @@ Las tiendas del proveedor por seccion estan en `PROVIDER_STORES` dentro de
 - **Descuento por volumen**: el PEDIDO5 tiene 51 unidades, o sea paso de 50.
   Deberian ser 51 USD menos. Falta confirmarlo con Snake.
 - Dos productos quedaron con una sola foto (Argentina 2006 id 69, Korea id 78)
-  porque esos albumes del proveedor solo tienen una.
-- El excel del PEDIDO5 dice "KOREA 27 27"; deberia ser 26 27.
+  porque esos albumes del proveedor solo tienen una. **Vale la pena volver a
+  mirarlos**: el fallo de las extensiones `.jpg` hacia que albumes completos
+  llegaran con una sola foto, asi que puede que ahora traigan mas.
+- Quedan sueltos en la raiz varios archivos de sesiones viejas sin seguimiento
+  de git (`temp_script_*.js`, `patch.py`, `diff.txt`, `test_admin.js`,
+  `update_reserves.js`). Nadie los ha revisado; no se tocaron a proposito.
 
 ---
 
@@ -326,6 +440,52 @@ historia no cambia. El riesgo esta en las temporadas recientes.
 
 ---
 
+## Como se elige y se ordena cada foto
+
+Vive en `api/process-photo.mjs`. Es el paso que mas veces se rompio, asi que
+conviene entenderlo antes de tocarlo.
+
+Se le pasa el borrador de fondos a **todas** las fotos del album, pero eso es
+solo para **medir**: el recorte se usa o se descarta despues.
+
+| Medida | Que dice |
+|---|---|
+| `borde_opaco` | cuanto del borde de la imagen quedo opaco. Si se ve la prenda entera hay fondo alrededor y el borde queda vacio; en un acercamiento la tela se sale por los lados |
+| `proporcion` | cuanto de la imagen quedo opaco en total |
+
+Una foto se publica **sin fondo** solo si `borde_opaco <= 0.05` **y**
+`proporcion >= 0.35`. Cualquier otra se publica **como vino del proveedor**.
+
+Las dos condiciones hacen falta. El borde solo dice que el objeto cabe entero,
+y eso tambien lo cumple un escudo recortado; una camiseta completa ademas
+**ocupa** la foto (entre 53% y 65% en los albumes medidos), mientras que el
+escudo suelto se quedaba en 24%.
+
+El orden final es: **frente, espalda, resto de prenda completa, acercamientos**.
+Entre las completas manda el numero de colores distintos en el pecho.
+
+Valores reales del album de la Barcelona 08/09 (`/albums/95099080`, 13 fotos):
+
+```
+foto 11   borde 0.003   ->  sin fondo   (frente, 80 colores)
+foto 12   borde 0.001   ->  sin fondo   (espalda, 11 colores)
+las otras 11            ->  con su fondo
+```
+
+Cosas que se probaron y **no** funcionan, para no repetirlas:
+
+- **CLIP con frases** ("a full front view of a complete soccer jersey"): las 13
+  fotos dieron ~0.33. No discrimina nada. El endpoint se quito.
+- **La proporcion total sola**: el primer plano del cuello daba 0.542, igual
+  que una camiseta entera.
+- **Histograma de color para desempatar albumes**: se quito de
+  `photo_service.py`. Las fotos del excel son recortes con otras imagenes
+  alrededor, asi que el histograma sale dominado por el fondo. Daba 0.7%, 0.9%,
+  1.5% y de golpe 73.8%: ruido. Se habia agregado porque acerto una vez con la
+  Real Madrid 2011-12, pero al medirlo con mas casos rompio la Liverpool 95/96.
+
+---
+
 ## Por donde se puede romper, y que lo protege
 
 Repaso de los puntos donde el flujo podria fallar y que hay puesto para que no
@@ -345,6 +505,13 @@ haga daño en silencio.
 | Que el modelo escriba una descripcion inventada | Se valida antes de publicar: no puede cambiar el equipo ni la temporada, ni meter enlaces. Si no pasa, queda el texto por reglas. |
 | Que el modelo no responda | Reintenta con espera creciente. Si aun asi falla, texto por reglas y la pantalla dice a cuales repasar. |
 | Que se dañen las cuentas | La carga no toca ventas, cobros ni saldos. Solo agrega el gasto de la compra. Se comprueba con `snapshot-finanzas.mjs`. |
+| Que el borrador de fondos rompa un acercamiento | Solo se le quita el fondo a las fotos que muestran la prenda completa. Las demas se publican tal como vinieron. |
+| Que la ficha quede sin una foto de la camiseta entera | El orden pone primero frente y espalda; los acercamientos van al final. |
+| Que se procese un album que no se eligio | Solo uno a la vez, y el enlace al proveedor no dispara la tarjeta. |
+| Que se guarden fotos sin verlas | Elegir el album ya no guarda: hay vista previa y el producto no cambia hasta darle a Guardar. |
+| Que se quite la ultima foto de un producto | Se revisan todas las marcas antes de escribir; si una dejaria un producto sin fotos, no se toca ninguno. |
+| Que se acumulen servicios de fotos comiendose la GPU | Se reutiliza el que ya responda y el robot mata el suyo al cerrarse. |
+| Ver la pantalla vieja del navegador | Se sirve con `Cache-Control: no-store`. |
 
 Lo que **sigue necesitando ojo humano**, a proposito:
 
