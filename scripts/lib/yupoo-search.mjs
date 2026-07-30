@@ -119,9 +119,7 @@ export async function searchYupooAlbums(storeBase, query) {
 // suele poner los detalles primero y las fotos de la prenda completa al final,
 // cortar en 8 dejaba fuera justo las que sirven para la ficha: el album de la
 // Barcelona 08/09 tiene 13 y las de cuerpo entero son las ultimas.
-export async function getAlbumPhotoUrls(storeBase, albumHref, max = 30) {
-  const url = `${storeBase}${albumHref}?uid=1`;
-  const html = await fetchHtml(url);
+export function fotosDelHtmlDeAlbum(html, max = 30) {
   const $ = cheerioLoad(html);
   const photos = [];
   $('img').each((_, el) => {
@@ -130,10 +128,22 @@ export async function getAlbumPhotoUrls(storeBase, albumHref, max = 30) {
       if (v && /photo\.yupoo\.com/.test(v)) photos.push(v.split('?')[0]);
     }
   });
+
+  // El proveedor no usa siempre la misma extension: unos albumes sirven
+  // big.jpeg y otros big.jpg. El filtro solo aceptaba .jpeg, asi que en los
+  // segundos se caian TODAS las fotos grandes y quedaba lo que sobrara.
+  // Paso con la Liverpool 95/96 visitante: el album tiene 9 fotos grandes y la
+  // ficha quedo publicada con una sola.
   const uniq = [...new Set(photos)];
-  const big = uniq.filter((p) => /\/big\.jpeg$/.test(p));
-  const med = uniq.filter((p) => /medium\.jpe?g$/.test(p));
+  const grande = /\/big\.(jpe?g|png|webp)$/i;
+  const mediana = /\/medium\.(jpe?g|png|webp)$/i;
+  const big = uniq.filter((p) => grande.test(p));
+  const med = uniq.filter((p) => mediana.test(p));
   return (big.length ? big : med).slice(0, max);
+}
+
+export async function getAlbumPhotoUrls(storeBase, albumHref, max = 30) {
+  return fotosDelHtmlDeAlbum(await fetchHtml(`${storeBase}${albumHref}?uid=1`), max);
 }
 
 /**
