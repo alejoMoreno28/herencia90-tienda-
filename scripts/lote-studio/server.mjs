@@ -330,7 +330,12 @@ export function crearRouterLoteStudio() {
     }
   });
 
-  router.post('/api/producto/:id/reemplazar-fotos', async (req, res) => {
+  // Preparar NO toca el producto: deja las fotos listas y subidas para poder
+  // verlas, y ahi para. Antes esto guardaba de una, y si el robot elegia mal el
+  // orden o colaba una foto fea, uno se enteraba viendo la ficha publicada.
+  // Quien decide que se publica y en que orden es la persona, en el paso
+  // siguiente.
+  router.post('/api/producto/:id/preparar-fotos', async (req, res) => {
     const id = Number(req.params.id);
     const cand = (buscadas.get(id) || [])[Number(req.body?.candidato)];
     if (!cand) return res.status(400).json({ error: 'primero hay que buscar las fotos' });
@@ -358,10 +363,37 @@ export function crearRouterLoteStudio() {
         .map((x) => (typeof x === 'string' ? x : x.url || x.publicUrl || '')).filter(Boolean);
       if (!imagenes.length) throw new Error('no se pudo procesar ninguna foto');
 
-      // Las viejas no se borran: si la nueva eleccion tampoco era la correcta,
-      // se puede volver atras desde el admin.
+      // Se devuelve tambien si a cada una se le quito el fondo o si va con el
+      // del proveedor, que es lo que hay que mirar para saber si el recorte
+      // salio bien.
+      const detalle = data.details || [];
+      res.json({
+        ok: true,
+        album: cand.title,
+        anteriores: producto.imagenes || [],
+        fotos: imagenes.map((url, i) => ({ url, sinFondo: detalle[i]?.sinFondo !== false })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Aqui si se guarda, con las fotos y el orden que la persona dejo.
+  router.post('/api/producto/:id/confirmar-fotos', async (req, res) => {
+    const id = Number(req.params.id);
+    const imagenes = (req.body?.imagenes || []).filter((u) => typeof u === 'string' && u);
+    if (!imagenes.length) {
+      return res.status(400).json({ error: 'hay que dejar al menos una foto' });
+    }
+
+    try {
+      const producto = (await traerProductos()).find((p) => p.id === id);
+      if (!producto) return res.status(404).json({ error: 'producto no encontrado' });
+
+      // Las viejas no se borran del almacenamiento: si esta eleccion tampoco
+      // era la correcta, se puede volver atras desde el admin.
       await api(`productos?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ imagenes }) });
-      res.json({ ok: true, fotos: imagenes.length, album: cand.title, anteriores: (producto.imagenes || []).length });
+      res.json({ ok: true, fotos: imagenes.length });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

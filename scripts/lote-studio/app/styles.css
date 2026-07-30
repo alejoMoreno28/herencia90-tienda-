@@ -210,3 +210,22 @@ h2 { font-size: 17px; margin: 0 0 12px; }
 /* Marcada = se va a quitar. Roja y apagada, para que se lea de lejos. */
 .hoja-foto.marcada { border-color: #c0392b; border-width: 3px; }
 .hoja-foto.marcada img { opacity: .35; }
+
+/* Vista previa antes de guardar las fotos de un producto */
+.previa { margin-top: 14px; }
+#previaFotos { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.previa-foto { margin: 0; width: 150px; }
+.previa-foto img {
+  width: 150px; height: 150px; object-fit: contain;
+  background: #fff; border: 1px solid #d8d4cc; border-radius: 8px; display: block;
+}
+/* La portada es la que sale en la tienda: se marca para no tener que contar. */
+.previa-foto:first-child img { border-color: #1f2a44; border-width: 2px; }
+.previa-foto figcaption { font-size: 12px; margin-top: 4px; display: flex; gap: 6px; justify-content: center; }
+.previa-botones { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+.previa-botones button {
+  border: 1px solid #d8d4cc; background: #fff; border-radius: 6px;
+  padding: 2px 8px; cursor: pointer; font-size: 13px;
+}
+.previa-botones button:disabled { opacity: .3; cursor: default; }
+.previa-botones button:hover:not(:disabled) { border-color: #1f2a44; }

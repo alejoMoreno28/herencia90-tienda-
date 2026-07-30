@@ -522,22 +522,95 @@ async function buscarEnProveedor(id, busqueda) {
     <div class="candidatos">${tarjetas || sinNada}</div>`;
 
   document.querySelectorAll('#resultadoBusqueda .cand').forEach((b) => {
-    b.addEventListener('click', () => reemplazarFotos(id, Number(b.dataset.cand), b));
+    b.addEventListener('click', () => prepararFotos(id, Number(b.dataset.cand), b));
   });
 }
 
-async function reemplazarFotos(id, candidato, boton) {
+// Las fotos elegidas, en el orden en que se van a guardar. Se llena al preparar
+// y se toca desde la vista previa; el producto no cambia hasta darle a guardar.
+let fotosPropuestas = [];
+
+async function prepararFotos(id, candidato, boton) {
   boton.classList.add('elegido');
   $('resultadoBusqueda').insertAdjacentHTML('beforeend',
-    '<p class="tenue">Quitando fondos y subiendo… esto tarda un poco.</p>');
+    '<p class="tenue">Quitando fondos y encuadrando… esto tarda un poco.</p>');
 
-  const r = await fetch(`/api/producto/${id}/reemplazar-fotos`, {
+  const r = await fetch(`/api/producto/${id}/preparar-fotos`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidato }),
   });
   const d = await r.json();
+  if (!r.ok) {
+    $('resultadoBusqueda').innerHTML = `<div class="error">${escapar(d.error)}</div>`;
+    return;
+  }
+
+  fotosPropuestas = d.fotos;
+  $('resultadoBusqueda').innerHTML = `
+    <div class="previa">
+      <p><b>Así quedarían</b>, del álbum ${escapar(d.album)}. Todavía no se ha guardado nada.</p>
+      <p class="tenue">La primera es la que sale en la tienda y en el catálogo. Muévelas con
+        las flechas y quita con la ✕ las que no te gusten.</p>
+      <div id="previaFotos"></div>
+      <div class="acciones">
+        <button type="button" id="btnGuardarFotos" class="btn primario">Guardar estas fotos</button>
+        <button type="button" id="btnDescartarFotos" class="btn">Dejarlo como estaba</button>
+      </div>
+    </div>`;
+
+  pintarPrevia(id);
+  $('btnDescartarFotos').addEventListener('click', () => {
+    fotosPropuestas = [];
+    $('resultadoBusqueda').innerHTML = '<p class="tenue">No se cambió nada. Puedes buscar otra vez.</p>';
+  });
+  $('btnGuardarFotos').addEventListener('click', () => guardarFotos(id));
+}
+
+function pintarPrevia(id) {
+  $('previaFotos').innerHTML = fotosPropuestas.map((f, i) => `
+    <figure class="previa-foto">
+      <img src="${escapar(f.url)}" alt="" loading="lazy">
+      <figcaption>
+        ${i === 0 ? '<b>portada</b>' : (i + 1)}
+        <span class="tenue">${f.sinFondo ? 'sin fondo' : 'con su fondo'}</span>
+      </figcaption>
+      <div class="previa-botones">
+        <button type="button" data-mover="${i}" data-a="${i - 1}" ${i === 0 ? 'disabled' : ''} title="Mover antes">◀</button>
+        <button type="button" data-quitar="${i}" title="Quitar esta foto">✕</button>
+        <button type="button" data-mover="${i}" data-a="${i + 1}" ${i === fotosPropuestas.length - 1 ? 'disabled' : ''} title="Mover después">▶</button>
+      </div>
+    </figure>`).join('');
+
+  $('previaFotos').querySelectorAll('[data-quitar]').forEach((b) => {
+    b.addEventListener('click', () => {
+      fotosPropuestas.splice(Number(b.dataset.quitar), 1);
+      pintarPrevia(id);
+    });
+  });
+  $('previaFotos').querySelectorAll('[data-mover]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const de = Number(b.dataset.mover);
+      const a = Number(b.dataset.a);
+      [fotosPropuestas[de], fotosPropuestas[a]] = [fotosPropuestas[a], fotosPropuestas[de]];
+      pintarPrevia(id);
+    });
+  });
+
+  $('btnGuardarFotos').disabled = !fotosPropuestas.length;
+}
+
+async function guardarFotos(id) {
+  const boton = $('btnGuardarFotos');
+  boton.disabled = true;
+  boton.textContent = 'Guardando…';
+  const r = await fetch(`/api/producto/${id}/confirmar-fotos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imagenes: fotosPropuestas.map((f) => f.url) }),
+  });
+  const d = await r.json();
   $('resultadoBusqueda').innerHTML = r.ok
-    ? `<div class="nota"><b>Listo.</b> ${escapar(productoElegido.equipo)} quedó con ${d.fotos} fotos nuevas,
-        del álbum ${escapar(d.album)}. Ya se ven en la tienda; para que entren en Google hay que publicar.</div>`
+    ? `<div class="nota"><b>Listo.</b> ${escapar(productoElegido.equipo)} quedó con ${d.fotos} foto(s).
+        Ya se ven en la tienda; para que entren en Google hay que publicar.</div>`
     : `<div class="error">${escapar(d.error)}</div>`;
 }
 
