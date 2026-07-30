@@ -23,7 +23,7 @@ import {
   api, traerProductos, cargarLote, resumirCarga, aplicarDecisiones,
   leerEstado, resumenEstado, sumarTallas,
 } from '../lib/lote-carga.mjs';
-import { downloadYupooPhoto, todasLasFotosDelAlbum } from '../lib/yupoo-search.mjs';
+import { downloadYupooPhoto, todasLasFotosDelAlbum, esDeTemporadaVieja } from '../lib/yupoo-search.mjs';
 import {
   prepararCatalogoVisual, buscarParecidosVisuales, combinarCandidatos, esElMismoSeguro,
 } from '../lib/duplicados-visuales.mjs';
@@ -296,7 +296,12 @@ export function crearRouterLoteStudio() {
     // catalogo no siempre es el mejor termino para buscar en el proveedor.
     const titulo = producto.equipo;
     const busqueda = String(req.body && req.body.busqueda || '').trim() || titulo;
-    const tipo = /player/i.test(busqueda) ? 'PLAYER' : /retro/i.test(busqueda) ? 'RETRO' : 'FAN';
+    // El tipo no se decide solo por palabras: una camiseta de hace varias
+    // temporadas vive en la seccion retro aunque nadie escriba "retro". Sin
+    // esto, "barcelona 08 09" se buscaba entre las de la temporada actual.
+    const tipo = /player/i.test(busqueda) ? 'PLAYER'
+      : (/retro/i.test(busqueda) || esDeTemporadaVieja(busqueda)) ? 'RETRO'
+        : 'FAN';
     try {
       const r = await fetch(`http://127.0.0.1:3001/api/match-provider-photo`, {
         method: 'POST',

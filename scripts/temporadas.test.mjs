@@ -10,6 +10,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { extractSeasonPattern } from './lib/team-translator.mjs';
+import { esDeTemporadaVieja } from './lib/yupoo-search.mjs';
 
 const cubre = (descripcion, tituloAlbum, isClub = true) => {
   const patron = extractSeasonPattern(descripcion, isClub);
@@ -61,4 +62,23 @@ test('un año suelto de club abre la temporada hacia los dos lados', () => {
 
 test('sin año no hay patron', () => {
   assert.equal(extractSeasonPattern('Camiseta especial sin año', true), null);
+});
+
+// Un año suelto de dos cifras, como lo escribe uno al buscar a mano.
+//
+// "Barcelona retro 08" se buscaba entre las camisetas de la temporada actual
+// porque el 08 no se leia como 2008, y ahi no existe nada de ese año.
+
+test('un año suelto de dos cifras con la palabra retro es una temporada vieja', () => {
+  assert.equal(esDeTemporadaVieja('Barcelona retro 08', 2026), true);
+  assert.equal(esDeTemporadaVieja('Camiseta Retro Real Madrid 99', 2026), true);
+});
+
+test('sin la palabra retro, un numero de dos cifras es un dorsal y no un año', () => {
+  assert.equal(esDeTemporadaVieja('messi 10', 2026), false);
+  assert.equal(esDeTemporadaVieja('camiseta 7 mbappe', 2026), false);
+});
+
+test('una retro de la temporada actual no se manda a los albumes viejos', () => {
+  assert.equal(esDeTemporadaVieja('camiseta retro barcelona 26', 2026), false);
 });

@@ -66,13 +66,26 @@ export function esDeTemporadaVieja(descripcion, anioActual = new Date().getFullY
     return masReciente < anioActual - 1;
   }
   // Temporada corta al estilo del excel: "26 27", "25 26".
-  const corta = String(descripcion || '').match(/\b(\d{2})\s*[\s/-]\s*(\d{2})\b/);
-  if (corta) {
-    const cierre = parseInt(corta[2], 10);
-    const completo = (cierre >= 70 ? 1900 : 2000) + cierre;
-    return completo < anioActual - 1;
+  const texto = String(descripcion || '');
+  const corta = texto.match(/\b(\d{2})\s*[\s/-]\s*(\d{2})\b/);
+  if (corta) return anioDeDosCifras(corta[2]) < anioActual - 1;
+
+  // Un año suelto de dos cifras: "barcelona retro 08", "real madrid retro 99".
+  //
+  // Solo se lee como año cuando el texto dice retro. Sin esa palabra un numero
+  // de dos cifras es casi siempre un dorsal ("messi 10", "camiseta 7") y
+  // mandaria a la seccion retro camisetas de la temporada actual.
+  if (/retro/i.test(texto)) {
+    const suelto = texto.match(/\b(\d{2})\b/);
+    if (suelto) return anioDeDosCifras(suelto[1]) < anioActual - 1;
   }
   return false;
+}
+
+/** "08" -> 2008, "95" -> 1995. El corte en 70 es el que ya usaba el excel. */
+function anioDeDosCifras(dos) {
+  const n = parseInt(dos, 10);
+  return (n >= 70 ? 1900 : 2000) + n;
 }
 
 /**
