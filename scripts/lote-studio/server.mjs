@@ -23,7 +23,7 @@ import {
   api, traerProductos, cargarLote, resumirCarga, aplicarDecisiones,
   leerEstado, resumenEstado, sumarTallas,
 } from '../lib/lote-carga.mjs';
-import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
+import { downloadYupooPhoto, todasLasFotosDelAlbum } from '../lib/yupoo-search.mjs';
 import {
   prepararCatalogoVisual, buscarParecidosVisuales, combinarCandidatos, esElMismoSeguro,
 } from '../lib/duplicados-visuales.mjs';
@@ -345,7 +345,12 @@ export function crearRouterLoteStudio() {
         headers: { 'Content-Type': 'application/json' },
         // Se mandan todas: process-photo descarta las que no se pueden
         // recortar y para cuando junte seis buenas.
-        body: JSON.stringify({ store: cand.store, photoUrls: cand.photoUrls || [], maxFotos: 6, slugHint: producto.equipo }),
+        body: JSON.stringify({
+          store: cand.store,
+          photoUrls: await todasLasFotosDelAlbum(cand.store, cand.href, cand.photoUrls || []),
+          maxFotos: 6,
+          slugHint: producto.equipo,
+        }),
       });
       if (!r.ok) throw new Error(`process-photo: ${r.status}`);
       const data = await r.json();

@@ -115,7 +115,11 @@ export async function searchYupooAlbums(storeBase, query) {
  * @param {string} albumHref path relativo, ej '/albums/150704443'
  * @param {number} max
  */
-export async function getAlbumPhotoUrls(storeBase, albumHref, max = 8) {
+// El tope por defecto era 8 y varios albumes tienen mas. Como el proveedor
+// suele poner los detalles primero y las fotos de la prenda completa al final,
+// cortar en 8 dejaba fuera justo las que sirven para la ficha: el album de la
+// Barcelona 08/09 tiene 13 y las de cuerpo entero son las ultimas.
+export async function getAlbumPhotoUrls(storeBase, albumHref, max = 30) {
   const url = `${storeBase}${albumHref}?uid=1`;
   const html = await fetchHtml(url);
   const $ = cheerioLoad(html);
@@ -130,6 +134,25 @@ export async function getAlbumPhotoUrls(storeBase, albumHref, max = 8) {
   const big = uniq.filter((p) => /\/big\.jpeg$/.test(p));
   const med = uniq.filter((p) => /medium\.jpe?g$/.test(p));
   return (big.length ? big : med).slice(0, max);
+}
+
+/**
+ * Todas las fotos del album, poniendo delante las que ya venian ordenadas por
+ * parecido a la foto del excel.
+ *
+ * Para comparar y decidir que camiseta es basta con unas pocas fotos, pero para
+ * publicar hacen falta todas: si el album trae trece y solo se miraron doce, la
+ * que falta puede ser justo la de espalda.
+ */
+export async function todasLasFotosDelAlbum(storeBase, albumHref, urlsPreferidas = []) {
+  let todas = [];
+  try {
+    todas = await getAlbumPhotoUrls(storeBase, albumHref);
+  } catch {
+    return [...urlsPreferidas];
+  }
+  const yaEstan = new Set(urlsPreferidas);
+  return [...urlsPreferidas, ...todas.filter((u) => !yaEstan.has(u))];
 }
 
 /**

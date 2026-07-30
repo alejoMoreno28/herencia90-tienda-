@@ -185,6 +185,8 @@ export async function buscarReferencia(referencia, { maxCandidatos = 6 } = {}) {
       title: r.title,
       score: r.score,
       store: r.store,
+      // Hace falta para volver al album y bajar TODAS sus fotos al publicar.
+      href: r.href,
       yupooUrl: r.yupooUrl,
       photoUrls: ordenarPorParecido(r.photoUrls, r.photo_scores),
       photoScores: r.photo_scores || [],

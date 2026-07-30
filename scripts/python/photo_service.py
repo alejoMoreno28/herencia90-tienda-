@@ -262,6 +262,19 @@ def remove_bg():
     alpha = np.asarray(img.getchannel("A"), dtype=np.float32) / 255.0
     proporcion = float((alpha > 0.5).mean())
 
+    # Cuanto del BORDE de la imagen quedo opaco. Es lo que separa una foto de la
+    # prenda completa de un primer plano, y la proporcion total no lo hace: el
+    # recorte del cuello de la Barcelona 08/09 daba 0.54, igual que una camiseta
+    # entera.
+    #
+    # La idea es simple: si se ve la camiseta completa, alrededor hay fondo y el
+    # borde queda vacio. Si es un acercamiento, la tela se sale por los lados.
+    # Medido en ese album: las completas dieron 0.000, 0.001 y 0.003, y los
+    # primeros planos entre 0.285 y 0.731.
+    solido = alpha > 0.5
+    borde = np.concatenate([solido[0, :], solido[-1, :], solido[:, 0], solido[:, -1]])
+    borde_opaco = float(borde.mean())
+
     if proporcion < MIN_PROPORCION_RECORTE:
         original = Image.open(io.BytesIO(raw)).convert("RGBA")
         buf = io.BytesIO()
@@ -272,6 +285,7 @@ def remove_bg():
             "height": original.height,
             "recortada": False,
             "proporcion": round(proporcion, 3),
+            "borde_opaco": round(borde_opaco, 3),
             "motivo": "el recorte se comia la prenda, se dejo la foto original",
         })
 
@@ -285,6 +299,7 @@ def remove_bg():
         "height": img.height,
         "recortada": True,
         "proporcion": round(proporcion, 3),
+        "borde_opaco": round(borde_opaco, 3),
     })
 
 

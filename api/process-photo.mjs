@@ -35,6 +35,23 @@ function slugify(str) {
     .trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
+// Lo que de verdad separa una foto de la prenda completa de un acercamiento es
+// si el BORDE de la imagen quedo vacio despues de quitar el fondo: cuando se ve
+// la camiseta entera hay fondo alrededor, y cuando es un acercamiento la tela se
+// sale por los lados.
+//
+// La proporcion total no sirve para esto: el recorte del cuello de la Barcelona
+// 08/09 daba 0.54, lo mismo que una camiseta entera. Mirando el borde, en ese
+// album las completas dieron 0.000, 0.001 y 0.003, y los acercamientos entre
+// 0.285 y 0.731.
+const BORDE_LIBRE_MAX = 0.05;
+
+// Pero el borde libre solo dice que el objeto cabe entero en la foto, y eso
+// tambien lo cumple un escudo recortado. Una camiseta completa ademas OCUPA la
+// foto: en los albumes medidos llena entre el 53% y el 65%, mientras que el
+// escudo suelto de la Barcelona se quedaba en 24%.
+const OCUPACION_MINIMA = 0.35;
+
 async function removeBackground(rawBuffer) {
   const bgRes = await fetch(`${PHOTO_SERVICE}/remove-bg`, {
     method: 'POST',
@@ -42,17 +59,82 @@ async function removeBackground(rawBuffer) {
     body: JSON.stringify({ image_b64: rawBuffer.toString('base64') }),
   });
   if (!bgRes.ok) throw new Error(`servicio de fotos IA fallo: ${await bgRes.text()}`);
-  const { image_b64, recortada, motivo } = await bgRes.json();
+  const { image_b64, recortada, proporcion, borde_opaco: bordeOpaco, motivo } = await bgRes.json();
 
   // El servicio devuelve la foto original, sin tocar, cuando el recorte se iba
-  // a comer la prenda. Pasa con los primeros planos del escudo o la etiqueta:
-  // la tela llena el encuadre, no hay fondo que quitar, y el modelo termina
-  // recortando la camiseta y dejando el logo flotando. Esas fotos no sirven
-  // para el catalogo, asi que se descartan aqui.
-  if (recortada === false) {
-    throw new Error(motivo || 'el recorte de fondo no funciono en esta foto');
+  // a comer la prenda: los primeros planos del escudo o la etiqueta, donde la
+  // tela llena el encuadre y no hay fondo que quitar. Aqui no se lanza error,
+  // se devuelve el dato y quien llama decide.
+  return {
+    buffer: Buffer.from(image_b64, 'base64'),
+    recortada: recortada !== false,
+    proporcion: typeof proporcion === 'number' ? proporcion : null,
+    bordeOpaco: typeof bordeOpaco === 'number' ? bordeOpaco : null,
+    motivo,
+  };
+}
+
+/**
+ * Cuenta cuantos colores distintos hay en el pecho de la camiseta.
+ *
+ * Es lo que separa el frente de la espalda: adelante van el escudo, el
+ * patrocinador y la marca, y atras la tela es lisa. En la Barcelona 08/09 el
+ * frente dio 80 colores distintos y la espalda 11.
+ *
+ * Hace falta porque la comparacion visual no distingue una cara de la otra: aun
+ * usando la foto del excel, que es de frente, CLIP ponia primero la espalda.
+ */
+async function coloresEnElPecho(buffer) {
+  try {
+    const meta = await sharp(buffer).metadata();
+    const { data } = await sharp(buffer)
+      .extract({
+        left: Math.round(meta.width * 0.25),
+        top: Math.round(meta.height * 0.2),
+        width: Math.round(meta.width * 0.5),
+        height: Math.round(meta.height * 0.35),
+      })
+      .removeAlpha()
+      .resize(64, 64)
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const tonos = new Set();
+    for (let p = 0; p < data.length; p += 3) {
+      tonos.add(`${data[p] >> 5}-${data[p + 1] >> 5}-${data[p + 2] >> 5}`);
+    }
+    return tonos.size;
+  } catch {
+    return 0;
   }
-  return Buffer.from(image_b64, 'base64');
+}
+
+/**
+ * Deja las fotos en el orden con que se quieren ver en la ficha: frente,
+ * espalda, el resto de la prenda completa, y al final los acercamientos. Las
+ * que se rompieron al quitarles el fondo se descartan.
+ *
+ * Antes se publicaban las primeras del album tal cual, y como el proveedor
+ * empieza por los detalles de la tela y la etiqueta, la ficha podia terminar
+ * sin una sola foto de la camiseta entera.
+ */
+async function ordenarParaLaFicha(fotos) {
+  const completas = [];
+  const planos = [];
+  for (const foto of fotos) {
+    if (!foto.recortada) continue;
+    const cabeEntera = foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX;
+    const ocupaLoSuyo = foto.proporcion != null && foto.proporcion >= OCUPACION_MINIMA;
+    if (cabeEntera && ocupaLoSuyo) completas.push(foto);
+    else planos.push(foto);
+  }
+
+  // Entre las que muestran la prenda completa, primero el frente y despues la
+  // espalda, que es el orden con que se quiere ver la ficha.
+  for (const foto of completas) foto.colores = await coloresEnElPecho(foto.buffer);
+  completas.sort((a, b) => b.colores - a.colores);
+
+  return [...completas, ...planos];
 }
 
 /**
@@ -90,11 +172,25 @@ export default async function handler(req, res) {
     const timestamp = Date.now();
     const results = [];
 
-    for (let i = 0; i < photoUrls.length; i++) {
+    // Se recortan todas antes de decidir cuales publicar: hasta no quitarles el
+    // fondo no se sabe cuales muestran la prenda completa.
+    const recortadas = [];
+    for (const [i, url] of photoUrls.entries()) {
       try {
-        const rawBuffer = await downloadYupooPhoto(photoUrls[i], store);
-        const noBgBuffer = await removeBackground(rawBuffer);
-        const { masterBuffer, cardBuffer } = await buildCatalogAssets(noBgBuffer);
+        const sinFondo = await removeBackground(await downloadYupooPhoto(url, store));
+        recortadas.push({ ...sinFondo, url });
+      } catch (err) {
+        console.warn(`[process-photo] no se pudo bajar o recortar la foto ${i}:`, err.message);
+      }
+    }
+
+    const elegidas = await ordenarParaLaFicha(recortadas);
+    console.log(`[process-photo] ${recortadas.length} recortadas, ${elegidas.length} sirven, se publican ${Math.min(elegidas.length, maxFotos)}`);
+
+    for (const [i, foto] of elegidas.entries()) {
+      if (results.length >= maxFotos) break;
+      try {
+        const { masterBuffer, cardBuffer } = await buildCatalogAssets(foto.buffer);
 
         const masterPath = `${slug}/${timestamp}-${i + 1}.webp`;
         const cardPath = `${slug}/${timestamp}-${i + 1}-card.webp`;
@@ -110,10 +206,10 @@ export default async function handler(req, res) {
         if (cardErr) throw new Error(`subiendo card: ${cardErr.message}`);
 
         const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(masterPath);
-        results.push({ sourceUrl: photoUrls[i], finalUrl: urlData.publicUrl, path: masterPath, cardPath });
-        console.log(`[process-photo] ${i + 1}/${photoUrls.length} lista: ${masterPath} (+ card)`);
+        results.push({ sourceUrl: foto.url, finalUrl: urlData.publicUrl, path: masterPath, cardPath, proporcion: foto.proporcion });
+        console.log(`[process-photo] ${masterPath} lista (opaco ${foto.proporcion})`);
       } catch (err) {
-        console.warn(`[process-photo] error en foto ${i}:`, err.message);
+        console.warn(`[process-photo] error publicando la foto ${i}:`, err.message);
       }
     }
 

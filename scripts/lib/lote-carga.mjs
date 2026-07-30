@@ -21,6 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { redactarFicha } from './ficha-producto.mjs';
+import { todasLasFotosDelAlbum } from './yupoo-search.mjs';
 
 const ROBOT = process.env.ROBOT_URL || 'http://127.0.0.1:3001';
 
@@ -201,9 +202,10 @@ async function procesarFotos(referencia, maxFotos) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       store: ganador.store,
-      // Se mandan todas las del album: process-photo descarta las que no se
+      // Todas las del album, no solo las que se usaron para comparar: las de
+      // cuerpo entero suelen ir al final. process-photo descarta las que no se
       // pueden recortar y para cuando junte las buenas que se le pidieron.
-      photoUrls: ganador.photoUrls,
+      photoUrls: await todasLasFotosDelAlbum(ganador.store, ganador.href, ganador.photoUrls),
       maxFotos,
       slugHint: referencia.titulo,
     }),
