@@ -32,7 +32,7 @@
         "costo_usd": 10.44,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
@@ -719,7 +719,7 @@
         "precio": 130000,
         "costo_usd": 15,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 1
@@ -1116,7 +1116,7 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 4,
+            "L": 3,
             "M": 2,
             "S": 0,
             "XL": 1
@@ -1138,7 +1138,7 @@
         "precio": 99000,
         "costo_usd": 11,
         "tallas": {
-            "L": 4,
+            "L": 3,
             "M": 1,
             "S": 0,
             "XL": 1
@@ -1158,7 +1158,7 @@
         "costo_usd": 11,
         "tallas": {
             "L": 3,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 1
         },
@@ -1177,7 +1177,7 @@
         "costo_usd": 14,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
             "XL": 0
         },
@@ -1263,9 +1263,7 @@
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-2.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-3.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-4.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-5.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-liverpool-1995-1996-retro-verde-y-blanca/1785103621016-6.webp"
         ]
@@ -1323,9 +1321,9 @@
         "costo_usd": 18,
         "tallas": {
             "L": 1,
-            "M": 1,
+            "M": 0,
             "S": 0,
-            "XL": 1
+            "XL": 0
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-retro-argentina-local-2006/1785103654132-1.webp"
@@ -1412,8 +1410,6 @@
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-1.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-2.webp",
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-3.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-4.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-5.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-santos-fc-20122013-local-retro/1785103693708-6.webp"
