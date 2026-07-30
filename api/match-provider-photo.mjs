@@ -99,10 +99,20 @@ function filterByColor(candidates, color) {
 // es la normal.
 function filterByCompetition(candidates, competition) {
   const esChampions = (c) => c.title.includes('欧冠');
-  const filtrados = competition === 'champions'
-    ? candidates.filter(esChampions)
-    : candidates.filter((c) => !esChampions(c));
-  return filtrados.length ? filtrados : candidates;
+
+  if (competition === 'champions') {
+    const filtrados = candidates.filter(esChampions);
+    return filtrados.length ? filtrados : candidates;
+  }
+
+  // No haber escrito "champions" no significa NO querer la de Champions: casi
+  // siempre significa que uno escribio poco. Antes esta rama las descartaba, y
+  // con eso el album correcto de la Barcelona 08/09 (欧冠版) desaparecia
+  // buscando "barcelona retro 08"; solo salia escribiendo el titulo completo.
+  //
+  // Se dejan al final, que era la intencion original: cuando uno pide la
+  // camiseta normal, la de Champions no debe ir de primera.
+  return [...candidates.filter((c) => !esChampions(c)), ...candidates.filter(esChampions)];
 }
 
 function albumIdFromHref(href) {

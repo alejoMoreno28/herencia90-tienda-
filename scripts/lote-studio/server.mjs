@@ -157,7 +157,14 @@ function conClientes(referencias, decisiones = {}) {
 export function crearRouterLoteStudio() {
   const router = express.Router();
 
-  router.use('/cargador', express.static(path.join(AQUI, 'app')));
+  // Sin caché a proposito. Esta pantalla se arregla a menudo, y una copia vieja
+  // guardada en el navegador hace perder mucho tiempo: uno cree que el arreglo
+  // no funciono cuando lo que esta viendo es el programa de antes.
+  router.use('/cargador', express.static(path.join(AQUI, 'app'), {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res) => res.setHeader('Cache-Control', 'no-store'),
+  }));
 
   router.post('/api/lote/analizar', async (req, res) => {
     const { nombreArchivo, xlsxBase64 } = req.body || {};

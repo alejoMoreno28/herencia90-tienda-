@@ -163,9 +163,23 @@ export function extractSeasonPattern(description, isClub) {
   }
 
   // año suelto
+  //
+  // Tambien de dos cifras, que es como uno lo escribe al corregir a mano:
+  // "barcelona retro 08". Sin esto no salia ningun patron, la busqueda iba sin
+  // filtro de temporada y traia cualquier retro del equipo: escribiendo eso
+  // salian la 97-98, la 2002-03 y la 2006-07 antes que la 08/09.
+  //
+  // Solo cuando el texto dice retro. Sin esa palabra un numero de dos cifras
+  // es casi siempre un dorsal, y filtrar por "10-11" una camiseta de Messi
+  // dejaria la busqueda sin resultados.
   const yearMatch = text.match(/\b((?:19|20)\d{2})\b/);
-  if (!yearMatch) return null;
-  const year = parseInt(yearMatch[1], 10);
+  const cortoRetro = !yearMatch && /retro/i.test(text) ? text.match(/\b(\d{2})\b/) : null;
+  if (!yearMatch && !cortoRetro) return null;
+
+  const dosCifras = cortoRetro ? parseInt(cortoRetro[1], 10) : 0;
+  const year = yearMatch
+    ? parseInt(yearMatch[1], 10)
+    : (dosCifras >= 70 ? 1900 : 2000) + dosCifras;
 
   if (!isClub) {
     // seleccion nacional: normalmente se referencia por año unico (no temporada)
