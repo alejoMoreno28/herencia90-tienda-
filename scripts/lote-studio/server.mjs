@@ -20,7 +20,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { prepararReferencias, analizarReferencias } from '../lib/lote-analisis.mjs';
 import {
-  traerProductos, cargarLote, resumirCarga, aplicarDecisiones,
+  api, traerProductos, cargarLote, resumirCarga, aplicarDecisiones,
   leerEstado, resumenEstado, sumarTallas,
 } from '../lib/lote-carga.mjs';
 import { downloadYupooPhoto } from '../lib/yupoo-search.mjs';
