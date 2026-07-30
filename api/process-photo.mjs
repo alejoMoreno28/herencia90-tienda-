@@ -111,8 +111,14 @@ async function coloresEnElPecho(buffer) {
 
 /**
  * Deja las fotos en el orden con que se quieren ver en la ficha: frente,
- * espalda, el resto de la prenda completa, y al final los acercamientos. Las
- * que se rompieron al quitarles el fondo se descartan.
+ * espalda, el resto de la prenda completa, y al final los acercamientos.
+ *
+ * Y decide, foto por foto, si se publica el recorte o la foto tal como vino
+ * del proveedor. Quitar el fondo solo tiene sentido cuando hay fondo que
+ * quitar: en la camiseta colgada, que se ve entera sobre una pared. En un
+ * acercamiento al escudo o al cuello la tela llena el encuadre, no hay fondo,
+ * y el modelo termina recortando la prenda misma: quedan el escudo o el swoosh
+ * flotando en el vacio. Esas se dejan con su fondo original, sin tocar.
  *
  * Antes se publicaban las primeras del album tal cual, y como el proveedor
  * empieza por los detalles de la tela y la etiqueta, la ficha podia terminar
@@ -122,36 +128,48 @@ async function ordenarParaLaFicha(fotos) {
   const completas = [];
   const planos = [];
   for (const foto of fotos) {
-    if (!foto.recortada) continue;
     const cabeEntera = foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX;
     const ocupaLoSuyo = foto.proporcion != null && foto.proporcion >= OCUPACION_MINIMA;
-    if (cabeEntera && ocupaLoSuyo) completas.push(foto);
-    else planos.push(foto);
+    if (foto.recortada && cabeEntera && ocupaLoSuyo) {
+      completas.push({ ...foto, publicar: foto.buffer, sinFondo: true });
+    } else {
+      // Acercamiento (o recorte que se comio la prenda): va la original.
+      planos.push({ ...foto, publicar: foto.original, sinFondo: false });
+    }
   }
 
   // Entre las que muestran la prenda completa, primero el frente y despues la
   // espalda, que es el orden con que se quiere ver la ficha.
-  for (const foto of completas) foto.colores = await coloresEnElPecho(foto.buffer);
+  for (const foto of completas) foto.colores = await coloresEnElPecho(foto.publicar);
   completas.sort((a, b) => b.colores - a.colores);
 
   return [...completas, ...planos];
 }
 
 /**
- * Dado un PNG con fondo ya removido, produce los buffers master (1200) y
- * card (640) en WebP, recortando primero al contenido real (igual que
- * preventa-square-assets.mjs) para no dejar margen transparente de sobra.
+ * Produce los buffers master (1200) y card (640) en WebP.
+ *
+ * Cuando la foto viene con el fondo ya removido se recorta primero al
+ * contenido real (igual que preventa-square-assets.mjs) para no dejar margen
+ * transparente de sobra. Cuando va con su fondo original no hay nada que
+ * recortar: se encuadra y ya, porque buscar el "contenido" en una foto opaca
+ * daria la foto entera de todos modos.
  */
-async function buildCatalogAssets(noBgBuffer) {
-  const stats = await alphaStats(noBgBuffer);
-  if (stats.transparentRatio < MIN_TRANSPARENT_RATIO) {
-    throw new Error(`la foto no parece tener el fondo removido (transparente: ${(stats.transparentRatio * 100).toFixed(1)}%)`);
+async function buildCatalogAssets(buffer, { sinFondo = true } = {}) {
+  let listo = buffer;
+
+  if (sinFondo) {
+    const stats = await alphaStats(buffer);
+    if (stats.transparentRatio < MIN_TRANSPARENT_RATIO) {
+      throw new Error(`la foto no parece tener el fondo removido (transparente: ${(stats.transparentRatio * 100).toFixed(1)}%)`);
+    }
+    listo = await sharp(buffer).rotate().ensureAlpha().extract(stats.bbox).png().toBuffer();
+  } else {
+    listo = await sharp(buffer).rotate().ensureAlpha().png().toBuffer();
   }
 
-  const cropped = await sharp(noBgBuffer).rotate().ensureAlpha().extract(stats.bbox).png().toBuffer();
-
-  const masterBuffer = await buildSquareAssetBuffer(cropped, MASTER_SIZE, MASTER_FIT);
-  const cardBuffer = await buildSquareAssetBuffer(cropped, CARD_SIZE, CARD_FIT);
+  const masterBuffer = await buildSquareAssetBuffer(listo, MASTER_SIZE, MASTER_FIT);
+  const cardBuffer = await buildSquareAssetBuffer(listo, CARD_SIZE, CARD_FIT);
   return { masterBuffer, cardBuffer };
 }
 
@@ -172,25 +190,29 @@ export default async function handler(req, res) {
     const timestamp = Date.now();
     const results = [];
 
-    // Se recortan todas antes de decidir cuales publicar: hasta no quitarles el
-    // fondo no se sabe cuales muestran la prenda completa.
+    // Se le pasa el borrador de fondos a todas antes de decidir cuales
+    // publicar: hasta no medir el recorte no se sabe cuales muestran la prenda
+    // completa. Se guarda tambien la foto original, porque en los acercamientos
+    // el recorte se descarta y se publica la de siempre.
     const recortadas = [];
     for (const [i, url] of photoUrls.entries()) {
       try {
-        const sinFondo = await removeBackground(await downloadYupooPhoto(url, store));
-        recortadas.push({ ...sinFondo, url });
+        const original = await downloadYupooPhoto(url, store);
+        const sinFondo = await removeBackground(original);
+        recortadas.push({ ...sinFondo, original, url });
       } catch (err) {
         console.warn(`[process-photo] no se pudo bajar o recortar la foto ${i}:`, err.message);
       }
     }
 
     const elegidas = await ordenarParaLaFicha(recortadas);
-    console.log(`[process-photo] ${recortadas.length} recortadas, ${elegidas.length} sirven, se publican ${Math.min(elegidas.length, maxFotos)}`);
+    const conRecorte = elegidas.filter((f) => f.sinFondo).length;
+    console.log(`[process-photo] ${recortadas.length} fotos, ${conRecorte} sin fondo, ${elegidas.length - conRecorte} con su fondo original, se publican ${Math.min(elegidas.length, maxFotos)}`);
 
     for (const [i, foto] of elegidas.entries()) {
       if (results.length >= maxFotos) break;
       try {
-        const { masterBuffer, cardBuffer } = await buildCatalogAssets(foto.buffer);
+        const { masterBuffer, cardBuffer } = await buildCatalogAssets(foto.publicar, { sinFondo: foto.sinFondo });
 
         const masterPath = `${slug}/${timestamp}-${i + 1}.webp`;
         const cardPath = `${slug}/${timestamp}-${i + 1}-card.webp`;
@@ -206,8 +228,8 @@ export default async function handler(req, res) {
         if (cardErr) throw new Error(`subiendo card: ${cardErr.message}`);
 
         const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(masterPath);
-        results.push({ sourceUrl: foto.url, finalUrl: urlData.publicUrl, path: masterPath, cardPath, proporcion: foto.proporcion });
-        console.log(`[process-photo] ${masterPath} lista (opaco ${foto.proporcion})`);
+        results.push({ sourceUrl: foto.url, finalUrl: urlData.publicUrl, path: masterPath, cardPath, proporcion: foto.proporcion, sinFondo: foto.sinFondo });
+        console.log(`[process-photo] ${masterPath} lista (${foto.sinFondo ? 'sin fondo' : 'fondo original'}, borde ${foto.bordeOpaco})`);
       } catch (err) {
         console.warn(`[process-photo] error publicando la foto ${i}:`, err.message);
       }
