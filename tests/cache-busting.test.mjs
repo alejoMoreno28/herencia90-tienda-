@@ -68,4 +68,3 @@ test('production routing exposes the first-party bio page', async () => {
   );
   assert.match(sitemap, /<loc>https:\/\/www\.herencia90\.shop\/bio<\/loc>/);
 });
-

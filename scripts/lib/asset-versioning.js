@@ -103,4 +103,3 @@ module.exports = {
   contentVersion,
   versionRepository
 };
-

@@ -17,4 +17,3 @@ if (changedFiles.length === 0) {
   }
   console.log(`Updated ${changedFiles.length} file(s).`);
 }
-
