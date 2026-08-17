@@ -2,6 +2,7 @@
   "name": "herencia90-tienda",
   "version": "1.0.0",
   "scripts": {
+    "assets:version": "node scripts/cache_bust.js",
     "pv:discover:huiliyuan": "node scripts/pv-discover-provider-catalog.mjs https://huiliyuan.x.yupoo.com/",
     "preventa:curate:local": "node scripts/preventa-curate-local.mjs",
     "preventa:curate:import": "node scripts/preventa-curation-import.mjs",

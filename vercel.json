@@ -56,6 +56,15 @@
       ]
     },
     {
+      "source": "/bio",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
       "source": "/admin",
       "headers": [
         {
@@ -285,6 +294,10 @@
     {
       "source": "/catalogo",
       "destination": "/catalogo.html"
+    },
+    {
+      "source": "/bio",
+      "destination": "/bio.html"
     },
     {
       "source": "/admin",

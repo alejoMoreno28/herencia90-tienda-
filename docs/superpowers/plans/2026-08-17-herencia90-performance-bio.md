@@ -240,4 +240,3 @@
 8. Re-run mobile PageSpeed/Lighthouse when service quota allows; otherwise reproduce the local throttled measurement and clearly label it as laboratory evidence.
 
 9. Report the production URL, commit SHA, changed-file groups, tests, measured before/after results, and any remaining low-priority limitations.
-
