@@ -14,10 +14,13 @@ function displayCategory(name) {
 const SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
 const SUPABASE_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+const GA_MEASUREMENT_ID = 'G-576MFSV66N';
+const PHOSPHOR_STYLES_ROOT = 'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src';
 const ENABLE_PUBLIC_ANALYTICS = false;
 let db = null;
 let supabasePromise = null;
 let aosPromise = null;
+let googleAnalyticsPromise = null;
 
 let allProducts = [];
 let catalogSearchTerm = '';
@@ -43,6 +46,18 @@ function runWhenIdle(callback, timeout = 1800) {
 
 function runAfterIdleDelay(callback, delay = 1800, timeout = 1800) {
     setTimeout(() => runWhenIdle(callback, timeout), delay);
+}
+
+function runAfterWindowLoadIdle(callback, delay = 0, timeout = 1800) {
+    const schedule = () => {
+        setTimeout(() => runWhenIdle(callback, timeout), delay);
+    };
+
+    if (document.readyState === 'complete') {
+        schedule();
+        return;
+    }
+    window.addEventListener('load', schedule, { once: true });
 }
 
 function runAfterFirstInteraction(callback, fallbackDelay = 9000) {
@@ -89,6 +104,45 @@ function loadExternalScript(src) {
         script.onerror = reject;
         document.head.appendChild(script);
     });
+}
+
+function loadStylesheet(href) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`link[rel="stylesheet"][href="${href}"]`);
+        if (existing) {
+            resolve();
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.onload = resolve;
+        link.onerror = reject;
+        document.head.appendChild(link);
+    });
+}
+
+function loadPhosphorStyles(weights) {
+    return Promise.all(weights.map((weight) => (
+        loadStylesheet(`${PHOSPHOR_STYLES_ROOT}/${weight}/style.css`)
+    ))).catch(function(){});
+}
+
+function loadGoogleAnalytics() {
+    if (googleAnalyticsPromise) return googleAnalyticsPromise;
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function() {
+        window.dataLayer.push(arguments);
+    };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID);
+
+    googleAnalyticsPromise = loadExternalScript(
+        `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
+    ).catch(function(){});
+    return googleAnalyticsPromise;
 }
 
 async function ensureSupabaseClient() {
@@ -513,6 +567,52 @@ function applySearchFromUrl() {
     syncSearchInputs(q);
 }
 
+function hasProductSurface() {
+    return Boolean(byId('productGrid') || byId('featuredProductGrid'));
+}
+
+function initializeProductSurface() {
+    if (!hasProductSurface()) return;
+
+    applySearchFromUrl();
+    loadProducts().then((products) => {
+        allProducts = products;
+        renderProducts(allProducts);
+        renderFeaturedProducts();
+
+        if (!isConstrainedNetwork) {
+            runAfterFirstInteraction(() => {
+                runWhenIdle(() => {
+                    refreshProductsFromSupabase(allProducts).then((freshProducts) => {
+                        if (!Array.isArray(freshProducts) || freshProducts.length === 0) return;
+                        allProducts = freshProducts;
+                        renderProducts(allProducts);
+                        renderFeaturedProducts();
+                    });
+                }, 1800);
+            }, 16000);
+        }
+    });
+
+    // Real-time solo aporta valor en rutas que muestran productos.
+    if (!isConstrainedNetwork) {
+        runAfterFirstInteraction(() => {
+            runWhenIdle(() => {
+                ensureSupabaseClient().then((client) => client.channel('stock-live')
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
+                        const idx = allProducts.findIndex(p => p.id === payload.new.id);
+                        if (idx !== -1) {
+                            allProducts[idx] = payload.new;
+                            renderProducts(allProducts);
+                            renderFeaturedProducts();
+                        }
+                    })
+                    .subscribe()).catch(function(){});
+            }, 1800);
+        }, 22000);
+    }
+}
+
 // ── DOM Ready ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // Forzar la reproducción del video de fondo en móviles (iOS/Android y Modo Ahorro)
@@ -581,53 +681,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    runAfterFirstInteraction(() => {
-        runWhenIdle(() => {
-            loadExternalScript('https://unpkg.com/@phosphor-icons/web').catch(function(){});
-        }, 1800);
-    }, 18000);
+    runAfterWindowLoadIdle(() => loadPhosphorStyles(['regular', 'bold', 'fill']), 1200, 1800);
+    runAfterWindowLoadIdle(loadGoogleAnalytics, 4500, 2000);
 
     // Registrar visita a la página
     runAfterIdleDelay(() => trackEvent('page_view', {}), 2500, 1800);
 
-    applySearchFromUrl();
-
-    loadProducts().then((products) => {
-        allProducts = products;
-        renderNavigation();
-        renderProducts(allProducts);
-        renderFeaturedProducts();
-    if (!isConstrainedNetwork) {
-        runAfterFirstInteraction(() => {
-            runWhenIdle(() => {
-                refreshProductsFromSupabase(allProducts).then((freshProducts) => {
-                    if (!Array.isArray(freshProducts) || freshProducts.length === 0) return;
-                    allProducts = freshProducts;
-                    renderNavigation();
-                    renderProducts(allProducts);
-                    renderFeaturedProducts();
-                });
-            }, 1800);
-        }, 16000);
-        }
-    });
-
-    // Real-time: se difiere para no competir con el primer render.
-    if (!isConstrainedNetwork) {
-        runAfterFirstInteraction(() => {
-            runWhenIdle(() => {
-            ensureSupabaseClient().then((client) => client.channel('stock-live')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
-                    const idx = allProducts.findIndex(p => p.id === payload.new.id);
-                    if (idx !== -1) {
-                        allProducts[idx] = payload.new;
-                        renderProducts(allProducts);
-                    }
-                })
-                .subscribe()).catch(function(){});
-            }, 1800);
-        }, 22000);
-    }
+    renderNavigation();
+    initializeProductSurface();
 
     // Modal close
     const modal = byId('productModal');

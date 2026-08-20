@@ -272,10 +272,11 @@
 (function () {
     var SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
-    var SUPABASE_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+    var PV_REMOTE_SELECT = 'id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox,pais_o_club,tags';
     var PV_LIST_URL = '/preventa-catalogo-list.json';
     var PV_FULL_CATALOG_URL = '/preventa-catalogo.json';
-    var db = null;
+    var PV_GA_MEASUREMENT_ID = 'G-576MFSV66N';
+    var PV_PHOSPHOR_STYLES_ROOT = 'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src';
 
     var _pvAll = [];
     var _pvFiltroType = 'all';
@@ -292,6 +293,8 @@
     var _pvImgObserver = null;
     var _pvFullCatalogPromise = null;
     var _pvFullBySlug = {};
+    var _pvGoogleAnalyticsPromise = null;
+    var _pvPhosphorPromise = null;
     var PV_MOBILE_VIEW_KEY = 'pv-mobile-view';
     var PV_CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -507,6 +510,8 @@
     function getPreventaGalleryImages(item) {
         var urls = [];
         var curatedSources = {};
+        // Compatibilidad del JSON local: imagenes,imagenes_detalle,imagenes_originales,photo_count_gallery.
+        // La consulta REST usa solo columnas confirmadas en `preventa_catalogo`.
         var detailImages = item && Array.isArray(item.imagenes_detalle)
             ? item.imagenes_detalle
             : ((item && item.imagenes_originales) || []);
@@ -1183,52 +1188,24 @@
         return _pvFullCatalogPromise;
     }
 
-    function pvLoadSupabaseClient() {
-        if (db) return Promise.resolve(db);
-        if (window.supabase) {
-            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            return Promise.resolve(db);
-        }
-
-        return new Promise(function (resolve, reject) {
-            var existing = document.querySelector('script[data-pv-supabase]');
-            if (existing) {
-                existing.addEventListener('load', function () {
-                    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    resolve(db);
-                }, { once: true });
-                existing.addEventListener('error', reject, { once: true });
-                return;
-            }
-
-            var script = document.createElement('script');
-            script.src = SUPABASE_SCRIPT_URL;
-            script.async = true;
-            script.defer = true;
-            script.dataset.pvSupabase = 'true';
-            script.onload = function () {
-                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                resolve(db);
-            };
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-
     function pvLoadFromSupabaseFallback() {
-        return pvLoadSupabaseClient().then(function (client) {
-            return client.from('preventa_catalogo')
-                .select('id,slug,equipo,temporada,tipo,categoria,decada,imagenes,imagenes_detalle,imagenes_originales,photo_count_gallery,gallery_status,destacado,descripcion,precio_aprox,pais_o_club,tags')
-                .eq('publicado', true)
-                .order('destacado', { ascending: false });
-        }).then(function (res) {
-            if (res.error) throw res.error;
-            return res.data || [];
+        var params = new URLSearchParams({
+            select: PV_REMOTE_SELECT,
+            publicado: 'eq.true',
+            order: 'destacado.desc'
+        });
+        return fetch(SUPABASE_URL + '/rest/v1/preventa_catalogo?' + params.toString(), {
+            headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: 'Bearer ' + SUPABASE_ANON_KEY
+            }
+        }).then(function (response) {
+            if (!response.ok) throw new Error('Supabase preventa respondio ' + response.status);
+            return response.json();
         });
     }
 
     var _pvDeferredRefreshStarted = false;
-    var _pvPhosphorPromise = null;
 
     function pvHasConstrainedNetwork() {
         var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -1243,57 +1220,65 @@
         setTimeout(callback, Math.min(timeout || 1800, 1200));
     }
 
-    function pvRunAfterFirstInteraction(callback, fallbackDelay) {
-        var fired = false;
-        var run = function () {
-            if (fired) return;
-            fired = true;
-            window.removeEventListener('pointerdown', run);
-            window.removeEventListener('keydown', run);
-            window.removeEventListener('scroll', run);
-            window.removeEventListener('touchstart', run);
-            callback();
+    function pvRunAfterWindowLoadIdle(callback, delay, timeout) {
+        var schedule = function () {
+            setTimeout(function () {
+                pvRunWhenIdle(callback, timeout || 1800);
+            }, delay || 0);
         };
-        window.addEventListener('pointerdown', run, { passive: true });
-        window.addEventListener('keydown', run);
-        window.addEventListener('scroll', run, { passive: true });
-        window.addEventListener('touchstart', run, { passive: true });
-        setTimeout(run, fallbackDelay || 18000);
+        if (document.readyState === 'complete') {
+            schedule();
+            return;
+        }
+        window.addEventListener('load', schedule, { once: true });
     }
 
-    function pvLoadPhosphorIcons() {
+    function pvLoadPhosphorStyles(weights) {
         if (_pvPhosphorPromise) return _pvPhosphorPromise;
-        _pvPhosphorPromise = new Promise(function (resolve, reject) {
-            var existing = document.querySelector('script[data-pv-phosphor]');
-            if (existing) {
-                existing.addEventListener('load', resolve, { once: true });
-                existing.addEventListener('error', reject, { once: true });
-                return;
-            }
+        _pvPhosphorPromise = Promise.all(weights.map(function (weight) {
+            var href = PV_PHOSPHOR_STYLES_ROOT + '/' + weight + '/style.css';
+            var existing = document.querySelector('link[rel="stylesheet"][href="' + href + '"]');
+            if (existing) return Promise.resolve();
+            return new Promise(function (resolve, reject) {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.onload = resolve;
+                link.onerror = reject;
+                document.head.appendChild(link);
+            });
+        })).catch(function () {});
+        return _pvPhosphorPromise;
+    }
+
+    function pvLoadGoogleAnalytics() {
+        if (_pvGoogleAnalyticsPromise) return _pvGoogleAnalyticsPromise;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function () {
+            window.dataLayer.push(arguments);
+        };
+        window.gtag('js', new Date());
+        window.gtag('config', PV_GA_MEASUREMENT_ID);
+
+        _pvGoogleAnalyticsPromise = new Promise(function (resolve, reject) {
             var script = document.createElement('script');
-            script.src = 'https://unpkg.com/@phosphor-icons/web';
             script.async = true;
-            script.defer = true;
-            script.dataset.pvPhosphor = 'true';
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + PV_GA_MEASUREMENT_ID;
             script.onload = resolve;
             script.onerror = reject;
             document.head.appendChild(script);
         }).catch(function () {});
-        return _pvPhosphorPromise;
+        return _pvGoogleAnalyticsPromise;
     }
 
     function pvRefreshFromSupabaseLater() {
         if (_pvDeferredRefreshStarted || pvHasConstrainedNetwork()) return;
         _pvDeferredRefreshStarted = true;
-        pvRunAfterFirstInteraction(function () {
-            pvRunWhenIdle(function () {
-                pvLoadFromSupabaseFallback().then(function (remoteItems) {
-                    if (!Array.isArray(remoteItems) || !remoteItems.length) return;
-                    pvIndexFullItems(remoteItems);
-                    pvSetCatalogItems(remoteItems);
-                }).catch(function () {});
-            }, 2400);
-        }, 18000);
+        pvLoadFromSupabaseFallback().then(function (remoteItems) {
+            if (!Array.isArray(remoteItems) || !remoteItems.length) return;
+            pvIndexFullItems(remoteItems);
+            pvSetCatalogItems(remoteItems);
+        }).catch(function () {});
     }
 
     async function pvCargar() {
@@ -1301,13 +1286,13 @@
         try {
             var listItems = await pvFetchJson(PV_LIST_URL);
             pvIndexFullItems(listItems);
-            if (pvSetCatalogItems(listItems)) pvRefreshFromSupabaseLater();
+            pvSetCatalogItems(listItems);
             return;
         } catch (e) {
             try {
                 var fullItems = await pvLoadFullCatalog();
                 pvIndexFullItems(fullItems);
-                if (pvSetCatalogItems(fullItems)) pvRefreshFromSupabaseLater();
+                pvSetCatalogItems(fullItems);
                 return;
             } catch (fallbackError) {
                 try {
@@ -1781,9 +1766,13 @@
             }
         }, { passive: true });
 
-        pvRunAfterFirstInteraction(function () {
-            pvRunWhenIdle(function () { pvLoadPhosphorIcons(); }, 1800);
-        }, 18000);
+        pvRunAfterWindowLoadIdle(function () {
+            pvLoadPhosphorStyles(['bold']);
+        }, 1200, 1800);
+        pvRunAfterWindowLoadIdle(pvLoadGoogleAnalytics, 4500, 2000);
+        pvRunAfterWindowLoadIdle(function () {
+            pvRefreshFromSupabaseLater();
+        }, 18000, 2400);
 
         pvApplySearchFromUrl();
         pvCargar();

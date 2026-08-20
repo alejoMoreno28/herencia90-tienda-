@@ -1,27 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      (function(){
-        var loaded = false;
-        var loadGtag = function(){
-          if (loaded) return;
-          loaded = true;
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
-          document.head.appendChild(script);
-          gtag('js', new Date());
-          gtag('config', 'G-576MFSV66N');
-        };
-        var schedule = function(){ setTimeout(loadGtag, 4500); };
-        window.addEventListener('pointerdown', loadGtag, { once: true, passive: true });
-        window.addEventListener('keydown', loadGtag, { once: true });
-        window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/img/favicon.webp" type="image/webp">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -53,7 +34,7 @@
     <meta name="twitter:image" content="https://www.herencia90.shop/img/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://nlnrdtcgbdkzfzwnsffp.supabase.co" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500;700&display=swap" media="print" onload="this.media='all'">
     <noscript>
@@ -317,7 +298,7 @@
         <div class="pv-lb-content">
             <div class="pv-lb-carousel" id="pv-lb-carousel">
                 <button class="pv-lb-arrow left" id="pv-lb-prev" aria-label="Anterior">&#8249;</button>
-                <img class="pv-lb-img" id="pv-lb-img" src="/img/logo-ui.webp" alt="Vista de referencia seleccionada">
+                <img class="pv-lb-img" id="pv-lb-img" src="/img/logo-ui.webp" alt="Vista de referencia seleccionada" width="640" height="640" decoding="async">
                 <button class="pv-lb-arrow right" id="pv-lb-next" aria-label="Siguiente">&#8250;</button>
             </div>
             <div class="pv-lb-thumbs" id="pv-lb-thumbs"></div>
@@ -338,7 +319,7 @@
     <!-- Category Drawer (movil) -->
     <div class="category-drawer" id="categoryDrawer">
         <div class="category-drawer-header">
-            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="drawer-logo"></a>
+            <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" class="drawer-logo" width="220" height="249" loading="lazy" decoding="async"></a>
             <button class="category-drawer-close" id="categoryDrawerClose" aria-label="Cerrar menu">&times;</button>
         </div>
         <nav class="category-drawer-nav" id="mobileCatNav">
