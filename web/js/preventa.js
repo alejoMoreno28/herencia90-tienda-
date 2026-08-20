@@ -273,8 +273,8 @@
     var SUPABASE_URL = 'https://nlnrdtcgbdkzfzwnsffp.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
     var PV_REMOTE_SELECT = 'id,slug,equipo,temporada,tipo,categoria,decada,imagenes,destacado,descripcion,precio_aprox,pais_o_club,tags';
-    var PV_LIST_URL = '/preventa-catalogo-list.json';
-    var PV_FULL_CATALOG_URL = '/preventa-catalogo.json';
+    var PV_LIST_URL = '/preventa-catalogo-list.json?v=f6fa9abb551e';
+    var PV_FULL_CATALOG_URL = '/preventa-catalogo.json?v=0fdf412efcee';
     var PV_GA_MEASUREMENT_ID = 'G-576MFSV66N';
     var PV_PHOSPHOR_STYLES_ROOT = 'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src';
 

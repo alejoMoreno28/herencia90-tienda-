@@ -47,12 +47,11 @@ test('product data and Supabase runtime are gated behind a real product surface'
 
 test('catalog preloads the exact product JSON once and drops stale image preloads', () => {
     const productJsonHints = catalogHtml.match(/<link[^>]+href="\/productos\.json[^>]*>/g) || [];
+    const fetchUrl = appSource.match(/fetch\('(?<url>\/productos\.json\?v=[a-f0-9]{12})'\)/)?.groups?.url;
     assert.equal(productJsonHints.length, 1, 'catalog should emit one product JSON resource hint');
-    assert.match(
-        productJsonHints[0],
-        /rel="preload"[^>]+href="\/productos\.json\?v=1780613504326"[^>]+as="fetch"/,
-        'the preload URL must exactly match loadLocalProducts()'
-    );
+    assert.ok(fetchUrl, 'loadLocalProducts should fetch content-hashed product JSON');
+    assert.match(productJsonHints[0], /rel="preload"[^>]+as="fetch"/);
+    assert.match(productJsonHints[0], new RegExp(`href="${fetchUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`), 'the preload URL must exactly match loadLocalProducts()');
     assert.doesNotMatch(catalogHtml, /<link[^>]+rel="preload"[^>]+as="image"/);
 });
 

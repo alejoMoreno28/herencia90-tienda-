@@ -15,14 +15,6 @@ function htmlFiles(relativeDir, { exclude = [] } = {}) {
     .map((file) => ({ file, html: read(path.join(relativeDir, file)) }));
 }
 
-function maintainedProductPages() {
-  const retiredLegacyPages = new Set([
-    'arsenal-local-25-26.html',
-    'camiseta-retro-brasil-local-2004-ronaldo.html',
-  ]);
-  return htmlFiles('web/camisetas').filter(({ file }) => !retiredLegacyPages.has(file));
-}
-
 function imageTags(fragment) {
   return fragment.match(/<img\b[^>]*>/gi) || [];
 }
@@ -36,7 +28,7 @@ function assertResponsiveImage(tag, label, loading = 'lazy') {
 
 test('generated pages never prefix an absolute asset URL', () => {
   const generatedPages = [
-    ...maintainedProductPages(),
+    ...htmlFiles('web/camisetas'),
     ...htmlFiles('web/ciudades'),
     ...htmlFiles('web/preventa', { exclude: ['index.html'] }),
   ];
@@ -95,7 +87,7 @@ test('related and city cards are lazy, async, dimensioned, and use local card as
 
 test('generated pages use lightweight identity assets and stable preventa image geometry', () => {
   const generatedPages = [
-    ...maintainedProductPages(),
+    ...htmlFiles('web/camisetas'),
     ...htmlFiles('web/ciudades'),
     ...htmlFiles('web/preventa', { exclude: ['index.html'] }),
   ];

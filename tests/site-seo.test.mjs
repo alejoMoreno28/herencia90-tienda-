@@ -136,7 +136,7 @@ check('category pages preserve shared navigation and dynamic catalog rendering',
     assert.match(sampleHtml, /id="mobileCatNav"/i, `${file} should expose mobile category nav`);
     assert.match(sampleHtml, /data-category="[^"]+"/i, `${file} should expose a category slug`);
     assert.match(sampleHtml, /<div class="product-grid" id="productGrid"><\/div>/i, `${file} should render the shared product grid`);
-    assert.match(sampleHtml, /<script(?:\s+defer)?\s+src="\/js\/app\.js\?v=\d+"><\/script>/i, `${file} should load a cache-busted app.js`);
+    assert.match(sampleHtml, /<script(?:\s+defer)?\s+src="\/js\/app\.js\?v=[a-f0-9]{12}"><\/script>/i, `${file} should load content-hashed app.js`);
     assert.doesNotMatch(sampleHtml, /<header class="topbar">/i, `${file} should not use the legacy topbar landing`);
     assert.doesNotMatch(sampleHtml, /STATIC_COLLECTION/i, `${file} should not use the legacy static collection`);
     assert.doesNotMatch(sampleHtml, /collectionProducts/i, `${file} should not render hardcoded product cards`);

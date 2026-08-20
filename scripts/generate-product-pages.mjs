@@ -2161,6 +2161,7 @@ function buildSitemap() {
     `${siteUrl}/`,
     `${siteUrl}/preventa`,
     `${siteUrl}/catalogo`,
+    `${siteUrl}/bio`,
     `${siteUrl}/nosotros`,
     `${siteUrl}/preguntas-frecuentes`,
     ...['mundial-2026', 'alemania', 'argentina', 'arsenal', 'bayern-munich', 'brasil', 'liverpool', 'manchester-city', 'manchester-united', 'portugal', 'psg', 'mujer'].map((s) => `${siteUrl}/categorias/${s}`),
@@ -2180,6 +2181,10 @@ function buildRobots() {
   return `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
 }
 
+function cleanGeneratedMarkup(markup) {
+  return String(markup).replace(/[ \t]+$/gm, '');
+}
+
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(preventaOutputDir, { recursive: true });
 fs.mkdirSync(categoryOutputDir, { recursive: true });
@@ -2187,15 +2192,15 @@ fs.mkdirSync(cityOutputDir, { recursive: true });
 
 for (const product of products) {
   const filePath = path.join(outputDir, `${slugify(product.equipo)}.html`);
-  fs.writeFileSync(filePath, renderProductPage(product), 'utf8');
+  fs.writeFileSync(filePath, cleanGeneratedMarkup(renderProductPage(product)), 'utf8');
   for (const aliasSlug of getLegacyProductAliasSlugs(product)) {
-    fs.writeFileSync(path.join(outputDir, `${aliasSlug}.html`), renderProductPage(product), 'utf8');
+    fs.writeFileSync(path.join(outputDir, `${aliasSlug}.html`), cleanGeneratedMarkup(renderProductPage(product)), 'utf8');
   }
 }
 
 for (const item of preventaItems) {
   const filePath = path.join(preventaOutputDir, `${slugify(item.slug || item.equipo)}.html`);
-  fs.writeFileSync(filePath, renderPreventaPage(item), 'utf8');
+  fs.writeFileSync(filePath, cleanGeneratedMarkup(renderPreventaPage(item)), 'utf8');
 }
 
 for (const collection of seoCollections) {
@@ -2203,7 +2208,7 @@ for (const collection of seoCollections) {
     ? path.join(cityOutputDir, `${collection.slug}.html`)
     : path.join(categoryOutputDir, `${collection.slug}.html`);
   if (collection.type === 'city' || !fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
+    fs.writeFileSync(filePath, cleanGeneratedMarkup(renderCollectionPage(collection)), 'utf8');
   }
 }
 
