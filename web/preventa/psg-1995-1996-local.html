@@ -16,7 +16,30 @@
   <meta name="twitter:title" content="Camiseta PSG Local 1995/1996 retro | Herencia 90">
   <meta name="twitter:description" content="Camiseta PSG Local 1995/1996 retro por pre-venta en Colombia. Fotos de proveedor, anticipo 20%, entrega aprox. 15 dias. Desde $ 120.000.">
   <meta name="twitter:image" content="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/1.webp">
-  <link rel="icon" href="/img/logo.webp" type="image/webp">
+  <link rel="icon" href="/img/favicon.webp" type="image/webp">
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    (function(){
+      let loaded = false;
+      const loadGtag = function(){
+        if (loaded) return;
+        loaded = true;
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
+        document.head.appendChild(script);
+        gtag('js', new Date());
+        gtag('config', 'G-576MFSV66N');
+      };
+      const schedule = function(){
+        if ('requestIdleCallback' in window) window.requestIdleCallback(loadGtag, { timeout: 2500 });
+        else window.setTimeout(loadGtag, 1200);
+      };
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
@@ -30,7 +53,7 @@
     h1,h2,.price { font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; }
     a { color:inherit; }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 22px; border-bottom:1px solid var(--line); background:rgba(5,5,5,.88); position:sticky; top:0; z-index:5; backdrop-filter:blur(14px); }
-    .topbar img { height:42px; }
+    .topbar img { width:auto; height:42px; }
     .topbar a { color:var(--muted); text-decoration:none; font-weight:700; font-size:.86rem; }
     .shell { max-width:1180px; margin:0 auto; padding:34px 18px 72px; }
     .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:.82rem; margin-bottom:20px; }
@@ -68,7 +91,7 @@
 <body>
   <header class="topbar">
     <a href="/preventa">Volver a pre-venta</a>
-    <a href="/"><img src="/img/logo.webp" alt="Herencia 90"></a>
+    <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async"></a>
     <a href="/catalogo">Catalogo</a>
   </header>
   <main class="shell">
@@ -76,14 +99,14 @@
       <a href="/">Inicio</a><span>/</span><a href="/preventa">Pre-venta</a><span>/</span><span>Camiseta PSG Local 1995/1996 retro</span>
     </nav>
     <section class="layout">
-      <div class="gallery">        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/1.webp" alt="Camiseta PSG Local 1995/1996 retro foto 1" loading="eager" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/2.webp" alt="Camiseta PSG Local 1995/1996 retro foto 2" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/3.webp" alt="Camiseta PSG Local 1995/1996 retro foto 3" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/4.webp" alt="Camiseta PSG Local 1995/1996 retro foto 4" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/5.webp" alt="Camiseta PSG Local 1995/1996 retro foto 5" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/6.webp" alt="Camiseta PSG Local 1995/1996 retro foto 6" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/7.webp" alt="Camiseta PSG Local 1995/1996 retro foto 7" loading="lazy" decoding="async">
-        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/8.webp" alt="Camiseta PSG Local 1995/1996 retro foto 8" loading="lazy" decoding="async"></div>
+      <div class="gallery">        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/1.webp" alt="Camiseta PSG Local 1995/1996 retro foto 1" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/2.webp" alt="Camiseta PSG Local 1995/1996 retro foto 2" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/3.webp" alt="Camiseta PSG Local 1995/1996 retro foto 3" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/4.webp" alt="Camiseta PSG Local 1995/1996 retro foto 4" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/5.webp" alt="Camiseta PSG Local 1995/1996 retro foto 5" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/6.webp" alt="Camiseta PSG Local 1995/1996 retro foto 6" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/7.webp" alt="Camiseta PSG Local 1995/1996 retro foto 7" loading="lazy" decoding="async" width="1200" height="1200">
+        <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/psg-1995-1996-local/8.webp" alt="Camiseta PSG Local 1995/1996 retro foto 8" loading="lazy" decoding="async" width="1200" height="1200"></div>
       <article class="panel">
         <span class="eyebrow">Clubes · retro</span>
         <h1>Camiseta PSG Local 1995/1996 retro</h1>
@@ -110,19 +133,19 @@
       </div>
     </section>
     <section class="related"><h2>Tambien puede gustarte</h2><div class="related-grid">        <a class="related-card" href="/preventa/real-madrid-2012-2013-visitante-verde-retro">
-          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-2012-2013-visitante-verde-retro/1.webp" alt="Camiseta Real Madrid Visitante 2012-2013 retro" loading="lazy" decoding="async">
+          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-2012-2013-visitante-verde-retro/1.webp" alt="Camiseta Real Madrid Visitante 2012-2013 retro" loading="lazy" decoding="async" width="640" height="640">
           <span>Camiseta Real Madrid Visitante 2012-2013 retro</span>
         </a>
         <a class="related-card" href="/preventa/real-madrid-1998-00">
-          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-1998-00/1.webp" alt="Camiseta Real Madrid 1998-00 retro" loading="lazy" decoding="async">
+          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/real-madrid-1998-00/1.webp" alt="Camiseta Real Madrid 1998-00 retro" loading="lazy" decoding="async" width="640" height="640">
           <span>Camiseta Real Madrid 1998-00 retro</span>
         </a>
         <a class="related-card" href="/preventa/ac-milan-2006-07">
-          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ac-milan-2006-07/1.webp" alt="Camiseta AC Milan 2006-07 retro" loading="lazy" decoding="async">
+          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/ac-milan-2006-07/1.webp" alt="Camiseta AC Milan 2006-07 retro" loading="lazy" decoding="async" width="640" height="640">
           <span>Camiseta AC Milan 2006-07 retro</span>
         </a>
         <a class="related-card" href="/preventa/santos-2013">
-          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/santos-2013/1.webp" alt="Camiseta Santos 2013 retro" loading="lazy" decoding="async">
+          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/preventa-images/santos-2013/1.webp" alt="Camiseta Santos 2013 retro" loading="lazy" decoding="async" width="640" height="640">
           <span>Camiseta Santos 2013 retro</span>
         </a></div></section>
   </main>

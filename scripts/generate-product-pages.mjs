@@ -292,7 +292,90 @@ function truncateText(value, maxLength = 160) {
 }
 
 function absoluteAssetUrl(assetPath) {
-  return `${siteUrl}/${assetPath.replace(/^\/+/, '')}`;
+  const raw = String(assetPath || '').trim();
+  if (!raw) return `${siteUrl}/img/logo-ui.webp`;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `${siteUrl}/${normalizeLocalAssetPath(raw)}`;
+}
+
+function normalizeLocalAssetPath(assetPath) {
+  return String(assetPath || '')
+    .trim()
+    .replace(/\\/g, '/')
+    .replace(/^(?:\.\.\/)+/, '')
+    .replace(/^\/+/, '');
+}
+
+function clientAssetUrl(assetPath) {
+  const raw = String(assetPath || '').trim();
+  if (!raw) return '../img/logo-ui.webp';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `../${normalizeLocalAssetPath(raw)}`;
+}
+
+function getCardAssetUrl(assetPath) {
+  const raw = String(assetPath || '').trim();
+  const masterUrl = clientAssetUrl(raw);
+  if (!raw || /^https?:\/\//i.test(raw)) return masterUrl;
+
+  const localPath = normalizeLocalAssetPath(raw);
+  if (/-card\.webp$/i.test(localPath)) return `../${localPath}`;
+
+  const extension = path.posix.extname(localPath);
+  const stem = extension ? localPath.slice(0, -extension.length) : localPath;
+  const cardPath = `${stem}-card.webp`;
+  return fs.existsSync(path.join(root, 'web', ...cardPath.split('/'))) ? `../${cardPath}` : masterUrl;
+}
+
+function imageFallbackAttributes(previewUrl, masterUrl) {
+  if (previewUrl === masterUrl) return '';
+  return ` data-fallback-src="${escapeHtml(masterUrl)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc"`;
+}
+
+function pickClientProductFields(product) {
+  return {
+    id: product.id,
+    equipo: product.equipo,
+    categoria: product.categoria,
+    descripcion: product.descripcion,
+    precio: product.precio,
+    tallas: product.tallas || {},
+    imagenes: product.imagenes || []
+  };
+}
+
+function buildCardAssetMap(productList) {
+  return Object.fromEntries(productList.flatMap((product) => (product.imagenes || []).map((image) => {
+    const masterUrl = clientAssetUrl(image);
+    const cardUrl = getCardAssetUrl(image);
+    return [String(image), { cardUrl, masterUrl }];
+  })));
+}
+
+function renderDeferredGa4() {
+  return `  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    (function(){
+      let loaded = false;
+      const loadGtag = function(){
+        if (loaded) return;
+        loaded = true;
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-576MFSV66N';
+        document.head.appendChild(script);
+        gtag('js', new Date());
+        gtag('config', 'G-576MFSV66N');
+      };
+      const schedule = function(){
+        if ('requestIdleCallback' in window) window.requestIdleCallback(loadGtag, { timeout: 2500 });
+        else window.setTimeout(loadGtag, 1200);
+      };
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    })();
+  </script>`;
 }
 
 function getAvailableSizes(product) {
@@ -315,6 +398,29 @@ function getProductAliasSlug(product) {
   return null;
 }
 
+const legacyProductAliasSlugs = new Map([
+  [1, ['camiseta-local-alemania-26']],
+  [2, ['camiseta-local-argentina-26']],
+  [9, ['camiseta-local-brasil-26']],
+  [10, ['camiseta-local-colombia-26']],
+  [17, ['camiseta-edicion-especial-portugal-26']],
+  [24, ['camiseta-local-colombia-26-mujer']],
+  [28, ['retro-brasil-2004-home']],
+  [29, ['roma-25-26-blanca']],
+  [30, ['retro-milan-2008-home-dorsal-ronaldinho-dorsal-personalization']],
+  [31, ['retro-colombia-90-anos-amarilla']],
+  [32, ['retro-woman-colombia-90-anos-roja']],
+  [33, ['colombia-azul-2026']],
+  [34, ['colombia-100-anos-negra']],
+  [35, ['espana-26-blanca']],
+  [37, ['colombia-100-anos-blanca']],
+  [53, ['camiseta-espana-2026-vsitante-mujer']]
+]);
+
+function getLegacyProductAliasSlugs(product) {
+  return legacyProductAliasSlugs.get(Number(product.id)) || [];
+}
+
 function getProductUrls(product) {
   const canonical = getProductUrl(product);
   const aliasSlug = getProductAliasSlug(product);
@@ -333,14 +439,14 @@ function getPreventaUrl(item) {
 
 function getPreventaImageUrl(image) {
   const raw = image?.card_url || image?.url || image?.publicUrl || image;
-  if (!raw) return `${siteUrl}/img/logo.webp`;
+  if (!raw) return `${siteUrl}/img/logo-ui.webp`;
   if (String(raw).startsWith('http')) return raw;
   return absoluteAssetUrl(String(raw));
 }
 
 function getPreventaGalleryImageUrl(image) {
   const raw = image?.master_url || image?.url || image?.card_url || image?.publicUrl || image;
-  if (!raw) return `${siteUrl}/img/logo.webp`;
+  if (!raw) return `${siteUrl}/img/logo-ui.webp`;
   if (String(raw).startsWith('http')) return raw;
   return absoluteAssetUrl(String(raw));
 }
@@ -379,7 +485,7 @@ function getPreventaGalleryImageUrls(item) {
   }
 
   const unique = urls.filter((url, index) => url && urls.indexOf(url) === index);
-  return unique.length ? unique : [`${siteUrl}/img/logo.webp`];
+  return unique.length ? unique : [`${siteUrl}/img/logo-ui.webp`];
 }
 
 function getCollectionUrl(collection) {
@@ -412,10 +518,11 @@ function renderRelatedCards(currentProduct) {
   return getRelatedProducts(currentProduct)
     .map((product) => {
       const productUrl = `/camisetas/${slugify(product.equipo)}`;
-      const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
+      const masterImage = clientAssetUrl(product.imagenes?.[0] || 'img/logo-ui.webp');
+      const cardImage = getCardAssetUrl(product.imagenes?.[0] || 'img/logo-ui.webp');
       return `
         <a class="related-card" href="${productUrl}">
-          <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
+          <img src="${escapeHtml(cardImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" loading="lazy" decoding="async" width="640" height="640"${imageFallbackAttributes(cardImage, masterImage)}>
           <div class="related-copy">
             <strong>${escapeHtml(product.equipo)}</strong>
             <span>${escapeHtml(formatPrice(product.precio))}</span>
@@ -427,19 +534,20 @@ function renderRelatedCards(currentProduct) {
 }
 
 function renderGallery(product) {
-  const images = product.imagenes?.length ? product.imagenes : ['img/logo.webp'];
-  const mainImage = `../${images[0]}`;
+  const images = product.imagenes?.length ? product.imagenes : ['img/logo-ui.webp'];
+  const mainImage = clientAssetUrl(images[0]);
   const thumbs = images
     .map((image, index) => {
-      const src = `../${image}`;
-      return `<button class="thumb ${index === 0 ? 'active' : ''}" type="button" data-image="${escapeHtml(src)}"><img src="${escapeHtml(src)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')} - Vista ${index + 1}"></button>`;
+      const masterImage = clientAssetUrl(image);
+      const cardImage = getCardAssetUrl(image);
+      return `<button class="thumb ${index === 0 ? 'active' : ''}" type="button" data-image="${escapeHtml(masterImage)}"><img src="${escapeHtml(cardImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')} - Vista ${index + 1}" loading="lazy" decoding="async" width="640" height="640"${imageFallbackAttributes(cardImage, masterImage)}></button>`;
     })
     .join('');
 
   return `
     <div class="product-gallery">
       <div class="main-image-wrap">
-        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
+        <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1500">
       </div>
       <div class="thumb-grid">${thumbs}</div>
     </div>
@@ -454,12 +562,13 @@ function renderCollectionProductCards(collectionProducts) {
   return collectionProducts
     .map((product) => {
       const availableSizes = getAvailableSizes(product);
-      const image = product.imagenes?.[0] ? `../${product.imagenes[0]}` : '../img/logo.webp';
+      const masterImage = clientAssetUrl(product.imagenes?.[0] || 'img/logo-ui.webp');
+      const cardImage = getCardAssetUrl(product.imagenes?.[0] || 'img/logo-ui.webp');
       const productUrl = getProductAliasSlug(product) ? `/camisetas/${getProductAliasSlug(product)}` : `/camisetas/${slugify(product.equipo)}`;
       return `
         <article class="collection-product-card">
           <a class="collection-product-image" href="${productUrl}">
-            <img src="${escapeHtml(image)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}">
+            <img src="${escapeHtml(cardImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" loading="lazy" decoding="async" width="640" height="640"${imageFallbackAttributes(cardImage, masterImage)}>
           </a>
           <div class="collection-product-copy">
             <span class="collection-product-category">${escapeHtml(product.categoria || 'Herencia 90')}</span>
@@ -482,9 +591,11 @@ function renderCollectionProductCards(collectionProducts) {
 
 function renderCollectionPage(collection) {
   const collectionProducts = getCollectionProducts(collection);
+  const clientCollectionProducts = collectionProducts.map(pickClientProductFields);
+  const cardAssetMap = buildCardAssetMap(collectionProducts);
   const collectionProductIds = collectionProducts.map((product) => product.id);
   const totalStock = collectionProducts.reduce((sum, product) => sum + getStockTotal(product), 0);
-  const firstImage = collectionProducts[0]?.imagenes?.[0] ? absoluteAssetUrl(collectionProducts[0].imagenes[0]) : `${siteUrl}/img/logo.webp`;
+  const firstImage = collectionProducts[0]?.imagenes?.[0] ? absoluteAssetUrl(collectionProducts[0].imagenes[0]) : `${siteUrl}/img/logo-ui.webp`;
   const relatedCollections = getOtherCollections(collection).slice(0, 3);
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -508,7 +619,7 @@ function renderCollectionPage(collection) {
     eyebrow: collection.eyebrow,
     description: collection.shortDescription,
     productIds: collectionProductIds,
-    products: collectionProducts
+    products: clientCollectionProducts
   };
 
   return `<!DOCTYPE html>
@@ -529,13 +640,13 @@ function renderCollectionPage(collection) {
   <meta name="twitter:title" content="${escapeHtml(collection.title)}">
   <meta name="twitter:description" content="${escapeHtml(collection.shortDescription)}">
   <meta name="twitter:image" content="${firstImage}">
+  <link rel="icon" href="../img/favicon.webp" type="image/webp">
+${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
@@ -596,7 +707,7 @@ function renderCollectionPage(collection) {
       font-size: 0.86rem;
     }
     .topbar a:hover { color: var(--gold); }
-    .topbar img { height: 42px; }
+    .topbar img { width: auto; height: 42px; }
     .page-shell {
       max-width: 1280px;
       margin: 0 auto;
@@ -867,7 +978,7 @@ function renderCollectionPage(collection) {
   <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
-    <img src="../img/logo.webp" alt="Herencia 90">
+    <img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async">
     <a href="/preventa">Pre-venta</a>
   </header>
 
@@ -966,8 +1077,66 @@ function renderCollectionPage(collection) {
     const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
     const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
     const STATIC_COLLECTION = ${serializeForScript(staticCollectionPayload)};
-    const { createClient } = window.supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const STATIC_CARD_ASSETS = ${serializeForScript(cardAssetMap)};
+    let dbPromise;
+    let renderedCollectionSignature = collectionSignature(STATIC_COLLECTION.products);
+
+    function loadExternalScript(src) {
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-src="' + src + '"]');
+        if (existing) {
+          if (existing.dataset.loaded === 'true') resolve();
+          else existing.addEventListener('load', resolve, { once: true });
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.dataset.src = src;
+        script.addEventListener('load', () => {
+          script.dataset.loaded = 'true';
+          resolve();
+        }, { once: true });
+        script.addEventListener('error', reject, { once: true });
+        document.head.appendChild(script);
+      });
+    }
+
+    function loadExternalStyle(href) {
+      if (document.querySelector('link[data-href="' + href + '"]')) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.media = 'print';
+      link.dataset.href = href;
+      link.onload = () => { link.media = 'all'; };
+      document.head.appendChild(link);
+    }
+
+    function runWhenIdle(callback) {
+      const schedule = () => {
+        if ('requestIdleCallback' in window) window.requestIdleCallback(callback, { timeout: 3500 });
+        else window.setTimeout(callback, 1);
+      };
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    }
+
+    function getDb() {
+      if (!dbPromise) {
+        dbPromise = loadExternalScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js')
+          .then(() => window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+      }
+      return dbPromise;
+    }
+
+    function loadOptionalEnhancements() {
+      loadExternalStyle('https://unpkg.com/aos@2.3.4/dist/aos.css');
+      loadExternalScript('https://unpkg.com/aos@2.3.4/dist/aos.js')
+        .then(() => window.AOS?.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 }))
+        .catch(() => {});
+    }
 
     function slugifyText(value) {
       return String(value || '')
@@ -991,6 +1160,21 @@ function renderCollectionPage(collection) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
     }
 
+    function collectionSignature(items) {
+      return (Array.isArray(items) ? items : [])
+        .map((product) => [
+          product.id,
+          product.equipo,
+          product.categoria,
+          product.descripcion,
+          product.precio,
+          JSON.stringify(product.tallas || {}),
+          JSON.stringify(product.imagenes || [])
+        ].join('|'))
+        .sort()
+        .join('||');
+    }
+
     function getAvailableSizesClient(product) {
       return Object.entries(product.tallas || {})
         .filter(([, qty]) => Number(qty || 0) > 0)
@@ -998,8 +1182,9 @@ function renderCollectionPage(collection) {
     }
 
     function getImageClient(product) {
-      const image = product.imagenes && product.imagenes.length ? product.imagenes[0] : 'img/logo.webp';
-      return image.startsWith('http') ? image : '../' + image.replace(/^\\/+/, '');
+      const image = product.imagenes && product.imagenes.length ? product.imagenes[0] : 'img/logo-ui.webp';
+      const masterUrl = /^https?:\\/\\//i.test(image) ? image : '../' + image.replace(/^(?:\\.\\.\\/)+/, '').replace(/^\\/+/, '');
+      return STATIC_CARD_ASSETS[image] || { cardUrl: masterUrl, masterUrl };
     }
 
     function buildProductUrlClient(product) {
@@ -1015,9 +1200,11 @@ function renderCollectionPage(collection) {
 
     function buildCollectionCard(product) {
       const sizes = getAvailableSizesClient(product);
+      const image = getImageClient(product);
+      const fallback = image.cardUrl === image.masterUrl ? '' : ' data-fallback-src="' + escapeHtmlClient(image.masterUrl) + '" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc"';
       return '<article class="collection-product-card">' +
         '<a class="collection-product-image" href="' + buildProductUrlClient(product) + '">' +
-          '<img src="' + getImageClient(product) + '" alt="' + escapeHtmlClient(product.equipo) + '">' +
+          '<img src="' + escapeHtmlClient(image.cardUrl) + '" alt="' + escapeHtmlClient(product.equipo) + '" loading="lazy" decoding="async" width="640" height="640"' + fallback + '>' +
         '</a>' +
         '<div class="collection-product-copy">' +
           '<span class="collection-product-category">' + escapeHtmlClient(product.categoria || 'Herencia 90') + '</span>' +
@@ -1040,6 +1227,9 @@ function renderCollectionPage(collection) {
       if (!root) return;
 
       const safeProducts = Array.isArray(products) ? products : [];
+      const nextCollectionSignature = collectionSignature(safeProducts);
+      if (nextCollectionSignature === renderedCollectionSignature) return;
+      renderedCollectionSignature = nextCollectionSignature;
       document.getElementById('collectionCount').textContent = safeProducts.length;
       document.getElementById('collectionCountLabel').textContent = safeProducts.length + ' productos listados con ficha propia';
 
@@ -1053,6 +1243,7 @@ function renderCollectionPage(collection) {
 
     async function trackCollectionPage() {
       try {
+        const db = await getDb();
         await db.from('analytics_events').insert({
           event_type: 'page_view',
           product_id: null,
@@ -1070,7 +1261,8 @@ function renderCollectionPage(collection) {
       if (!STATIC_COLLECTION.productIds.length) return;
 
       try {
-        const { data, error } = await db.from('productos').select('*').in('id', STATIC_COLLECTION.productIds).order('id');
+        const db = await getDb();
+        const { data, error } = await db.from('productos').select('id,equipo,categoria,descripcion,precio,tallas,imagenes').in('id', STATIC_COLLECTION.productIds).order('id');
         if (error || !data) return;
         renderCollectionProducts(data);
       } catch (error) {
@@ -1078,20 +1270,23 @@ function renderCollectionPage(collection) {
       }
     }
 
-    trackCollectionPage();
-    refreshCollectionFromSupabase();
-    db.channel('seo-collection-live-${collection.slug}')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
-        if (payload && payload.new && STATIC_COLLECTION.productIds.includes(payload.new.id)) {
-          refreshCollectionFromSupabase();
-        }
-      })
-      .subscribe();
-  </script>
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-  <script>
-    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
+    async function startCollectionLiveSync() {
+      const db = await getDb();
+      trackCollectionPage();
+      refreshCollectionFromSupabase();
+      db.channel('seo-collection-live-${collection.slug}')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos' }, (payload) => {
+          if (payload && payload.new && STATIC_COLLECTION.productIds.includes(payload.new.id)) {
+            refreshCollectionFromSupabase();
+          }
+        })
+        .subscribe();
+    }
+
+    runWhenIdle(() => {
+      startCollectionLiveSync().catch(() => {});
+      loadOptionalEnhancements();
+    });
   </script>
 </body>
 </html>`;
@@ -1148,12 +1343,12 @@ function renderPreventaPage(item) {
   };
 
   const gallery = imageUrls
-    .map((url, index) => `        <img src="${escapeHtml(url)}" alt="${escapeHtml(title)} foto ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async">`)
+    .map((url, index) => `        <img src="${escapeHtml(url)}" alt="${escapeHtml(title)} foto ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}"${index === 0 ? ' fetchpriority="high"' : ''} decoding="async" width="1200" height="1200">`)
     .join('\n');
   const relatedCards = related.map((candidate) => {
     const relatedImage = getPreventaImageUrl(candidate.imagenes?.[0]);
     return `        <a class="related-card" href="/preventa/${slugify(candidate.slug || candidate.equipo)}">
-          <img src="${escapeHtml(relatedImage)}" alt="${escapeHtml(buildPreventaTitle(candidate))}" loading="lazy" decoding="async">
+          <img src="${escapeHtml(relatedImage)}" alt="${escapeHtml(buildPreventaTitle(candidate))}" loading="lazy" decoding="async" width="640" height="640">
           <span>${escapeHtml(buildPreventaTitle(candidate))}</span>
         </a>`;
   }).join('\n');
@@ -1176,7 +1371,8 @@ function renderPreventaPage(item) {
   <meta name="twitter:title" content="${escapeHtml(title)} | Herencia 90">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(imageUrls[0])}">
-  <link rel="icon" href="/img/logo.webp" type="image/webp">
+  <link rel="icon" href="/img/favicon.webp" type="image/webp">
+${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
@@ -1190,7 +1386,7 @@ function renderPreventaPage(item) {
     h1,h2,.price { font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; }
     a { color:inherit; }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 22px; border-bottom:1px solid var(--line); background:rgba(5,5,5,.88); position:sticky; top:0; z-index:5; backdrop-filter:blur(14px); }
-    .topbar img { height:42px; }
+    .topbar img { width:auto; height:42px; }
     .topbar a { color:var(--muted); text-decoration:none; font-weight:700; font-size:.86rem; }
     .shell { max-width:1180px; margin:0 auto; padding:34px 18px 72px; }
     .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:.82rem; margin-bottom:20px; }
@@ -1228,7 +1424,7 @@ function renderPreventaPage(item) {
 <body>
   <header class="topbar">
     <a href="/preventa">Volver a pre-venta</a>
-    <a href="/"><img src="/img/logo.webp" alt="Herencia 90"></a>
+    <a href="/"><img src="/img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async"></a>
     <a href="/catalogo">Catalogo</a>
   </header>
   <main class="shell">
@@ -1275,7 +1471,8 @@ function renderProductPage(product) {
     ? availableSizes.map((size) => `<span>${escapeHtml(size)}</span>`).join('')
     : '<span>Consultar</span>';
   const description = buildMetaDescription(product, availableSizes);
-  const imageUrls = (product.imagenes?.length ? product.imagenes : ['img/logo.webp']).map(absoluteAssetUrl);
+  const imageUrls = (product.imagenes?.length ? product.imagenes : ['img/logo-ui.webp']).map(absoluteAssetUrl);
+  const cardAssetMap = buildCardAssetMap([product]);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -1302,15 +1499,7 @@ function renderProductPage(product) {
       }
     }
   };
-  const staticProductPayload = {
-    id: product.id,
-    equipo: product.equipo,
-    categoria: product.categoria,
-    descripcion: product.descripcion,
-    precio: product.precio,
-    tallas: product.tallas || {},
-    imagenes: product.imagenes || []
-  };
+  const staticProductPayload = pickClientProductFields(product);
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -1331,13 +1520,13 @@ function renderProductPage(product) {
   <meta name="twitter:title" content="${escapeHtml(product.equipo)} | Herencia 90 Colombia">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${imageUrls[0]}">
+  <link rel="icon" href="../img/favicon.webp" type="image/webp">
+${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
@@ -1400,7 +1589,7 @@ function renderProductPage(product) {
       font-size: 0.86rem;
     }
     .topbar a:hover { color: var(--gold); }
-    .topbar img { height: 42px; }
+    .topbar img { width: auto; height: 42px; }
     .page-shell {
       max-width: 1280px;
       margin: 0 auto;
@@ -1699,7 +1888,7 @@ function renderProductPage(product) {
   <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
     <a href="/">Volver al catalogo</a>
-    <img src="../img/logo.webp" alt="Herencia 90">
+    <img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async">
     <a href="/preventa">Pre-venta</a>
   </header>
 
@@ -1780,10 +1969,50 @@ function renderProductPage(product) {
     const SUPABASE_URL = ${serializeForScript(supabaseUrl)};
     const SUPABASE_ANON_KEY = ${serializeForScript(supabaseAnonKey)};
     const STATIC_PRODUCT = ${serializeForScript(staticProductPayload)};
+    const STATIC_CARD_ASSETS = ${serializeForScript(cardAssetMap)};
     const PRODUCT_URL = ${serializeForScript(getProductUrl(product))};
-    const { createClient } = window.supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let dbPromise;
     let currentProduct = STATIC_PRODUCT;
+    let renderedImageSignature = imageSignature(STATIC_PRODUCT.imagenes);
+
+    function loadExternalScript(src) {
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-src="' + src + '"]');
+        if (existing) {
+          if (existing.dataset.loaded === 'true') resolve();
+          else existing.addEventListener('load', resolve, { once: true });
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.dataset.src = src;
+        script.addEventListener('load', () => {
+          script.dataset.loaded = 'true';
+          resolve();
+        }, { once: true });
+        script.addEventListener('error', reject, { once: true });
+        document.head.appendChild(script);
+      });
+    }
+
+    function runWhenIdle(callback) {
+      const schedule = () => {
+        if ('requestIdleCallback' in window) window.requestIdleCallback(callback, { timeout: 3500 });
+        else window.setTimeout(callback, 1);
+      };
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    }
+
+    function getDb() {
+      if (!dbPromise) {
+        dbPromise = loadExternalScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js')
+          .then(() => window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+      }
+      return dbPromise;
+    }
 
     function formatPriceClient(value) {
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
@@ -1802,11 +2031,31 @@ function renderProductPage(product) {
       return 'https://wa.me/573126428153?text=' + encodeURIComponent(message);
     }
 
+    function escapeHtmlClient(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function imageSignature(images) {
+      return JSON.stringify(Array.isArray(images) ? images : []);
+    }
+
+    function getImageAssetClient(image) {
+      const raw = String(image || 'img/logo-ui.webp');
+      const masterUrl = /^https?:\\/\\//i.test(raw) ? raw : '../' + raw.replace(/^(?:\\.\\.\\/)+/, '').replace(/^\\/+/, '');
+      return STATIC_CARD_ASSETS[raw] || { cardUrl: masterUrl, masterUrl };
+    }
+
     function buildThumbGrid(images, title) {
       return images.map((image, index) => {
-        const src = image.startsWith('http') ? image : '../' + image.replace(/^\\/+/, '');
+        const asset = getImageAssetClient(image);
         const activeClass = index === 0 ? ' active' : '';
-        return '<button class="thumb' + activeClass + '" type="button" data-image="' + src + '"><img src="' + src + '" alt="' + title + ' vista ' + (index + 1) + '"></button>';
+        const fallback = asset.cardUrl === asset.masterUrl ? '' : ' data-fallback-src="' + escapeHtmlClient(asset.masterUrl) + '" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc"';
+        return '<button class="thumb' + activeClass + '" type="button" data-image="' + escapeHtmlClient(asset.masterUrl) + '"><img src="' + escapeHtmlClient(asset.cardUrl) + '" alt="' + escapeHtmlClient(title) + ' vista ' + (index + 1) + '" loading="lazy" decoding="async" width="640" height="640"' + fallback + '></button>';
       }).join('');
     }
 
@@ -1825,8 +2074,8 @@ function renderProductPage(product) {
     function renderLiveProduct(product) {
       currentProduct = product;
       const sizes = getAvailableSizesClient(product);
-      const images = product.imagenes && product.imagenes.length ? product.imagenes : ['img/logo.webp'];
-      const firstImage = images[0].startsWith('http') ? images[0] : '../' + images[0].replace(/^\\/+/, '');
+      const images = product.imagenes && product.imagenes.length ? product.imagenes : ['img/logo-ui.webp'];
+      const nextImageSignature = imageSignature(images);
 
       document.getElementById('productCategory').textContent = product.categoria || 'Herencia 90';
       document.getElementById('productTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
@@ -1839,21 +2088,26 @@ function renderProductPage(product) {
       document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
       document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
 
-      const mainImage = document.getElementById('productMainImage');
-      if (mainImage) {
-        mainImage.src = firstImage;
-        mainImage.alt = product.equipo || STATIC_PRODUCT.equipo;
-      }
+      if (nextImageSignature !== renderedImageSignature) {
+        const firstImage = getImageAssetClient(images[0]).masterUrl;
+        const mainImage = document.getElementById('productMainImage');
+        if (mainImage) {
+          mainImage.src = firstImage;
+          mainImage.alt = product.equipo || STATIC_PRODUCT.equipo;
+        }
 
-      const thumbGrid = document.querySelector('.thumb-grid');
-      if (thumbGrid) {
-        thumbGrid.innerHTML = buildThumbGrid(images, product.equipo || STATIC_PRODUCT.equipo);
-        bindThumbs();
+        const thumbGrid = document.querySelector('.thumb-grid');
+        if (thumbGrid) {
+          thumbGrid.innerHTML = buildThumbGrid(images, product.equipo || STATIC_PRODUCT.equipo);
+          bindThumbs();
+        }
+        renderedImageSignature = nextImageSignature;
       }
     }
 
     async function trackEvent(eventType, product) {
       try {
+        const db = await getDb();
         await db.from('analytics_events').insert({
           event_type: eventType,
           product_id: product && product.id ? product.id : null,
@@ -1869,7 +2123,8 @@ function renderProductPage(product) {
 
     async function refreshProductFromSupabase() {
       try {
-        const { data, error } = await db.from('productos').select('*').eq('id', STATIC_PRODUCT.id).single();
+        const db = await getDb();
+        const { data, error } = await db.from('productos').select('id,equipo,categoria,descripcion,precio,tallas,imagenes').eq('id', STATIC_PRODUCT.id).single();
         if (error || !data) return;
         renderLiveProduct(data);
       } catch (error) {
@@ -1878,28 +2133,23 @@ function renderProductPage(product) {
     }
 
     bindThumbs();
-    trackEvent('page_view', STATIC_PRODUCT);
-    trackEvent('modal_open', STATIC_PRODUCT);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
-    refreshProductFromSupabase();
-    db.channel('seo-product-live-${slug}')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
-        if (payload && payload.new) {
-          renderLiveProduct(payload.new);
-        }
-      })
-      .subscribe();
-  </script>
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script src="https://unpkg.com/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-  <script>
-    if (typeof AOS !== 'undefined') AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 60 });
-    if (typeof VanillaTilt !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
-      VanillaTilt.init(document.querySelectorAll('.pp-thumbs img, .pp-main-img'), {
-        max: 4, speed: 500, glare: true, 'max-glare': 0.06, scale: 1.02
-      });
+
+    async function startProductLiveSync() {
+      const db = await getDb();
+      trackEvent('page_view', STATIC_PRODUCT);
+      refreshProductFromSupabase();
+      db.channel('seo-product-live-${slug}')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'productos', filter: 'id=eq.${product.id}' }, (payload) => {
+          if (payload && payload.new) {
+            renderLiveProduct(payload.new);
+          }
+        })
+        .subscribe();
     }
+
+    runWhenIdle(() => startProductLiveSync().catch(() => {}));
   </script>
 </body>
 </html>`;
@@ -1938,6 +2188,9 @@ fs.mkdirSync(cityOutputDir, { recursive: true });
 for (const product of products) {
   const filePath = path.join(outputDir, `${slugify(product.equipo)}.html`);
   fs.writeFileSync(filePath, renderProductPage(product), 'utf8');
+  for (const aliasSlug of getLegacyProductAliasSlugs(product)) {
+    fs.writeFileSync(path.join(outputDir, `${aliasSlug}.html`), renderProductPage(product), 'utf8');
+  }
 }
 
 for (const item of preventaItems) {
@@ -1949,7 +2202,7 @@ for (const collection of seoCollections) {
   const filePath = collection.type === 'city' 
     ? path.join(cityOutputDir, `${collection.slug}.html`)
     : path.join(categoryOutputDir, `${collection.slug}.html`);
-  if (!fs.existsSync(filePath)) {
+  if (collection.type === 'city' || !fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, renderCollectionPage(collection), 'utf8');
   }
 }

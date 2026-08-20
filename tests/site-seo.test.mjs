@@ -98,9 +98,10 @@ check('product pages preserve analytics and refresh live product data', () => {
 
   assert.match(sampleHtml, /analytics_events/i);
   assert.match(sampleHtml, /trackEvent\('page_view'/i);
-  assert.match(sampleHtml, /trackEvent\('modal_open'/i);
+  assert.doesNotMatch(sampleHtml, /trackEvent\('modal_open'/i);
   assert.match(sampleHtml, /trackEvent\('whatsapp_click'/i);
-  assert.match(sampleHtml, /db\.from\('productos'\)\.select\('\*'\)\.eq\('id'/i);
+  assert.match(sampleHtml, /db\.from\('productos'\)\.select\('id,equipo,categoria,descripcion,precio,tallas,imagenes'\)\.eq\('id'/i);
+  assert.match(sampleHtml, /requestIdleCallback/i);
   assert.match(sampleHtml, /db\.channel\('seo-product-live-/i);
 });
 
