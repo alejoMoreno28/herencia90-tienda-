@@ -507,6 +507,15 @@ function pintarCorreccion(cuerpo, busqueda) {
         <input type="text" id="textoBusqueda" value="${escapar(texto)}"></label>
       <button type="button" id="btnBuscarOtra" class="btn">Buscar</button>
     </div>
+    <details class="pegar-manual">
+      <summary>¿Ya tienes las fotos descargadas? Arrástralas aquí</summary>
+      <p class="tenue">Se les quita el fondo y se recortan igual que las del proveedor;
+        solo cambia de dónde salen.</p>
+      <div id="zonaSoltarFotos" class="soltar soltar-chico">
+        <p>Suelta las fotos aquí o <button type="button" id="btnElegirFotos" class="enlace">búscalas en tu PC</button></p>
+        <input type="file" id="archivosManuales" accept="image/*" multiple hidden>
+      </div>
+    </details>
     <div id="resultadoBusqueda">${cuerpo}</div>`;
 
   $('btnBuscarOtra').addEventListener('click', () => {
@@ -514,6 +523,23 @@ function pintarCorreccion(cuerpo, busqueda) {
   });
   $('textoBusqueda').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') $('btnBuscarOtra').click();
+  });
+
+  // Arrastrar y soltar, igual que la zona del excel arriba.
+  const zonaFotos = $('zonaSoltarFotos');
+  zonaFotos.addEventListener('click', () => $('archivosManuales').click());
+  $('btnElegirFotos').addEventListener('click', (e) => { e.stopPropagation(); $('archivosManuales').click(); });
+  $('archivosManuales').addEventListener('change', (e) => {
+    if (e.target.files.length) prepararFotosManual(productoElegido.id, [...e.target.files]);
+  });
+  ['dragenter', 'dragover'].forEach((ev) => zonaFotos.addEventListener(ev, (e) => {
+    e.preventDefault(); zonaFotos.classList.add('encima');
+  }));
+  ['dragleave', 'drop'].forEach((ev) => zonaFotos.addEventListener(ev, (e) => {
+    e.preventDefault(); zonaFotos.classList.remove('encima');
+  }));
+  zonaFotos.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files.length) prepararFotosManual(productoElegido.id, [...e.dataTransfer.files]);
   });
 }
 
@@ -625,10 +651,17 @@ async function prepararFotos(id, candidato, boton) {
     return;
   }
 
+  mostrarVistaPrevia(id, d);
+}
+
+// La preparacion de fotos puede venir de elegir un album del proveedor o de
+// pegar links a mano; en los dos casos el robot devuelve lo mismo (fotos ya
+// recortadas + de que album salieron) y la vista previa es identica.
+function mostrarVistaPrevia(id, d) {
   fotosPropuestas = d.fotos;
   $('resultadoBusqueda').innerHTML = `
     <div class="previa">
-      <p><b>Así quedarían</b>, del álbum ${escapar(d.album)}. Todavía no se ha guardado nada.</p>
+      <p><b>Así quedarían</b>, de ${escapar(d.album)}. Todavía no se ha guardado nada.</p>
       <p class="tenue">La primera es la que sale en la tienda y en el catálogo. Muévelas con
         las flechas y quita con la ✕ las que no te gusten.</p>
       <div id="previaFotos"></div>
@@ -644,6 +677,45 @@ async function prepararFotos(id, candidato, boton) {
     $('resultadoBusqueda').innerHTML = '<p class="tenue">No se cambió nada. Puedes buscar otra vez.</p>';
   });
   $('btnGuardarFotos').addEventListener('click', () => guardarFotos(id));
+}
+
+function leerComoBase64(archivo) {
+  return new Promise((resolver, rechazar) => {
+    const lector = new FileReader();
+    lector.onload = () => resolver(lector.result.split(',')[1]);
+    lector.onerror = () => rechazar(new Error('no se pudo leer ' + archivo.name));
+    lector.readAsDataURL(archivo);
+  });
+}
+
+// Fotos que ya se tenian de otro catalogo, no del proveedor. Mismo recorte y
+// encuadre, solo cambia de donde se bajan.
+async function prepararFotosManual(id, archivos) {
+  if (preparando) return;
+  preparando = true;
+
+  $('resultadoBusqueda').innerHTML = '<p class="tenue">Quitando fondos y encuadrando… esto tarda un poco.</p>';
+
+  let r; let d;
+  try {
+    const fotosBase64 = await Promise.all(archivos.map(leerComoBase64));
+    r = await fetch(`/api/producto/${id}/preparar-fotos-manual`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fotosBase64 }),
+    });
+    d = await r.json();
+  } catch (err) {
+    preparando = false;
+    $('resultadoBusqueda').innerHTML = '<div class="error">Se cortó la conexión con el robot. '
+      + 'Revisa que la ventana del cargador siga abierta y vuelve a intentar.</div>';
+    return;
+  }
+  preparando = false;
+  if (!r.ok) {
+    $('resultadoBusqueda').innerHTML = `<div class="error">${escapar(d.error)}</div>`;
+    return;
+  }
+
+  mostrarVistaPrevia(id, d);
 }
 
 function pintarPrevia(id) {

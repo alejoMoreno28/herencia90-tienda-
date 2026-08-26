@@ -179,10 +179,20 @@ export default async function handler(req, res) {
   // maxFotos: cuantas BUENAS se quieren. Se recorren mas de las que se piden
   // porque algunas se descartan al no poder quitarles el fondo, y sin esto el
   // producto quedaba con dos o tres fotos.
-  const { store, photoUrls, slugHint, maxFotos = 6 } = req.body || {};
-  if (!store || !Array.isArray(photoUrls) || !photoUrls.length) {
-    return res.status(400).json({ error: 'faltan store o photoUrls[]' });
+  // photosBase64 es la otra entrada posible: fotos que la persona ya tenia
+  // descargadas y arrastro a la pantalla de corregir. No hay nada que bajar
+  // de ningun lado, asi que se saltan directo al recorte.
+  const { store, photoUrls, photosBase64, slugHint, maxFotos = 6 } = req.body || {};
+  const usaBase64 = Array.isArray(photosBase64) && photosBase64.length > 0;
+  if (!usaBase64 && (!Array.isArray(photoUrls) || !photoUrls.length)) {
+    return res.status(400).json({ error: 'faltan photoUrls[] o photosBase64[]' });
   }
+  if (!usaBase64 && !store) {
+    return res.status(400).json({ error: 'falta store' });
+  }
+  const fuentes = usaBase64
+    ? photosBase64.map((b64, i) => ({ url: `foto-manual-${i + 1}`, base64: b64 }))
+    : photoUrls.map((url) => ({ url }));
 
   try {
     const supabase = getSupabase();
@@ -195,13 +205,15 @@ export default async function handler(req, res) {
     // completa. Se guarda tambien la foto original, porque en los acercamientos
     // el recorte se descarta y se publica la de siempre.
     const recortadas = [];
-    for (const [i, url] of photoUrls.entries()) {
+    for (const [i, fuente] of fuentes.entries()) {
       try {
-        const original = await downloadYupooPhoto(url, store);
+        const original = fuente.base64
+          ? Buffer.from(fuente.base64.replace(/^data:image\/\w+;base64,/, ''), 'base64')
+          : await downloadYupooPhoto(fuente.url, store);
         const sinFondo = await removeBackground(original);
-        recortadas.push({ ...sinFondo, original, url });
+        recortadas.push({ ...sinFondo, original, url: fuente.url });
       } catch (err) {
-        console.warn(`[process-photo] no se pudo bajar o recortar la foto ${i}:`, err.message);
+        console.warn(`[process-photo] no se pudo leer o recortar la foto ${i}:`, err.message);
       }
     }
 

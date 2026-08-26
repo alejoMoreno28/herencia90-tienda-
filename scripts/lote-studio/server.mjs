@@ -390,6 +390,51 @@ export function crearRouterLoteStudio() {
     }
   });
 
+  // Para cuando la camiseta no esta en el proveedor pero se le encontraron
+  // fotos en otro lado y ya se descargaron al PC. Pasan por el mismo recorte y
+  // encuadre que las del proveedor; lo unico que cambia es que no hay que
+  // bajarlas de ningun lado, ya vienen en el cuerpo del pedido. El producto no
+  // se toca hasta confirmar-fotos, igual que con el flujo de buscar en el
+  // proveedor.
+  //
+  // Se probo primero con pegar un link, pero paginas raras fallan al bajarlas
+  // (bloqueo de hotlink, redirecciones, JS por delante). Arrastrar el archivo
+  // ya descargado es mas confiable: el navegador ya hizo la parte dificil.
+  router.post('/api/producto/:id/preparar-fotos-manual', async (req, res) => {
+    const id = Number(req.params.id);
+    const fotosBase64 = Array.isArray(req.body?.fotosBase64)
+      ? req.body.fotosBase64.filter((b) => typeof b === 'string' && b)
+      : [];
+    if (!fotosBase64.length) return res.status(400).json({ error: 'no llego ninguna foto' });
+
+    const productos = await traerProductos();
+    const producto = productos.find((p) => p.id === id);
+    if (!producto) return res.status(404).json({ error: 'producto no encontrado' });
+
+    try {
+      const r = await fetch('http://127.0.0.1:3001/api/process-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photosBase64: fotosBase64, maxFotos: 6, slugHint: producto.equipo }),
+      });
+      if (!r.ok) throw new Error(`process-photo: ${r.status}`);
+      const data = await r.json();
+      const imagenes = (data.images || [])
+        .map((x) => (typeof x === 'string' ? x : x.url || x.publicUrl || '')).filter(Boolean);
+      if (!imagenes.length) throw new Error('no se pudo procesar ninguna foto');
+
+      const detalle = data.details || [];
+      res.json({
+        ok: true,
+        album: `${fotosBase64.length} foto(s) subida(s) a mano`,
+        anteriores: producto.imagenes || [],
+        fotos: imagenes.map((url, i) => ({ url, sinFondo: detalle[i]?.sinFondo !== false })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Aqui si se guarda, con las fotos y el orden que la persona dejo.
   router.post('/api/producto/:id/confirmar-fotos', async (req, res) => {
     const id = Number(req.params.id);
