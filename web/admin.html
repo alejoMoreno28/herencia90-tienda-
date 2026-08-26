@@ -1082,6 +1082,74 @@
             <!-- VISTA INVENTARIO -->
             <div id="view-inventario" class="view-section">
                 <div class="inventory-shell">
+
+                    <!-- Puerta de entrada al cargador de pedidos. Vive aqui porque el
+                         admin es lo que se abre siempre; la pantalla del cargador se usa
+                         cada varios meses y sin este recordatorio se olvida que existe. -->
+                    <div class="cargador-card">
+                        <div class="cargador-texto">
+                            <strong>¿Llegó un pedido nuevo del proveedor?</strong>
+                            <p>Sube el excel y se cargan solas todas las camisetas: busca las fotos
+                               en el proveedor, les quita el fondo, crea los productos y suma el stock.
+                               Corre en tu PC porque usa la tarjeta gráfica.</p>
+                            <p id="cargadorAyuda" class="cargador-ayuda"></p>
+                        </div>
+                        <button type="button" id="cargadorBtn" class="btn-add" onclick="abrirCargador()">Cargar pedido del proveedor</button>
+                    </div>
+                    <style>
+                        .cargador-card {
+                            display:flex; gap:20px; align-items:center; justify-content:space-between;
+                            flex-wrap:wrap; background:#fbfaf5; border:1px solid #e6dfc8;
+                            border-left:5px solid var(--gold, #c8a94e); border-radius:12px;
+                            padding:18px 20px; margin-bottom:20px;
+                        }
+                        .cargador-texto { flex:1 1 380px; }
+                        .cargador-texto strong { display:block; font-size:15px; margin-bottom:5px; }
+                        .cargador-texto p { margin:0; font-size:13px; color:#6b6b6b; line-height:1.5; }
+                        .cargador-ayuda { margin-top:8px !important; font-weight:700; }
+                        .cargador-ayuda.ok  { color:#1a7f37 !important; }
+                        .cargador-ayuda.mal { color:#b42318 !important; }
+                    </style>
+                    <script>
+                        // El cargador solo responde si el robot esta prendido en este PC.
+                        // Si no lo esta, se dice que hacer en vez de abrir una pestaña en blanco.
+                        const CARGADOR_URL = 'http://localhost:3001/cargador';
+
+                        async function robotPrendido() {
+                            try {
+                                const ctrl = new AbortController();
+                                setTimeout(() => ctrl.abort(), 1500);
+                                const r = await fetch('http://localhost:3001/health', { signal: ctrl.signal });
+                                return r.ok;
+                            } catch { return false; }
+                        }
+
+                        // Se abre SIEMPRE la pestaña, aunque la comprobacion falle. Servido por
+                        // https, el navegador puede bloquear la llamada a http://localhost y hacer
+                        // creer que el robot esta apagado cuando si esta corriendo.
+                        async function abrirCargador() {
+                            const ayuda = document.getElementById('cargadorAyuda');
+                            window.open(CARGADOR_URL, '_blank');
+                            if (await robotPrendido()) {
+                                ayuda.className = 'cargador-ayuda ok';
+                                ayuda.textContent = 'El robot está prendido. Se abrió el cargador en otra pestaña.';
+                                return;
+                            }
+                            ayuda.className = 'cargador-ayuda mal';
+                            ayuda.textContent = 'Si la pestaña que se abrió sale en blanco o dice que no conecta, el robot está apagado: abre CARGAR-PEDIDO (el ícono del escritorio), espera a que cargue y recarga esa pestaña.';
+                        }
+
+                        // Al entrar a Inventario se avisa de una vez si ya está listo.
+                        (async function avisarCargador() {
+                            const ayuda = document.getElementById('cargadorAyuda');
+                            if (!ayuda) return;
+                            if (await robotPrendido()) {
+                                ayuda.className = 'cargador-ayuda ok';
+                                ayuda.textContent = 'El robot está prendido y listo.';
+                            }
+                        })();
+                    </script>
+
                     <div class="inventory-summary">
                         <div class="inventory-metric good">
                             <strong id="inv-summary-units">0</strong>

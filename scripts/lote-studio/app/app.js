@@ -72,14 +72,42 @@ async function subir(archivo) {
 function mostrarPaso(cual) {
   ['pasoSubir', 'pasoTrabajando', 'pasoRevisar', 'pasoResultado']
     .forEach((p) => $(p).classList.toggle('oculto', p !== cual));
-  // La caja de corregir solo estorba mientras se carga un pedido.
-  $('pasoSubir2').classList.toggle('oculto', cual !== 'pasoSubir');
+  // La guia y las herramientas sueltas solo estorban mientras se carga un
+  // pedido: fuera de la pantalla de inicio no se muestran.
+  ['guia', 'pasoSubir2', 'otrasCosas'].forEach((p) => {
+    $(p).classList.toggle('oculto', cual !== 'pasoSubir');
+  });
+}
+
+/**
+ * Traduce los fallos tecnicos a algo que se pueda actuar. Un "ENOENT" o un
+ * "fetch failed" en pantalla no le dice a nadie que hacer; el mensaje crudo
+ * queda igual debajo, en letra pequeña, para poder investigarlo.
+ */
+function explicarError(mensaje) {
+  const texto = String(mensaje || '');
+  if (/ENOENT|spawnSync/i.test(texto)) {
+    return 'No se pudo leer el archivo. Cierra el excel si lo tienes abierto y vuelve a soltarlo.';
+  }
+  if (/5055|photoService|remove-bg/i.test(texto)) {
+    return 'El motor de fotos no está respondiendo. Cierra la ventana negra del robot y vuelve a abrir CARGAR-PEDIDO.';
+  }
+  if (/fetch failed|ECONNREFUSED|socket hang up/i.test(texto)) {
+    return 'Se perdió la conexión con el robot. Revisa que la ventana negra siga abierta.';
+  }
+  if (/hoja|encabezado|columna/i.test(texto)) {
+    return 'El excel no tiene las columnas donde se esperan. Genéralo con la plantilla de siempre.';
+  }
+  return null;
 }
 
 function mostrarError(mensaje) {
   mostrarPaso('pasoResultado');
   $('tituloResultado').textContent = 'Algo falló';
-  $('detalleResultado').innerHTML = `<div class="error">${escapar(mensaje)}</div>`;
+  const ayuda = explicarError(mensaje);
+  $('detalleResultado').innerHTML = ayuda
+    ? '<div class="error">' + escapar(ayuda) + '<small>' + escapar(mensaje) + '</small></div>'
+    : '<div class="error">' + escapar(mensaje) + '</div>';
 }
 
 // ── Seguimiento ──────────────────────────────────────────────────────────
@@ -811,4 +839,12 @@ $('btnQuitarFotos').addEventListener('click', async () => {
   }
   boton.textContent = 'Quitar las marcadas';
   boton.disabled = false;
+});
+
+// Volver al inicio sin tener que recargar a mano.
+$('btnReiniciar').addEventListener('click', () => {
+  idLote = null;
+  lote = null;
+  $('archivo').value = '';
+  mostrarPaso('pasoSubir');
 });

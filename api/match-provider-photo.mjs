@@ -13,11 +13,20 @@ import { buildQueriesWithGeminiFallback, COLOR_CHARS } from '../scripts/lib/team
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
 const LONG_SLEEVE_RE = /长袖|manga\s*larga|long\s*sleeve/i;
 
+// A diferencia de los demas filtros de aqui abajo, este NO deja pasar todo
+// cuando no encuentra nada: devuelve vacio, igual que filterByTeam.
+//
+// Se detecto con el PEDIDO6: "REAL MADRID 23 24 LOCAL" no tiene esa temporada
+// en el proveedor (ya paso de moda), y el filtro devolvia TODAS las camisetas
+// del Real Madrid sin filtrar por temporada: retros de 1984, 1986, 1997,
+// 2004, 2009... CLIP las compara contra la foto del excel y como todas son
+// blancas del mismo equipo salen con puntajes altos (84%+) que parecen
+// confiables sin serlo. Mejor decir "no se encontro" que ofrecer una
+// temporada cualquiera con pinta de segura.
 function filterBySeason(candidates, season) {
   if (!season) return candidates;
   const re = new RegExp(season, 'i');
-  const filtered = candidates.filter((c) => re.test(c.title));
-  return filtered.length ? filtered : candidates;
+  return candidates.filter((c) => re.test(c.title));
 }
 
 function filterBySleeve(candidates, sleeve) {

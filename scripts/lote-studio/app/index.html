@@ -13,6 +13,20 @@
   <div id="estadoRobot" class="pill">comprobando…</div>
 </header>
 
+<!-- Recordatorio de como funciona. Se ve siempre en el paso 1: esta pantalla
+     se usa cada varios meses y para entonces ya se olvido el flujo. -->
+<section id="guia" class="tarjeta guia">
+  <ol>
+    <li><b>Suelta el excel del pedido.</b> El que le mandas a Snake, con las fotos pegadas.</li>
+    <li><b>Espera y revisa.</b> Busca cada camiseta en el proveedor y te muestra la foto del
+      excel al lado de lo que encontró. Cambias la que esté mal con un clic.</li>
+    <li><b>Carga al catálogo y publica.</b> Crea los productos, suma el stock y actualiza
+      las páginas que lee Google.</li>
+  </ol>
+  <p class="tenue">Volver a subir el mismo excel <b>no</b> duplica el inventario: lo que ya
+    se cargó se salta solo.</p>
+</section>
+
 <!-- Paso 1: soltar el archivo -->
 <section id="pasoSubir" class="tarjeta">
   <div id="zonaSoltar" class="soltar">
@@ -23,6 +37,14 @@
   <p class="tenue centro">Lee las fotos que están pegadas en el excel y busca cada camiseta en el proveedor.</p>
 </section>
 
+
+
+
+
+<!-- Herramientas sueltas. Van agrupadas y despues del flujo principal para que
+     lo primero que se vea al abrir sea el excel, que es a lo que se viene. -->
+<section id="otrasCosas">
+  <h2 class="titulo-seccion">Otras cosas que puedes hacer</h2>
 <!-- Publicar los cambios para que lleguen a Google -->
 <section id="pasoPublicar" class="tarjeta publicar">
   <div>
@@ -33,7 +55,6 @@
   <button type="button" id="btnPublicar" class="btn primario">Publicar</button>
 </section>
 <div id="estadoPublicar"></div>
-
 <!-- Corregir las fotos de un producto que ya esta en la tienda -->
 <section id="pasoSubir2" class="tarjeta">
   <details id="corregir">
@@ -48,7 +69,6 @@
     </div>
   </details>
 </section>
-
 <!-- Revisar de un golpe todas las fotos publicadas -->
 <section id="pasoRevisarFotos" class="tarjeta">
   <details id="revisarFotos">
@@ -65,6 +85,7 @@
       <div id="hojaFotos"></div>
     </div>
   </details>
+</section>
 </section>
 
 <!-- Paso 2: trabajando -->
@@ -117,6 +138,9 @@
 <section id="pasoResultado" class="tarjeta oculto">
   <h2 id="tituloResultado"></h2>
   <div id="detalleResultado"></div>
+  <div class="acciones" style="margin-top:16px">
+    <button type="button" id="btnReiniciar" class="btn">Empezar de nuevo</button>
+  </div>
 </section>
 
 <script src="app.js"></script>

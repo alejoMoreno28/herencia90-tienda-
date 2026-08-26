@@ -18,23 +18,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 import os from 'node:os';
-
-function leerDelZip(rutaXlsx, entrada) {
-  // Se usa el unzip del sistema en vez de una dependencia nueva: el formato
-  // xlsx es un zip normal y solo hay que sacar unos pocos archivos.
-  try {
-    return execFileSync('unzip', ['-p', rutaXlsx, entrada], { maxBuffer: 64 * 1024 * 1024 });
-  } catch {
-    return null;
-  }
-}
-
-function listarZip(rutaXlsx) {
-  const salida = execFileSync('unzip', ['-Z1', rutaXlsx], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
-  return salida.split('\n').map((l) => l.trim()).filter(Boolean);
-}
+import { abrirZip } from './zip-lector.mjs';
 
 /** Mapa rId -> destino, leido de un archivo .rels */
 function leerRelaciones(xml) {
@@ -73,7 +58,7 @@ function leerAnclas(xml) {
  */
 export function extraerFotosDeExcel(xlsx, nombreHoja = 'ORDER') {
   // Acepta una ruta o el archivo ya en memoria. Con buffer se escribe a un
-  // temporal porque el lector usa unzip, que trabaja sobre archivos.
+  // temporal porque el lector de zip trabaja sobre archivos.
   let rutaXlsx = xlsx;
   let temporal = null;
   if (Buffer.isBuffer(xlsx)) {
@@ -89,7 +74,10 @@ export function extraerFotosDeExcel(xlsx, nombreHoja = 'ORDER') {
 }
 
 function extraerDeRuta(rutaXlsx, nombreHoja) {
-  const entradas = listarZip(rutaXlsx);
+  // El zip se abre una sola vez y de ahi salen todas las lecturas de abajo.
+  const zip = abrirZip(rutaXlsx);
+  const leerDelZip = (_ruta, entrada) => zip.leer(entrada);
+  const entradas = zip.listar();
 
   // 1. Que numero de hoja es la que nos interesa.
   const wbXml = leerDelZip(rutaXlsx, 'xl/workbook.xml').toString('utf8');

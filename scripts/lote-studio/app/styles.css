@@ -234,3 +234,20 @@ h2 { font-size: 17px; margin: 0 0 12px; }
    procesar uno a la vez, y antes lanzar dos pintaba el que acabara de ultimo. */
 .cand.descartado { opacity: .35; }
 .cand:disabled { cursor: default; }
+
+/* Guia de tres pasos. Se lee al abrir, sin tener que buscar la documentacion. */
+.guia { background: #fbfcfe; border-color: #d7dee8; }
+.guia ol { margin: 0; padding-left: 22px; display: grid; gap: 10px; }
+.guia li { line-height: 1.5; }
+.guia li b { font-weight: 700; }
+.guia > .tenue { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--borde); }
+
+/* Herramientas sueltas, agrupadas debajo del flujo principal. */
+.titulo-seccion {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--tenue); margin: 28px 0 10px;
+}
+#otrasCosas .tarjeta { background: #fafbfc; }
+
+/* El mensaje tecnico, debajo de la explicacion. */
+.error small { display: block; margin-top: 8px; font-size: 11px; opacity: .7; }
