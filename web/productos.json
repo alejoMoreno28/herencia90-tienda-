@@ -192,7 +192,7 @@
         "precio": 99000,
         "costo_usd": 10.44,
         "tallas": {
-            "L": 1,
+            "L": 0,
             "M": 0,
             "S": 0,
             "XL": 0,
@@ -1303,7 +1303,7 @@
             "L": 1,
             "M": 1,
             "S": 0,
-            "XL": 1
+            "XL": 0
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-1998-amarilla-mundial-francia-98-retro/1785103643152-1.webp",
@@ -1512,5 +1512,92 @@
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-city-26-27-local-kit/1785103734495-2.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-city-26-27-local-kit/1785103734495-3.webp"
         ]
+    },
+    {
+        "id": 80,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Mexico Local 2026",
+        "descripcion": "Camiseta Mexico Local 2026. Versión Fan, de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-mexico-local-2026/1787791512983-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-mexico-local-2026/1787791512983-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-mexico-local-2026/1787791512983-3.webp"
+        ]
+    },
+    {
+        "id": 81,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta Belgica 26 Visitante",
+        "descripcion": "Camiseta Belgica 26 Visitante. Versión Fan, de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-belgica-26-visitante/1787791608145-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-belgica-26-visitante/1787791608145-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-belgica-26-visitante/1787791608145-3.webp"
+        ]
+    },
+    {
+        "id": 82,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid 23 24 Local Version Player",
+        "descripcion": "Camiseta Real Madrid 23 24 Local Version Player. Versión Player, de corte más ajustado y tela más ligera. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": []
+    },
+    {
+        "id": 83,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta River 26 27 Manga Larga",
+        "descripcion": "Camiseta River 26 27 Manga Larga. Versión Fan, de corte cómodo y tela transpirable. Manga larga.",
+        "precio": 109000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-26-27-manga-larga/1787791993526-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-26-27-manga-larga/1787791993526-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-26-27-manga-larga/1787791993526-3.webp"
+        ]
+    },
+    {
+        "id": 84,
+        "categoria": "Nueva Coleccion",
+        "equipo": "Camiseta Chapecoense Especial Edition",
+        "descripcion": "Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": []
     }
 ]
