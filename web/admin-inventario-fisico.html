@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title>Inventario físico | HERENCIA90</title>
+    <link rel="stylesheet" href="/css/admin-inventario-fisico.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div><strong>HERENCIA<span>90</span></strong><small>Inventario físico</small></div>
+        <button id="logout-button" class="link-button" type="button">Salir</button>
+    </header>
+
+    <main class="app-shell">
+        <section id="loading-view" class="status-card" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Cargando tu inventario…</p>
+        </section>
+
+        <section id="error-view" class="status-card hidden" role="alert">
+            <h1>No pudimos cargar el checklist</h1>
+            <p id="error-message">Revisa tu conexión e inténtalo de nuevo.</p>
+            <button id="retry-button" class="button primary" type="button">Reintentar</button>
+        </section>
+
+        <section id="audit-view" class="hidden">
+            <div class="progress-header">
+                <div>
+                    <strong id="progress-label">0 de 0 referencias</strong>
+                    <span id="save-status" aria-live="polite">Listo</span>
+                </div>
+                <div class="progress-track" aria-hidden="true"><span id="audit-progress"></span></div>
+            </div>
+
+            <label class="search-label" for="product-search">Buscar camiseta</label>
+            <input id="product-search" class="search-input" type="search" placeholder="Equipo, descripción o ID" autocomplete="off">
+
+            <article class="product-card">
+                <div class="product-head">
+                    <img id="product-image" src="/img/logo-ui.webp" alt="" width="92" height="104">
+                    <div>
+                        <p id="product-id" class="eyebrow"></p>
+                        <h1 id="product-name">Producto</h1>
+                        <p id="product-description" class="muted"></p>
+                    </div>
+                </div>
+
+                <div class="counts-head" aria-hidden="true"><span>Talla</span><span>Página</span><span>Físico</span></div>
+                <div id="size-rows" class="size-rows"></div>
+
+                <button id="match-button" class="button match" type="button">✓ Todo coincide</button>
+                <button id="show-issue-button" class="button secondary" type="button" aria-expanded="false">Registrar una novedad</button>
+
+                <div id="issue-fields" class="issue-fields hidden">
+                    <label for="issue-select">¿Qué ocurrió?</label>
+                    <select id="issue-select">
+                        <option value="">Selecciona una novedad</option>
+                        <option value="no_aparece">No aparece</option>
+                        <option value="talla_diferente">Talla diferente</option>
+                        <option value="defectuosa">Defectuosa</option>
+                        <option value="otra">Otra</option>
+                    </select>
+                    <label for="issue-note">Nota opcional</label>
+                    <textarea id="issue-note" rows="2" maxlength="500" placeholder="Ejemplo: la etiqueta dice talla L"></textarea>
+                </div>
+
+                <p id="difference-message" class="difference-message" aria-live="polite"></p>
+            </article>
+
+            <div class="nav-actions">
+                <button id="previous-button" class="button secondary" type="button">← Anterior</button>
+                <button id="save-next-button" class="button primary" type="button">Guardar y siguiente →</button>
+            </div>
+            <button id="show-summary-button" class="summary-link" type="button">Ver resumen de diferencias</button>
+        </section>
+
+        <section id="summary-view" class="hidden">
+            <div class="summary-head">
+                <div><p class="eyebrow">Resultado</p><h1>Resumen del conteo</h1></div>
+                <button id="close-summary-button" class="link-button dark" type="button">Volver</button>
+            </div>
+            <div id="summary-totals" class="summary-totals"></div>
+            <div id="summary-list" class="summary-list"></div>
+            <button id="download-csv-button" class="button primary" type="button">Descargar diferencias CSV</button>
+        </section>
+    </main>
+
+    <script src="/js/admin-inventory-audit-core.js"></script>
+    <script src="/js/admin-inventory-audit.js"></script>
+</body>
+</html>
