@@ -37,3 +37,18 @@ test('mobile stylesheet includes a desktop enhancement and touch-size controls',
   assert.match(css, /min-height:\s*44px/);
   assert.match(css, /overflow-x:\s*hidden/);
 });
+
+test('vercel serves the private route without caching', async () => {
+  const config = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
+  const rewrite = config.rewrites.find(item => item.source === '/admin-inventario-fisico');
+  assert.deepEqual(rewrite, { source: '/admin-inventario-fisico', destination: '/admin-inventario-fisico.html' });
+  const privateHeader = config.headers.find(item => item.source === '/admin-inventario-fisico');
+  assert.match(privateHeader.headers.find(header => header.key === 'Cache-Control').value, /no-store/);
+});
+
+test('login returns only to an explicitly allowed local admin route', async () => {
+  const login = await readFile(new URL('login.html', web), 'utf8');
+  assert.match(login, /new Set\(\[['"]\/admin['"],\s*['"]\/admin\.html['"],\s*['"]\/admin-inventario-fisico['"]\]\)/);
+  assert.match(login, /allowedNext\.has\(requestedNext\)\s*\?\s*requestedNext\s*:\s*['"]\/admin['"]/);
+  assert.match(login, /window\.location\.href\s*=\s*nextPath/);
+});

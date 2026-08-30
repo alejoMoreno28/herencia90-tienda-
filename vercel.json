@@ -82,6 +82,23 @@
       ]
     },
     {
+      "source": "/admin-inventario-fisico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
       "source": "/login",
       "headers": [
         {
@@ -302,6 +319,10 @@
     {
       "source": "/admin",
       "destination": "/admin.html"
+    },
+    {
+      "source": "/admin-inventario-fisico",
+      "destination": "/admin-inventario-fisico.html"
     },
     {
       "source": "/login",

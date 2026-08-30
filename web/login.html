@@ -177,10 +177,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbnJkdGNnYmRremZ6d25zZmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDUyNTcsImV4cCI6MjA5MTQyMTI1N30.T51eC1fJFc5Wn79JcA5l4m9CIYSYVhE7B7YU19CPQ00';
         const { createClient } = window.supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const allowedNext = new Set(['/admin', '/admin.html', '/admin-inventario-fisico']);
+        const requestedNext = new URLSearchParams(window.location.search).get('next');
+        const nextPath = allowedNext.has(requestedNext) ? requestedNext : '/admin';
 
         // Si ya hay sesión activa, redirigir directo al admin
         db.auth.getSession().then(({ data }) => {
-            if (data.session) window.location.href = '/admin.html';
+            if (data.session) window.location.href = nextPath;
         });
 
         const form = document.getElementById('loginForm');
@@ -198,7 +201,7 @@
             const { error } = await db.auth.signInWithPassword({ email, password });
 
             if (!error) {
-                window.location.href = '/admin.html';
+                window.location.href = nextPath;
             } else {
                 errorMsg.innerText = 'Credenciales incorrectas.';
                 errorMsg.style.display = 'block';
