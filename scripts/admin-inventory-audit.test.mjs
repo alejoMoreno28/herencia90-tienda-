@@ -68,3 +68,14 @@ test('toCsv escapes content and includes difference details', async () => {
   assert.match(csv, /"Revisar ""bodega"""/);
   assert.match(csv, /No aparece/);
 });
+
+test('migration creates owner-protected audit tables without mutating products', async () => {
+  const sql = await readFile(new URL('../docs/supabase/migrations/20260830_inventario_fisico_auditoria.sql', import.meta.url), 'utf8');
+  assert.match(sql, /create table if not exists public\.inventario_auditorias/i);
+  assert.match(sql, /create table if not exists public\.inventario_auditoria_items/i);
+  assert.match(sql, /owner_id uuid not null default auth\.uid\(\)/i);
+  assert.match(sql, /alter table public\.inventario_auditorias enable row level security/i);
+  assert.match(sql, /owner_id = auth\.uid\(\)/i);
+  assert.match(sql, /revoke all on table public\.inventario_auditorias from anon/i);
+  assert.doesNotMatch(sql, /update\s+public\.productos|delete\s+from\s+public\.productos/i);
+});
