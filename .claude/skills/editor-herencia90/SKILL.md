@@ -14,6 +14,11 @@ bien: elegir qué toma acompaña cada frase, dónde cortar y cómo rematar.
 
 ---
 
+## Si es la primera vez que abres este proyecto
+
+Lee `HERENCIA 90 APLICACION EDICION DE VIDEO/docs/CONTEXTO.md`: resume qué se
+decidió, qué está construido y qué falta. Te ahorra preguntar lo ya resuelto.
+
 ## Antes de empezar
 
 Lee siempre `config/marca.json` (tono, duración objetivo, ritmo de corte) y
