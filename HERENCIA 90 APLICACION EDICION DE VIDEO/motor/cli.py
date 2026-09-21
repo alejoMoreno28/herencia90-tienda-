@@ -33,7 +33,7 @@ def cmd_revisar(args) -> None:
     comprobaciones = [
         ("edge_tts", "voz en off por defecto", "pip install edge-tts", True),
         ("faster_whisper", "tiempos de subtitulo", "pip install faster-whisper", True),
-        ("scenedetect", "deteccion de tomas", 'pip install "scenedetect[opencv]"', True),
+        ("scenedetect", "deteccion de tomas", 'pip install scenedetect opencv-python-headless', True),
         ("whisperx", "alineacion de maxima precision", "pip install whisperx", False),
         ("kokoro", "voz local sin internet", "pip install kokoro soundfile", False),
         ("chatterbox", "clonado de tu voz", "pip install chatterbox-tts", False),

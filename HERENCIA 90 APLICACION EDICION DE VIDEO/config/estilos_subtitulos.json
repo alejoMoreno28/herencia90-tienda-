@@ -1,23 +1,37 @@
 {
   "_nota": "Estilos de subtitulo dinamico. 'activo' es el color de la palabra que se esta diciendo.",
-  "_referencia": "Ajustar cuando Alejo suba sus ejemplos a assets/referencias/",
+  "_medido": "El estilo 'herencia90' se midio pixel a pixel sobre los videos reales de Alejo (Brasil 2004 y Argentina 2026) y se afino comparando un render propio contra el suyo: amarillo RGB(254,219,0), mayusculas sin puntuacion, 2-3 palabras por bloque, alto de letra 60-75 px sobre 1920.",
   "estilos": {
-    "viral": {
-      "descripcion": "Estandar TikTok: palabra por palabra en mayusculas, resaltado amarillo",
+    "herencia90": {
+      "descripcion": "El estilo real de los videos de Alejo, medido sobre Brasil 2004 y Argentina 2026",
       "fuente": "Montserrat ExtraBold",
-      "tamano": 96,
+      "tamano": 90,
       "mayusculas": true,
       "color_base": "&H00FFFFFF",
-      "color_activo": "&H0000E5FF",
+      "color_activo": "&H0000DBFF",
       "borde": 6,
       "color_borde": "&H00000000",
-      "sombra": 3,
-      "posicion_y_pct": 62,
+      "sombra": 0,
+      "posicion_y_pct": 68,
+      "palabras_por_bloque": 3,
+      "escala_pop": 1.0
+    },
+    "viral": {
+      "descripcion": "Igual que herencia90 pero con un 'pop' de escala en la palabra activa",
+      "fuente": "Montserrat ExtraBold",
+      "tamano": 90,
+      "mayusculas": true,
+      "color_base": "&H00FFFFFF",
+      "color_activo": "&H0000DBFF",
+      "borde": 6,
+      "color_borde": "&H00000000",
+      "sombra": 0,
+      "posicion_y_pct": 68,
       "palabras_por_bloque": 3,
       "escala_pop": 1.12
     },
     "limpio": {
-      "descripcion": "Sobrio, en blanco, sin resaltado. Para videos mas serios de producto",
+      "descripcion": "Sobrio, todo en blanco, sin resaltado. Para videos mas serios de producto",
       "fuente": "Montserrat SemiBold",
       "tamano": 78,
       "mayusculas": false,
@@ -29,21 +43,7 @@
       "posicion_y_pct": 70,
       "palabras_por_bloque": 4,
       "escala_pop": 1.0
-    },
-    "herencia": {
-      "descripcion": "Colores de la marca, resaltado dorado",
-      "fuente": "Montserrat ExtraBold",
-      "tamano": 92,
-      "mayusculas": true,
-      "color_base": "&H00FFFFFF",
-      "color_activo": "&H0034A5D4",
-      "borde": 6,
-      "color_borde": "&H00000000",
-      "sombra": 3,
-      "posicion_y_pct": 62,
-      "palabras_por_bloque": 3,
-      "escala_pop": 1.15
     }
   },
-  "estilo_por_defecto": "viral"
+  "estilo_por_defecto": "herencia90"
 }

@@ -19,7 +19,7 @@ def detectar(carpeta_crudo: str | Path, salida: str | Path,
         from scenedetect import ContentDetector, detect
     except ImportError:
         raise ErrorMotor(
-            "Falta PySceneDetect. Instalalo con:  pip install \"scenedetect[opencv]\""
+            "Falta PySceneDetect. Instalalo con:  pip install scenedetect opencv-python-headless"
         )
 
     archivos = [p for p in listar_crudo(carpeta_crudo)

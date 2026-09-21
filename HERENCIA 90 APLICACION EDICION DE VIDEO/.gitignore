@@ -8,3 +8,4 @@ proyectos/*/salida/
 *.wav
 *.mp3
 !assets/referencias/**
+assets/fuentes/_Montserrat-variable.ttf

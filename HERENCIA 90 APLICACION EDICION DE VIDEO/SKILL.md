@@ -92,7 +92,8 @@ Escribe `plan.json` en la carpeta del proyecto:
 Reglas que no se negocian:
 
 - **El primer corte es el más corto (≈1 s) y la toma más impactante.** Es el gancho.
-- Cada corte dura entre **1.2 y 2.5 s**. Más largo aburre; más corto marea.
+- Cada corte dura entre **1.0 y 2.2 s**, con mediana ~1.45 s. Medido sobre los
+  videos reales de Alejo: los dos tienen exactamente **9 cortes**.
 - **La imagen debe ilustrar lo que se está diciendo.** Si la frase habla del
   escudo, en pantalla va el escudo. Esto es lo único que ninguna herramienta
   automática hace bien, y es exactamente lo que tú sí puedes hacer.
@@ -102,6 +103,17 @@ Reglas que no se negocian:
 - Descarta las tomas borrosas o movidas, aunque te quedes corto de material.
 
 Efectos: `ninguno`, `zoom_in`, `zoom_out`, `pan_der`, `pan_izq`.
+
+El guión de Alejo sigue siempre el mismo patrón, y el reparto de tomas debe
+acompañarlo (está detallado en `docs/REFERENCIAS.md`):
+
+| Parte del guión | Qué toma va bien |
+|---|---|
+| Gancho | La toma más impactante: el número, el nombre, el escudo en primer plano |
+| Identidad de la camiseta | Plano general, escudo, nombre y número |
+| Nostalgia | Detalle de tela, costuras, cuello, la mano recorriéndola |
+| Disponibilidad | La etiqueta original colgando, plano general |
+| Llamado a la acción | Plano general limpio, sin manos tapando |
 
 ### 6. Renderiza
 
@@ -122,7 +134,7 @@ Abre los fotogramas del resultado y comprueba de verdad:
 - ¿Los subtítulos se leen? ¿Se salen del encuadre? ¿Tapan algo importante?
 - ¿El encuadre 9:16 cortó la camiseta o el escudo?
 - ¿La imagen corresponde a lo que se dice en ese momento?
-- ¿La duración está entre 18 y 35 segundos?
+- ¿La duración está entre 12 y 22 segundos? Los suyos duran 13-15 s.
 
 **Si algo está mal, corrige `plan.json` y vuelve a renderizar.** No entregues
 un video que no revisaste. Solo entonces avisa a Alejo, diciéndole qué decidiste

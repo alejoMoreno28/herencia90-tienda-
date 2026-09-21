@@ -160,7 +160,14 @@ def _color_en_linea(color: str) -> str:
 
 
 def _escapar(texto: str) -> str:
-    return texto.replace("\\", "").replace("{", "(").replace("}", ")")
+    """Limpia una palabra para mostrarla en pantalla.
+
+    Se quita la puntuacion final porque en los videos de Alejo los subtitulos
+    van sin puntos ni comas. Los signos siguen contando para el ritmo: el
+    agrupado en bloques los lee antes de llegar aqui.
+    """
+    texto = texto.replace("\\", "").replace("{", "(").replace("}", ")")
+    return texto.strip(".,;:").strip() or texto
 
 
 def _agrupar(palabras: list[Palabra], por_bloque: int) -> list[list[Palabra]]:

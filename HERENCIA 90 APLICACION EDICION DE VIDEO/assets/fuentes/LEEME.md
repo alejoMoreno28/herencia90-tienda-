@@ -1,14 +1,18 @@
 # Fuentes
 
-Pon aquí los archivos `.ttf` que usen los subtítulos. FFmpeg los lee desde esta
-carpeta al quemar el `.ass`, así el video se ve igual en cualquier computador.
+FFmpeg lee de aquí los `.ttf` al quemar los subtítulos, así el video se ve igual
+en cualquier computador.
 
-**Necesaria:** Montserrat (ExtraBold y SemiBold).
-Descárgala gratis en [fonts.google.com/specimen/Montserrat](https://fonts.google.com/specimen/Montserrat)
-→ "Get font" → "Download all" → descomprime y copia aquí:
+**No hay que hacer nada a mano:** `INSTALAR.bat` ejecuta `descargar_fuentes.py`,
+que baja Montserrat y la deja lista.
 
-- `Montserrat-ExtraBold.ttf`
-- `Montserrat-SemiBold.ttf`
+Si alguna vez falta, córrelo suelto:
 
-> Si falta, FFmpeg usa una fuente cualquiera del sistema y los subtítulos se ven
-> distintos a lo esperado. El render no falla, pero no queda bonito.
+```
+python descargar_fuentes.py
+```
+
+> Google Fonts ya solo publica Montserrat como fuente **variable** (un archivo
+> con todos los grosores dentro), y libass no elige bien el grosor ahí: saldría
+> el texto en peso normal en vez de ExtraBold. Por eso el script la "congela"
+> en dos pesos fijos, ExtraBold (800) y SemiBold (600).

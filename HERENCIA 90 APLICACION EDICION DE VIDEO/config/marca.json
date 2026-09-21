@@ -20,15 +20,49 @@
   "cierre_habitual": "Link en la bio",
   "formato_destino": {
     "red": "TikTok",
-    "resolucion": [1080, 1920],
+    "resolucion": [
+      1080,
+      1920
+    ],
     "fps": 30,
-    "duracion_objetivo_seg": [18, 35],
-    "duracion_maxima_seg": 60
+    "duracion_objetivo_seg": [
+      12,
+      22
+    ],
+    "duracion_maxima_seg": 35,
+    "_medido": "Brasil 2004 = 13.0s, Argentina 2026 = 14.7s"
   },
   "ritmo": {
-    "nota": "Referencia de edicion viral en TikTok",
-    "duracion_corte_seg": [1.2, 2.5],
-    "corte_del_gancho_seg": 1.0,
-    "comentario": "El primer corte debe ser el mas corto y la toma mas impactante de todo el material"
+    "_medido": "Medido con PySceneDetect sobre los videos reales de Alejo",
+    "cortes_por_video": 9,
+    "duracion_corte_seg": [
+      1.0,
+      2.2
+    ],
+    "duracion_corte_mediana_seg": 1.45,
+    "palabras_por_minuto": 185,
+    "comentario": "El primer corte es el mas corto y la toma mas impactante. Ritmo rapido y sostenido, sin tomas largas."
+  },
+  "estructura_guion": {
+    "_medido": "Patron comun de los dos videos de referencia",
+    "pasos": [
+      "GANCHO por negacion o dato fuerte ('Esta no es cualquier Brasil', 'Despues de la locura que hizo Messi en su debut')",
+      "IDENTIDAD de la camiseta: seleccion, ano, jugador, detalle que la hace especial",
+      "NOSTALGIA: la epoca, el recuerdo, por que importa",
+      "DISPONIBILIDAD: en stock, bajo pedido, personalizable",
+      "LLAMADO A LA ACCION: 'Entra al link de nuestro perfil antes de que se agoten'"
+    ]
+  },
+  "material_tipico": {
+    "_medido": "Observado en los videos de referencia",
+    "descripcion": "Camiseta sobre una cama o superficie lisa, grabada desde arriba con el celular en la mano",
+    "tomas_que_se_repiten": [
+      "Plano general de la camiseta completa",
+      "Primer plano del escudo",
+      "Primer plano del nombre y numero en la espalda",
+      "Detalle de la tela, las costuras o el cuello",
+      "La mano recorriendo o levantando la camiseta",
+      "La etiqueta original colgando"
+    ]
   }
 }
