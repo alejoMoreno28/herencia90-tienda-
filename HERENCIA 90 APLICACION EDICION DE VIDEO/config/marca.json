@@ -1,0 +1,34 @@
+{
+  "marca": "Herencia 90",
+  "rubro": "Camisetas de futbol retro y de coleccion",
+  "pais": "Colombia",
+  "idioma": "es-CO",
+  "tono": [
+    "Cercano y de barrio, nunca acartonado ni corporativo",
+    "Nostalgia futbolera de los 90: se habla de la camiseta como de un recuerdo",
+    "Frases cortas, directas, sin relleno",
+    "Trato de tu, nunca de usted",
+    "Colombianismos naturales con moderacion (parce, berraco, una chimba)",
+    "Sin promesas exageradas ni precios inventados"
+  ],
+  "evitar": [
+    "Emojis dentro de la voz en off",
+    "Palabras en ingles innecesarias",
+    "Signos de admiracion multiples",
+    "Hablar de descuentos o stock que Alejo no haya escrito en el guion"
+  ],
+  "cierre_habitual": "Link en la bio",
+  "formato_destino": {
+    "red": "TikTok",
+    "resolucion": [1080, 1920],
+    "fps": 30,
+    "duracion_objetivo_seg": [18, 35],
+    "duracion_maxima_seg": 60
+  },
+  "ritmo": {
+    "nota": "Referencia de edicion viral en TikTok",
+    "duracion_corte_seg": [1.2, 2.5],
+    "corte_del_gancho_seg": 1.0,
+    "comentario": "El primer corte debe ser el mas corto y la toma mas impactante de todo el material"
+  }
+}

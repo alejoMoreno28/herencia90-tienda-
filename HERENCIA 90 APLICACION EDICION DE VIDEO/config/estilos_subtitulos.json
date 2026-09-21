@@ -1,0 +1,49 @@
+{
+  "_nota": "Estilos de subtitulo dinamico. 'activo' es el color de la palabra que se esta diciendo.",
+  "_referencia": "Ajustar cuando Alejo suba sus ejemplos a assets/referencias/",
+  "estilos": {
+    "viral": {
+      "descripcion": "Estandar TikTok: palabra por palabra en mayusculas, resaltado amarillo",
+      "fuente": "Montserrat ExtraBold",
+      "tamano": 96,
+      "mayusculas": true,
+      "color_base": "&H00FFFFFF",
+      "color_activo": "&H0000E5FF",
+      "borde": 6,
+      "color_borde": "&H00000000",
+      "sombra": 3,
+      "posicion_y_pct": 62,
+      "palabras_por_bloque": 3,
+      "escala_pop": 1.12
+    },
+    "limpio": {
+      "descripcion": "Sobrio, en blanco, sin resaltado. Para videos mas serios de producto",
+      "fuente": "Montserrat SemiBold",
+      "tamano": 78,
+      "mayusculas": false,
+      "color_base": "&H00FFFFFF",
+      "color_activo": "&H00FFFFFF",
+      "borde": 4,
+      "color_borde": "&H00000000",
+      "sombra": 2,
+      "posicion_y_pct": 70,
+      "palabras_por_bloque": 4,
+      "escala_pop": 1.0
+    },
+    "herencia": {
+      "descripcion": "Colores de la marca, resaltado dorado",
+      "fuente": "Montserrat ExtraBold",
+      "tamano": 92,
+      "mayusculas": true,
+      "color_base": "&H00FFFFFF",
+      "color_activo": "&H0034A5D4",
+      "borde": 6,
+      "color_borde": "&H00000000",
+      "sombra": 3,
+      "posicion_y_pct": 62,
+      "palabras_por_bloque": 3,
+      "escala_pop": 1.15
+    }
+  },
+  "estilo_por_defecto": "viral"
+}
