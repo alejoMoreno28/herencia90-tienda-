@@ -1,0 +1,24 @@
+# Motor de edicion de video de Herencia 90
+# Instalar con:  python -m pip install -r requirements.txt
+
+# --- Voz en off ---
+edge-tts>=7.0.0            # Voces neuronales de Microsoft (por defecto, gratis)
+
+# --- Subtitulos: transcripcion y tiempos palabra por palabra ---
+faster-whisper>=1.1.0      # Transcripcion local rapida
+
+# --- Deteccion de tomas ---
+scenedetect[opencv]>=0.6.4 # PySceneDetect: separa las tomas de cada clip
+
+# --- Utilidades ---
+numpy>=1.24
+python-dotenv>=1.0         # Lee el archivo .env (claves de API)
+imageio-ffmpeg>=0.5.1      # ffmpeg de respaldo si no esta en el PATH
+
+# --- Opcionales (instalar solo si se usan) ---
+# whisperx>=3.3.0          # Alineacion mas precisa que faster-whisper (<100ms)
+# kokoro>=0.9.4            # Voz local sin internet
+# soundfile>=0.12.1        #   (requerido por kokoro)
+# chatterbox-tts>=0.1.2    # Clonado de tu propia voz (necesita GPU)
+# elevenlabs>=1.50.0       # Voz premium por API
+# auto-editor>=28.0.0      # Quitar silencios en los clips donde hablas

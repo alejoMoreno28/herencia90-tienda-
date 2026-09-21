@@ -1,0 +1,10 @@
+# Motor de edicion de video
+.env
+muestras_voz/
+proyectos/*/trabajo/
+proyectos/*/salida/
+*.mp4
+*.mov
+*.wav
+*.mp3
+!assets/referencias/**
