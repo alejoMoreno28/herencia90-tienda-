@@ -19,3 +19,8 @@ urls.txt
 yupoo_dump.html
 .codex_tmp/
 .worktrees/
+
+# API keys de voz - NUNCA subir
+*.key
+fishaudio.key
+

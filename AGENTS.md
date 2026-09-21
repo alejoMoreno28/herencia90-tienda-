@@ -2,6 +2,31 @@
 
 These rules exist to prevent Codex Desktop from overloading the PC with large Git operations.
 
+## Skills Available
+
+Before starting a task, check `.agents/skills/` for a skill that covers it.
+If one exists, read its `SKILL.md` and follow it instead of improvising.
+
+The most used ones:
+
+| Skill | Cuando |
+|---|---|
+| `herencia90-video` | **Editar un video de camiseta para TikTok o Instagram.** Identificar la camiseta, buscar la noticia, escribir el guion, generar la voz, subtitulos karaoke y cortar el video. |
+| `herencia90-social` | Voz de marca, ganchos, captions, hashtags, calendario de publicacion. |
+| `identify-football-jerseys` | Identificar club, temporada y tipo de kit desde una foto, con verificacion. |
+
+### Editar un video: empieza aqui
+
+1. Lee `.agents/skills/herencia90-video/SKILL.md`
+2. Lee `.agents/skills/herencia90-video/references/ejemplo-arsenal.md`
+   (el caso completo hecho paso a paso, con numeros reales y los errores a evitar)
+3. La carpeta de trabajo, con los videos y las voces, es:
+   `C:\Users\PC\Desktop\HERENCIA 90 APLICACION EDICION DE VIDEO\`
+
+Las dos voces oficiales son **Nandez** y **Valentino**. Camilo elige cual en
+cada video; si no lo dice, preguntale. El guion se escribe segun la voz:
+41 palabras para Nandez, 31 para Valentino.
+
 ## Working Contract
 
 - Inspect before editing. Read the relevant HTML, CSS, JS, scripts, docs, and generated data before making a change.
