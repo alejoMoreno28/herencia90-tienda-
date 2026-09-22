@@ -133,6 +133,22 @@ acostada y suele quedar boca abajo.
 
 ### 8. Verificar ANTES de entregar
 
+Dos pasos, los dos obligatorios.
+
+**8a. Auditar la orientacion de TODAS las tomas:**
+
+```powershell
+.\scripts\auditar-orientacion.ps1 -Video salida\FINAL.mp4 -Plan plan.json
+```
+
+Saca un fotograma por toma, numerado. **Miralo entero.** Ninguna imagen puede
+salir al reves: el cliente ve el video en el celular y tiene que leerse todo
+de frente. La orientacion cambia varias veces dentro del mismo clip crudo, asi
+que no alcanza con revisar el gancho. Tabla de referencia por escudo en
+`references/estilo.md`.
+
+**8b. Verificar lo medible:**
+
 ```powershell
 .\scripts\verificar-video.ps1 -Video salida\FINAL.mp4 -Plan plan.json -Subtitulos subtitulos.ass
 ```
