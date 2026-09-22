@@ -140,9 +140,35 @@ completa. El producto es la primera y la ultima imagen.
 
 ---
 
-## Errores que se cometieron ese dia
+## Errores que se cometieron. Para no repetirlos.
 
-Para no repetirlos:
+### Los tres que el usuario devolvio
+
+Son los unicos tres trabajos que ha rechazado. Cada uno costo re-renderizar.
+
+**1. Imagenes al reves.** Habia **14 tomas invertidas** repartidas en los seis
+videos del pedido 4: el escudo del CBF con las estrellas abajo, "UNITED"
+encima de "MANCHESTER", la "T" de Telekom volteada, el "10" en espejo.
+
+Pasa porque el usuario va girando la prenda sobre la mesa mientras graba: la
+orientacion cambia varias veces **dentro del mismo clip**. Revisar el gancho no
+alcanza. Hay que auditar **todas** las tomas con
+`scripts/auditar-orientacion.ps1` y MIRAR la hoja.
+
+**2. Gancho con la prenda desordenada.** Se abrio Portugal con el segundo 69,
+donde la camiseta estaba arrugada y con las mangas torcidas. El plano bueno
+estaba en el **segundo 4**, limpio y sin manos. Y en United se abrio con un
+plano que cortaba el cuello.
+
+Busca en los primeros segundos del clip, antes de que entren las manos. Si no
+hay ninguno bonito, usa una toma con movimiento.
+
+**3. Guion sin persona ni numero.** El de Brasil decia "primera vez en la
+historia que el Jumpman aparece en la camiseta de una seleccion". El usuario:
+*"demasiado aburrido y tosco"*, *"muy feo"*. Se reemplazo por "Neymar supero a
+Pele... setenta y nueve goles" y quedo aprobado.
+
+### Los otros, detectados internamente
 
 1. **Se abrio con el escudo en vez de con la camiseta completa.** Se priorizo
    que la palabra "Arsenal" sincronizara con la imagen. Mal: el gancho manda.
