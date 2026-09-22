@@ -1,0 +1,4 @@
+interface:
+  display_name: "Identificar camisetas"
+  short_description: "Identifica camisetas por imagen"
+  default_prompt: "Use $identify-football-jerseys para identificar esta camiseta y verificar su temporada antes de escribir el anuncio."
