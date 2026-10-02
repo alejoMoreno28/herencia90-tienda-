@@ -15,6 +15,21 @@ Esta skill **ejecuta**. Para voz de marca, ganchos y calendario usa
 `herencia90-social`. Para verificar que camiseta es usa
 `identify-football-jerseys`. No repitas aqui lo que esas dos ya definen.
 
+## Las tres reglas que el dueno ya corrigio
+
+Son las unicas tres cosas por las que ha devuelto un video. Fallar una
+obliga a re-renderizar.
+
+1. **Ninguna imagen al reves. Ninguna.** La prenda se gira sobre la mesa
+   mientras se graba: la orientacion cambia dentro del MISMO clip. Audita
+   todas las tomas (paso 8a), no solo el gancho.
+2. **Gancho bonito.** Camiseta de frente, completa, cuello dentro del cuadro,
+   sin manos, bien tendida. Si no hay plano limpio, abre con movimiento (la
+   prenda sacudiendose hacia la camara).
+3. **Guion con persona famosa + numero concreto.** "Neymar supero a Pele.
+   Setenta y nueve goles." Si, "primera vez que el Jumpman aparece en una
+   seleccion", no. El dato de diseno va despues del gancho, nunca como gancho.
+
 ## Las dos voces
 
 El usuario usa **Nandez** y **Valentino**, las dos. El elige cual en cada
@@ -199,3 +214,7 @@ Muestra el mp4 y dale el caption con 3-5 hashtags (pool en
 - Copia global: `~/.claude/skills/herencia90-video/`
 
 Si cambias una, copia la otra.
+
+En el PC de otro socio basta la copia global (`~/.claude/skills/`), junto con
+`herencia90-social` e `identify-football-jerseys`. Cada persona usa **su
+propia** `FISH_AUDIO_API_KEY`; nunca se comparte.
