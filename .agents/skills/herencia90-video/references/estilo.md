@@ -188,6 +188,15 @@ montar.
 Las tomas que solo muestran estampado o tela sin texto no importan: no hay
 forma de que se vean al reves.
 
+**Mira TODO el texto del cuadro, no solo el logo principal.** Cuando la prenda
+esta doblada, el logo puede salir derecho y el sponsor de abajo de cabeza (pasó
+en el Real Madrid 11/12: adidas derecho, "bwin" invertido por el doblez). Si
+cualquier texto visible sale al reves, cambia la toma.
+
+**El fotograma de la hoja es el centro de la toma.** Una toma que arranca
+limpia puede tener las manos encima del cuello a la mitad. Para el gancho,
+saca una hoja cada 0.5s y elige un tramo limpio de punta a punta.
+
 ### Cuanto pesa esto
 
 En la primera version de los seis videos del pedido 4 habia **14 tomas al
