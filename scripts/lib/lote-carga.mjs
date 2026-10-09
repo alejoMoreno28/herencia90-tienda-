@@ -108,7 +108,9 @@ export function unidadesPorDestino(referencias) {
 export function costoUsdDe(referencias) {
   return referencias.reduce(
     (total, ref) => total + ref.filas.reduce(
-      (s, f) => s + ((parseFloat(ref.costoUsd) || 0) * (parseInt(f.cantidad, 10) || 0)), 0,
+      // Cada fila con su costo: la que trae dorsal cuesta mas que la lisa. Los
+      // lotes viejos no lo traen por fila y caen al de la referencia.
+      (s, f) => s + ((parseFloat(f.costoUsd ?? ref.costoUsd) || 0) * (parseInt(f.cantidad, 10) || 0)), 0,
     ),
     0,
   );
@@ -274,20 +276,36 @@ async function redactarFichaDeReferencia(ref, imagenes) {
  * asi que nacen en Pendiente con abono en cero. El pago se registra despues
  * desde el admin, que es donde se lleva el detalle de cada cliente.
  */
+/**
+ * En el pedido del cliente queda escrito que dorsal lleva, porque eso es lo
+ * que se le entrega: "Camiseta Barcelona ... (PEDRI 8 + parche Champions)".
+ * La ficha del catalogo no lo lleva, esa es la camiseta lisa.
+ */
+export function equipoConDorsal(equipo, extras) {
+  const texto = String(extras || '');
+  if (!/dorsal|personaliza|name\s*:|patch|parche/i.test(texto)) return equipo;
+  const nombre = (texto.match(/name\s*:\s*([^,;)]+)/i) || [])[1];
+  const numero = (texto.match(/number\s*[:;]\s*(\d+)/i) || [])[1];
+  const partes = [];
+  if (nombre || numero) partes.push([nombre && nombre.trim(), numero].filter(Boolean).join(' '));
+  if (/patch|parche/i.test(texto)) partes.push(/champions/i.test(texto) ? 'parche Champions' : 'parche');
+  return partes.length ? `${equipo} (${partes.join(' + ')})` : equipo;
+}
+
 function pedidosDePreventa(referencia, prodId, equipo, basics) {
   const pedidos = [];
-  const costoUsd = parseFloat(referencia.costoUsd) || 0;
   for (const fila of referencia.filas.filter(esPreventa)) {
     const cantidad = parseInt(fila.cantidad, 10) || 0;
+    const costoUsd = parseFloat(fila.costoUsd ?? referencia.costoUsd) || 0;
     for (let i = 0; i < cantidad; i++) {
       pedidos.push({
         cliente: String(referencia.cliente || '').trim() || 'Pendiente por Asignar',
         canal: referencia.canal || 'Amigos/Confianza',
         producto_id: prodId,
-        equipo,
+        equipo: equipoConDorsal(equipo, fila.extras),
         talla: fila.talla,
         cantidad: 1,
-        precio_venta: referencia.precio || 99000,
+        precio_venta: fila.precio || referencia.precio || 99000,
         costo_usd: costoUsd,
         costo_landed_cop: costoUsd * basics.trm,
         trm: basics.trm,

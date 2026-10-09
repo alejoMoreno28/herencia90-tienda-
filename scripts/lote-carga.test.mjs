@@ -13,7 +13,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import {
   leerEstado, resumenEstado, sumarTallas, resumirCarga, aplicarDecisiones,
-  referenciasConPreventa, unidadesPorDestino, costoUsdDe,
+  referenciasConPreventa, unidadesPorDestino, costoUsdDe, equipoConDorsal,
 } from './lib/lote-carga.mjs';
 
 function carpetaTemporal() {
@@ -165,4 +165,28 @@ test('el resumen separa lo que se crea de lo que suma stock', () => {
   assert.equal(r.nuevos, 1);
   assert.equal(r.existentes, 1);
   assert.equal(r.unidades, 5);
+});
+
+// PEDIDO 6 de octubre: la Barcelona Suplente Player M venia dos veces, una de
+// cliente con dorsal y parche ($19) y otra lisa para la tienda ($14). Con el
+// costo de la primera fila para las dos, el gasto quedaba $5 por encima.
+test('costoUsdDe suma cada fila con su propio costo', () => {
+  const ref = { costoUsd: 14, filas: [
+    { talla: 'M', cantidad: 1, destino: 'PREVENTA', costoUsd: 19 },
+    { talla: 'M', cantidad: 1, destino: 'STOCK', costoUsd: 14 },
+  ] };
+  assert.equal(costoUsdDe([ref]), 33);
+});
+
+test('costoUsdDe sin costo por fila usa el de la referencia, como antes', () => {
+  assert.equal(costoUsdDe([{ costoUsd: 11, filas: [{ cantidad: 3 }] }]), 33);
+});
+
+test('el pedido del cliente dice que dorsal lleva', () => {
+  assert.equal(
+    equipoConDorsal('Camiseta Barcelona', 'Dorsal / Personalization, PATCH CHAMPIONS, NAME:PEDRI, NUMBER:8 manga corta'),
+    'Camiseta Barcelona (PEDRI 8 + parche Champions)',
+  );
+  assert.equal(equipoConDorsal('Camiseta Boca', 'Dorsal / Personalization, NAME:PAREDES, NUMBER:5 manga corta'), 'Camiseta Boca (PAREDES 5)');
+  assert.equal(equipoConDorsal('Camiseta Ghana', 'manga corta'), 'Camiseta Ghana');
 });

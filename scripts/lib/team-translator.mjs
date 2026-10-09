@@ -38,6 +38,8 @@ export const TEAM_DICTIONARY = {
   'suiza':       { aliases: ['suiza', 'switzerland'],              zh: ['瑞士'],          isClub: false },
   'marruecos':   { aliases: ['marruecos', 'morocco'],              zh: ['摩洛哥'],        isClub: false },
   'nigeria':     { aliases: ['nigeria'],                           zh: ['尼日利亚'],      isClub: false },
+  // VERIFICADO: el proveedor titula 2026加纳主场 / 2026加纳客场 (PEDIDO 6 de octubre).
+  'ghana':       { aliases: ['ghana'],                             zh: ['加纳'],          isClub: false },
   'ecuador':     { aliases: ['ecuador'],                           zh: ['厄瓜多尔'],      isClub: false },
   'peru':        { aliases: ['peru'],                              zh: ['秘鲁'],          isClub: false },
   'chile':       { aliases: ['chile'],                             zh: ['智利'],          isClub: false },
@@ -213,8 +215,11 @@ export function detectSleeve(description, extrasText) {
  */
 export function detectVariant(description) {
   const t = normalizeText(description);
-  if (/\btercera\b|\bthird\b|\b2da visitante\b|二客/.test(t)) return 'third';
-  if (/\bvisitante\b|\baway\b|客场/.test(t)) return 'away';
+  // "2da equipacion" y "suplente" son la visitante; "3ra" la tercera. Asi lo
+  // escribe el excel, y sin esto la Ghana "2da equipacion" del PEDIDO 6 de
+  // octubre se resolvia sola con el album de LOCAL.
+  if (/\btercera\b|\bthird\b|\b3ra\b|\b2da visitante\b|二客/.test(t)) return 'third';
+  if (/\bvisitante\b|\baway\b|\bsuplente\b|\b2da equipacion\b|\bsegunda equipacion\b|客场/.test(t)) return 'away';
   if (/\blocal\b|\bhome\b|主场/.test(t)) return 'home';
   return null;
 }

@@ -105,11 +105,45 @@ export function prepararReferencias(bufferExcel, productosDelCatalogo) {
   const claves = filas.map((cols) => claveDeReferencia(cols[2]));
   const items = filas.map((cols) => AdminLoteWorkflow.buildLoteItemFromColumns(cols, productosDelCatalogo));
 
-  const fotosPorClave = asociarFotosAFilas(agruparFotosUnicasSync(bufferExcel), claves);
+  const fotosPorClave = fotosUnaPorFila(bufferExcel, claves)
+    || asociarFotosAFilas(agruparFotosUnicasSync(bufferExcel), claves);
 
-  const grupos = new Map();
+  // El precio, el costo y la descripcion de la FICHA salen de una fila de
+  // stock si la referencia tiene alguna. Antes salian de la primera fila, y en
+  // el PEDIDO 6 de octubre la primera Barcelona Suplente Player era una de
+  // cliente con dorsal y parche: la ficha quedaba a $150.000 y con el dorsal de
+  // Pedri en la descripcion, aunque la unidad para la tienda no lleva nada.
+  const representante = new Map();
   items.forEach((item, i) => {
     const clave = claves[i];
+    const actual = representante.get(clave);
+    const esStock = String(item.destino || '').toUpperCase() !== 'PREVENTA';
+    if (!actual || (!actual.esStock && esStock)) representante.set(clave, { item, esStock });
+  });
+
+  // Si TODAS las unidades son de clientes, la ficha igual se crea, y tiene que
+  // ser la de la camiseta lisa: precio, costo y descripcion sin el dorsal, que
+  // es lo que vera quien entre a la tienda. El dorsal va en el pedido de cada
+  // cliente. Se rearma con el mismo codigo del admin, quitandole a la fila los
+  // extras y su costo.
+  const fichaLisa = (i) => {
+    const cols = [...filas[i]];
+    const manga = /manga\s*larga/i.test(cols[3]) ? 'manga larga' : 'manga corta';
+    cols[3] = manga;
+    cols[4] = '';
+    cols[7] = '';
+    return AdminLoteWorkflow.buildLoteItemFromColumns(cols, productosDelCatalogo);
+  };
+  items.forEach((item, i) => {
+    const rep = representante.get(claves[i]);
+    if (!rep.esStock && rep.item === item && !rep.lisa) rep.lisa = fichaLisa(i);
+  });
+
+  const grupos = new Map();
+  items.forEach((filaItem, i) => {
+    const clave = claves[i];
+    const rep = representante.get(clave);
+    const item = rep.lisa || rep.item;
     if (!grupos.has(clave)) {
       const foto = fotosPorClave.get(clave);
       grupos.set(clave, {
@@ -136,10 +170,47 @@ export function prepararReferencias(bufferExcel, productosDelCatalogo) {
         decision: 'pendiente',
       });
     }
-    grupos.get(clave).filas.push({ talla: item.size, cantidad: item.qty, destino: item.destino });
+    // Costo y precio van por fila: una con dorsal cuesta y vale mas que la
+    // misma camiseta sin nada, y se suman por separado al gasto del lote.
+    grupos.get(clave).filas.push({
+      talla: filaItem.size,
+      cantidad: filaItem.qty,
+      destino: filaItem.destino,
+      costoUsd: filaItem.costUsd,
+      precio: filaItem.precioVenta,
+      extras: filaItem.extrasText,
+    });
   });
 
   return [...grupos.values()];
+}
+
+/**
+ * Caso comun: el excel trae una foto por cada fila de datos. Entonces la foto
+ * k (ordenada por posicion en la hoja) es la de la fila k, y no hay nada que
+ * adivinar.
+ *
+ * Hace falta porque varias filas pueden compartir la MISMA imagen (la version
+ * Fan y la Player de una camiseta se ven iguales) y las anclas se amontonan.
+ * En el PEDIDO 6 de octubre eso hacia que el emparejado por cercania
+ * intercambiara la foto de la Real Madrid con la de Ghana y dejara sin foto a
+ * la Barcelona suplente Player y a la Bayern Player.
+ *
+ * Como control, cada foto tiene que caer a 2 filas o menos de la suya. Si las
+ * cuentas no cuadran o alguna queda lejos, devuelve null y se usa el metodo de
+ * siempre.
+ */
+function fotosUnaPorFila(bufferExcel, claves) {
+  const fotos = extraerFotosDeExcel(bufferExcel);
+  if (fotos.length !== claves.length) return null;
+  // La fila 0 de datos es la tercera de la hoja; las anclas caen casi siempre
+  // una fila por encima de su celda, de ahi el +1.
+  if (fotos.some((f, k) => Math.abs(f.row - (k + 1)) > 2)) return null;
+  const porClave = new Map();
+  fotos.forEach((f, k) => {
+    if (!porClave.has(claves[k])) porClave.set(claves[k], { buffer: f.buffer, ext: f.ext });
+  });
+  return porClave;
 }
 
 // Misma agrupacion que agruparFotosUnicas, pero sincrona: la misma imagen

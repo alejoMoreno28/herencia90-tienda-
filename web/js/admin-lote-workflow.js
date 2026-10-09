@@ -5,7 +5,10 @@
     const NATIONAL_TEAMS = [
         'alemania', 'argentina', 'brasil', 'colombia', 'corea', 'croacia', 'espana',
         'estados unidos', 'francia', 'holanda', 'inglaterra', 'italia', 'japon',
-        'korea', 'mexico', 'paises bajos', 'portugal', 'uruguay'
+        'korea', 'mexico', 'paises bajos', 'portugal', 'uruguay',
+        // Selecciones del Mundial 2026 que empezaron a llegar en los pedidos.
+        'belgica', 'ghana', 'marruecos', 'senegal', 'nigeria', 'ecuador',
+        'paraguay', 'canada', 'suiza', 'dinamarca', 'escocia', 'noruega', 'egipto'
     ];
     const SOUTH_AMERICAN_CLUBS = ['boca juniors', 'river plate', 'santos'];
     const EUROPEAN_CLUBS = [
@@ -48,7 +51,8 @@
             .replace(/\bman\s*united\b/ig, 'Manchester United')
             .replace(/\bmanchester\s+u\b/ig, 'Manchester United')
             .replace(/\bbarca\b/ig, 'Barcelona')
-            .replace(/\bbayern\b/ig, 'Bayern Munich')
+            // Sin el lookahead, "Bayern Munich" quedaba "Bayern Munich Munich".
+            .replace(/\bbayern\b(?!\s+m[uú]nich)/ig, 'Bayern Munich')
             .replace(/\bac\s+milan\b/ig, 'AC Milan')
             .replace(/\binter\s+milan\b/ig, 'Inter')
             .replace(/\bman\s+city\b/ig, 'Manchester City')
@@ -344,7 +348,13 @@
         const generatedCategory = inferCategory(generatedName, typeVal);
         const generatedDescription = buildDescription(generatedName, typeVal, extrasInfo, extrasVal);
         const duplicateCandidates = findProductCandidates(generatedName, products);
-        const safeCandidate = chooseSafeCandidate(duplicateCandidates);
+        // El nombre solo no separa la version Fan de la Player (tokensFor quita
+        // la palabra "player"), y son productos distintos con precio distinto.
+        // Sin este filtro la Barcelona 26/27 Local Player del PEDIDO 6 de
+        // octubre se enlazaba sola a la ficha Fan y le sumaba el stock.
+        const esPlayer = typeVal.toUpperCase() === 'PLAYER';
+        const mismaVersion = (c) => /\bplayer\b/i.test(stripAccents(c.equipo)) === esPlayer;
+        const safeCandidate = chooseSafeCandidate(duplicateCandidates.filter(mismaVersion));
         const precioVenta = safeCandidate && safeCandidate.precio
             ? safeCandidate.precio
             : suggestRetailPrice(typeVal, unitCostUsd, finalCostUsd, extraUsd, extrasInfo);

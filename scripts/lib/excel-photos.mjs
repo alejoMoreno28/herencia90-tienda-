@@ -46,7 +46,16 @@ function leerAnclas(xml) {
     const col = bloque.match(/<xdr:from>[\s\S]*?<xdr:col>(\d+)<\/xdr:col>/);
     const rel = bloque.match(/r:embed="([^"]+)"/);
     if (!fila || !rel) continue;
-    anclas.push({ row: parseInt(fila[1], 10), col: col ? parseInt(col[1], 10) : 0, rId: rel[1] });
+    // rowOff es cuanto baja la imagen dentro de su fila. Dos fotos ancladas en
+    // la misma fila no estan a la misma altura: en el PEDIDO 6 de octubre la
+    // Real Madrid y la Ghana caian las dos en la fila 8, una arriba y otra casi
+    // en la fila siguiente. Sin este dato se ordenaban por como estaban en el
+    // archivo y quedaban intercambiadas.
+    const offset = bloque.match(/<xdr:from>[\s\S]*?<xdr:rowOff>(\d+)<\/xdr:rowOff>/);
+    anclas.push({
+      row: parseInt(fila[1], 10), rowOff: offset ? parseInt(offset[1], 10) : 0,
+      col: col ? parseInt(col[1], 10) : 0, rId: rel[1],
+    });
   }
   return anclas;
 }
@@ -111,9 +120,9 @@ function extraerDeRuta(rutaXlsx, nombreHoja) {
     if (!entradas.includes(entrada)) continue;
     const buffer = leerDelZip(rutaXlsx, entrada);
     if (!buffer || !buffer.length) continue;
-    fotos.push({ row: ancla.row, col: ancla.col, buffer, ext: path.extname(entrada).slice(1) || 'png' });
+    fotos.push({ row: ancla.row, rowOff: ancla.rowOff, col: ancla.col, buffer, ext: path.extname(entrada).slice(1) || 'png' });
   }
-  return fotos.sort((a, b) => a.row - b.row);
+  return fotos.sort((a, b) => a.row - b.row || a.rowOff - b.rowOff);
 }
 
 /**
