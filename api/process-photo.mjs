@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import { downloadYupooPhoto } from '../scripts/lib/yupoo-search.mjs';
 import { alphaStats, buildSquareAssetBuffer, MASTER_SIZE, CARD_SIZE, MASTER_FIT, CARD_FIT } from '../scripts/preventa-square-assets.mjs';
 import sharp from 'sharp';
+import { createHash } from 'node:crypto';
 
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
 const BUCKET = 'product-images';
@@ -47,10 +48,54 @@ function slugify(str) {
 const BORDE_LIBRE_MAX = 0.05;
 
 // Pero el borde libre solo dice que el objeto cabe entero en la foto, y eso
-// tambien lo cumple un escudo recortado. Una camiseta completa ademas OCUPA la
-// foto: en los albumes medidos llena entre el 53% y el 65%, mientras que el
-// escudo suelto de la Barcelona se quedaba en 24%.
-const OCUPACION_MINIMA = 0.35;
+// tambien lo cumple un escudo recortado. Lo que separa una camiseta entera de
+// un escudo suelto es el ANCHO de la silueta: por las mangas, la camiseta
+// abarca casi todo el ancho de la foto.
+//
+// Antes se usaba la ocupacion (minimo 35%), medida solo con camisetas colgadas.
+// Las de los albumes Fan vienen ACOSTADAS sobre una tela, con mucho margen, y
+// ocupan 32-36%: se tomaban por acercamientos y se publicaban con el fondo
+// gris (PEDIDO 6 de octubre: Real Madrid verde, Bayern, Boca, Ghana, Barcelona).
+//
+// Medido en 10 albumes (scripts/medir-recortes.mjs):
+//   camiseta acostada   ancho 0.84-0.89   ocupacion 0.32-0.36
+//   camiseta colgada    ancho 0.78-0.96   ocupacion 0.50-0.60
+//   escudo suelto       ancho 0.58-0.65   ocupacion 0.21-0.28
+// Las dos condiciones van juntas para tener margen en las dos medidas.
+const ANCHO_MINIMO = 0.72;
+const OCUPACION_MINIMA = 0.28;
+
+/**
+ * Medidas de la silueta que dejo el borrador de fondos, relativas a la foto:
+ *   ancho / alto       cuanto del cuadro abarca la silueta en cada sentido
+ *   solidez            que tanto de su caja llena (una camiseta, ~0.6-0.8)
+ *   hombrosSobreRuedo  ancho a la altura de las mangas dividido por el ancho
+ *                      en el ruedo: la camiseta es una T, asi que da > 1.
+ */
+export async function medirMascara(buffer) {
+  const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: w, height: h } = info;
+  let minX = w; let minY = h; let maxX = -1; let maxY = -1; let fg = 0;
+  const opaco = (x, y) => data[(y * w + x) * 4 + 3] > 128;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!opaco(x, y)) continue;
+      fg++;
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+    }
+  }
+  if (maxX < 0) return { ancho: 0, alto: 0, solidez: 0, hombrosSobreRuedo: 0 };
+  const bw = maxX - minX + 1; const bh = maxY - minY + 1;
+  const anchoFila = (y) => {
+    let a = -1; let b = -1;
+    for (let x = minX; x <= maxX; x++) if (opaco(x, y)) { if (a < 0) a = x; b = x; }
+    return a < 0 ? 0 : b - a + 1;
+  };
+  const hombros = Math.max(...[0.2, 0.25, 0.3].map((f) => anchoFila(Math.round(minY + bh * f))));
+  const ruedo = Math.max(1, anchoFila(Math.round(minY + bh * 0.9)));
+  return { ancho: bw / w, alto: bh / h, solidez: fg / (bw * bh), hombrosSobreRuedo: hombros / ruedo };
+}
 
 async function removeBackground(rawBuffer) {
   const bgRes = await fetch(`${PHOTO_SERVICE}/remove-bg`, {
@@ -124,26 +169,44 @@ async function coloresEnElPecho(buffer) {
  * empieza por los detalles de la tela y la etiqueta, la ficha podia terminar
  * sin una sola foto de la camiseta entera.
  */
-async function ordenarParaLaFicha(fotos) {
+/** Es la camiseta entera, recortada limpia: la unica que se publica. */
+export function esCamisetaEntera({ recortada, bordeOpaco, proporcion, ancho }) {
+  return !!recortada
+    && bordeOpaco != null && bordeOpaco <= BORDE_LIBRE_MAX
+    && proporcion != null && proporcion >= OCUPACION_MINIMA
+    && ancho != null && ancho >= ANCHO_MINIMO;
+}
+
+async function ordenarParaLaFicha(fotos, { aMano = false } = {}) {
+  // Nunca se publica una foto con fondo: en la tienda todas van recortadas y
+  // grandes, y una con la pared o la tela del proveedor se ve mas chica y fuera
+  // de lugar. Los acercamientos, las de maniqui que tocan el borde y los
+  // recortes que se comieron la prenda se descartan.
+  //
+  // Tampoco dos veces la misma foto: hay albumes que la repiten.
+  const vistas = new Set();
   const completas = [];
-  const planos = [];
   for (const foto of fotos) {
-    const cabeEntera = foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX;
-    const ocupaLoSuyo = foto.proporcion != null && foto.proporcion >= OCUPACION_MINIMA;
-    if (foto.recortada && cabeEntera && ocupaLoSuyo) {
-      completas.push({ ...foto, publicar: foto.buffer, sinFondo: true });
-    } else {
-      // Acercamiento (o recorte que se comio la prenda): va la original.
-      planos.push({ ...foto, publicar: foto.original, sinFondo: false });
-    }
+    const huella = createHash('md5').update(foto.original).digest('hex');
+    if (vistas.has(huella)) continue;
+    vistas.add(huella);
+    if (!foto.recortada) continue;
+    const { ancho } = await medirMascara(foto.buffer);
+    // Las que eligio la persona ya son camisetas enteras: no hay escudo suelto
+    // que filtrar, y como pueden venir cuadradas y con margen, el ancho no dice
+    // nada. Solo se pide que el recorte haya salido limpio, sin tocar el borde.
+    const sirve = aMano
+      ? foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX
+      : esCamisetaEntera({ ...foto, ancho });
+    if (sirve) completas.push({ ...foto, ancho, publicar: foto.buffer, sinFondo: true });
   }
 
-  // Entre las que muestran la prenda completa, primero el frente y despues la
-  // espalda, que es el orden con que se quiere ver la ficha.
+  // Primero el frente y despues la espalda, que es el orden con que se quiere
+  // ver la ficha.
   for (const foto of completas) foto.colores = await coloresEnElPecho(foto.publicar);
   completas.sort((a, b) => b.colores - a.colores);
 
-  return [...completas, ...planos];
+  return completas;
 }
 
 /**
@@ -217,9 +280,8 @@ export default async function handler(req, res) {
       }
     }
 
-    const elegidas = await ordenarParaLaFicha(recortadas);
-    const conRecorte = elegidas.filter((f) => f.sinFondo).length;
-    console.log(`[process-photo] ${recortadas.length} fotos, ${conRecorte} sin fondo, ${elegidas.length - conRecorte} con su fondo original, se publican ${Math.min(elegidas.length, maxFotos)}`);
+    const elegidas = await ordenarParaLaFicha(recortadas, { aMano: usaBase64 });
+    console.log(`[process-photo] ${recortadas.length} fotos, ${elegidas.length} de la camiseta entera sin fondo, se publican ${Math.min(elegidas.length, maxFotos)}`);
 
     for (const [i, foto] of elegidas.entries()) {
       if (results.length >= maxFotos) break;
@@ -248,7 +310,9 @@ export default async function handler(req, res) {
     }
 
     if (!results.length) {
-      return res.status(500).json({ error: 'ninguna foto se pudo procesar/subir' });
+      return res.status(500).json({ error: elegidas.length
+        ? 'ninguna foto se pudo subir'
+        : 'ninguna foto del album muestra la camiseta entera para recortarla sin fondo; sube las fotos a mano' });
     }
 
     return res.status(200).json({ images: results.map((r) => r.finalUrl), details: results });

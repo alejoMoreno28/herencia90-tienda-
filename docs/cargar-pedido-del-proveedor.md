@@ -452,16 +452,42 @@ solo para **medir**: el recorte se usa o se descarta despues.
 |---|---|
 | `borde_opaco` | cuanto del borde de la imagen quedo opaco. Si se ve la prenda entera hay fondo alrededor y el borde queda vacio; en un acercamiento la tela se sale por los lados |
 | `proporcion` | cuanto de la imagen quedo opaco en total |
+| `ancho` | cuanto del ancho de la foto abarca la silueta (`medirMascara`) |
 
-Una foto se publica **sin fondo** solo si `borde_opaco <= 0.05` **y**
-`proporcion >= 0.35`. Cualquier otra se publica **como vino del proveedor**.
+**Nunca se publica una foto con fondo.** Solo va a la tienda la camiseta entera
+recortada limpia: `borde_opaco <= 0.05`, `proporcion >= 0.28` y
+`ancho >= 0.72` (`esCamisetaEntera`). Acercamientos, fotos en maniqui que
+tocan el borde y recortes que se comieron la prenda se descartan. Las fotos
+repetidas dentro del album tambien.
 
-Las dos condiciones hacen falta. El borde solo dice que el objeto cabe entero,
-y eso tambien lo cumple un escudo recortado; una camiseta completa ademas
-**ocupa** la foto (entre 53% y 65% en los albumes medidos), mientras que el
-escudo suelto se quedaba en 24%.
+Por que esos numeros (medidos en 10 albumes con `scripts/medir-recortes.mjs`,
+pruebas en `scripts/process-photo-regla.test.mjs`):
 
-El orden final es: **frente, espalda, resto de prenda completa, acercamientos**.
+| | ancho | proporcion |
+|---|---|---|
+| camiseta acostada (albumes Fan) | 0.84-0.89 | 0.32-0.36 |
+| camiseta colgada | 0.78-0.96 | 0.50-0.60 |
+| escudo suelto | 0.58-0.65 | 0.21-0.28 |
+
+Antes la regla era `proporcion >= 0.35` y lo demas se publicaba con su fondo.
+Estaba medida solo con camisetas colgadas: las acostadas de los albumes Fan
+ocupan ~33% y se publicaban con la tela gris del proveedor (PEDIDO de octubre
+2026: Real Madrid verde, Bayern, Boca, Ghana, Barcelona; y Mexico y Belgica del
+de agosto).
+
+Las fotos que arrastra la persona a mano (`photosBase64`) no pasan por la
+regla de ancho: ya son camisetas enteras elegidas por alguien y pueden venir
+cuadradas y con margen. Solo se pide que el recorte no toque el borde.
+
+Si ninguna foto del album pasa, el producto no recibe fotos y el error lo dice:
+hay que subirlas a mano.
+
+Limitacion conocida: el gancho del colgador queda pegado en las fotos de
+camisetas colgadas. Se probo quitarlo (apertura de la mascara, y borrar las
+filas angostas de arriba) y ninguna funciona: el colgador tiene una placa casi
+tan ancha como el cuello.
+
+El orden final es: **frente, espalda, resto de prenda completa**.
 Entre las completas manda el numero de colores distintos en el pecho.
 
 Valores reales del album de la Barcelona 08/09 (`/albums/95099080`, 13 fotos):
