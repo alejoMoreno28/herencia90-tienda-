@@ -1,0 +1,54 @@
+{
+ "aplicadas": {
+  "real madrid 26 27 local player": {
+   "accion": "sumada",
+   "prodId": 63,
+   "cuando": "2026-10-09T16:48:06.862Z"
+  },
+  "barcelona 26 27 local player": {
+   "accion": "creada",
+   "prodId": 85,
+   "cuando": "2026-10-09T16:52:36.689Z"
+  },
+  "barcelona 26 27 suplente player": {
+   "accion": "creada",
+   "prodId": 86,
+   "cuando": "2026-10-09T16:55:05.921Z"
+  },
+  "barcelona 26 27 suplente fan": {
+   "accion": "creada",
+   "prodId": 87,
+   "cuando": "2026-10-09T16:58:32.742Z"
+  },
+  "ghana 2da equipación 26": {
+   "accion": "creada",
+   "prodId": 88,
+   "cuando": "2026-10-09T16:59:54.654Z"
+  },
+  "river plate 3ra equipación 26 27": {
+   "accion": "creada",
+   "prodId": 89,
+   "cuando": "2026-10-09T17:02:13.723Z"
+  },
+  "bayern munich 2da equipación 26 27 player": {
+   "accion": "creada",
+   "prodId": 90,
+   "cuando": "2026-10-09T17:03:51.362Z"
+  },
+  "bayern munich 2da equipación 26 27": {
+   "accion": "creada",
+   "prodId": 91,
+   "cuando": "2026-10-09T17:05:15.831Z"
+  },
+  "boca juniors local": {
+   "accion": "creada",
+   "prodId": 92,
+   "cuando": "2026-10-09T17:07:00.828Z"
+  },
+  "real madrid 2da equipación 26 27": {
+   "accion": "creada",
+   "prodId": 93,
+   "cuando": "2026-10-09T17:08:29.972Z"
+  }
+ }
+}

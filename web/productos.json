@@ -1198,7 +1198,8 @@
             "L": 1,
             "M": 0,
             "S": 0,
-            "XL": 0
+            "XL": 0,
+            "XXL": 1
         },
         "imagenes": [
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1782332138393_34.webp",
@@ -1599,5 +1600,188 @@
             "XL": 0
         },
         "imagenes": []
+    },
+    {
+        "id": 85,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Barcelona 26/27 Local Versión Player",
+        "descripcion": "Camiseta local del FC Barcelona temporada 2026/27 con las franjas azulgranas verticales y el patrocinador Spotify en el pecho. Versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-local-version-player/1791564489362-6.webp"
+        ]
+    },
+    {
+        "id": 86,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Barcelona 26/27 Visitante Versión Player",
+        "descripcion": "Camiseta visitante del FC Barcelona temporada 2026/27, negra con degradé morado hacia la cintura y el logo de Spotify en dorado. Versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 1,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-version-player/1791564758330-6.webp"
+        ]
+    },
+    {
+        "id": 87,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Barcelona 26/27 Visitante",
+        "descripcion": "Camiseta visitante del FC Barcelona temporada 2026/27, negra con degradé morado hacia la cintura y el logo de Spotify en dorado. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-fan/1791564907975-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-fan/1791564907975-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-barcelona-26-27-suplente-fan/1791564907975-3.webp"
+        ]
+    },
+    {
+        "id": 88,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Ghana 2026 Visitante",
+        "descripcion": "Diseño en color amarillo con llamativos patrones geométricos en mangas y cintura, detalles verdes y la bandera ghanesa en la nuca. La espalda viene lisa, sin dorsal impreso. Versión Fan con corte cómodo y manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0,
+            "XXL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ghana-2da-equipacion-26/1791565113512-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ghana-2da-equipacion-26/1791565113512-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-ghana-2da-equipacion-26/1791565113512-1.webp"
+        ]
+    },
+    {
+        "id": 89,
+        "categoria": "Equipos Sudamericanos",
+        "equipo": "Camiseta River Plate 26/27 Tercera Versión Player",
+        "descripcion": "Tercera camiseta de River Plate temporada 2026/27, con franjas verticales rojas y blancas y el escudo del club en el pecho. Versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 1,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-5.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-3ra-equipacion-26-27-version-player/1791565196776-6.webp"
+        ]
+    },
+    {
+        "id": 90,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Bayern Múnich 26/27 Visitante Versión Player",
+        "descripcion": "Camiseta visitante del Bayern Múnich temporada 2026/27, blanca con cuello azul oscuro y detalles en rojo, el trébol de adidas y \"FC Bayern\" en la espalda. Versión Player: corte más ajustado y tela más ligera, la misma línea que usan los jugadores en cancha. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 1,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27-version-player/1791565335187-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27-version-player/1791565335187-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27-version-player/1791565335187-3.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27-version-player/1791565335187-4.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27-version-player/1791565335187-5.webp"
+        ]
+    },
+    {
+        "id": 91,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Bayern Múnich 26/27 Visitante",
+        "descripcion": "Camiseta visitante del Bayern Múnich temporada 2026/27, blanca con cuello azul oscuro y detalles en rojo, el trébol de adidas y \"FC Bayern\" en la espalda. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27/1791565432733-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27/1791565432733-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-bayern-munich-2da-equipacion-26-27/1791565432733-3.webp"
+        ]
+    },
+    {
+        "id": 92,
+        "categoria": "Equipos Sudamericanos",
+        "equipo": "Camiseta Boca Juniors 26/27 Local",
+        "descripcion": "Camiseta local de Boca Juniors temporada 2026/27, azul con la franja amarilla en el pecho y hombros amarillos. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-boca-juniors-local/1791565517333-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-boca-juniors-local/1791565517333-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-boca-juniors-local/1791565517333-3.webp"
+        ]
+    },
+    {
+        "id": 93,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Real Madrid 26/27 Visitante",
+        "descripcion": "Camiseta visitante del Real Madrid temporada 2026/27 en verde oscuro, con el patrocinador Emirates Fly Better en el pecho. Versión Fan de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 1,
+            "M": 1,
+            "S": 0,
+            "XL": 1
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2da-equipacion-26-27/1791565622081-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2da-equipacion-26-27/1791565622081-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-real-madrid-2da-equipacion-26-27/1791565622081-3.webp"
+        ]
     }
 ]
