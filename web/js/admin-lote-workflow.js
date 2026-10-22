@@ -10,7 +10,10 @@
         'belgica', 'ghana', 'marruecos', 'senegal', 'nigeria', 'ecuador',
         'paraguay', 'canada', 'suiza', 'dinamarca', 'escocia', 'noruega', 'egipto'
     ];
-    const SOUTH_AMERICAN_CLUBS = ['boca juniors', 'river plate', 'santos'];
+    const SOUTH_AMERICAN_CLUBS = [
+        'boca juniors', 'river plate', 'river', 'santos', 'chapecoense',
+        'atletico nacional', 'millonarios', 'america de cali', 'flamengo', 'palmeiras'
+    ];
     const EUROPEAN_CLUBS = [
         'ac milan', 'arsenal', 'barcelona', 'bayern munich', 'benfica', 'chelsea',
         'fiorentina', 'inter', 'juventus', 'liverpool', 'manchester city',

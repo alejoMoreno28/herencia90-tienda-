@@ -77,6 +77,7 @@ export const TEAM_DICTIONARY = {
   'river plate':  { aliases: ['river plate', 'river'],             zh: ['河床'],          isClub: true },
   'santos':       { aliases: ['santos'],                           zh: ['桑托斯'],        isClub: true },
   'chapecoense':  { aliases: ['chapecoense', 'chape'],             zh: ['沙佩科恩斯'],    isClub: true },
+  'atletico nacional': { aliases: ['atletico nacional', 'nacional'], zh: ['国民竞技'],   isClub: true },
   'flamengo':     { aliases: ['flamengo'],                         zh: ['弗拉门戈'],      isClub: true },
   'palmeiras':    { aliases: ['palmeiras'],                        zh: ['帕尔梅拉斯'],    isClub: true },
   'corinthians':  { aliases: ['corinthians'],                      zh: ['科林蒂安'],      isClub: true },

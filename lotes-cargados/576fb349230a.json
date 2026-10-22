@@ -1,0 +1,24 @@
+{
+ "aplicadas": {
+  "real madrid 26 27 local player": {
+   "accion": "sumada",
+   "prodId": 63,
+   "cuando": "2026-10-22T13:41:30.202Z"
+  },
+  "chapecoense 26": {
+   "accion": "creada",
+   "prodId": 94,
+   "cuando": "2026-10-22T13:43:44.109Z"
+  },
+  "atletico nacional 26 mujer": {
+   "accion": "creada",
+   "prodId": 95,
+   "cuando": "2026-10-22T13:44:08.346Z"
+  },
+  "atletico nacional 26": {
+   "accion": "creada",
+   "prodId": 96,
+   "cuando": "2026-10-22T13:46:43.716Z"
+  }
+ }
+}
