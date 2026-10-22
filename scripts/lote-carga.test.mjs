@@ -190,3 +190,10 @@ test('el pedido del cliente dice que dorsal lleva', () => {
   assert.equal(equipoConDorsal('Camiseta Boca', 'Dorsal / Personalization, NAME:PAREDES, NUMBER:5 manga corta'), 'Camiseta Boca (PAREDES 5)');
   assert.equal(equipoConDorsal('Camiseta Ghana', 'manga corta'), 'Camiseta Ghana');
 });
+
+// Los pedidos a Snake se pagan con tarjeta. Con la categoria de caja, el pedido
+// de octubre 2026 bajo la caja en vez de subir la deuda de tarjeta.
+test('el gasto del lote se registra como compra con tarjeta', async () => {
+  const { CATEGORIA_COMPRA } = await import('./lib/lote-carga.mjs');
+  assert.equal(CATEGORIA_COMPRA, 'Compra Inventario (con Tarjeta)');
+});

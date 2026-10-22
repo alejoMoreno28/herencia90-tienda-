@@ -219,8 +219,12 @@ async function procesarFotos(referencia, maxFotos) {
     .filter(Boolean);
 }
 
-// Misma categoria que usa el usuario cuando registra la compra a mano.
-const CATEGORIA_COMPRA = 'Compra Inventario';
+// Los pedidos a Snake se pagan con la tarjeta de credito de un socio, no con
+// la caja: esta categoria los suma a "Deuda tarjeta" en vez de restarlos de la
+// caja (admin-finance-metrics.js). Con 'Compra Inventario' a secas, el pedido
+// de octubre 2026 bajo la caja $731.376 sin que nadie hubiera sacado esa plata.
+// Si algun pedido se paga desde la caja, se cambia la categoria en el admin.
+export const CATEGORIA_COMPRA = 'Compra Inventario (con Tarjeta)';
 
 /** "NAME:RONALDINHO,NUMBER;10" -> "Ronaldinho #10" */
 function dorsalDeExtras(extras) {
