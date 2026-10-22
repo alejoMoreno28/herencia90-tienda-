@@ -830,6 +830,120 @@
             .stat-card .value { font-size: 20px; }
             .stat-card.primary .value { font-size: 26px; }
         }
+
+        /* --- HOY Y PLATA: tres numeros claros arriba, el detalle se abre --- */
+        .money-top {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .money-box {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .money-box span {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #6b604c;
+        }
+        .money-box strong {
+            font-size: 30px;
+            line-height: 1.1;
+            color: #111;
+            font-variant-numeric: tabular-nums;
+        }
+        .money-box small { font-size: 12px; color: #7a705f; }
+        .money-box.debt strong { color: #b42318; }
+        .money-box.free { background: #111; border-color: #111; }
+        .money-box.free span { color: #d9c391; }
+        .money-box.free strong { color: #fff; }
+        .money-box.free small { color: rgba(255,255,255,.7); }
+        .money-box strong.negative { color: #b42318; }
+        .money-box.free strong.negative { color: #ff9b8f; }
+        .hoy-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .hoy-action {
+            padding: 13px 18px;
+            border-radius: 10px;
+            border: 1px solid #e2d8c3;
+            background: #fffdf8;
+            color: #111;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .hoy-action:hover { border-color: var(--gold); }
+        .hoy-action.main { background: #111; border-color: #111; color: #fff; }
+        .hoy-panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+        }
+        .hoy-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .hoy-panel-head h3 { margin: 0; border: 0; padding: 0; }
+        .hoy-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .hoy-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border-left: 4px solid #c9c2b2;
+            background: #fbfaf7;
+        }
+        .hoy-item.warn { border-left-color: #d99e2d; background: #fffaf0; }
+        .hoy-item.info { border-left-color: #6f8fb5; }
+        .hoy-item strong { display: block; font-size: 14px; color: #111; }
+        .hoy-item span { display: block; font-size: 12px; color: #6b604c; margin-top: 2px; }
+        .hoy-item .btn-save { white-space: nowrap; flex: 0 0 auto; }
+        .hoy-empty { padding: 18px; text-align: center; color: #7a705f; font-weight: 700; }
+        .finance-more {
+            margin-bottom: 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 0 16px;
+        }
+        .finance-more > summary {
+            cursor: pointer;
+            padding: 14px 0;
+            font-weight: 800;
+            font-size: 14px;
+            color: #3d3527;
+            list-style-position: inside;
+        }
+        .finance-more[open] { padding-bottom: 16px; }
+        .finance-more .finance-cards { margin-bottom: 0; }
+        @media (max-width: 760px) {
+            .money-top { grid-template-columns: 1fr; gap: 10px; }
+            .money-box { padding: 14px 16px; }
+            .money-box strong { font-size: 26px; }
+            .hoy-action { flex: 1 1 calc(50% - 10px); }
+            .hoy-item { flex-direction: column; align-items: stretch; }
+        }
     </style>
 </head>
 <body>
@@ -850,11 +964,12 @@
     <aside class="sidebar">
         <div class="sidebar-brand">Herencia <span>90</span></div>
         <ul class="sidebar-menu">
-            <li><button onclick="switchTab('dashboard')" id="tab-dashboard" class="active">Inicio Finanzas</button></li>
-            <li><button onclick="switchTab('inventario')" id="tab-inventario">Productos e Inventario</button></li>
-            <li><button onclick="switchTab('analytics')" id="tab-analytics">Analytics</button></li>
-            <li><button onclick="switchTab('preventa')" id="tab-preventa">Catálogo Bajo Pedido</button></li>
-            <li><button onclick="switchTab('pedidos')" id="tab-pedidos">Pedidos y Clientes</button></li>
+            <li><button onclick="switchTab('hoy')" id="tab-hoy" class="active">Hoy</button></li>
+            <li><button onclick="switchTab('dashboard')" id="tab-dashboard">Plata</button></li>
+            <li><button onclick="switchTab('inventario')" id="tab-inventario">Inventario</button></li>
+            <li><button onclick="switchTab('pedidos')" id="tab-pedidos">Pedidos y clientes</button></li>
+            <li><button onclick="switchTab('preventa')" id="tab-preventa">Catálogo bajo pedido</button></li>
+            <li><button onclick="switchTab('analytics')" id="tab-analytics">Visitas</button></li>
         </ul>
         <div class="sidebar-footer">
             <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
@@ -863,7 +978,7 @@
 
     <main class="main-content">
         <header class="topbar">
-            <h2 id="page-title">Dashboard Financiero</h2>
+            <h2 id="page-title">Hoy</h2>
             <div class="trm-module">
                 <div><b>TRM Oficial:</b> <span id="trm-api">Consultando...</span></div>
                 <div><b>TRM Aplicada:</b> <input type="number" id="trm-custom" value="3714" onchange="updateCustomTRM()"></div>
@@ -873,8 +988,64 @@
 
         <section class="content-area">
 
+            <!-- VISTA HOY: lo que necesita atencion y los tres numeros que importan.
+                 Solo lee datos; cada accion lleva a la pantalla donde ya se hacia. -->
+            <div id="view-hoy" class="view-section active">
+                <div class="money-top" aria-label="Plata del negocio">
+                    <div class="money-box">
+                        <span>En el banco</span>
+                        <strong data-money="cash">$0</strong>
+                        <small>Debe coincidir con tus cuentas y efectivo.</small>
+                    </div>
+                    <div class="money-box debt">
+                        <span>Por pagar de tarjeta</span>
+                        <strong data-money="debt">$0</strong>
+                        <small>Pedidos al proveedor pagados con tu tarjeta.</small>
+                    </div>
+                    <div class="money-box free">
+                        <span>Libre</span>
+                        <strong data-money="free">$0</strong>
+                        <small>En el banco menos lo que se debe de tarjeta.</small>
+                    </div>
+                </div>
+
+                <div class="hoy-actions">
+                    <button type="button" class="hoy-action main" onclick="hoyIrA('venta')">Registrar venta</button>
+                    <button type="button" class="hoy-action" onclick="hoyIrA('abono')">Registrar abono</button>
+                    <button type="button" class="hoy-action" onclick="hoyIrA('pago_tarjeta')">Pagar tarjeta</button>
+                    <button type="button" class="hoy-action" onclick="hoyIrA('cargador')">Cargar pedido del proveedor</button>
+                </div>
+
+                <div class="hoy-panel">
+                    <div class="hoy-panel-head">
+                        <h3>Pendientes</h3>
+                        <button type="button" class="btn-save" onclick="renderHoy(true)">Actualizar</button>
+                    </div>
+                    <ul id="hoy-pendientes" class="hoy-list">
+                        <li class="hoy-empty">Cargando...</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- VISTA FINANZAS -->
-            <div id="view-dashboard" class="view-section active">
+            <div id="view-dashboard" class="view-section">
+                <div class="money-top" aria-label="Plata del negocio">
+                    <div class="money-box">
+                        <span>En el banco</span>
+                        <strong data-money="cash">$0</strong>
+                        <small>Debe coincidir con tus cuentas y efectivo.</small>
+                    </div>
+                    <div class="money-box debt">
+                        <span>Por pagar de tarjeta</span>
+                        <strong data-money="debt">$0</strong>
+                        <small>Pedidos al proveedor pagados con tu tarjeta.</small>
+                    </div>
+                    <div class="money-box free">
+                        <span>Libre</span>
+                        <strong data-money="free">$0</strong>
+                        <small>En el banco menos lo que se debe de tarjeta.</small>
+                    </div>
+                </div>
                 <div class="finance-toolbar">
                     <div>
                         <div class="eyebrow">Lectura financiera</div>
@@ -895,8 +1066,13 @@
 
                 <div class="finance-alert" id="finance-alert" aria-live="polite"></div>
 
-                <div id="partner-ledger-root"></div>
+                <details class="finance-more">
+                    <summary>Socios: aportes, retiros y cortes de ganancia</summary>
+                    <div id="partner-ledger-root"></div>
+                </details>
 
+                <details class="finance-more">
+                    <summary>Indicadores del negocio: ganancia, márgenes, retorno e inventario</summary>
                 <div class="finance-cards">
                     <div class="stat-card primary">
                         <h4>🏆 Ganancia neta realizada</h4>
@@ -948,6 +1124,7 @@
                         <div class="sub-value" title="Ganancia potencial si se vende todo">Costo: <b id="stat-inv-cost">$0</b> · Ganancia potencial: <b id="stat-inv-prof">$0</b></div>
                     </div>
                 </div>
+                </details>
 
                 <div class="finance-layout">
                     <!-- Izquierda: Gráfico y Transacciones -->
@@ -1494,7 +1671,7 @@
                 <!-- Sub-Navegación Visual -->
                 <div class="admin-subtabs">
                     <button onclick="setPedidosSubTab('crm')" id="subtab-crm" class="btn-save" style="background:var(--gold); border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">🗃️ Cuentas y Entregas (CRM)</button>
-                    <button onclick="setPedidosSubTab('import')" id="subtab-import" style="background:#e0e0e0; color:#333; border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">📥 Ingresar Nuevo Lote</button>
+                    <button onclick="setPedidosSubTab('import')" id="subtab-import" style="background:#e0e0e0; color:#333; border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">Carga manual de lote (sin fotos)</button>
                 </div>
 
                 <!-- SUB-TAB 1: CRM & COBRANZAS -->
@@ -1617,6 +1794,14 @@
 
                 <!-- SUB-TAB 2: IMPORTAR LOTE -->
                 <div id="pedidos-subview-import" class="pedidos-subview lote-wizard" style="display:none;">
+                    <div class="cargador-card">
+                        <div class="cargador-texto">
+                            <strong>Para un pedido de Snake usa el cargador</strong>
+                            <p>El cargador busca las fotos, les quita el fondo y registra el gasto en la tarjeta.
+                               Esta carga manual queda solo para casos raros, cuando no hay excel ni fotos que buscar.</p>
+                        </div>
+                        <button type="button" class="btn-add" onclick="abrirCargador()">Abrir el cargador</button>
+                    </div>
                     <div class="form-container lote-step" style="margin-bottom:20px;">
                         <h3>📥 Cargar Lote Completo (Stock y Preventa)</h3>
                         <p style="font-size:12px; color:#666; margin-top:-6px; margin-bottom:15px; line-height:1.4;">
@@ -1767,9 +1952,10 @@
             document.querySelectorAll('.view-section, .sidebar-menu button').forEach(el => el.classList.remove('active'));
             document.getElementById('view-'+tId).classList.add('active');
             document.getElementById('tab-'+tId).classList.add('active');
-            const titles = { dashboard: 'Inicio Financiero', inventario: 'Productos e Inventario', analytics: 'Analytics', preventa: 'Catálogo Bajo Pedido', pedidos: 'Pedidos y Clientes' };
+            const titles = { hoy: 'Hoy', dashboard: 'Plata', inventario: 'Inventario', analytics: 'Visitas a la tienda', preventa: 'Catálogo bajo pedido', pedidos: 'Pedidos y clientes' };
             document.getElementById('page-title').innerText = titles[tId] || tId;
             document.getElementById('globalSaveBtn').style.display = tId === 'inventario' ? 'block' : 'none';
+            if (tId === 'hoy') renderHoy();
             if (tId === 'dashboard') calculateInventoryValuation();
             if (tId === 'analytics') loadAnalytics();
             if (tId === 'preventa') pvaCargarLista();
@@ -1781,6 +1967,126 @@
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
             const firstPreset = panel.querySelector('.movement-preset');
             if (firstPreset) setTimeout(() => firstPreset.focus({ preventScroll: true }), 250);
+        }
+
+        // ── HOY: tres numeros claros y la lista de pendientes ──────────────────
+        // Caja y deuda son saldos acumulados, asi que se calculan siempre sobre
+        // todos los meses, sin importar el periodo elegido en Plata.
+        function renderMoneyTop() {
+            if (!window.AdminFinance || !window.AdminPartnerLedger) return null;
+            const metrics = window.AdminFinance.computeFinanceMetrics(financeData.transacciones || [], {
+                globalTrm: GLOBAL_TRM,
+                period: 'all',
+                partnerMovements: window.AdminPartnerLedger.getMovements()
+            });
+            const cash = Number(metrics.cashAvailable) || 0;
+            const debt = Number(metrics.creditCardDebt) || 0;
+            const values = { cash, debt, free: cash - debt };
+            document.querySelectorAll('[data-money]').forEach((el) => {
+                const value = values[el.dataset.money] || 0;
+                el.textContent = formatter.format(value);
+                el.classList.toggle('negative', value < 0);
+            });
+            return metrics;
+        }
+
+        let hoyPedidosCache = null;
+        async function renderHoy(force = false) {
+            const metrics = renderMoneyTop();
+            const list = document.getElementById('hoy-pendientes');
+            if (!list) return;
+            if (force || !hoyPedidosCache) {
+                try {
+                    const { data, error } = await db.from('pedidos').select('*').order('id', { ascending: false });
+                    if (error) throw error;
+                    hoyPedidosCache = data || [];
+                } catch (e) {
+                    console.error(e);
+                    hoyPedidosCache = hoyPedidosCache || [];
+                }
+            }
+            const pedidos = hoyPedidosCache;
+            const items = [];
+
+            const sinCliente = pedidos.filter((p) => /pendiente por asignar/i.test(String(p.cliente || '')) || !String(p.cliente || '').trim());
+            if (sinCliente.length) {
+                items.push({ tone: 'warn', title: `${sinCliente.length} reserva(s) sin nombre de cliente`, detail: sinCliente.slice(0, 4).map((p) => `${p.equipo} ${p.talla || ''}`.trim()).join(' · '), action: 'pedidos-asignar', label: 'Asignar clientes' });
+            }
+
+            let porCobrar = 0;
+            const deudores = new Map();
+            pedidos.forEach((p) => {
+                const saldo = getPedidoPaymentState(p).saldo || 0;
+                if (saldo <= 0) return;
+                porCobrar += saldo;
+                const nombre = String(p.cliente || 'Pendiente por Asignar').trim();
+                deudores.set(nombre, (deudores.get(nombre) || 0) + saldo);
+            });
+            if (porCobrar > 0) {
+                const top = [...deudores.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, v]) => `${n} ${formatter.format(v)}`).join(' · ');
+                items.push({ tone: 'warn', title: `${formatter.format(porCobrar)} por cobrar a ${deudores.size} cliente(s)`, detail: top, action: 'abono', label: 'Registrar abono' });
+            }
+
+            const porEntregar = pedidos.filter((p) => p.estado_entrega === 'Pendiente');
+            if (porEntregar.length) {
+                const unidades = porEntregar.reduce((sum, p) => sum + (parseInt(p.cantidad) || 0), 0);
+                items.push({ tone: 'info', title: `${unidades} camiseta(s) por entregar`, detail: [...new Set(porEntregar.map((p) => String(p.cliente || '').trim()).filter(Boolean))].slice(0, 5).join(' · '), action: 'pedidos', label: 'Ver entregas' });
+            }
+
+            const ultimas = (productData || []).filter((p) => Object.entries(p.tallas || {}).some(([size, qty]) => !size.startsWith('R_') && parseInt(qty) === 1));
+            if (ultimas.length) {
+                items.push({ tone: 'info', title: `${ultimas.length} referencia(s) con última unidad en alguna talla`, detail: ultimas.slice(0, 4).map((p) => p.equipo).join(' · '), action: 'inventario', label: 'Ver inventario' });
+            }
+
+            const sinFoto = (productData || []).filter((p) => !Array.isArray(p.imagenes) || p.imagenes.length === 0);
+            if (sinFoto.length) {
+                items.push({ tone: 'warn', title: `${sinFoto.length} camiseta(s) sin fotos`, detail: sinFoto.slice(0, 4).map((p) => p.equipo).join(' · ') + '. No salen en la tienda hasta tener fotos.', action: 'inventario', label: 'Ver inventario' });
+            }
+
+            if (metrics && metrics.uncostedSalesCount > 0) {
+                items.push({ tone: 'warn', title: `${metrics.uncostedSalesCount} venta(s) sin costo de producto`, detail: 'La ganancia se ve más alta de lo real hasta corregir ese costo.', action: 'dashboard', label: 'Ir a Plata' });
+            }
+
+            list.innerHTML = items.length
+                ? items.map((item) => `
+                    <li class="hoy-item ${item.tone}">
+                        <div>
+                            <strong>${escapeHtml(item.title)}</strong>
+                            ${item.detail ? `<span>${escapeHtml(item.detail)}</span>` : ''}
+                        </div>
+                        <button type="button" class="btn-save" onclick="hoyIrA('${item.action}')">${escapeHtml(item.label)}</button>
+                    </li>`).join('')
+                : '<li class="hoy-empty">Todo al día. No hay pendientes.</li>';
+        }
+
+        function hoyIrA(destino) {
+            if (destino === 'venta' || destino === 'pago_tarjeta') {
+                switchTab('dashboard');
+                setMovementPreset(destino);
+                openMovementPanel();
+                return;
+            }
+            if (destino === 'abono') {
+                switchTab('pedidos');
+                setPedidosSubTab('crm');
+                setTimeout(() => document.getElementById('abono-grupo-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+                return;
+            }
+            if (destino === 'pedidos-asignar') {
+                switchTab('pedidos');
+                setPedidosSubTab('crm');
+                const search = document.getElementById('pedidos-search');
+                if (search) {
+                    search.value = 'Pendiente por Asignar';
+                    setTimeout(() => resetPedidosPageAndRender(), 600);
+                }
+                return;
+            }
+            if (destino === 'cargador') {
+                abrirCargador();
+                return;
+            }
+            switchTab(destino);
         }
         async function logout() { await db.auth.signOut(); window.location.href='/login.html'; }
 
@@ -1842,6 +2148,7 @@
                 });
                 renderFinance();
                 calculateInventoryValuation();
+                renderHoy();
             } catch(e) { console.error(e); }
         }
 
@@ -2290,6 +2597,7 @@
 
             updateFinanceSummary(metrics, filtro);
             drawFinanceCharts(metrics);
+            renderMoneyTop();
         }
 
         function normalizeTransactionSearch(value) {
