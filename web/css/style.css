@@ -4593,3 +4593,485 @@ body.modal-open .floating-wsp {
     text-transform: uppercase;
     letter-spacing: 0.02em;
 }
+
+/* ───────────────────────────────────────────────────────────
+   ─── AUDITORIA UX OCTUBRE 2026 ─────────────────────────────
+   Va al final para ganarle a las capas anteriores sin tocarlas.
+   ─────────────────────────────────────────────────────────── */
+
+/* 1. HERO: el texto se ve desde el primer segundo y los botones son solidos */
+.hero-content { animation: none; }
+.hero-overlay {
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.78) 100%);
+}
+.hero-title { text-shadow: 0 2px 18px rgba(0,0,0,0.65); }
+.hero-title .gold-text { color: #d9c391; }
+.hero-ctas .btn-hero {
+    background: #d9c391;
+    border: 2px solid #d9c391;
+    color: #111111;
+    font-weight: 700;
+    backdrop-filter: none;
+}
+.hero-ctas .btn-hero:hover {
+    background: #f7e6c1;
+    border-color: #f7e6c1;
+    color: #111111;
+}
+.hero-ctas .btn-hero-pp {
+    background: rgba(0,0,0,0.45);
+    border: 2px solid rgba(255,255,255,0.85);
+    color: #ffffff;
+}
+.hero-ctas .btn-hero-pp:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #111111;
+}
+@media (max-width: 767px) {
+    .hero-ctas .btn-hero,
+    .hero-ctas .btn-hero-pp {
+        width: min(300px, calc(100vw - 48px));
+        padding: 14px 20px;
+        font-size: 0.82rem;
+    }
+}
+
+/* 2. TARJETAS: etiquetas pequenas en las esquinas, todas con la misma forma */
+.product-card.bajopedido .product-image-wrapper::before,
+.product-card.soldout .product-image-wrapper::before {
+    content: none;
+}
+.product-status,
+.product-badge {
+    position: absolute;
+    top: 10px;
+    z-index: 3;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    line-height: 1.4;
+    text-transform: uppercase;
+    pointer-events: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+.product-status { left: 10px; }
+.product-badge {
+    right: 10px;
+    background: #ffffff;
+    color: #253247;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+}
+/* El aviso de ultimas unidades ya lo dan la etiqueta y los numeros de cada
+   talla; en la tarjeta solo repetia lo mismo. En la ventana de detalle sigue. */
+.product-card .product-stock-note { display: none; }
+.status-stock { background: #e5f3ea; color: #1f6b3a; }
+.status-pedido { background: #f3ead4; color: #6f5524; }
+.status-ultima { background: #fbe9e7; color: #a1281e; }
+@media (max-width: 767px) {
+    .product-badge { display: none; }
+    .product-status { top: 8px; left: 8px; font-size: 0.56rem; }
+}
+
+/* Segunda foto (la espalda) al pasar el mouse, solo en computador */
+.product-image-wrapper .product-img-alt {
+    position: absolute;
+    top: 15px; left: 15px;
+    width: calc(100% - 30px);
+    height: calc(100% - 30px);
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.product-card:hover .alt-ready .product-img-alt { opacity: 1; }
+.product-card:hover .alt-ready .lazy-img { opacity: 0; }
+@media (min-width: 768px) {
+    .product-image-wrapper .product-img-alt {
+        top: 25px; left: 25px;
+        width: calc(100% - 50px);
+        height: calc(100% - 50px);
+    }
+}
+
+/* 3. CATALOGO: filtros, resultados y "ver mas" */
+#productGrid .product-grid-inner { min-height: 0; }
+.catalog-toolbar { flex-wrap: wrap; }
+.catalog-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #172033;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.catalog-filter-toggle span {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: #ffffff;
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.catalog-filter-panel {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+.catalog-filter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 12px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+.catalog-filter-head strong {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #172033;
+}
+.catalog-filter-close {
+    border: none;
+    background: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #48566d;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+.catalog-filter-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 16px 0;
+    overflow-y: auto;
+}
+.catalog-filter-group {
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+.catalog-filter-group legend {
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #48566d;
+}
+.catalog-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.catalog-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #253247;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.catalog-filter-chip span {
+    font-size: 0.68rem;
+    color: #8792a5;
+    font-weight: 700;
+}
+.catalog-filter-chip:hover { border-color: var(--gold); }
+.catalog-filter-chip.active {
+    background: #172033;
+    border-color: #172033;
+    color: #ffffff;
+}
+.catalog-filter-chip.active span { color: rgba(255,255,255,0.7); }
+.catalog-filter-foot {
+    display: flex;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+.catalog-filter-clear,
+.catalog-filter-apply {
+    flex: 1;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.catalog-filter-clear {
+    background: #ffffff;
+    color: #172033;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+}
+.catalog-filter-clear:disabled { opacity: 0.45; cursor: default; }
+.catalog-filter-apply {
+    flex: 1.6;
+    background: #172033;
+    color: #ffffff;
+    border: 1px solid #172033;
+}
+.catalog-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: -8px 0 16px;
+}
+.catalog-active-chip,
+.catalog-active-clear {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.catalog-active-chip {
+    background: #172033;
+    color: #ffffff;
+    border: 1px solid #172033;
+}
+.catalog-active-clear {
+    background: transparent;
+    color: #85692f;
+    border: 1px solid transparent;
+    text-decoration: underline;
+}
+.catalog-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 20px;
+}
+.catalog-more p {
+    font-size: 0.8rem;
+    color: #48566d;
+    font-weight: 600;
+}
+.catalog-more-btn {
+    padding: 14px 34px;
+    border: 2px solid var(--gold);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--gold);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.catalog-more-btn:hover { background: var(--gold); color: #ffffff; }
+.catalog-filter-overlay { display: none; }
+
+/* Computador: barra lateral fija con los filtros a la vista */
+@media (min-width: 1024px) {
+    .catalog-with-filters {
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 32px;
+        align-items: start;
+    }
+    .catalog-filter-panel {
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 40px);
+        padding: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 12px;
+    }
+    .catalog-filter-close,
+    .catalog-filter-apply,
+    .catalog-filter-toggle { display: none; }
+}
+
+/* Celular y tableta: panel que sube desde abajo */
+@media (max-width: 1023px) {
+    .catalog-filter-panel {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 3001;
+        max-height: 85vh;
+        padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.18);
+        transform: translateY(105%);
+        visibility: hidden;
+        transition: transform 0.28s ease, visibility 0s linear 0.28s;
+    }
+    .catalog-filter-panel.open {
+        transform: translateY(0);
+        visibility: visible;
+        transition: transform 0.28s ease;
+    }
+    .catalog-filter-overlay.open {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        background: rgba(15, 23, 42, 0.45);
+    }
+    body.catalog-filters-open { overflow: hidden; }
+}
+@media (max-width: 767px) {
+    .catalog-toolbar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .catalog-results { flex: 1 1 100%; text-align: left; }
+    .catalog-filter-toggle { flex: 1; justify-content: center; }
+    .catalog-sort-wrap { flex: 1.4; width: auto; }
+    .catalog-sort-wrap > span { display: none; }
+    .catalog-sort { width: 100%; }
+}
+
+/* 4. BARRA INFERIOR DEL CELULAR: cuatro botones y sin WhatsApp flotante encima */
+@media (max-width: 767px) {
+    #gridToggleBtn { display: none; }
+    .mobile-nav-btn { min-width: 0; flex: 1; padding: 8px 4px; }
+    .mobile-nav-btn span:last-child {
+        font-size: 0.66rem;
+        white-space: nowrap;
+    }
+    .floating-wsp { display: none; }
+}
+
+/* El aviso "agregado al carrito" se asomaba debajo de la barra del celular */
+.cart-toast { opacity: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease; }
+.cart-toast.show { opacity: 1; }
+
+/* El pie del carrito conservaba el fondo oscuro del tema viejo y se veia gris */
+.cart-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+.cart-total span:first-child { color: #48566d; }
+.btn-clear-cart { border-color: rgba(15, 23, 42, 0.14); }
+
+/* 5. CARRITO: aviso de la promo */
+.cart-promo-note {
+    margin: 14px 0 4px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #f3ead4;
+    color: #5f461f;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* 6. PRUEBA DE CONFIANZA EN EL INICIO */
+.proof-section {
+    padding: 56px 0;
+    background: #172033;
+    color: #ffffff;
+}
+.proof-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+}
+.proof-number {
+    display: block;
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(2.6rem, 7vw, 4rem);
+    line-height: 1;
+    color: #d9c391;
+}
+.proof-copy h2 {
+    margin: 10px 0 12px;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1.15;
+}
+.proof-copy p {
+    color: rgba(255,255,255,0.78);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    max-width: 52ch;
+}
+.proof-points {
+    display: grid;
+    gap: 12px;
+}
+.proof-point {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border: 1px solid rgba(217,195,145,0.25);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+}
+.proof-point strong {
+    display: block;
+    font-size: 0.86rem;
+    color: #ffffff;
+}
+.proof-point span {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+}
+.proof-point i {
+    font-size: 1.3rem;
+    color: #d9c391;
+    margin-top: 2px;
+}
+.proof-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+.proof-links a {
+    padding: 11px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.6);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.proof-links a:first-child {
+    background: #d9c391;
+    border-color: #d9c391;
+    color: #111111;
+}
+@media (max-width: 767px) {
+    .proof-section { padding: 44px 0; }
+    .proof-inner { grid-template-columns: 1fr; gap: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalog-filter-panel { transition: none; }
+}

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
   <title>Camiseta Chapecoense Especial Edition | Herencia 90 Colombia</title>
   <meta name="description" content="Camiseta Chapecoense Especial Edition en Herencia 90. Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta. C...">
   <link rel="canonical" href="https://www.herencia90.shop/camisetas/camiseta-chapecoense-especial-edition">
@@ -48,45 +49,33 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Camiseta Chapecoense Especial Edition","image":["https://www.herencia90.shop/img/logo-ui.webp"],"description":"Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta.","brand":{"@type":"Brand","name":"Herencia 90"},"sku":"HERENCIA90-84","category":"Equipos Sudamericanos","url":"https://www.herencia90.shop/camisetas/camiseta-chapecoense-especial-edition","offers":{"@type":"Offer","url":"https://www.herencia90.shop/camisetas/camiseta-chapecoense-especial-edition","priceCurrency":"COP","price":99000,"availability":"https://schema.org/OutOfStock","itemCondition":"https://schema.org/NewCondition","seller":{"@type":"Organization","name":"Herencia 90"}}}</script>
   <style>
+
     :root {
-      --bg-dark: #050505;
-      --card-bg: rgba(20, 20, 20, 0.82);
-      --gold: #d9c391;
-      --gold-hover: #f7e6c1;
-      --text-primary: #ffffff;
-      --text-secondary: #a9a9a9;
-      --glass-border: rgba(217, 195, 145, 0.16);
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #556070;
+      --line: rgba(15, 23, 42, 0.1);
+      --gold: #85692f;
+      --gold-soft: #f3ead4;
+      --gold-light: #d9c391;
       --whatsapp: #0f7a41;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1a1712 0%, #050505 60%, #000 100%);
-      color: var(--text-primary);
+      font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.6;
     }
-    h1, h2, h3, .price { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+    h1, h2, h3, .price { font-family: 'Oswald', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
     a { color: inherit; }
-    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    .scroll-progress {
-      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
-      transform-origin: left; transform: scaleX(0);
-      animation: grow-progress linear; animation-timeline: scroll(root);
-      z-index: 9999; pointer-events: none;
-    }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #050505; }
-    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
     :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
     :focus:not(:focus-visible) { outline: none; }
     @media (prefers-reduced-motion: reduce) {
       * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-      .scroll-progress { display: none; }
-      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
     }
     .topbar {
       position: sticky;
@@ -96,219 +85,260 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 14px 18px;
-      background: rgba(5, 5, 5, 0.9);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--glass-border);
+      padding: 10px max(18px, env(safe-area-inset-right, 0px)) 10px max(18px, env(safe-area-inset-left, 0px));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
     }
-    .topbar a {
+    .topbar-logo img { display: block; width: auto; height: 44px; }
+    .topbar-nav { display: flex; align-items: center; gap: 6px; }
+    .topbar-nav a {
       text-decoration: none;
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      border-radius: 8px;
     }
-    .topbar a:hover { color: var(--gold); }
-    .topbar img { width: auto; height: 42px; }
+    .topbar-nav a:hover { color: var(--gold); background: var(--gold-soft); }
+    .topbar-cart span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      margin-left: 4px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #ffffff;
+      font-size: 0.7rem;
+    }
+    .topbar-cart span[hidden] { display: none; }
     .page-shell {
-      max-width: 1280px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 34px 18px 80px;
+      padding: 22px max(18px, env(safe-area-inset-right, 0px)) 80px max(18px, env(safe-area-inset-left, 0px));
     }
     .breadcrumbs {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 18px;
     }
-    .breadcrumbs a {
-      text-decoration: none;
-      color: inherit;
-    }
+    .breadcrumbs a { text-decoration: none; }
     .breadcrumbs a:hover { color: var(--gold); }
     .hero-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
-      gap: 28px;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 32px;
       align-items: start;
     }
     .product-gallery,
     .product-panel,
-    .benefits,
     .related-section {
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 26px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.28);
-      backdrop-filter: blur(14px);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
     }
-    .product-gallery { padding: 24px; }
+    .product-gallery { padding: 18px; position: sticky; top: 84px; }
     .main-image-wrap {
-      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 72%);
-      border-radius: 20px;
+      position: relative;
+      background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+      border-radius: 14px;
       padding: 22px;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      touch-action: pan-y;
     }
     .main-image {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 18px 30px rgba(0,0,0,0.5));
+      filter: drop-shadow(0 14px 24px rgba(15, 23, 42, 0.14));
     }
-    .thumb-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
-      gap: 10px;
-      margin-top: 18px;
-    }
-    .thumb {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid transparent;
-      border-radius: 14px;
-      padding: 8px;
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      font-size: 1.6rem;
+      line-height: 1;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .thumb.active,
-    .thumb:hover { border-color: var(--gold); }
-    .thumb img {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: contain;
-    }
-    .product-panel { padding: 28px; }
-    .eyebrow {
-      display: inline-flex;
-      padding: 6px 14px;
+    .gallery-arrow[hidden], .gallery-count[hidden] { display: none; }
+    .gallery-prev { left: 10px; }
+    .gallery-next { right: 10px; }
+    .gallery-count {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      padding: 3px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(217, 195, 145, 0.26);
-      background: rgba(217, 195, 145, 0.08);
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
+      background: rgba(23, 32, 51, 0.72);
+      color: #ffffff;
       font-size: 0.72rem;
       font-weight: 700;
-      margin-bottom: 14px;
     }
-    h1 {
-      font-size: clamp(2rem, 4vw, 3.6rem);
-      line-height: 1.05;
-      margin: 0 0 12px;
+    .thumb-grid {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-    .price {
-      font-size: clamp(1.7rem, 3vw, 2.6rem);
-      color: var(--gold);
-      margin-bottom: 14px;
+    .thumb-grid::-webkit-scrollbar { display: none; }
+    .thumb {
+      flex: 0 0 72px;
+      height: 72px;
+      background: #f1f5f9;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 4px;
+      cursor: pointer;
     }
-    .description {
-      color: var(--text-secondary);
-      font-size: 0.98rem;
-      margin-bottom: 24px;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .meta-box {
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
-    }
-    .meta-box strong {
-      display: block;
-      color: var(--gold);
-      font-size: 0.76rem;
+    .thumb.active, .thumb:hover { border-color: var(--gold); }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .product-panel { padding: 26px; }
+    .eyebrow {
+      display: inline-flex;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--gold-soft);
+      color: #6f5524;
       text-transform: uppercase;
       letter-spacing: 1px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      line-height: 1.08;
+      margin: 0 0 10px;
+      text-wrap: balance;
+    }
+    .price {
+      font-size: clamp(1.7rem, 3vw, 2.3rem);
+      color: var(--gold);
       margin-bottom: 6px;
+      line-height: 1.1;
     }
-    .meta-box span {
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      font-weight: 600;
+    .stock-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 20px;
+      font-size: 0.84rem;
+      font-weight: 700;
     }
+    .stock-line::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .stock-line.is-in { color: #1f6b3a; }
+    .stock-line.is-low { color: #a1281e; }
+    .stock-line.is-preorder { color: #6f5524; }
+    .size-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .size-head strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; }
+    .size-guide-link { color: var(--gold); font-size: 0.8rem; font-weight: 700; }
     .size-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 22px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
-    .size-list span {
+    .size-option {
+      min-width: 58px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(15, 23, 42, 0.16);
+      background: #ffffff;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
       display: inline-flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-width: 46px;
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(217, 195, 145, 0.25);
-      background: rgba(217, 195, 145, 0.08);
-      color: var(--gold-hover);
-      font-weight: 700;
-      font-size: 0.84rem;
+      line-height: 1.2;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
     }
+    .size-option small { font-size: 0.62rem; font-weight: 700; color: var(--muted); }
+    .size-option:hover:not(:disabled) { border-color: var(--gold); }
+    .size-option.is-low small { color: #a1281e; }
+    .size-option.is-selected { background: var(--text); border-color: var(--text); color: #ffffff; }
+    .size-option.is-selected small { color: rgba(255, 255, 255, 0.75); }
+    .size-option.is-out { opacity: 0.45; cursor: not-allowed; text-decoration: line-through; }
+    .size-list.needs-size { animation: nudge 0.4s ease; }
+    @keyframes nudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .fit-note { margin: 0 0 6px; font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+    .fit-note strong { color: var(--text); }
+    .size-hint { margin: 6px 0 0; color: #a1281e; font-size: 0.82rem; font-weight: 700; }
+    .size-hint[hidden], .cart-added[hidden] { display: none; }
     .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 10px;
     }
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 50px;
+      min-height: 52px;
       padding: 0 20px;
-      border-radius: 999px;
+      border-radius: 12px;
       text-decoration: none;
-      font-weight: 700;
+      font: inherit;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      font-size: 0.82rem;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-primary {
-      background: var(--whatsapp);
-      color: white;
-      box-shadow: 0 10px 24px rgba(37,211,102,0.25);
+    .btn-primary { background: var(--whatsapp); color: #ffffff; border: 1px solid var(--whatsapp); }
+    .btn-primary:hover { background: #0b6536; }
+    .btn-secondary { border: 1.5px solid var(--text); color: var(--text); background: #ffffff; }
+    .btn-secondary:hover { background: var(--text); color: #ffffff; }
+    .cart-added { margin: 0 0 8px; font-size: 0.86rem; font-weight: 700; color: #1f6b3a; }
+    .cart-added a { color: var(--gold); }
+    .meta-list {
+      list-style: none;
+      margin: 18px 0 0;
+      padding: 16px 0 0;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
     }
-    .btn-secondary {
-      border: 1px solid rgba(217, 195, 145, 0.32);
-      color: var(--gold);
-      background: rgba(217, 195, 145, 0.08);
-    }
-    .microcopy {
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-    }
-    .mobile-buy-bar {
-      display: none;
-    }
-    .benefits,
-    .related-section {
-      margin-top: 26px;
-      padding: 24px;
-    }
-    .benefits h2,
-    .related-section h2 {
-      margin: 0 0 12px;
-      font-size: 1.45rem;
-      color: var(--gold);
-    }
-    .benefits ul {
-      margin: 0;
-      padding-left: 20px;
-      color: var(--text-secondary);
-    }
-    .benefits li + li { margin-top: 8px; }
+    .meta-list strong { display: block; font-size: 0.8rem; }
+    .meta-list span { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+    .description-block { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .description-block h2 { font-size: 1rem; margin: 0 0 8px; }
+    .description { color: var(--muted); font-size: 0.92rem; margin: 0 0 10px; }
+    .microcopy { color: var(--muted); font-size: 0.8rem; margin: 0; }
+    .mobile-buy-bar { display: none; }
+    .related-section { margin-top: 28px; padding: 22px; }
+    .related-section h2 { margin: 0 0 14px; font-size: 1.3rem; }
     .related-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -317,105 +347,89 @@
     .related-card {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
       text-decoration: none;
-      background: rgba(255,255,255,0.03);
+      background: #ffffff;
+      transition: border-color 0.2s ease;
     }
-    .related-card:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
-    }
+    .related-card:hover { border-color: var(--gold); }
     .related-card img {
       width: 100%;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 1 / 1;
       object-fit: contain;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      background: #f1f5f9;
       padding: 10px;
     }
-    .related-copy strong {
-      display: block;
-      color: white;
-      font-size: 0.92rem;
-    }
-    .related-copy span {
-      color: var(--gold);
-      font-weight: 700;
-      font-size: 0.86rem;
-    }
+    .related-copy strong { display: block; font-size: 0.86rem; line-height: 1.3; }
+    .related-copy span { color: var(--gold); font-weight: 800; font-size: 0.86rem; }
     @media (max-width: 900px) {
-      body {
-        padding-bottom: 82px;
-      }
-      .hero-layout {
-        grid-template-columns: 1fr;
-      }
-      .related-grid {
-        grid-template-columns: 1fr;
-      }
-      .meta-grid {
-        grid-template-columns: 1fr;
-      }
+      body { padding-bottom: 84px; }
+      .hero-layout { grid-template-columns: 1fr; gap: 16px; }
+      .product-gallery { position: static; padding: 8px; border-radius: 14px; }
+      .main-image-wrap { padding: 10px; aspect-ratio: auto; height: min(78vw, 40vh); }
+      .thumb-grid { margin-top: 8px; }
+      .thumb { flex-basis: 50px; height: 50px; }
+      .product-panel { padding: 16px 18px; border-radius: 14px; }
+      .eyebrow { display: none; }
+      .page-shell { padding-top: 12px; }
+      .breadcrumbs { display: none; }
+      .topbar-logo img { height: 38px; }
+      .topbar-nav a { padding: 8px 6px; font-size: 0.78rem; }
+      .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .related-grid .related-card:nth-child(3) { display: none; }
       .mobile-buy-bar {
         position: fixed;
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 20;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 10px;
-        border: 1px solid rgba(217,195,145,0.28);
-        border-radius: 14px;
-        background: rgba(8,8,8,0.92);
-        box-shadow: 0 16px 36px rgba(0,0,0,0.38);
-        backdrop-filter: blur(14px);
+        padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
+        border-top: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
       }
-      .mobile-buy-copy {
-        min-width: 0;
-      }
+      .mobile-buy-copy { min-width: 0; }
       .mobile-buy-copy strong {
         display: block;
-        color: #fff;
-        font-size: 0.78rem;
-        line-height: 1.1;
+        font-size: 0.76rem;
+        line-height: 1.2;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 42vw;
+        max-width: 52vw;
       }
-      .mobile-buy-copy span {
-        color: var(--gold);
-        font-weight: 800;
-        font-size: 0.9rem;
-      }
-      .mobile-buy-bar .btn {
-        min-height: 44px;
-        padding: 0 16px;
-        font-size: 0.74rem;
-        white-space: nowrap;
-      }
+      .mobile-buy-copy span { color: var(--gold); font-weight: 800; font-size: 0.95rem; }
+      .mobile-buy-bar .btn { min-height: 46px; padding: 0 18px; font-size: 0.78rem; white-space: nowrap; }
     }
+    @media (max-width: 420px) {
+      .meta-list { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 <body>
-  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
-    <a href="/">Volver al catalogo</a>
-    <img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async">
-    <a href="/preventa">Pre-venta</a>
+    <a class="topbar-logo" href="/"><img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async"></a>
+    <nav class="topbar-nav" aria-label="Navegacion">
+      <a href="/catalogo">Catálogo</a>
+      <a href="/preventa">Pre-orden</a>
+      <a href="/catalogo.html#carrito" class="topbar-cart">Carrito <span id="topbarCartCount">0</span></a>
+    </nav>
   </header>
 
   <main class="page-shell">
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Inicio</a>
       <span>/</span>
-      <a href="/#catalogo">Equipos Sudamericanos</a>
+      <a href="/catalogo">Catálogo</a>
       <span>/</span>
       <span>Camiseta Chapecoense Especial Edition</span>
     </nav>
@@ -423,8 +437,11 @@
     <section class="hero-layout">
 
     <div class="product-gallery">
-      <div class="main-image-wrap">
+      <div class="main-image-wrap" id="productMainWrap">
         <img id="productMainImage" class="main-image" src="../img/logo-ui.webp" alt="Camiseta Chapecoense Especial Edition - Equipos Sudamericanos" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1500">
+        <button type="button" class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="Foto anterior" hidden>&#8249;</button>
+        <button type="button" class="gallery-arrow gallery-next" id="galleryNext" aria-label="Foto siguiente" hidden>&#8250;</button>
+        <span class="gallery-count" id="galleryCount" hidden>1 / 1</span>
       </div>
       <div class="thumb-grid"><button class="thumb active" type="button" data-image="../img/logo-ui.webp"><img src="../img/logo-ui.webp" alt="Camiseta Chapecoense Especial Edition - Equipos Sudamericanos - Vista 1" loading="lazy" decoding="async" width="640" height="640"></button></div>
     </div>
@@ -433,65 +450,54 @@
         <span id="productCategory" class="eyebrow">Equipos Sudamericanos</span>
         <h1 id="productTitle">Camiseta Chapecoense Especial Edition</h1>
         <div id="productPrice" class="price">$ 99.000</div>
-        <p id="productDescription" class="description">Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta.</p>
+        <p id="productStock" class="stock-line is-preorder">Bajo pedido: llega en 15 a 20 días hábiles</p>
 
-        <div class="meta-grid">
-          <div class="meta-box">
-            <strong>Tallas activas</strong>
-            <span id="productSizesSummary">Consultar</span>
-          </div>
-          <div class="meta-box">
-            <strong>Promo vigente</strong>
-            <span>Solo refs $99.000</span>
-          </div>
-          <div class="meta-box">
-            <strong>Entrega</strong>
-            <span>Envios a toda Colombia</span>
-          </div>
-          <div class="meta-box">
-            <strong>Compra multiple</strong>
-            <span>Caja desde 2 unidades</span>
-          </div>
+        <div class="size-head">
+          <strong>Elige tu talla</strong>
+          <a class="size-guide-link" href="/img/guia-tallas-herencia90-vertical.png" target="_blank" rel="noopener">Guía de tallas</a>
         </div>
-
-        <div id="productSizeList" class="size-list"><span>Consultar</span></div>
+        <div id="productSizeList" class="size-list"><button type="button" class="size-option" data-size="S" data-stock="0">S</button><button type="button" class="size-option" data-size="M" data-stock="0">M</button><button type="button" class="size-option" data-size="L" data-stock="0">L</button><button type="button" class="size-option" data-size="XL" data-stock="0">XL</button><button type="button" class="size-option" data-size="XXL" data-stock="0">XXL</button></div>
+        <p class="fit-note"><strong>Versión Fan:</strong> Horma regular y cómoda, para hombre o mujer. Si dudas entre dos tallas, escríbenos.</p>
+        <p id="sizeHint" class="size-hint" hidden>Elige una talla primero.</p>
 
         <div class="actions">
-          <a id="productWhatsAppBtn" class="btn btn-primary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20Chapecoense%20Especial%20Edition.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-chapecoense-especial-edition%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>
-          <a class="btn btn-secondary" href="/">Seguir viendo camisetas</a>
+          <a id="productWhatsAppBtn" class="btn btn-primary" href="https://wa.me/573126428153?text=Hola%20Herencia%2090%2C%20me%20interesa%20la%20Camiseta%20Chapecoense%20Especial%20Edition.%20Vi%20esta%20referencia%20en%20https%3A%2F%2Fwww.herencia90.shop%2Fcamisetas%2Fcamiseta-chapecoense-especial-edition%20y%20quiero%20confirmar%20disponibilidad." target="_blank" rel="noopener noreferrer">Pedir bajo pedido por WhatsApp</a>
+          <button id="productAddCartBtn" class="btn btn-secondary" type="button">Agregar al carrito</button>
         </div>
+        <p id="cartAdded" class="cart-added" hidden>Agregada al carrito. <a href="/catalogo.html#carrito">Ver carrito</a></p>
 
-        <p class="microcopy">Si quieres nombre, numero o parches, tambien te cotizamos esos extras por WhatsApp.</p>
+        <ul class="meta-list">
+          <li><strong>Pago contra entrega</strong><span>Pagas cuando te llega, en todo el país.</span></li>
+          <li><strong>Envío a toda Colombia</strong><span>Despacho desde Medellín con seguimiento.</span></li>
+          <li><strong>Cambio de talla en 7 días</strong><span>Sin usar y con etiquetas.</span></li>
+          <li><strong>Promo 2 x $180.000</strong><span>En referencias seleccionadas de $99.000.</span></li>
+        </ul>
+
+        <div class="description-block">
+          <h2>Descripción</h2>
+          <p id="productDescription" class="description">Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta.</p>
+          <p class="microcopy">Si quieres nombre, número o parches, también te cotizamos esos extras por WhatsApp.</p>
+        </div>
       </div>
     </section>
 
-    <section class="benefits">
-      <h2>Compra con confianza</h2>
-      <ul>
-        <li>Calidad importada, referencias retro y de temporada con enfoque en buenos acabados.</li>
-        <li>Atencion rapida por WhatsApp para confirmar talla, disponibilidad y forma de pago.</li>
-        <li>Promo 2 x $180.000 solo aplica en referencias seleccionadas de $99.000.</li>
-        <li>Compras desde 2 unidades pueden entregarse con caja para mejorar presentacion.</li>
-      </ul>
-    </section>
-
     <section class="related-section">
-      <h2>Tambien te puede interesar</h2>
+      <h2>También te puede interesar</h2>
       <div class="related-grid">
-
-        <a class="related-card" href="/camisetas/camiseta-river-26-27-manga-larga">
-          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-26-27-manga-larga/1787791993526-1.webp" alt="Camiseta River 26 27 Manga Larga - Equipos Sudamericanos" loading="lazy" decoding="async" width="640" height="640">
-          <div class="related-copy">
-            <strong>Camiseta River 26 27 Manga Larga</strong>
-            <span>$ 109.000</span>
-          </div>
-        </a>
 
         <a class="related-card" href="/camisetas/camiseta-river-plate-26-27-tercera-version-player">
           <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-plate-2627-tercera-version-player/1791567659183-1.webp" alt="Camiseta River Plate 26/27 Tercera Versión Player - Equipos Sudamericanos" loading="lazy" decoding="async" width="640" height="640">
           <div class="related-copy">
             <strong>Camiseta River Plate 26/27 Tercera Versión Player</strong>
             <span>$ 110.000</span>
+          </div>
+        </a>
+
+        <a class="related-card" href="/camisetas/camiseta-river-26-27-manga-larga">
+          <img src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-river-26-27-manga-larga/1787791993526-1.webp" alt="Camiseta River 26 27 Manga Larga - Equipos Sudamericanos" loading="lazy" decoding="async" width="640" height="640">
+          <div class="related-copy">
+            <strong>Camiseta River 26 27 Manga Larga</strong>
+            <span>$ 109.000</span>
           </div>
         </a>
 
@@ -521,9 +527,15 @@
     const STATIC_PRODUCT = {"id":84,"equipo":"Camiseta Chapecoense Especial Edition","categoria":"Equipos Sudamericanos","descripcion":"Camiseta Chapecoense Especial Edition. Versión Fan, de corte cómodo y tela transpirable. Manga corta.","precio":99000,"tallas":{"L":0,"M":0,"S":0,"XL":0},"imagenes":[]};
     const STATIC_CARD_ASSETS = {};
     const PRODUCT_URL = "https://www.herencia90.shop/camisetas/camiseta-chapecoense-especial-edition";
+    const FIT_LABEL = "Versión Fan";
+    const CART_IMAGE = "/img/logo-ui.webp";
+    const CART_KEY = 'herencia90_cart';
+    const SIZE_ORDER = { XS: 1, S: 2, M: 3, L: 4, XL: 5, XXL: 6, '2XL': 6, '3XL': 7 };
     let dbPromise;
     let currentProduct = STATIC_PRODUCT;
     let renderedImageSignature = imageSignature(STATIC_PRODUCT.imagenes);
+    let selectedSize = '';
+    let galleryIndex = 0;
 
     function loadExternalScript(src) {
       return new Promise((resolve, reject) => {
@@ -568,16 +580,33 @@
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
     }
 
-    function getAvailableSizesClient(product) {
+    function getSizeEntriesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
-        .map(([size]) => size);
+        .filter(([size]) => !size.startsWith('R_'))
+        .map(([size, qty]) => ({ size, stock: Math.max(0, parseInt(qty, 10) || 0) }))
+        .sort((a, b) => (SIZE_ORDER[a.size] || 99) - (SIZE_ORDER[b.size] || 99));
     }
 
-    function buildWhatsAppClient(product) {
-      const sizes = getAvailableSizesClient(product);
-      const sizeText = sizes.length > 0 ? ' Tallas disponibles: ' + sizes.join(', ') + '.' : '';
-      const message = 'Hola Herencia 90, me interesa la ' + product.equipo + '.' + sizeText + ' Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+    function getAvailableSizesClient(product) {
+      return getSizeEntriesClient(product).filter((item) => item.stock > 0).map((item) => item.size);
+    }
+
+    function isBajoPedidoClient(product) {
+      return getAvailableSizesClient(product).length === 0;
+    }
+
+    function buildWhatsAppClient(product, size) {
+      const bajoPedido = isBajoPedidoClient(product);
+      let message;
+      if (size) {
+        message = bajoPedido
+          ? 'Hola Herencia 90, quiero pedir bajo pedido la ' + product.equipo + ' en talla ' + size + '. Vi esta referencia en ' + PRODUCT_URL + '. Entiendo que llega en 15 a 20 dias habiles.'
+          : 'Hola Herencia 90, quiero comprar la ' + product.equipo + ' en talla ' + size + '. Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+      } else {
+        const sizes = getAvailableSizesClient(product);
+        const sizeText = sizes.length > 0 ? ' Tallas disponibles: ' + sizes.join(', ') + '.' : '';
+        message = 'Hola Herencia 90, me interesa la ' + product.equipo + '.' + sizeText + ' Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+      }
       return 'https://wa.me/573126428153?text=' + encodeURIComponent(message);
     }
 
@@ -609,21 +638,153 @@
       }).join('');
     }
 
+    // ── Galeria: miniaturas, flechas y deslizar con el dedo ──
+    function showImage(index) {
+      const thumbs = Array.from(document.querySelectorAll('.thumb'));
+      if (!thumbs.length) return;
+      galleryIndex = (index + thumbs.length) % thumbs.length;
+      const mainImage = document.getElementById('productMainImage');
+      if (mainImage) mainImage.src = thumbs[galleryIndex].dataset.image;
+      thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === galleryIndex));
+      const count = document.getElementById('galleryCount');
+      if (count) count.textContent = (galleryIndex + 1) + ' / ' + thumbs.length;
+      const active = thumbs[galleryIndex];
+      const row = active.parentElement;
+      if (row) row.scrollTo({ left: active.offsetLeft - (row.clientWidth - active.clientWidth) / 2, behavior: 'smooth' });
+    }
+
     function bindThumbs() {
-      document.querySelectorAll('.thumb').forEach((button) => {
+      document.querySelectorAll('.thumb').forEach((button, index) => {
+        button.onclick = () => showImage(index);
+      });
+      const total = document.querySelectorAll('.thumb').length;
+      ['galleryPrev', 'galleryNext', 'galleryCount'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = total < 2;
+      });
+      galleryIndex = 0;
+      const count = document.getElementById('galleryCount');
+      if (count) count.textContent = '1 / ' + total;
+    }
+
+    function bindGallerySwipe() {
+      const wrap = document.getElementById('productMainWrap');
+      if (!wrap) return;
+      let startX = 0;
+      let startY = 0;
+      wrap.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+      }, { passive: true });
+      wrap.addEventListener('touchend', (event) => {
+        const dx = event.changedTouches[0].clientX - startX;
+        const dy = event.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) showImage(galleryIndex + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+      document.getElementById('galleryPrev').addEventListener('click', () => showImage(galleryIndex - 1));
+      document.getElementById('galleryNext').addEventListener('click', () => showImage(galleryIndex + 1));
+    }
+
+    // ── Tallas, WhatsApp y carrito ──
+    function readCart() {
+      try {
+        const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        return Array.isArray(cart) ? cart : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function updateCartCount() {
+      const total = readCart().reduce((sum, item) => sum + Number(item.cantidad || 0), 0);
+      const badge = document.getElementById('topbarCartCount');
+      if (badge) {
+        badge.textContent = total;
+        badge.hidden = total === 0;
+      }
+    }
+
+    function updateBuyButtons() {
+      const bajoPedido = isBajoPedidoClient(currentProduct);
+      const whatsapp = document.getElementById('productWhatsAppBtn');
+      const mobile = document.getElementById('mobileWhatsAppBtn');
+      whatsapp.href = buildWhatsAppClient(currentProduct, selectedSize);
+      mobile.href = buildWhatsAppClient(currentProduct, selectedSize);
+      if (selectedSize) {
+        whatsapp.textContent = (bajoPedido ? 'Pedir talla ' : 'Comprar talla ') + selectedSize + ' por WhatsApp';
+        mobile.textContent = 'Comprar ' + selectedSize;
+      } else {
+        whatsapp.textContent = bajoPedido ? 'Pedir bajo pedido por WhatsApp' : 'Comprar por WhatsApp';
+        mobile.textContent = 'Comprar';
+      }
+    }
+
+    function bindSizes() {
+      document.querySelectorAll('.size-option').forEach((button) => {
+        button.classList.toggle('is-selected', button.dataset.size === selectedSize);
         button.onclick = () => {
-          const mainImage = document.getElementById('productMainImage');
-          if (!mainImage) return;
-          mainImage.src = button.dataset.image;
-          document.querySelectorAll('.thumb').forEach((thumb) => thumb.classList.remove('active'));
-          button.classList.add('active');
+          if (button.disabled) return;
+          selectedSize = button.dataset.size;
+          document.querySelectorAll('.size-option').forEach((b) => b.classList.toggle('is-selected', b === button));
+          document.getElementById('sizeHint').hidden = true;
+          updateBuyButtons();
         };
       });
     }
 
+    function renderSizeButtons(product) {
+      const entries = getSizeEntriesClient(product);
+      const bajoPedido = isBajoPedidoClient(product);
+      const options = bajoPedido ? ['S', 'M', 'L', 'XL', 'XXL'].map((size) => ({ size, stock: 0 })) : entries;
+      if (selectedSize && !options.some((item) => item.size === selectedSize && (bajoPedido || item.stock > 0))) selectedSize = '';
+      document.getElementById('productSizeList').innerHTML = options.map((item) => {
+        const available = bajoPedido || item.stock > 0;
+        const note = bajoPedido ? '' : item.stock > 0 ? '<small>' + item.stock + ' disp.</small>' : '<small>Agotada</small>';
+        return '<button type="button" class="size-option' + (available ? '' : ' is-out') + (!bajoPedido && item.stock === 1 ? ' is-low' : '') + '" data-size="' + escapeHtmlClient(item.size) + '" data-stock="' + item.stock + '"' + (available ? '' : ' disabled') + '>' + escapeHtmlClient(item.size) + note + '</button>';
+      }).join('');
+      bindSizes();
+    }
+
+    function renderStockLine(product) {
+      const line = document.getElementById('productStock');
+      const available = getSizeEntriesClient(product).filter((item) => item.stock > 0);
+      const total = available.reduce((sum, item) => sum + item.stock, 0);
+      if (!available.length) {
+        line.className = 'stock-line is-preorder';
+        line.textContent = 'Bajo pedido: llega en 15 a 20 días hábiles';
+      } else if (total === 1) {
+        line.className = 'stock-line is-low';
+        line.textContent = 'Última unidad, talla ' + available[0].size;
+      } else {
+        line.className = 'stock-line is-in';
+        line.textContent = 'En stock: se despacha de inmediato';
+      }
+    }
+
+    function addToCart() {
+      if (!selectedSize) {
+        document.getElementById('sizeHint').hidden = false;
+        document.getElementById('productSizeList').classList.remove('needs-size');
+        void document.getElementById('productSizeList').offsetWidth;
+        document.getElementById('productSizeList').classList.add('needs-size');
+        return;
+      }
+      const cart = readCart();
+      const existing = cart.find((item) => item.id === currentProduct.id && item.talla === selectedSize);
+      if (existing) existing.cantidad += 1;
+      else cart.push({ id: currentProduct.id, equipo: currentProduct.equipo, talla: selectedSize, corte: FIT_LABEL, precio: currentProduct.precio, imagen: CART_IMAGE, cantidad: 1 });
+      try {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      } catch (error) {
+        // Sin almacenamiento el carrito no se guarda; WhatsApp sigue funcionando
+      }
+      updateCartCount();
+      document.getElementById('cartAdded').hidden = false;
+      trackEvent('cart_add', currentProduct);
+    }
+
     function renderLiveProduct(product) {
       currentProduct = product;
-      const sizes = getAvailableSizesClient(product);
       const images = product.imagenes && product.imagenes.length ? product.imagenes : ['img/logo-ui.webp'];
       const nextImageSignature = imageSignature(images);
 
@@ -632,11 +793,10 @@
       document.getElementById('productPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('mobileBuyPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('productDescription').textContent = product.descripcion || '';
-      document.getElementById('productSizesSummary').textContent = sizes.join(', ') || 'Consultar';
-      document.getElementById('productSizeList').innerHTML = (sizes.length ? sizes : ['Consultar']).map((size) => '<span>' + size + '</span>').join('');
-      document.getElementById('productWhatsAppBtn').href = buildWhatsAppClient(product);
       document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
-      document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
+      renderStockLine(product);
+      renderSizeButtons(product);
+      updateBuyButtons();
 
       if (nextImageSignature !== renderedImageSignature) {
         const firstImage = getImageAssetClient(images[0]).masterUrl;
@@ -663,7 +823,7 @@
           product_id: product && product.id ? product.id : null,
           product_name: product && product.equipo ? product.equipo : null,
           category: product && product.categoria ? product.categoria : null,
-          extra: { source: 'seo_product_page' },
+          extra: { source: 'seo_product_page', talla: selectedSize || null },
           referrer: document.referrer || null
         });
       } catch (error) {
@@ -683,6 +843,10 @@
     }
 
     bindThumbs();
+    bindGallerySwipe();
+    bindSizes();
+    updateCartCount();
+    document.getElementById('productAddCartBtn').addEventListener('click', addToCart);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
 
