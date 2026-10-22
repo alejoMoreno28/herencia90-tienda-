@@ -493,8 +493,10 @@ function getCollectionUrl(collection) {
   return `${siteUrl}/categorias/${collection.slug}`;
 }
 
+// Una camiseta sin foto todavia mostraria el logo en la tarjeta; se lista
+// cuando ya tenga fotos. Su ficha propia si se genera.
 function getCollectionProducts(collection) {
-  return products.filter((product) => collection.match(product));
+  return products.filter((product) => collection.match(product) && Array.isArray(product.imagenes) && product.imagenes.length > 0);
 }
 
 function buildMetaDescription(product, availableSizes) {
@@ -509,9 +511,60 @@ function buildWhatsAppUrl(product, availableSizes) {
 }
 
 function getRelatedProducts(currentProduct) {
-  const sameCategory = products.filter((product) => product.id !== currentProduct.id && product.categoria === currentProduct.categoria);
-  const fallback = products.filter((product) => product.id !== currentProduct.id && product.categoria !== currentProduct.categoria);
+  // Primero las de la misma categoria que tengan stock y foto: son las que se pueden comprar ya.
+  const withStockFirst = (list) => [...list].sort((a, b) => Number(getStockTotal(b) > 0) - Number(getStockTotal(a) > 0));
+  const hasPhoto = (product) => Array.isArray(product.imagenes) && product.imagenes.length > 0;
+  const sameCategory = withStockFirst(products.filter((product) => product.id !== currentProduct.id && product.categoria === currentProduct.categoria && hasPhoto(product)));
+  const fallback = withStockFirst(products.filter((product) => product.id !== currentProduct.id && product.categoria !== currentProduct.categoria && hasPhoto(product)));
   return [...sameCategory, ...fallback].slice(0, 3);
+}
+
+const SIZE_ORDER = { XS: 1, S: 2, M: 3, L: 4, XL: 5, XXL: 6, '2XL': 6, '3XL': 7 };
+const PREORDER_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+
+// Tallas para elegir en la ficha. Sin stock la camiseta es bajo pedido y se
+// puede pedir en cualquier talla.
+function getSizeOptions(product) {
+  const entries = Object.entries(product.tallas || {})
+    .filter(([size]) => !size.startsWith('R_'))
+    .map(([size, qty]) => ({ size, stock: Math.max(0, parseInt(qty, 10) || 0) }))
+    .sort((a, b) => (SIZE_ORDER[a.size] || 99) - (SIZE_ORDER[b.size] || 99));
+  const total = entries.reduce((sum, item) => sum + item.stock, 0);
+  if (total > 0) return { bajoPedido: false, options: entries };
+  return { bajoPedido: true, options: PREORDER_SIZES.map((size) => ({ size, stock: 0 })) };
+}
+
+function renderSizeOptions(product) {
+  const { bajoPedido, options } = getSizeOptions(product);
+  return options.map(({ size, stock }) => {
+    const available = bajoPedido || stock > 0;
+    const note = bajoPedido ? '' : stock > 0 ? `<small>${stock} disp.</small>` : '<small>Agotada</small>';
+    return `<button type="button" class="size-option${available ? '' : ' is-out'}${!bajoPedido && stock === 1 ? ' is-low' : ''}" data-size="${escapeHtml(size)}" data-stock="${stock}"${available ? '' : ' disabled'}>${escapeHtml(size)}${note}</button>`;
+  }).join('');
+}
+
+function getStockLine(product) {
+  const { bajoPedido, options } = getSizeOptions(product);
+  if (bajoPedido) return { cls: 'is-preorder', text: 'Bajo pedido: llega en 15 a 20 días hábiles' };
+  const available = options.filter((item) => item.stock > 0);
+  const total = available.reduce((sum, item) => sum + item.stock, 0);
+  if (total === 1) return { cls: 'is-low', text: `Última unidad, talla ${available[0].size}` };
+  return { cls: 'is-in', text: 'En stock: se despacha de inmediato' };
+}
+
+function getFitInfo(product) {
+  const text = normalizeText(`${product.equipo || ''} ${product.categoria || ''} ${product.descripcion || ''}`);
+  if (/\b(nino|nina|infantil|kid)/.test(text)) return { label: 'Corte niño', text: 'Referencia infantil. Confirma edad, estatura y pecho antes de pedir.' };
+  if (/\b(mujer|woman|women|femenino)/.test(text)) return { label: 'Corte femenino', text: 'Horma más ajustada. Compara pecho y largo con una camiseta cómoda.' };
+  if (text.includes('player') || text.includes('jugador')) return { label: 'Versión Player', text: 'Horma ajustada al cuerpo, como la usan los jugadores. Si te gusta suelta, pide una talla más.' };
+  if (text.includes('retro') || text.includes('leyendas')) return { label: 'Corte clásico', text: 'Horma regular, como la original de su época. Si dudas entre dos tallas, escríbenos.' };
+  return { label: 'Versión Fan', text: 'Horma regular y cómoda, para hombre o mujer. Si dudas entre dos tallas, escríbenos.' };
+}
+
+function cartImagePath(image) {
+  const raw = String(image || 'img/logo-ui.webp').trim();
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `/${normalizeLocalAssetPath(raw)}`;
 }
 
 function renderRelatedCards(currentProduct) {
@@ -544,10 +597,15 @@ function renderGallery(product) {
     })
     .join('');
 
+  // La foto grande se desliza con el dedo (o con las flechas) y las miniaturas
+  // quedan en una fila pequena, para que el precio aparezca sin hacer scroll.
   return `
     <div class="product-gallery">
-      <div class="main-image-wrap">
+      <div class="main-image-wrap" id="productMainWrap">
         <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1500">
+        <button type="button" class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="Foto anterior"${images.length > 1 ? '' : ' hidden'}>&#8249;</button>
+        <button type="button" class="gallery-arrow gallery-next" id="galleryNext" aria-label="Foto siguiente"${images.length > 1 ? '' : ' hidden'}>&#8250;</button>
+        <span class="gallery-count" id="galleryCount"${images.length > 1 ? '' : ' hidden'}>1 / ${images.length}</span>
       </div>
       <div class="thumb-grid">${thumbs}</div>
     </div>
@@ -650,13 +708,13 @@ ${renderDeferredGa4()}
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
-      --bg-dark: #050505;
-      --card-bg: rgba(20, 20, 20, 0.82);
-      --gold: #d9c391;
-      --gold-hover: #f7e6c1;
-      --text-primary: #ffffff;
-      --text-secondary: #a9a9a9;
-      --glass-border: rgba(217, 195, 145, 0.16);
+      --bg-dark: #f8fafc;
+      --card-bg: #ffffff;
+      --gold: #85692f;
+      --gold-hover: #6f5524;
+      --text-primary: #172033;
+      --text-secondary: #556070;
+      --glass-border: rgba(15, 23, 42, 0.1);
       --whatsapp: #0f7a41;
     }
     * { box-sizing: border-box; }
@@ -664,7 +722,7 @@ ${renderDeferredGa4()}
       margin: 0;
       font-family: 'Montserrat', sans-serif;
       color: var(--text-primary);
-      background: radial-gradient(circle at 50% 0%, #1a1712 0%, #050505 60%, #000 100%);
+      background: #f8fafc;
     }
     h1, h2, h3, .stat-number { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     a { color: inherit; }
@@ -677,7 +735,7 @@ ${renderDeferredGa4()}
       z-index: 9999; pointer-events: none;
     }
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
     :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
@@ -696,7 +754,7 @@ ${renderDeferredGa4()}
       justify-content: space-between;
       gap: 16px;
       padding: 14px 18px;
-      background: rgba(5, 5, 5, 0.9);
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--glass-border);
     }
@@ -733,7 +791,7 @@ ${renderDeferredGa4()}
       background: var(--card-bg);
       border: 1px solid var(--glass-border);
       border-radius: 26px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.28);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
       backdrop-filter: blur(14px);
     }
     .collection-hero {
@@ -803,8 +861,8 @@ ${renderDeferredGa4()}
     .stat-box {
       padding: 16px;
       border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(15,23,42,0.08);
+      background: #f8fafc;
     }
     .stat-number {
       display: block;
@@ -850,15 +908,15 @@ ${renderDeferredGa4()}
       flex-direction: column;
       border-radius: 22px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(15,23,42,0.08);
+      background: #f8fafc;
     }
     .collection-product-image {
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 270px;
-      background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+      background: radial-gradient(circle, #ffffff 0%, #f1f5f9 100%);
       padding: 20px;
       text-decoration: none;
     }
@@ -866,7 +924,7 @@ ${renderDeferredGa4()}
       width: 100%;
       max-height: 230px;
       object-fit: contain;
-      filter: drop-shadow(0 16px 28px rgba(0,0,0,0.45));
+      filter: drop-shadow(0 12px 20px rgba(15, 23, 42, 0.12));
     }
     .collection-product-copy {
       padding: 18px;
@@ -886,7 +944,7 @@ ${renderDeferredGa4()}
       line-height: 1.15;
     }
     .collection-product-copy h2 a {
-      color: white;
+      color: var(--text-primary);
       text-decoration: none;
     }
     .collection-product-copy p {
@@ -928,9 +986,9 @@ ${renderDeferredGa4()}
       border: 1px solid rgba(217, 195, 145, 0.24);
     }
     .mini-btn-secondary {
-      background: rgba(37,211,102,0.14);
-      color: #aef3c3;
-      border: 1px solid rgba(37,211,102,0.24);
+      background: #e5f3ea;
+      color: #0f7a41;
+      border: 1px solid rgba(15, 122, 65, 0.24);
     }
     .benefit-grid,
     .links-grid {
@@ -942,8 +1000,8 @@ ${renderDeferredGa4()}
     .link-card {
       padding: 18px;
       border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(15,23,42,0.08);
+      background: #f8fafc;
     }
     .benefit-card strong,
     .link-card strong {
@@ -977,7 +1035,7 @@ ${renderDeferredGa4()}
 <body>
   <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
-    <a href="/">Volver al catalogo</a>
+    <a href="/catalogo">Ver catalogo</a>
     <img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async">
     <a href="/preventa">Pre-venta</a>
   </header>
@@ -1033,22 +1091,22 @@ ${renderDeferredGa4()}
     <section class="collection-benefits">
       <div class="section-head">
         <div>
-          <h2>Por que esta coleccion importa</h2>
+          <h2>Compra con confianza</h2>
           <p>${escapeHtml(collection.faqTitle)}</p>
         </div>
       </div>
       <div class="benefit-grid">
         <article class="benefit-card">
-          <strong>Busqueda directa</strong>
-          <p>Esta landing concentra una intencion de compra concreta y ayuda a que Google entienda mejor la tematica.</p>
+          <strong>Pago contra entrega</strong>
+          <p>Pagas cuando la camiseta llega a tu casa, en cualquier ciudad del pais.</p>
         </article>
         <article class="benefit-card">
-          <strong>Stock conectado</strong>
-          <p>Los productos visibles pueden refrescar precio y disponibilidad desde Supabase para no quedarse congelados.</p>
+          <strong>Stock al dia</strong>
+          <p>El precio y las tallas que ves son los de hoy. Si una talla se agota, la puedes pedir bajo pedido.</p>
         </article>
         <article class="benefit-card">
-          <strong>Conversion mas clara</strong>
-          <p>El usuario entra, compara referencias cercanas y pasa rapido a ficha o WhatsApp sin perderse en el catalogo completo.</p>
+          <strong>Cambio de talla en 7 dias</strong>
+          <p>Si la talla no te queda, la cambias. Sin usar y con etiquetas; no aplica a personalizadas.</p>
         </article>
       </div>
     </section>
@@ -1057,7 +1115,7 @@ ${renderDeferredGa4()}
       <div class="section-head">
         <div>
           <h2>Explora otras colecciones</h2>
-          <p>Enlaces internos para reforzar navegacion y descubrimiento</p>
+          <p>Mas camisetas por equipo, seleccion y temporada</p>
         </div>
       </div>
       <div class="links-grid">
@@ -1380,45 +1438,59 @@ ${renderDeferredGa4()}
   <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
-    :root { --bg:#050505; --panel:rgba(20,20,20,.84); --gold:#d9c391; --text:#fff; --muted:#aaa; --line:rgba(217,195,145,.16); --wa:#0f7a41; }
+    :root { --bg:#f8fafc; --panel:#ffffff; --gold:#85692f; --gold-soft:#f3ead4; --text:#172033; --muted:#556070; --line:rgba(15,23,42,.1); --wa:#0f7a41; }
     * { box-sizing: border-box; }
-    body { margin:0; font-family:'Montserrat',sans-serif; color:var(--text); background:radial-gradient(circle at 50% 0%,#1a1712 0%,#050505 60%,#000 100%); }
-    h1,h2,.price { font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; }
+    body { margin:0; font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--text); background:var(--bg); }
+    h1,h2,.price { font-family:'Oswald','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.5px; }
     a { color:inherit; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 22px; border-bottom:1px solid var(--line); background:rgba(5,5,5,.88); position:sticky; top:0; z-index:5; backdrop-filter:blur(14px); }
-    .topbar img { width:auto; height:42px; }
-    .topbar a { color:var(--muted); text-decoration:none; font-weight:700; font-size:.86rem; }
-    .shell { max-width:1180px; margin:0 auto; padding:34px 18px 72px; }
-    .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:.82rem; margin-bottom:20px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px max(18px,env(safe-area-inset-right,0px)) 10px max(18px,env(safe-area-inset-left,0px)); border-bottom:1px solid var(--line); background:rgba(255,255,255,.94); position:sticky; top:0; z-index:5; backdrop-filter:blur(12px); }
+    .topbar img { width:auto; height:42px; display:block; }
+    .topbar a { color:var(--muted); text-decoration:none; font-weight:700; font-size:.84rem; }
+    .topbar a:hover { color:var(--gold); }
+    .shell { max-width:1180px; margin:0 auto; padding:24px max(18px,env(safe-area-inset-right,0px)) 72px max(18px,env(safe-area-inset-left,0px)); }
+    .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:.8rem; margin-bottom:18px; }
     .breadcrumbs a { text-decoration:none; }
     .layout { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr); gap:28px; align-items:start; }
-    .gallery,.panel,.trust,.related { background:var(--panel); border:1px solid var(--line); border-radius:26px; box-shadow:0 16px 48px rgba(0,0,0,.28); }
-    .gallery { padding:18px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-    .gallery img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f7f7f7; border-radius:18px; }
-    .panel { padding:28px; }
-    .eyebrow { display:inline-flex; padding:6px 14px; border:1px solid rgba(217,195,145,.26); border-radius:999px; color:var(--gold); background:rgba(217,195,145,.08); font-size:.72rem; text-transform:uppercase; letter-spacing:1.2px; font-weight:800; margin-bottom:14px; }
-    h1 { margin:0 0 12px; font-size:clamp(2rem,4vw,3.4rem); line-height:1.04; }
-    .description { color:var(--muted); line-height:1.65; margin:0 0 18px; }
-    .price { color:var(--gold); font-size:2rem; margin:0 0 18px; }
+    .gallery,.panel,.trust,.related { background:var(--panel); border:1px solid var(--line); border-radius:18px; }
+    .gallery { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .gallery img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f1f5f9; border-radius:12px; }
+    .panel { padding:26px; position:sticky; top:84px; }
+    .eyebrow { display:inline-flex; padding:5px 12px; border-radius:999px; color:#6f5524; background:var(--gold-soft); font-size:.68rem; text-transform:uppercase; letter-spacing:1px; font-weight:800; margin-bottom:12px; }
+    h1 { margin:0 0 10px; font-size:clamp(1.6rem,3.2vw,2.6rem); line-height:1.08; text-wrap:balance; }
+    .description { color:var(--muted); line-height:1.6; margin:0 0 16px; font-size:.92rem; }
+    .price { color:var(--gold); font-size:2rem; margin:0 0 16px; }
     .meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
-    .meta div { border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:12px; background:rgba(255,255,255,.03); }
-    .meta strong { display:block; color:var(--gold); font-size:.76rem; text-transform:uppercase; margin-bottom:5px; }
-    .meta span { color:var(--muted); font-size:.88rem; }
-    .actions { display:flex; flex-wrap:wrap; gap:12px; }
-    .btn { min-height:48px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:0 20px; font-weight:800; text-transform:uppercase; text-decoration:none; letter-spacing:.8px; font-size:.82rem; }
+    .meta div { border:1px solid var(--line); border-radius:12px; padding:12px; background:#f8fafc; }
+    .meta strong { display:block; color:var(--text); font-size:.74rem; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+    .meta span { color:var(--muted); font-size:.86rem; }
+    .actions { display:grid; grid-template-columns:1fr; gap:10px; }
+    .btn { min-height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:12px; padding:0 20px; font-weight:800; text-transform:uppercase; text-decoration:none; letter-spacing:.8px; font-size:.84rem; }
     .btn-primary { background:var(--wa); color:#fff; }
-    .btn-secondary { border:1px solid rgba(217,195,145,.32); color:var(--gold); background:rgba(217,195,145,.08); }
-    .microcopy { color:var(--muted); font-size:.82rem; margin:14px 0 0; line-height:1.55; }
-    .trust,.related { margin-top:26px; padding:24px; }
+    .btn-primary:hover { background:#0b6536; }
+    .btn-secondary { border:1.5px solid var(--text); color:var(--text); background:#fff; }
+    .microcopy { color:var(--muted); font-size:.8rem; margin:14px 0 0; line-height:1.55; }
+    .trust,.related { margin-top:26px; padding:22px; }
     .trust-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
-    .trust-grid div { border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; background:rgba(255,255,255,.03); }
-    .trust-grid strong { color:var(--gold); display:block; margin-bottom:6px; }
-    .trust-grid p { margin:0; color:var(--muted); line-height:1.55; font-size:.9rem; }
+    .trust-grid div { border:1px solid var(--line); border-radius:12px; padding:16px; background:#f8fafc; }
+    .trust-grid strong { color:var(--text); display:block; margin-bottom:6px; }
+    .trust-grid p { margin:0; color:var(--muted); line-height:1.55; font-size:.88rem; }
+    .related h2 { margin:0 0 14px; font-size:1.3rem; }
     .related-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
-    .related-card { text-decoration:none; border:1px solid rgba(255,255,255,.08); border-radius:18px; overflow:hidden; background:rgba(255,255,255,.03); }
-    .related-card img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f7f7f7; display:block; }
-    .related-card span { display:block; padding:12px; color:var(--text); font-size:.84rem; font-weight:800; }
-    @media (max-width:820px) { .layout,.trust-grid,.related-grid { grid-template-columns:1fr; } .gallery { grid-template-columns:1fr; } .panel { padding:22px; } .shell { padding-top:22px; } }
+    .related-card { text-decoration:none; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; }
+    .related-card:hover { border-color:var(--gold); }
+    .related-card img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f1f5f9; display:block; }
+    .related-card span { display:block; padding:12px; color:var(--text); font-size:.82rem; font-weight:800; }
+    /* En celular las fotos se deslizan de lado y el precio queda arriba */
+    @media (max-width:820px) {
+      .layout,.trust-grid { grid-template-columns:1fr; gap:16px; }
+      .related-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .gallery { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding:8px; gap:8px; scrollbar-width:none; }
+      .gallery::-webkit-scrollbar { display:none; }
+      .gallery img { flex:0 0 86%; scroll-snap-align:center; max-height:46vh; }
+      .panel { padding:18px; position:static; }
+      .shell { padding-top:12px; }
+      .breadcrumbs { display:none; }
+    }
   </style>
 </head>
 <body>
@@ -1436,8 +1508,8 @@ ${renderDeferredGa4()}
       <article class="panel">
         <span class="eyebrow">${escapeHtml(categoryLabel)} · ${escapeHtml(tipoLabel)}</span>
         <h1>${escapeHtml(title)}</h1>
-        <p class="description">${escapeHtml(description)}</p>
         <div class="price">${escapeHtml(formatPrice(price))}</div>
+        <p class="description">${escapeHtml(description)}</p>
         <div class="meta">
           <div><strong>Entrega</strong><span>Pre-venta aprox. 15 dias</span></div>
           <div><strong>Anticipo</strong><span>20% para separar</span></div>
@@ -1467,12 +1539,12 @@ ${renderDeferredGa4()}
 function renderProductPage(product) {
   const slug = slugify(product.equipo);
   const availableSizes = getAvailableSizes(product);
-  const sizeTags = availableSizes.length
-    ? availableSizes.map((size) => `<span>${escapeHtml(size)}</span>`).join('')
-    : '<span>Consultar</span>';
   const description = buildMetaDescription(product, availableSizes);
   const imageUrls = (product.imagenes?.length ? product.imagenes : ['img/logo-ui.webp']).map(absoluteAssetUrl);
   const cardAssetMap = buildCardAssetMap([product]);
+  const stockLine = getStockLine(product);
+  const fit = getFitInfo(product);
+  const { bajoPedido } = getSizeOptions(product);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -1506,6 +1578,7 @@ function renderProductPage(product) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
   <title>${escapeHtml(product.equipo)} | Herencia 90 Colombia</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${getProductUrl(product)}">
@@ -1529,374 +1602,24 @@ ${renderDeferredGa4()}
   <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
-    :root {
-      --bg-dark: #050505;
-      --card-bg: rgba(20, 20, 20, 0.82);
-      --gold: #d9c391;
-      --gold-hover: #f7e6c1;
-      --text-primary: #ffffff;
-      --text-secondary: #a9a9a9;
-      --glass-border: rgba(217, 195, 145, 0.16);
-      --whatsapp: #0f7a41;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1a1712 0%, #050505 60%, #000 100%);
-      color: var(--text-primary);
-      line-height: 1.6;
-    }
-    h1, h2, h3, .price { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
-    a { color: inherit; }
-    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    .scroll-progress {
-      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-      background: linear-gradient(90deg, #a38c59, #d9c391, #f7e6c1);
-      transform-origin: left; transform: scaleX(0);
-      animation: grow-progress linear; animation-timeline: scroll(root);
-      z-index: 9999; pointer-events: none;
-    }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #050505; }
-    ::-webkit-scrollbar-thumb { background: #a38c59; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #d9c391; }
-    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
-    :focus:not(:focus-visible) { outline: none; }
-    @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-      .scroll-progress { display: none; }
-      [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
-    }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 18px;
-      background: rgba(5, 5, 5, 0.9);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--glass-border);
-    }
-    .topbar a {
-      text-decoration: none;
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 0.86rem;
-    }
-    .topbar a:hover { color: var(--gold); }
-    .topbar img { width: auto; height: 42px; }
-    .page-shell {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 34px 18px 80px;
-    }
-    .breadcrumbs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-      margin-bottom: 20px;
-    }
-    .breadcrumbs a {
-      text-decoration: none;
-      color: inherit;
-    }
-    .breadcrumbs a:hover { color: var(--gold); }
-    .hero-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
-      gap: 28px;
-      align-items: start;
-    }
-    .product-gallery,
-    .product-panel,
-    .benefits,
-    .related-section {
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 26px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.28);
-      backdrop-filter: blur(14px);
-    }
-    .product-gallery { padding: 24px; }
-    .main-image-wrap {
-      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 72%);
-      border-radius: 20px;
-      padding: 22px;
-      aspect-ratio: 4 / 5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .main-image {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 18px 30px rgba(0,0,0,0.5));
-    }
-    .thumb-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
-      gap: 10px;
-      margin-top: 18px;
-    }
-    .thumb {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid transparent;
-      border-radius: 14px;
-      padding: 8px;
-      cursor: pointer;
-    }
-    .thumb.active,
-    .thumb:hover { border-color: var(--gold); }
-    .thumb img {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: contain;
-    }
-    .product-panel { padding: 28px; }
-    .eyebrow {
-      display: inline-flex;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(217, 195, 145, 0.26);
-      background: rgba(217, 195, 145, 0.08);
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-    h1 {
-      font-size: clamp(2rem, 4vw, 3.6rem);
-      line-height: 1.05;
-      margin: 0 0 12px;
-    }
-    .price {
-      font-size: clamp(1.7rem, 3vw, 2.6rem);
-      color: var(--gold);
-      margin-bottom: 14px;
-    }
-    .description {
-      color: var(--text-secondary);
-      font-size: 0.98rem;
-      margin-bottom: 24px;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .meta-box {
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
-    }
-    .meta-box strong {
-      display: block;
-      color: var(--gold);
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    .meta-box span {
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .size-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .size-list span {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 46px;
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(217, 195, 145, 0.25);
-      background: rgba(217, 195, 145, 0.08);
-      color: var(--gold-hover);
-      font-weight: 700;
-      font-size: 0.84rem;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 50px;
-      padding: 0 20px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      font-size: 0.82rem;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-primary {
-      background: var(--whatsapp);
-      color: white;
-      box-shadow: 0 10px 24px rgba(37,211,102,0.25);
-    }
-    .btn-secondary {
-      border: 1px solid rgba(217, 195, 145, 0.32);
-      color: var(--gold);
-      background: rgba(217, 195, 145, 0.08);
-    }
-    .microcopy {
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-    }
-    .mobile-buy-bar {
-      display: none;
-    }
-    .benefits,
-    .related-section {
-      margin-top: 26px;
-      padding: 24px;
-    }
-    .benefits h2,
-    .related-section h2 {
-      margin: 0 0 12px;
-      font-size: 1.45rem;
-      color: var(--gold);
-    }
-    .benefits ul {
-      margin: 0;
-      padding-left: 20px;
-      color: var(--text-secondary);
-    }
-    .benefits li + li { margin-top: 8px; }
-    .related-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .related-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      text-decoration: none;
-      background: rgba(255,255,255,0.03);
-    }
-    .related-card:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
-    }
-    .related-card img {
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      object-fit: contain;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.03);
-      padding: 10px;
-    }
-    .related-copy strong {
-      display: block;
-      color: white;
-      font-size: 0.92rem;
-    }
-    .related-copy span {
-      color: var(--gold);
-      font-weight: 700;
-      font-size: 0.86rem;
-    }
-    @media (max-width: 900px) {
-      body {
-        padding-bottom: 82px;
-      }
-      .hero-layout {
-        grid-template-columns: 1fr;
-      }
-      .related-grid {
-        grid-template-columns: 1fr;
-      }
-      .meta-grid {
-        grid-template-columns: 1fr;
-      }
-      .mobile-buy-bar {
-        position: fixed;
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
-        z-index: 20;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 10px;
-        border: 1px solid rgba(217,195,145,0.28);
-        border-radius: 14px;
-        background: rgba(8,8,8,0.92);
-        box-shadow: 0 16px 36px rgba(0,0,0,0.38);
-        backdrop-filter: blur(14px);
-      }
-      .mobile-buy-copy {
-        min-width: 0;
-      }
-      .mobile-buy-copy strong {
-        display: block;
-        color: #fff;
-        font-size: 0.78rem;
-        line-height: 1.1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 42vw;
-      }
-      .mobile-buy-copy span {
-        color: var(--gold);
-        font-weight: 800;
-        font-size: 0.9rem;
-      }
-      .mobile-buy-bar .btn {
-        min-height: 44px;
-        padding: 0 16px;
-        font-size: 0.74rem;
-        white-space: nowrap;
-      }
-    }
+${PRODUCT_PAGE_STYLES}
   </style>
 </head>
 <body>
-  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="topbar">
-    <a href="/">Volver al catalogo</a>
-    <img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async">
-    <a href="/preventa">Pre-venta</a>
+    <a class="topbar-logo" href="/"><img src="../img/logo-ui.webp" alt="Herencia 90" width="220" height="249" decoding="async"></a>
+    <nav class="topbar-nav" aria-label="Navegacion">
+      <a href="/catalogo">Catálogo</a>
+      <a href="/preventa">Pre-orden</a>
+      <a href="/catalogo.html#carrito" class="topbar-cart">Carrito <span id="topbarCartCount">0</span></a>
+    </nav>
   </header>
 
   <main class="page-shell">
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Inicio</a>
       <span>/</span>
-      <a href="/#catalogo">${escapeHtml(product.categoria)}</a>
+      <a href="/catalogo">Catálogo</a>
       <span>/</span>
       <span>${escapeHtml(product.equipo)}</span>
     </nav>
@@ -1907,50 +1630,39 @@ ${renderDeferredGa4()}
         <span id="productCategory" class="eyebrow">${escapeHtml(product.categoria)}</span>
         <h1 id="productTitle">${escapeHtml(product.equipo)}</h1>
         <div id="productPrice" class="price">${escapeHtml(formatPrice(product.precio))}</div>
-        <p id="productDescription" class="description">${escapeHtml(product.descripcion)}</p>
+        <p id="productStock" class="stock-line ${stockLine.cls}">${escapeHtml(stockLine.text)}</p>
 
-        <div class="meta-grid">
-          <div class="meta-box">
-            <strong>Tallas activas</strong>
-            <span id="productSizesSummary">${escapeHtml(availableSizes.join(', ') || 'Consultar')}</span>
-          </div>
-          <div class="meta-box">
-            <strong>Promo vigente</strong>
-            <span>Solo refs $99.000</span>
-          </div>
-          <div class="meta-box">
-            <strong>Entrega</strong>
-            <span>Envios a toda Colombia</span>
-          </div>
-          <div class="meta-box">
-            <strong>Compra multiple</strong>
-            <span>Caja desde 2 unidades</span>
-          </div>
+        <div class="size-head">
+          <strong>Elige tu talla</strong>
+          <a class="size-guide-link" href="/img/guia-tallas-herencia90-vertical.png" target="_blank" rel="noopener">Guía de tallas</a>
         </div>
-
-        <div id="productSizeList" class="size-list">${sizeTags}</div>
+        <div id="productSizeList" class="size-list">${renderSizeOptions(product)}</div>
+        <p class="fit-note"><strong>${escapeHtml(fit.label)}:</strong> ${escapeHtml(fit.text)}</p>
+        <p id="sizeHint" class="size-hint" hidden>Elige una talla primero.</p>
 
         <div class="actions">
-          <a id="productWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>
-          <a class="btn btn-secondary" href="/">Seguir viendo camisetas</a>
+          <a id="productWhatsAppBtn" class="btn btn-primary" href="${buildWhatsAppUrl(product, availableSizes)}" target="_blank" rel="noopener noreferrer">${bajoPedido ? 'Pedir bajo pedido por WhatsApp' : 'Comprar por WhatsApp'}</a>
+          <button id="productAddCartBtn" class="btn btn-secondary" type="button">Agregar al carrito</button>
         </div>
+        <p id="cartAdded" class="cart-added" hidden>Agregada al carrito. <a href="/catalogo.html#carrito">Ver carrito</a></p>
 
-        <p class="microcopy">Si quieres nombre, numero o parches, tambien te cotizamos esos extras por WhatsApp.</p>
+        <ul class="meta-list">
+          <li><strong>Pago contra entrega</strong><span>Pagas cuando te llega, en todo el país.</span></li>
+          <li><strong>Envío a toda Colombia</strong><span>Despacho desde Medellín con seguimiento.</span></li>
+          <li><strong>Cambio de talla en 7 días</strong><span>Sin usar y con etiquetas.</span></li>
+          ${Number(product.precio) === 99000 ? '<li><strong>Promo 2 x $180.000</strong><span>En referencias seleccionadas de $99.000.</span></li>' : ''}
+        </ul>
+
+        <div class="description-block">
+          <h2>Descripción</h2>
+          <p id="productDescription" class="description">${escapeHtml(product.descripcion)}</p>
+          <p class="microcopy">Si quieres nombre, número o parches, también te cotizamos esos extras por WhatsApp.</p>
+        </div>
       </div>
     </section>
 
-    <section class="benefits">
-      <h2>Compra con confianza</h2>
-      <ul>
-        <li>Calidad importada, referencias retro y de temporada con enfoque en buenos acabados.</li>
-        <li>Atencion rapida por WhatsApp para confirmar talla, disponibilidad y forma de pago.</li>
-        <li>Promo 2 x $180.000 solo aplica en referencias seleccionadas de $99.000.</li>
-        <li>Compras desde 2 unidades pueden entregarse con caja para mejorar presentacion.</li>
-      </ul>
-    </section>
-
     <section class="related-section">
-      <h2>Tambien te puede interesar</h2>
+      <h2>También te puede interesar</h2>
       <div class="related-grid">
         ${renderRelatedCards(product)}
       </div>
@@ -1971,9 +1683,15 @@ ${renderDeferredGa4()}
     const STATIC_PRODUCT = ${serializeForScript(staticProductPayload)};
     const STATIC_CARD_ASSETS = ${serializeForScript(cardAssetMap)};
     const PRODUCT_URL = ${serializeForScript(getProductUrl(product))};
+    const FIT_LABEL = ${serializeForScript(fit.label)};
+    const CART_IMAGE = ${serializeForScript(cartImagePath(product.imagenes?.[0]))};
+    const CART_KEY = 'herencia90_cart';
+    const SIZE_ORDER = { XS: 1, S: 2, M: 3, L: 4, XL: 5, XXL: 6, '2XL': 6, '3XL': 7 };
     let dbPromise;
     let currentProduct = STATIC_PRODUCT;
     let renderedImageSignature = imageSignature(STATIC_PRODUCT.imagenes);
+    let selectedSize = '';
+    let galleryIndex = 0;
 
     function loadExternalScript(src) {
       return new Promise((resolve, reject) => {
@@ -2018,16 +1736,33 @@ ${renderDeferredGa4()}
       return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value || 0);
     }
 
-    function getAvailableSizesClient(product) {
+    function getSizeEntriesClient(product) {
       return Object.entries(product.tallas || {})
-        .filter(([, qty]) => Number(qty || 0) > 0)
-        .map(([size]) => size);
+        .filter(([size]) => !size.startsWith('R_'))
+        .map(([size, qty]) => ({ size, stock: Math.max(0, parseInt(qty, 10) || 0) }))
+        .sort((a, b) => (SIZE_ORDER[a.size] || 99) - (SIZE_ORDER[b.size] || 99));
     }
 
-    function buildWhatsAppClient(product) {
-      const sizes = getAvailableSizesClient(product);
-      const sizeText = sizes.length > 0 ? ' Tallas disponibles: ' + sizes.join(', ') + '.' : '';
-      const message = 'Hola Herencia 90, me interesa la ' + product.equipo + '.' + sizeText + ' Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+    function getAvailableSizesClient(product) {
+      return getSizeEntriesClient(product).filter((item) => item.stock > 0).map((item) => item.size);
+    }
+
+    function isBajoPedidoClient(product) {
+      return getAvailableSizesClient(product).length === 0;
+    }
+
+    function buildWhatsAppClient(product, size) {
+      const bajoPedido = isBajoPedidoClient(product);
+      let message;
+      if (size) {
+        message = bajoPedido
+          ? 'Hola Herencia 90, quiero pedir bajo pedido la ' + product.equipo + ' en talla ' + size + '. Vi esta referencia en ' + PRODUCT_URL + '. Entiendo que llega en 15 a 20 dias habiles.'
+          : 'Hola Herencia 90, quiero comprar la ' + product.equipo + ' en talla ' + size + '. Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+      } else {
+        const sizes = getAvailableSizesClient(product);
+        const sizeText = sizes.length > 0 ? ' Tallas disponibles: ' + sizes.join(', ') + '.' : '';
+        message = 'Hola Herencia 90, me interesa la ' + product.equipo + '.' + sizeText + ' Vi esta referencia en ' + PRODUCT_URL + ' y quiero confirmar disponibilidad.';
+      }
       return 'https://wa.me/573126428153?text=' + encodeURIComponent(message);
     }
 
@@ -2059,21 +1794,153 @@ ${renderDeferredGa4()}
       }).join('');
     }
 
+    // ── Galeria: miniaturas, flechas y deslizar con el dedo ──
+    function showImage(index) {
+      const thumbs = Array.from(document.querySelectorAll('.thumb'));
+      if (!thumbs.length) return;
+      galleryIndex = (index + thumbs.length) % thumbs.length;
+      const mainImage = document.getElementById('productMainImage');
+      if (mainImage) mainImage.src = thumbs[galleryIndex].dataset.image;
+      thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === galleryIndex));
+      const count = document.getElementById('galleryCount');
+      if (count) count.textContent = (galleryIndex + 1) + ' / ' + thumbs.length;
+      const active = thumbs[galleryIndex];
+      const row = active.parentElement;
+      if (row) row.scrollTo({ left: active.offsetLeft - (row.clientWidth - active.clientWidth) / 2, behavior: 'smooth' });
+    }
+
     function bindThumbs() {
-      document.querySelectorAll('.thumb').forEach((button) => {
+      document.querySelectorAll('.thumb').forEach((button, index) => {
+        button.onclick = () => showImage(index);
+      });
+      const total = document.querySelectorAll('.thumb').length;
+      ['galleryPrev', 'galleryNext', 'galleryCount'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = total < 2;
+      });
+      galleryIndex = 0;
+      const count = document.getElementById('galleryCount');
+      if (count) count.textContent = '1 / ' + total;
+    }
+
+    function bindGallerySwipe() {
+      const wrap = document.getElementById('productMainWrap');
+      if (!wrap) return;
+      let startX = 0;
+      let startY = 0;
+      wrap.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+      }, { passive: true });
+      wrap.addEventListener('touchend', (event) => {
+        const dx = event.changedTouches[0].clientX - startX;
+        const dy = event.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) showImage(galleryIndex + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+      document.getElementById('galleryPrev').addEventListener('click', () => showImage(galleryIndex - 1));
+      document.getElementById('galleryNext').addEventListener('click', () => showImage(galleryIndex + 1));
+    }
+
+    // ── Tallas, WhatsApp y carrito ──
+    function readCart() {
+      try {
+        const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        return Array.isArray(cart) ? cart : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function updateCartCount() {
+      const total = readCart().reduce((sum, item) => sum + Number(item.cantidad || 0), 0);
+      const badge = document.getElementById('topbarCartCount');
+      if (badge) {
+        badge.textContent = total;
+        badge.hidden = total === 0;
+      }
+    }
+
+    function updateBuyButtons() {
+      const bajoPedido = isBajoPedidoClient(currentProduct);
+      const whatsapp = document.getElementById('productWhatsAppBtn');
+      const mobile = document.getElementById('mobileWhatsAppBtn');
+      whatsapp.href = buildWhatsAppClient(currentProduct, selectedSize);
+      mobile.href = buildWhatsAppClient(currentProduct, selectedSize);
+      if (selectedSize) {
+        whatsapp.textContent = (bajoPedido ? 'Pedir talla ' : 'Comprar talla ') + selectedSize + ' por WhatsApp';
+        mobile.textContent = 'Comprar ' + selectedSize;
+      } else {
+        whatsapp.textContent = bajoPedido ? 'Pedir bajo pedido por WhatsApp' : 'Comprar por WhatsApp';
+        mobile.textContent = 'Comprar';
+      }
+    }
+
+    function bindSizes() {
+      document.querySelectorAll('.size-option').forEach((button) => {
+        button.classList.toggle('is-selected', button.dataset.size === selectedSize);
         button.onclick = () => {
-          const mainImage = document.getElementById('productMainImage');
-          if (!mainImage) return;
-          mainImage.src = button.dataset.image;
-          document.querySelectorAll('.thumb').forEach((thumb) => thumb.classList.remove('active'));
-          button.classList.add('active');
+          if (button.disabled) return;
+          selectedSize = button.dataset.size;
+          document.querySelectorAll('.size-option').forEach((b) => b.classList.toggle('is-selected', b === button));
+          document.getElementById('sizeHint').hidden = true;
+          updateBuyButtons();
         };
       });
     }
 
+    function renderSizeButtons(product) {
+      const entries = getSizeEntriesClient(product);
+      const bajoPedido = isBajoPedidoClient(product);
+      const options = bajoPedido ? ['S', 'M', 'L', 'XL', 'XXL'].map((size) => ({ size, stock: 0 })) : entries;
+      if (selectedSize && !options.some((item) => item.size === selectedSize && (bajoPedido || item.stock > 0))) selectedSize = '';
+      document.getElementById('productSizeList').innerHTML = options.map((item) => {
+        const available = bajoPedido || item.stock > 0;
+        const note = bajoPedido ? '' : item.stock > 0 ? '<small>' + item.stock + ' disp.</small>' : '<small>Agotada</small>';
+        return '<button type="button" class="size-option' + (available ? '' : ' is-out') + (!bajoPedido && item.stock === 1 ? ' is-low' : '') + '" data-size="' + escapeHtmlClient(item.size) + '" data-stock="' + item.stock + '"' + (available ? '' : ' disabled') + '>' + escapeHtmlClient(item.size) + note + '</button>';
+      }).join('');
+      bindSizes();
+    }
+
+    function renderStockLine(product) {
+      const line = document.getElementById('productStock');
+      const available = getSizeEntriesClient(product).filter((item) => item.stock > 0);
+      const total = available.reduce((sum, item) => sum + item.stock, 0);
+      if (!available.length) {
+        line.className = 'stock-line is-preorder';
+        line.textContent = 'Bajo pedido: llega en 15 a 20 días hábiles';
+      } else if (total === 1) {
+        line.className = 'stock-line is-low';
+        line.textContent = 'Última unidad, talla ' + available[0].size;
+      } else {
+        line.className = 'stock-line is-in';
+        line.textContent = 'En stock: se despacha de inmediato';
+      }
+    }
+
+    function addToCart() {
+      if (!selectedSize) {
+        document.getElementById('sizeHint').hidden = false;
+        document.getElementById('productSizeList').classList.remove('needs-size');
+        void document.getElementById('productSizeList').offsetWidth;
+        document.getElementById('productSizeList').classList.add('needs-size');
+        return;
+      }
+      const cart = readCart();
+      const existing = cart.find((item) => item.id === currentProduct.id && item.talla === selectedSize);
+      if (existing) existing.cantidad += 1;
+      else cart.push({ id: currentProduct.id, equipo: currentProduct.equipo, talla: selectedSize, corte: FIT_LABEL, precio: currentProduct.precio, imagen: CART_IMAGE, cantidad: 1 });
+      try {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      } catch (error) {
+        // Sin almacenamiento el carrito no se guarda; WhatsApp sigue funcionando
+      }
+      updateCartCount();
+      document.getElementById('cartAdded').hidden = false;
+      trackEvent('cart_add', currentProduct);
+    }
+
     function renderLiveProduct(product) {
       currentProduct = product;
-      const sizes = getAvailableSizesClient(product);
       const images = product.imagenes && product.imagenes.length ? product.imagenes : ['img/logo-ui.webp'];
       const nextImageSignature = imageSignature(images);
 
@@ -2082,11 +1949,10 @@ ${renderDeferredGa4()}
       document.getElementById('productPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('mobileBuyPrice').textContent = formatPriceClient(product.precio);
       document.getElementById('productDescription').textContent = product.descripcion || '';
-      document.getElementById('productSizesSummary').textContent = sizes.join(', ') || 'Consultar';
-      document.getElementById('productSizeList').innerHTML = (sizes.length ? sizes : ['Consultar']).map((size) => '<span>' + size + '</span>').join('');
-      document.getElementById('productWhatsAppBtn').href = buildWhatsAppClient(product);
       document.getElementById('mobileBuyTitle').textContent = product.equipo || STATIC_PRODUCT.equipo;
-      document.getElementById('mobileWhatsAppBtn').href = buildWhatsAppClient(product);
+      renderStockLine(product);
+      renderSizeButtons(product);
+      updateBuyButtons();
 
       if (nextImageSignature !== renderedImageSignature) {
         const firstImage = getImageAssetClient(images[0]).masterUrl;
@@ -2113,7 +1979,7 @@ ${renderDeferredGa4()}
           product_id: product && product.id ? product.id : null,
           product_name: product && product.equipo ? product.equipo : null,
           category: product && product.categoria ? product.categoria : null,
-          extra: { source: 'seo_product_page' },
+          extra: { source: 'seo_product_page', talla: selectedSize || null },
           referrer: document.referrer || null
         });
       } catch (error) {
@@ -2133,6 +1999,10 @@ ${renderDeferredGa4()}
     }
 
     bindThumbs();
+    bindGallerySwipe();
+    bindSizes();
+    updateCartCount();
+    document.getElementById('productAddCartBtn').addEventListener('click', addToCart);
     document.getElementById('productWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
     document.getElementById('mobileWhatsAppBtn').addEventListener('click', () => trackEvent('whatsapp_click', currentProduct));
 
@@ -2154,6 +2024,372 @@ ${renderDeferredGa4()}
 </body>
 </html>`;
 }
+
+// Estilo de la ficha de producto: claro, igual al resto de la tienda.
+const PRODUCT_PAGE_STYLES = `
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #556070;
+      --line: rgba(15, 23, 42, 0.1);
+      --gold: #85692f;
+      --gold-soft: #f3ead4;
+      --gold-light: #d9c391;
+      --whatsapp: #0f7a41;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    h1, h2, h3, .price { font-family: 'Oswald', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px max(18px, env(safe-area-inset-right, 0px)) 10px max(18px, env(safe-area-inset-left, 0px));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-logo img { display: block; width: auto; height: 44px; }
+    .topbar-nav { display: flex; align-items: center; gap: 6px; }
+    .topbar-nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .topbar-nav a:hover { color: var(--gold); background: var(--gold-soft); }
+    .topbar-cart span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      margin-left: 4px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #ffffff;
+      font-size: 0.7rem;
+    }
+    .topbar-cart span[hidden] { display: none; }
+    .page-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px max(18px, env(safe-area-inset-right, 0px)) 80px max(18px, env(safe-area-inset-left, 0px));
+    }
+    .breadcrumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 18px;
+    }
+    .breadcrumbs a { text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--gold); }
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 32px;
+      align-items: start;
+    }
+    .product-gallery,
+    .product-panel,
+    .related-section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+    .product-gallery { padding: 18px; position: sticky; top: 84px; }
+    .main-image-wrap {
+      position: relative;
+      background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+      border-radius: 14px;
+      padding: 22px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .main-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 24px rgba(15, 23, 42, 0.14));
+    }
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-arrow[hidden], .gallery-count[hidden] { display: none; }
+    .gallery-prev { left: 10px; }
+    .gallery-next { right: 10px; }
+    .gallery-count {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(23, 32, 51, 0.72);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .thumb-grid {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .thumb-grid::-webkit-scrollbar { display: none; }
+    .thumb {
+      flex: 0 0 72px;
+      height: 72px;
+      background: #f1f5f9;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .thumb.active, .thumb:hover { border-color: var(--gold); }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .product-panel { padding: 26px; }
+    .eyebrow {
+      display: inline-flex;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--gold-soft);
+      color: #6f5524;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      line-height: 1.08;
+      margin: 0 0 10px;
+      text-wrap: balance;
+    }
+    .price {
+      font-size: clamp(1.7rem, 3vw, 2.3rem);
+      color: var(--gold);
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+    .stock-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 20px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .stock-line::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .stock-line.is-in { color: #1f6b3a; }
+    .stock-line.is-low { color: #a1281e; }
+    .stock-line.is-preorder { color: #6f5524; }
+    .size-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .size-head strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; }
+    .size-guide-link { color: var(--gold); font-size: 0.8rem; font-weight: 700; }
+    .size-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .size-option {
+      min-width: 58px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(15, 23, 42, 0.16);
+      background: #ffffff;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.2;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .size-option small { font-size: 0.62rem; font-weight: 700; color: var(--muted); }
+    .size-option:hover:not(:disabled) { border-color: var(--gold); }
+    .size-option.is-low small { color: #a1281e; }
+    .size-option.is-selected { background: var(--text); border-color: var(--text); color: #ffffff; }
+    .size-option.is-selected small { color: rgba(255, 255, 255, 0.75); }
+    .size-option.is-out { opacity: 0.45; cursor: not-allowed; text-decoration: line-through; }
+    .size-list.needs-size { animation: nudge 0.4s ease; }
+    @keyframes nudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .fit-note { margin: 0 0 6px; font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+    .fit-note strong { color: var(--text); }
+    .size-hint { margin: 6px 0 0; color: #a1281e; font-size: 0.82rem; font-weight: 700; }
+    .size-hint[hidden], .cart-added[hidden] { display: none; }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      padding: 0 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .btn-primary { background: var(--whatsapp); color: #ffffff; border: 1px solid var(--whatsapp); }
+    .btn-primary:hover { background: #0b6536; }
+    .btn-secondary { border: 1.5px solid var(--text); color: var(--text); background: #ffffff; }
+    .btn-secondary:hover { background: var(--text); color: #ffffff; }
+    .cart-added { margin: 0 0 8px; font-size: 0.86rem; font-weight: 700; color: #1f6b3a; }
+    .cart-added a { color: var(--gold); }
+    .meta-list {
+      list-style: none;
+      margin: 18px 0 0;
+      padding: 16px 0 0;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+    }
+    .meta-list strong { display: block; font-size: 0.8rem; }
+    .meta-list span { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+    .description-block { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .description-block h2 { font-size: 1rem; margin: 0 0 8px; }
+    .description { color: var(--muted); font-size: 0.92rem; margin: 0 0 10px; }
+    .microcopy { color: var(--muted); font-size: 0.8rem; margin: 0; }
+    .mobile-buy-bar { display: none; }
+    .related-section { margin-top: 28px; padding: 22px; }
+    .related-section h2 { margin: 0 0 14px; font-size: 1.3rem; }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .related-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      background: #ffffff;
+      transition: border-color 0.2s ease;
+    }
+    .related-card:hover { border-color: var(--gold); }
+    .related-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #f1f5f9;
+      padding: 10px;
+    }
+    .related-copy strong { display: block; font-size: 0.86rem; line-height: 1.3; }
+    .related-copy span { color: var(--gold); font-weight: 800; font-size: 0.86rem; }
+    @media (max-width: 900px) {
+      body { padding-bottom: 84px; }
+      .hero-layout { grid-template-columns: 1fr; gap: 16px; }
+      .product-gallery { position: static; padding: 8px; border-radius: 14px; }
+      .main-image-wrap { padding: 10px; aspect-ratio: auto; height: min(78vw, 40vh); }
+      .thumb-grid { margin-top: 8px; }
+      .thumb { flex-basis: 50px; height: 50px; }
+      .product-panel { padding: 16px 18px; border-radius: 14px; }
+      .eyebrow { display: none; }
+      .page-shell { padding-top: 12px; }
+      .breadcrumbs { display: none; }
+      .topbar-logo img { height: 38px; }
+      .topbar-nav a { padding: 8px 6px; font-size: 0.78rem; }
+      .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .related-grid .related-card:nth-child(3) { display: none; }
+      .mobile-buy-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
+        border-top: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+      }
+      .mobile-buy-copy { min-width: 0; }
+      .mobile-buy-copy strong {
+        display: block;
+        font-size: 0.76rem;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 52vw;
+      }
+      .mobile-buy-copy span { color: var(--gold); font-weight: 800; font-size: 0.95rem; }
+      .mobile-buy-bar .btn { min-height: 46px; padding: 0 18px; font-size: 0.78rem; white-space: nowrap; }
+    }
+    @media (max-width: 420px) {
+      .meta-list { grid-template-columns: 1fr; }
+    }
+`;
 
 function buildSitemap() {
   const today = new Date().toISOString().slice(0, 10);

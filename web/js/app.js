@@ -30,6 +30,10 @@ const CATALOG_PAGE_SIZE = 24;
 const CATALOG_INITIAL_RENDER_COUNT = 8;
 const CATALOG_RENDER_BATCH_SIZE = 8;
 let catalogRenderToken = 0;
+// Filtros del catalogo. Cada grupo es un Set; un grupo vacio no filtra.
+const catalogFilters = { disponibilidad: new Set(), talla: new Set(), equipo: new Set(), tipo: new Set(), epoca: new Set() };
+let catalogFilterPanelOpen = false;
+let catalogLastResults = [];
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -281,7 +285,7 @@ function mergeLiveProducts(liveProducts, localProducts) {
 async function loadLocalProducts() {
     let localProducts = [];
     try {
-        const response = await fetch('/productos.json?v=ead2f99cce96');
+        const response = await fetch('/productos.json?v=d3866fc5cb7b');
         if (response.ok) localProducts = await response.json();
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);
@@ -444,6 +448,13 @@ function renderCartDrawer() {
                 <button class="cart-item-remove" onclick="removeFromCart(${item.id}, '${item.talla}')" title="Quitar" aria-label="Quitar ${itemLabel} del carrito">×</button>
             </div>`;
     }).join('');
+    // La promo 2 x $180.000 solo aplica a refs seleccionadas, asi que se avisa
+    // pero no se descuenta sola: el precio final se confirma por WhatsApp.
+    const promoUnits = cart.reduce((sum, i) => sum + (Number(i.precio) === 99000 ? i.cantidad : 0), 0);
+    if (promoUnits >= 2) {
+        container.insertAdjacentHTML('beforeend', `
+            <p class="cart-promo-note">Llevas ${promoUnits} camisetas de $99.000: si son de las referencias de la promo 2 x $180.000, te aplicamos el descuento al confirmar por WhatsApp.</p>`);
+    }
     const totalEl = byId('cartTotal');
     if (totalEl) totalEl.textContent = formatPrice(total);
 }
@@ -476,19 +487,6 @@ function showToast() {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
-
-// ── Card Scroll Reveal ────────────────────────────────────────────────────────
-const cardRevealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const card = entry.target;
-        card.classList.remove('card-hidden');
-        card.addEventListener('transitionend', () => {
-            card.style.transitionDelay = '';
-        }, { once: true });
-        cardRevealObserver.unobserve(card);
-    });
-}, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
 
 // ── Category Title Reveal ─────────────────────────────────────────────────────
 const titleRevealObserver = new IntersectionObserver((entries) => {
@@ -782,6 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateCartBadge();
+
+    // Las fichas de producto agregan al mismo carrito y mandan aqui con #carrito.
+    if (window.location.hash === '#carrito') openCart();
 });
 
 // ── Badge detection ───────────────────────────────────────────────────────────
@@ -866,6 +867,12 @@ function getProductFitInfo(product) {
         return {
             label: 'Corte femenino',
             text: 'Horma mas ajustada. Compara pecho y largo con una camiseta comoda.'
+        };
+    }
+    if (text.includes('player') || text.includes('jugador')) {
+        return {
+            label: 'Version Player',
+            text: 'Horma ajustada al cuerpo, como la usan los jugadores. Si te gusta suelta, pide una talla mas.'
         };
     }
     return {
@@ -1066,26 +1073,202 @@ function isProductInPageCategory(product, pageCat) {
     return false;
 }
 
-function renderCatalogPagination(page, totalPages) {
-    if (totalPages <= 1) return '';
-    const pages = [];
-    const start = Math.max(1, Math.min(page - 2, totalPages - 4));
-    const end = Math.min(totalPages, Math.max(page + 2, 5));
-    for (let i = start; i <= end; i++) {
-        pages.push(`<button class="catalog-page-btn${i === page ? ' active' : ''}" onclick="catalogGoPage(${i})" aria-label="Ir a p&aacute;gina ${i}">${i}</button>`);
+// ── Filtros del catalogo ─────────────────────────────────────────────────────
+const NATIONAL_TEAM_WORDS = [
+    'seleccion', 'colombia', 'brasil', 'argentina', 'alemania', 'francia', 'croacia', 'espana', 'italia',
+    'portugal', 'mexico', 'belgica', 'corea', 'ghana', 'inglaterra', 'holanda', 'paises bajos', 'uruguay',
+    'japon', 'estados unidos', 'peru', 'chile', 'ecuador', 'nigeria', 'marruecos', 'senegal', 'camerun',
+    'paraguay', 'venezuela'
+];
+const CATALOG_FILTER_GROUPS = [
+    { key: 'disponibilidad', title: 'Disponibilidad', options: [['stock', 'En stock'], ['pedido', 'Bajo pedido']] },
+    { key: 'talla', title: 'Talla en stock', options: [] },
+    { key: 'equipo', title: 'Equipo', options: [['seleccion', 'Selecciones'], ['club', 'Clubes']] },
+    { key: 'tipo', title: 'Tipo', options: [['fan', 'Fan'], ['player', 'Player'], ['retro', 'Retro'], ['mujer', 'Mujer']] },
+    { key: 'epoca', title: 'Época retro', options: [['70s', 'Años 70'], ['80s', 'Años 80'], ['90s', 'Años 90'], ['00s', '2000s'], ['10s', '2010s']] },
+];
+
+function productSearchText(product) {
+    return normalizeSearchTerm(`${product.equipo || ''} ${product.categoria || ''}`);
+}
+
+function isRetroProduct(product) {
+    const text = productSearchText(product);
+    return text.includes('retro') || text.includes('leyendas');
+}
+
+function getProductEpoca(product) {
+    if (!isRetroProduct(product)) return null;
+    const year = Number((String(product.equipo || '').match(/\b(19[5-9]\d|20[01]\d)\b/) || [])[1]);
+    if (!year) return null;
+    if (year < 1980) return '70s';
+    if (year < 1990) return '80s';
+    if (year < 2000) return '90s';
+    if (year < 2010) return '00s';
+    return '10s';
+}
+
+function productMatchesFilterOption(product, groupKey, value) {
+    const text = productSearchText(product);
+    if (groupKey === 'disponibilidad') return (getAvailableStock(product) > 0 ? 'stock' : 'pedido') === value;
+    if (groupKey === 'talla') return getAvailableSizeEntries(product).some((item) => item.size === value);
+    if (groupKey === 'equipo') {
+        const isNational = NATIONAL_TEAM_WORDS.some((word) => text.includes(word))
+            || text.includes('selecciones nacionales') || text.includes('coleccion 2026');
+        return (isNational ? 'seleccion' : 'club') === value;
     }
+    if (groupKey === 'tipo') {
+        const isPlayer = text.includes('player');
+        const isRetro = isRetroProduct(product);
+        if (value === 'player') return isPlayer;
+        if (value === 'retro') return isRetro;
+        if (value === 'mujer') return text.includes('mujer') || text.includes('women');
+        if (value === 'fan') return !isPlayer && !isRetro;
+    }
+    if (groupKey === 'epoca') return getProductEpoca(product) === value;
+    return false;
+}
+
+function productMatchesFilters(product, skipGroup = null) {
+    return Object.entries(catalogFilters).every(([groupKey, values]) => {
+        if (groupKey === skipGroup || values.size === 0) return true;
+        return [...values].some((value) => productMatchesFilterOption(product, groupKey, value));
+    });
+}
+
+function countActiveCatalogFilters() {
+    return Object.values(catalogFilters).reduce((sum, values) => sum + values.size, 0);
+}
+
+// Productos de la pagina (categoria + busqueda) antes de aplicar los filtros.
+function getCatalogBaseProducts(products) {
+    const pageCat = document.body.getAttribute('data-category');
+    let base = (products || []).filter(p => isProductInPageCategory(p, pageCat));
+    if (catalogSearchTerm) {
+        base = base.filter(p => {
+            const haystack = normalizeSearchTerm(`${p.equipo || ''} ${p.categoria || ''} ${p.descripcion || ''}`);
+            return haystack.includes(catalogSearchTerm);
+        });
+    }
+    return base;
+}
+
+function getCatalogFilterGroups(baseProducts) {
+    const sizes = [...new Set(baseProducts.flatMap((p) => getAvailableSizeEntries(p).map((item) => item.size)))]
+        .sort((a, b) => (SIZE_ORDER[a] || 99) - (SIZE_ORDER[b] || 99));
+    return CATALOG_FILTER_GROUPS.map((group) => {
+        const options = group.key === 'talla' ? sizes.map((size) => [size, size]) : group.options;
+        const facetBase = baseProducts.filter((p) => productMatchesFilters(p, group.key));
+        return {
+            ...group,
+            options: options
+                .map(([value, label]) => ({ value, label, count: facetBase.filter((p) => productMatchesFilterOption(p, group.key, value)).length }))
+                .filter((option) => option.count > 0 || catalogFilters[group.key].has(option.value)),
+        };
+    }).filter((group) => group.options.length > 1 || group.options.some((option) => catalogFilters[group.key].has(option.value)));
+}
+
+function renderCatalogFilterPanel(baseProducts, resultCount) {
+    const groups = getCatalogFilterGroups(baseProducts);
+    const active = countActiveCatalogFilters();
+    const groupsHtml = groups.map((group) => `
+        <fieldset class="catalog-filter-group">
+            <legend>${group.title}</legend>
+            <div class="catalog-filter-options">
+                ${group.options.map((option) => {
+                    const on = catalogFilters[group.key].has(option.value);
+                    return `<button type="button" class="catalog-filter-chip${on ? ' active' : ''}" aria-pressed="${on}" onclick="catalogToggleFilter('${group.key}', '${escapeHtml(option.value)}')">${escapeHtml(option.label)}<span>${option.count}</span></button>`;
+                }).join('')}
+            </div>
+        </fieldset>`).join('');
     return `
-        <div class="catalog-pagination" aria-label="Paginaci&oacute;n del cat&aacute;logo">
-            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.max(1, page - 1)})" ${page === 1 ? 'disabled' : ''} aria-label="P&aacute;gina anterior"><i class="ph-bold ph-caret-left"></i></button>
-            ${pages.join('')}
-            <button class="catalog-page-btn catalog-page-arrow" onclick="catalogGoPage(${Math.min(totalPages, page + 1)})" ${page === totalPages ? 'disabled' : ''} aria-label="P&aacute;gina siguiente"><i class="ph-bold ph-caret-right"></i></button>
+        <div class="catalog-filter-head">
+            <strong>Filtros</strong>
+            <button type="button" class="catalog-filter-close" onclick="catalogCloseFilters()" aria-label="Cerrar filtros">&times;</button>
+        </div>
+        <div class="catalog-filter-body">${groupsHtml}</div>
+        <div class="catalog-filter-foot">
+            <button type="button" class="catalog-filter-clear" onclick="catalogClearFilters()"${active ? '' : ' disabled'}>Limpiar</button>
+            <button type="button" class="catalog-filter-apply" onclick="catalogCloseFilters()">Ver ${resultCount} camiseta${resultCount === 1 ? '' : 's'}</button>
         </div>`;
 }
 
-function renderCatalogToolbar(total, page, totalPages, start, end) {
+// El panel vive fuera de #productGrid para que redibujar la grilla no le
+// cambie el scroll mientras se tocan los filtros en el celular.
+function ensureCatalogFilterPanel(container) {
+    let panel = byId('catalogFilterPanel');
+    if (!panel && container && container.parentElement) {
+        panel = document.createElement('aside');
+        panel.id = 'catalogFilterPanel';
+        panel.className = 'catalog-filter-panel';
+        panel.setAttribute('aria-label', 'Filtros del catalogo');
+        container.parentElement.classList.add('catalog-with-filters');
+        container.parentElement.insertBefore(panel, container);
+        const overlay = document.createElement('div');
+        overlay.id = 'catalogFilterOverlay';
+        overlay.className = 'catalog-filter-overlay';
+        overlay.addEventListener('click', () => window.catalogCloseFilters());
+        document.body.appendChild(overlay);
+    }
+    return panel;
+}
+
+function setCatalogFilterPanelOpen(isOpen) {
+    catalogFilterPanelOpen = isOpen;
+    const panel = byId('catalogFilterPanel');
+    const overlay = byId('catalogFilterOverlay');
+    if (panel) panel.classList.toggle('open', isOpen);
+    if (overlay) overlay.classList.toggle('open', isOpen);
+    document.body.classList.toggle('catalog-filters-open', isOpen);
+}
+
+window.catalogToggleFilter = function (groupKey, value) {
+    const values = catalogFilters[groupKey];
+    if (!values) return;
+    if (values.has(value)) values.delete(value);
+    else values.add(value);
+    catalogPage = 1;
+    renderProducts(allProducts);
+};
+
+window.catalogClearFilters = function () {
+    Object.values(catalogFilters).forEach((values) => values.clear());
+    catalogPage = 1;
+    renderProducts(allProducts);
+};
+
+window.catalogOpenFilters = function () { setCatalogFilterPanelOpen(true); };
+window.catalogCloseFilters = function () { setCatalogFilterPanelOpen(false); };
+
+function renderActiveFilterChips() {
+    const chips = [];
+    CATALOG_FILTER_GROUPS.forEach((group) => {
+        catalogFilters[group.key].forEach((value) => {
+            const label = (group.options.find(([v]) => v === value) || [value, value])[1];
+            chips.push(`<button type="button" class="catalog-active-chip" onclick="catalogToggleFilter('${group.key}', '${escapeHtml(value)}')" aria-label="Quitar filtro ${escapeHtml(label)}">${escapeHtml(group.key === 'talla' ? `Talla ${label}` : label)} &times;</button>`);
+        });
+    });
+    if (!chips.length) return '';
+    return `<div class="catalog-active-filters">${chips.join('')}<button type="button" class="catalog-active-clear" onclick="catalogClearFilters()">Limpiar todo</button></div>`;
+}
+
+function renderCatalogMoreButton(shown, total) {
+    if (shown >= total) return '';
+    return `
+        <div class="catalog-more">
+            <p>Viendo ${shown} de ${total} camisetas</p>
+            <button type="button" class="catalog-more-btn" onclick="catalogShowMore()">Ver m&aacute;s camisetas</button>
+        </div>`;
+}
+
+function renderCatalogToolbar(total, shown) {
+    const active = countActiveCatalogFilters();
     return `
         <div class="catalog-toolbar">
-            <div class="catalog-results">${total ? `Mostrando ${start}-${end} de ${total}` : 'Sin resultados'}</div>
+            <div class="catalog-results">${total ? `${total} camiseta${total === 1 ? '' : 's'}` : 'Sin resultados'}</div>
+            <button type="button" class="catalog-filter-toggle" onclick="catalogOpenFilters()" aria-label="Abrir filtros">
+                <i class="ph-bold ph-sliders-horizontal"></i> Filtros${active ? ` <span>${active}</span>` : ''}
+            </button>
             <label class="catalog-sort-wrap">
                 <span>Ordenar por</span>
                 <select class="catalog-sort" onchange="catalogSetSort(this.value)" aria-label="Ordenar cat&aacute;logo">
@@ -1098,7 +1281,6 @@ function renderCatalogToolbar(total, page, totalPages, start, end) {
                     <option value="az"${catalogSort === 'az' ? ' selected' : ''}>A-Z</option>
                 </select>
             </label>
-            ${renderCatalogPagination(page, totalPages)}
         </div>`;
 }
 
@@ -1108,11 +1290,18 @@ window.catalogSetSort = function (value) {
     renderProducts(allProducts);
 };
 
-window.catalogGoPage = function (page) {
-    catalogPage = Math.max(1, Number(page) || 1);
-    renderProducts(allProducts);
-    const anchor = byId('catalogo') || byId('productGrid');
-    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// "Ver mas" agrega la siguiente tanda al final sin redibujar lo que ya se ve,
+// asi el scroll queda donde estaba.
+window.catalogShowMore = function () {
+    const grid = document.querySelector('#productGrid .product-grid-inner');
+    if (!grid) return;
+    const start = catalogPage * CATALOG_PAGE_SIZE;
+    catalogPage += 1;
+    const end = Math.min(catalogPage * CATALOG_PAGE_SIZE, catalogLastResults.length);
+    const productIndexById = new Map(allProducts.map((product, index) => [product.id, index]));
+    appendCatalogProductBatch(grid, catalogLastResults, start, end, productIndexById, catalogRenderToken);
+    const more = document.querySelector('#productGrid .catalog-more');
+    if (more) more.outerHTML = renderCatalogMoreButton(end, catalogLastResults.length);
 };
 
 function renderNavigation() {
@@ -1266,12 +1455,22 @@ function renderNavigation() {
 }
 
 // ── Render Products ───────────────────────────────────────────────────────────
-function createCatalogProductCard(product, i, productIndexById) {
-    const idx = productIndexById.get(product.id) ?? allProducts.findIndex(p => p.id === product.id);
-    const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
-        ? product.imagenes[0] : (product.imagen || ''));
-    const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
-        ? product.imagenes[0] : (product.imagen || ''));
+// Etiqueta de estado: pequena, en la esquina y con el mismo estilo para todas.
+function getProductStatusChip(product, isBajoPedido) {
+    if (isBajoPedido) return { text: 'Bajo pedido', cls: 'status-pedido' };
+    const stock = getAvailableStock(product);
+    if (stock === 1) return { text: 'Última unidad', cls: 'status-ultima' };
+    return { text: 'En stock', cls: 'status-stock' };
+}
+
+// Tarjeta comun para el catalogo y las destacadas del inicio. Las tarjetas se
+// muestran de una vez (antes entraban con una animacion que parecia carga
+// lenta). En computador, al pasar el mouse se ve la segunda foto.
+function buildProductCard(product, i, idx, eagerCount) {
+    const firstImage = product.imagenes && product.imagenes.length > 0 ? product.imagenes[0] : (product.imagen || '');
+    const coverImg = toWebp(firstImage);
+    const cardImg = toCardImage(firstImage);
+    const altImage = !isTouchDevice && product.imagenes && product.imagenes.length > 1 ? product.imagenes[1] : '';
 
     const isBajoPedido = isProductBajoPedido(product);
     const tallas = getSortedSizeEntries(product.tallas);
@@ -1279,21 +1478,21 @@ function createCatalogProductCard(product, i, productIndexById) {
     const sizePills = buildSizePills(product.tallas, isBajoPedido);
     const stockNotice = buildStockNotice(product, isBajoPedido);
     const badge = getProductBadge(product);
+    const status = getProductStatusChip(product, isBajoPedido);
 
     const card = document.createElement('div');
-    card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
-    if (!prefersReducedMotion && !isTouchDevice) {
-        card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
-    }
+    card.className = 'product-card' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
     if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
 
-    const imageAttrs = i < 3
+    const imageAttrs = i < eagerCount
         ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"`
         : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`;
 
     card.innerHTML = `
         <div class="product-image-wrapper img-loading">
             <img ${imageAttrs} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
+            ${altImage ? `<img data-alt-src="${toCardImage(altImage)}" data-full-src="${toWebp(altImage)}" alt="" aria-hidden="true" class="product-img-alt" width="640" height="640" decoding="async">` : ''}
+            <span class="product-status ${status.cls}">${status.text}</span>
             ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
         </div>
         <div class="product-info">
@@ -1304,7 +1503,7 @@ function createCatalogProductCard(product, i, productIndexById) {
             <div class="product-actions">
                 ${allSoldOut
                     ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                    : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
+                    : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Pedir bajo pedido' : 'Elegir talla'}</button>`
                 }
             </div>
         </div>
@@ -1318,13 +1517,28 @@ function createCatalogProductCard(product, i, productIndexById) {
         bindProductImageFallback(img);
     }
 
-    if (!prefersReducedMotion && !isTouchDevice) {
-        cardRevealObserver.observe(card);
-    } else {
-        card.classList.remove('card-hidden');
+    const alt = card.querySelector('.product-img-alt');
+    if (alt) {
+        card.addEventListener('mouseenter', () => {
+            if (alt.src) return;
+            alt.onload = () => alt.parentElement.classList.add('alt-ready');
+            alt.onerror = () => {
+                const fallback = alt.dataset.fullSrc;
+                if (fallback && alt.src !== fallback) {
+                    alt.src = fallback;
+                    alt.dataset.fullSrc = '';
+                }
+            };
+            alt.src = alt.dataset.altSrc;
+        }, { once: true });
     }
 
     return card;
+}
+
+function createCatalogProductCard(product, i, productIndexById) {
+    const idx = productIndexById.get(product.id) ?? allProducts.findIndex(p => p.id === product.id);
+    return buildProductCard(product, i, idx, 4);
 }
 
 function appendCatalogProductBatch(grid, visibleProducts, start, end, productIndexById, renderToken) {
@@ -1353,14 +1567,18 @@ function renderProducts(products) {
     container.setAttribute('aria-busy', 'true');
 
     const pageCat = document.body.getAttribute('data-category');
-    let displayProducts = (products || []).filter(p => isProductInPageCategory(p, pageCat));
-    if (catalogSearchTerm) {
-        displayProducts = displayProducts.filter(p => {
-            const haystack = normalizeSearchTerm(`${p.equipo || ''} ${p.categoria || ''} ${p.descripcion || ''}`);
-            return haystack.includes(catalogSearchTerm);
-        });
+    const baseProducts = getCatalogBaseProducts(products);
+    const displayProducts = baseProducts.filter((p) => productMatchesFilters(p)).sort(compareCatalogProducts);
+    catalogLastResults = displayProducts;
+
+    const panel = ensureCatalogFilterPanel(container);
+    if (panel) {
+        const bodyScroll = panel.querySelector('.catalog-filter-body')?.scrollTop || 0;
+        panel.innerHTML = renderCatalogFilterPanel(baseProducts, displayProducts.length);
+        const body = panel.querySelector('.catalog-filter-body');
+        if (body) body.scrollTop = bodyScroll;
+        setCatalogFilterPanelOpen(catalogFilterPanelOpen);
     }
-    displayProducts = displayProducts.slice().sort(compareCatalogProducts);
 
     container.replaceChildren();
     container.classList.remove('catalog-skeleton-active');
@@ -1368,24 +1586,22 @@ function renderProducts(products) {
     if (displayProducts.length === 0) {
         container.innerHTML = `
             ${pageCat ? `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>` : ''}
-            ${renderCatalogToolbar(0, 1, 1, 0, 0)}
-            <p class="catalog-empty">No se encontraron resultados.</p>`;
+            ${renderCatalogToolbar(0, 0)}
+            ${renderActiveFilterChips()}
+            <p class="catalog-empty">No encontramos camisetas con esos filtros.${countActiveCatalogFilters() ? ' <button type="button" class="catalog-active-clear" onclick="catalogClearFilters()">Quitar filtros</button>' : ''}</p>`;
         container.setAttribute('aria-busy', 'false');
         return;
     }
 
-    const totalPages = Math.max(1, Math.ceil(displayProducts.length / CATALOG_PAGE_SIZE));
-    catalogPage = Math.min(Math.max(1, catalogPage), totalPages);
-    const startIndex = (catalogPage - 1) * CATALOG_PAGE_SIZE;
-    const visibleProducts = displayProducts.slice(startIndex, startIndex + CATALOG_PAGE_SIZE);
-    const start = startIndex + 1;
-    const end = startIndex + visibleProducts.length;
+    const shownCount = Math.min(Math.max(1, catalogPage) * CATALOG_PAGE_SIZE, displayProducts.length);
+    const visibleProducts = displayProducts.slice(0, shownCount);
     const productIndexById = new Map(allProducts.map((product, index) => [product.id, index]));
 
     if (pageCat) {
         container.insertAdjacentHTML('beforeend', `<section class="catalog-page-head"><span>Cat&aacute;logo</span><h1>${getCategoryTitle(pageCat)}</h1></section>`);
     }
-    container.insertAdjacentHTML('beforeend', renderCatalogToolbar(displayProducts.length, catalogPage, totalPages, start, end));
+    container.insertAdjacentHTML('beforeend', renderCatalogToolbar(displayProducts.length, shownCount));
+    container.insertAdjacentHTML('beforeend', renderActiveFilterChips());
 
     const grid = document.createElement('div');
     grid.className = 'product-grid-inner';
@@ -1394,7 +1610,7 @@ function renderProducts(products) {
     const initialEnd = Math.min(CATALOG_INITIAL_RENDER_COUNT, visibleProducts.length);
     appendCatalogProductBatch(grid, visibleProducts, 0, initialEnd, productIndexById, renderToken);
 
-    container.insertAdjacentHTML('beforeend', `<div class="catalog-toolbar catalog-toolbar-bottom">${renderCatalogPagination(catalogPage, totalPages)}</div>`);
+    container.insertAdjacentHTML('beforeend', renderCatalogMoreButton(shownCount, displayProducts.length));
     container.setAttribute('aria-busy', 'false');
 
     if (initialEnd < visibleProducts.length) {
@@ -1422,71 +1638,22 @@ function renderFeaturedProducts() {
     const container = byId('featuredProductGrid');
     if (!container) return;
 
-    // Seleccionar algunas camisetas específicas para destacar (3 de stock, 3 de pre-orden retro)
-    const idsToFeature = [1, 2, 10, 28, 29, 30]; // Alemania, Argentina, Colombia, Barcelona 125, Real Madrid 99, Milan 06/07
-    let featured = idsToFeature.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
-    
-    // Si no hay suficientes por alguna razón, tomar los primeros 6 del catálogo
-    if (featured.length < 3) {
-        featured = allProducts.slice(0, 6);
-    }
+    // Destacadas: solo camisetas con stock y con foto. Primero las de siempre
+    // (si tienen stock) y se completa con las mas recientes que haya en stock.
+    const FEATURED_COUNT = 6;
+    const preferredIds = [10, 1, 2, 28, 26, 41];
+    const canFeature = (p) => p && getAvailableStock(p) > 0 && Array.isArray(p.imagenes) && p.imagenes.length > 0;
+    const featured = preferredIds.map(id => allProducts.find(p => p.id === id)).filter(canFeature);
+    allProducts
+        .filter(p => canFeature(p) && !featured.includes(p))
+        .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
+        .forEach(p => { if (featured.length < FEATURED_COUNT) featured.push(p); });
 
     container.innerHTML = '';
 
-    featured.forEach((product, i) => {
+    featured.slice(0, FEATURED_COUNT).forEach((product, i) => {
         const idx = allProducts.findIndex(p => p.id === product.id);
-        const coverImg = toWebp(product.imagenes && product.imagenes.length > 0
-            ? product.imagenes[0] : (product.imagen || ''));
-        const cardImg = toCardImage(product.imagenes && product.imagenes.length > 0
-            ? product.imagenes[0] : (product.imagen || ''));
-
-        const isBajoPedido = isProductBajoPedido(product);
-
-        const tallas = getSortedSizeEntries(product.tallas);
-        const allSoldOut = !isBajoPedido && tallas.length > 0 && tallas.every(({ stock }) => stock === 0);
-        const sizePills = buildSizePills(product.tallas, isBajoPedido);
-        const stockNotice = buildStockNotice(product, isBajoPedido);
-        const badge = getProductBadge(product);
-
-        const card = document.createElement('div');
-        card.className = 'product-card card-hidden' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
-        if (!prefersReducedMotion && !isTouchDevice) {
-            card.style.transitionDelay = `${Math.min(i * 35, 160)}ms`;
-        }
-        if (!allSoldOut || isBajoPedido) card.onclick = () => openModal(idx);
-
-        card.innerHTML = `
-            <div class="product-image-wrapper img-loading">
-                <img ${i < 2 ? `src="${cardImg}" fetchpriority="${i === 0 ? 'high' : 'auto'}" loading="eager"` : `data-src="${cardImg}" loading="lazy" fetchpriority="low"`} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
-                ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
-            </div>
-            <div class="product-info">
-                <h3 class="product-title">${product.equipo}</h3>
-                <div class="product-price">${formatPrice(product.precio)}</div>
-                <div class="product-sizes">${sizePills}</div>
-                ${stockNotice}
-                <div class="product-actions">
-                    ${allSoldOut
-                        ? `<span class="btn-whatsapp" style="opacity:0.4;cursor:not-allowed;">Sin stock</span>`
-                        : `<button class="btn-whatsapp" onclick="event.stopPropagation(); openModal(${idx})">${isBajoPedido ? 'Bajo pedido' : 'Ver detalles'}</button>`
-                    }
-                </div>
-            </div>
-        `;
-
-        const img = card.querySelector('.lazy-img');
-        if (img && img.dataset.src) {
-            bindProductImageFallback(img);
-            imgObserver.observe(img);
-        } else if (img) {
-            bindProductImageFallback(img);
-        }
-        if (!prefersReducedMotion && !isTouchDevice) {
-            cardRevealObserver.observe(card);
-        } else {
-            card.classList.remove('card-hidden');
-        }
-        container.appendChild(card);
+        container.appendChild(buildProductCard(product, i, idx, 2));
     });
 
     if (false && !prefersReducedMotion && !isTouchDevice && window.matchMedia('(min-width: 1024px)').matches) {
