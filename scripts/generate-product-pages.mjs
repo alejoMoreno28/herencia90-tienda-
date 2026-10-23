@@ -602,6 +602,7 @@ function renderGallery(product) {
   return `
     <div class="product-gallery">
       <div class="main-image-wrap" id="productMainWrap">
+        ${getSeasonNumeral(product) ? `<span class="season-numeral" aria-hidden="true">${escapeHtml(getSeasonNumeral(product))}</span>` : ''}
         <img id="productMainImage" class="main-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(product.equipo)} - ${escapeHtml(product.categoria || '')}" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1500">
         <button type="button" class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="Foto anterior"${images.length > 1 ? '' : ' hidden'}>&#8249;</button>
         <button type="button" class="gallery-arrow gallery-next" id="galleryNext" aria-label="Foto siguiente"${images.length > 1 ? '' : ' hidden'}>&#8250;</button>
@@ -702,9 +703,9 @@ function renderCollectionPage(collection) {
 ${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root {
@@ -720,11 +721,11 @@ ${renderDeferredGa4()}
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
       color: var(--text-primary);
       background: #f8fafc;
     }
-    h1, h2, h3, .stat-number { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+    h1, h2, h3, .stat-number { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; text-transform: none; letter-spacing: -0.02em; font-weight: 760; font-stretch: 78%; }
     a { color: inherit; }
     @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     .scroll-progress {
@@ -808,7 +809,7 @@ ${renderDeferredGa4()}
       border: 1px solid rgba(217, 195, 145, 0.26);
       background: rgba(217, 195, 145, 0.08);
       color: var(--gold);
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 1.2px;
       font-size: 0.72rem;
       font-weight: 700;
@@ -839,7 +840,7 @@ ${renderDeferredGa4()}
       border-radius: 999px;
       text-decoration: none;
       font-weight: 700;
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 0.8px;
       font-size: 0.82rem;
     }
@@ -934,7 +935,7 @@ ${renderDeferredGa4()}
       margin-bottom: 10px;
       color: var(--gold);
       font-size: 0.72rem;
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 0.9px;
       font-weight: 700;
     }
@@ -977,7 +978,7 @@ ${renderDeferredGa4()}
       font-size: 0.75rem;
       font-weight: 700;
       text-decoration: none;
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 0.8px;
     }
     .mini-btn-primary {
@@ -1433,15 +1434,15 @@ function renderPreventaPage(item) {
 ${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
     :root { --bg:#f8fafc; --panel:#ffffff; --gold:#85692f; --gold-soft:#f3ead4; --text:#172033; --muted:#556070; --line:rgba(15,23,42,.1); --wa:#0f7a41; }
     * { box-sizing: border-box; }
-    body { margin:0; font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--text); background:var(--bg); }
-    h1,h2,.price { font-family:'Oswald','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.5px; }
+    body { margin:0; font-family:'Archivo','Helvetica Neue',Arial,sans-serif; color:var(--text); background:var(--bg); }
+    h1,h2,.price { font-family:'Archivo','Helvetica Neue',Arial,sans-serif; text-transform:none; letter-spacing:-.02em; font-weight:760; font-stretch:78%; }
     a { color:inherit; }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px max(18px,env(safe-area-inset-right,0px)) 10px max(18px,env(safe-area-inset-left,0px)); border-bottom:1px solid var(--line); background:rgba(255,255,255,.94); position:sticky; top:0; z-index:5; backdrop-filter:blur(12px); }
     .topbar img { width:auto; height:42px; display:block; }
@@ -1455,18 +1456,18 @@ ${renderDeferredGa4()}
     .gallery { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
     .gallery img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#f1f5f9; border-radius:12px; }
     .panel { padding:26px; position:sticky; top:84px; }
-    .eyebrow { display:inline-flex; padding:5px 12px; border-radius:999px; color:#6f5524; background:var(--gold-soft); font-size:.68rem; text-transform:uppercase; letter-spacing:1px; font-weight:800; margin-bottom:12px; }
+    .eyebrow { display:inline-flex; padding:5px 12px; border-radius:999px; color:#6f5524; background:var(--gold-soft); font-size:.68rem; text-transform:none; letter-spacing:1px; font-weight:800; margin-bottom:12px; }
     h1 { margin:0 0 10px; font-size:clamp(1.6rem,3.2vw,2.6rem); line-height:1.08; text-wrap:balance; }
     .description { color:var(--muted); line-height:1.6; margin:0 0 16px; font-size:.92rem; }
     .price { color:var(--gold); font-size:2rem; margin:0 0 16px; }
     .meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
     .meta div { border:1px solid var(--line); border-radius:12px; padding:12px; background:#f8fafc; }
-    .meta strong { display:block; color:var(--text); font-size:.74rem; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+    .meta strong { display:block; color:var(--text); font-size:.74rem; text-transform:none; letter-spacing:.6px; margin-bottom:4px; }
     .meta span { color:var(--muted); font-size:.86rem; }
     .actions { display:grid; grid-template-columns:1fr; gap:10px; }
-    .btn { min-height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:12px; padding:0 20px; font-weight:800; text-transform:uppercase; text-decoration:none; letter-spacing:.8px; font-size:.84rem; }
-    .btn-primary { background:var(--wa); color:#fff; }
-    .btn-primary:hover { background:#0b6536; }
+    .btn { min-height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:0 20px; font-weight:650; text-transform:none; text-decoration:none; letter-spacing:0; font-size:1rem; }
+    .btn-primary { background:#141a2b; color:#fff; }
+    .btn-primary:hover { background:#2a3247; }
     .btn-secondary { border:1.5px solid var(--text); color:var(--text); background:#fff; }
     .microcopy { color:var(--muted); font-size:.8rem; margin:14px 0 0; line-height:1.55; }
     .trust,.related { margin-top:26px; padding:22px; }
@@ -1597,9 +1598,9 @@ function renderProductPage(product) {
 ${renderDeferredGa4()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <style>
 ${PRODUCT_PAGE_STYLES}
@@ -2389,7 +2390,67 @@ const PRODUCT_PAGE_STYLES = `
     @media (max-width: 420px) {
       .meta-list { grid-template-columns: 1fr; }
     }
+
+    /* Vitrina 2026: una familia, tinta azul noche y la temporada detras de la camiseta */
+    :root { --ink: #141a2b; --stage: #eef1f4; --numeral: #d7dde5; --ease-out: cubic-bezier(.23, 1, .32, 1); }
+    body { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; color: var(--ink); background: #ffffff; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, .price { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; text-transform: none; letter-spacing: -0.02em; font-weight: 760; font-stretch: 78%; }
+    .price { color: var(--ink); font-weight: 700; font-stretch: 90%; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .eyebrow { display: none; }
+    .topbar { background: rgba(255, 255, 255, 0.94); }
+    .topbar-nav a { font-weight: 600; font-size: 14px; color: var(--ink); }
+    .topbar-nav a:hover { background: var(--stage); color: var(--ink); }
+    .topbar-cart span { background: var(--ink); }
+    .product-gallery, .product-panel, .related-section { border: 0; }
+    .product-gallery { padding: 0; background: transparent; }
+    .main-image-wrap { background: var(--stage); border-radius: 22px; padding: 9%; }
+    .main-image { position: relative; z-index: 1; filter: drop-shadow(0 22px 28px rgba(20, 26, 43, 0.16)); animation: rise .9s var(--ease-out) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
+    .season-numeral {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none;
+      font-size: clamp(220px, 36vw, 560px); font-weight: 900; font-stretch: 62%; line-height: .8; letter-spacing: -0.04em; color: var(--numeral);
+    }
+    .gallery-arrow, .gallery-count { z-index: 2; }
+    .thumb { background: var(--stage); border-radius: 12px; }
+    .thumb.active, .thumb:hover { border-color: var(--ink); }
+    .product-panel { padding: 8px 4px 0; background: transparent; }
+    .size-head strong { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 650; }
+    .size-guide-link, .cart-added a { color: var(--ink); }
+    .size-option { border-radius: 10px; font-weight: 650; }
+    .size-option:hover:not(:disabled) { border-color: var(--ink); }
+    .size-option.is-selected { background: var(--ink); border-color: var(--ink); }
+    .btn { border-radius: 999px; text-transform: none; letter-spacing: 0; font-size: 16px; font-weight: 650; transition: transform .16s var(--ease-out), background-color .2s ease, color .2s ease; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--ink); border-color: var(--ink); }
+    .btn-primary:hover { background: #2a3247; }
+    .btn-secondary { border-color: #dde2e8; color: var(--ink); }
+    .btn-secondary:hover { background: #ffffff; color: var(--ink); border-color: var(--ink); }
+    .meta-list strong { font-weight: 650; }
+    .description-block h2 { font-size: 20px; }
+    .related-section { padding: 0; margin-top: 56px; background: transparent; }
+    .related-section h2 { font-size: clamp(26px, 3.4vw, 36px); }
+    .related-card { border: 0; padding: 0; background: transparent; }
+    .related-card img { background: var(--stage); border-radius: 16px; padding: 8%; }
+    .related-copy strong { font-weight: 600; font-size: 15px; }
+    .related-copy span { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .mobile-buy-copy span { color: var(--ink); }
+    :focus-visible { outline-color: var(--ink); }
+    @media (max-width: 900px) {
+      .main-image-wrap { border-radius: 18px; }
+      .season-numeral { font-size: 64vw; }
+      .product-panel { padding: 4px 2px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .main-image { animation: none; } }
 `;
+
+// Temporada en dos cifras para mostrar detras de la camiseta, como un dorsal.
+function getSeasonNumeral(product) {
+  const text = String(product.equipo || '');
+  const corta = text.match(/\b(\d{2})\s*\/\s*\d{2}\b/);
+  if (corta) return corta[1];
+  const larga = text.match(/\b(19\d{2}|20\d{2})\b/);
+  return larga ? larga[1].slice(2) : '';
+}
 
 function buildSitemap() {
   const today = new Date().toISOString().slice(0, 10);
