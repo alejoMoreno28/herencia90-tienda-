@@ -1466,8 +1466,8 @@ ${renderDeferredGa4()}
     .meta span { color:var(--muted); font-size:.86rem; }
     .actions { display:grid; grid-template-columns:1fr; gap:10px; }
     .btn { min-height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:0 20px; font-weight:650; text-transform:none; text-decoration:none; letter-spacing:0; font-size:1rem; }
-    .btn-primary { background:#141a2b; color:#fff; }
-    .btn-primary:hover { background:#2a3247; }
+    .btn-primary { background:var(--wa); color:#fff; }
+    .btn-primary:hover { background:#0b6334; }
     .btn-secondary { border:1.5px solid var(--text); color:var(--text); background:#fff; }
     .microcopy { color:var(--muted); font-size:.8rem; margin:14px 0 0; line-height:1.55; }
     .trust,.related { margin-top:26px; padding:22px; }
@@ -2391,16 +2391,17 @@ const PRODUCT_PAGE_STYLES = `
       .meta-list { grid-template-columns: 1fr; }
     }
 
-    /* Vitrina 2026: una familia, tinta azul noche y la temporada detras de la camiseta */
-    :root { --ink: #141a2b; --stage: #eef1f4; --numeral: #d7dde5; --ease-out: cubic-bezier(.23, 1, .32, 1); }
+    /* Vitrina 2026: una familia y la temporada detras de la camiseta. El dorado de
+       la marca va en precio, botones y seleccion; la tinta queda para el texto. */
+    :root { --ink: #141a2b; --stage: #eef1f4; --numeral: #d7dde5; --gold-hover: #6f5524; --ease-out: cubic-bezier(.23, 1, .32, 1); }
     body { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; color: var(--ink); background: #ffffff; -webkit-font-smoothing: antialiased; }
     h1, h2, h3, .price { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; text-transform: none; letter-spacing: -0.02em; font-weight: 760; font-stretch: 78%; }
-    .price { color: var(--ink); font-weight: 700; font-stretch: 90%; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .price { color: var(--gold); font-weight: 700; font-stretch: 90%; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
     .eyebrow { display: none; }
     .topbar { background: rgba(255, 255, 255, 0.94); }
     .topbar-nav a { font-weight: 600; font-size: 14px; color: var(--ink); }
-    .topbar-nav a:hover { background: var(--stage); color: var(--ink); }
-    .topbar-cart span { background: var(--ink); }
+    .topbar-nav a:hover { background: var(--stage); color: var(--gold); }
+    .topbar-cart span { background: var(--gold); }
     .product-gallery, .product-panel, .related-section { border: 0; }
     .product-gallery { padding: 0; background: transparent; }
     .main-image-wrap { background: var(--stage); border-radius: 22px; padding: 9%; }
@@ -2412,19 +2413,19 @@ const PRODUCT_PAGE_STYLES = `
     }
     .gallery-arrow, .gallery-count { z-index: 2; }
     .thumb { background: var(--stage); border-radius: 12px; }
-    .thumb.active, .thumb:hover { border-color: var(--ink); }
+    .thumb.active, .thumb:hover { border-color: var(--gold); }
     .product-panel { padding: 8px 4px 0; background: transparent; }
     .size-head strong { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 650; }
-    .size-guide-link, .cart-added a { color: var(--ink); }
+    .size-guide-link, .cart-added a { color: var(--gold); }
     .size-option { border-radius: 10px; font-weight: 650; }
-    .size-option:hover:not(:disabled) { border-color: var(--ink); }
-    .size-option.is-selected { background: var(--ink); border-color: var(--ink); }
+    .size-option:hover:not(:disabled) { border-color: var(--gold); }
+    .size-option.is-selected { background: var(--gold); border-color: var(--gold); }
     .btn { border-radius: 999px; text-transform: none; letter-spacing: 0; font-size: 16px; font-weight: 650; transition: transform .16s var(--ease-out), background-color .2s ease, color .2s ease; }
     .btn:active { transform: scale(.97); }
-    .btn-primary { background: var(--ink); border-color: var(--ink); }
-    .btn-primary:hover { background: #2a3247; }
-    .btn-secondary { border-color: #dde2e8; color: var(--ink); }
-    .btn-secondary:hover { background: #ffffff; color: var(--ink); border-color: var(--ink); }
+    .btn-primary { background: var(--gold); border-color: var(--gold); }
+    .btn-primary:hover { background: var(--gold-hover); }
+    .btn-secondary { border-color: var(--gold); color: var(--gold); }
+    .btn-secondary:hover { background: #ffffff; color: var(--gold-hover); border-color: var(--gold-hover); }
     .meta-list strong { font-weight: 650; }
     .description-block h2 { font-size: 20px; }
     .related-section { padding: 0; margin-top: 56px; background: transparent; }
@@ -2432,9 +2433,9 @@ const PRODUCT_PAGE_STYLES = `
     .related-card { border: 0; padding: 0; background: transparent; }
     .related-card img { background: var(--stage); border-radius: 16px; padding: 8%; }
     .related-copy strong { font-weight: 600; font-size: 15px; }
-    .related-copy span { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
-    .mobile-buy-copy span { color: var(--ink); }
-    :focus-visible { outline-color: var(--ink); }
+    .related-copy span { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .mobile-buy-copy span { color: var(--gold); }
+    :focus-visible { outline-color: var(--gold); }
     @media (max-width: 900px) {
       .main-image-wrap { border-radius: 18px; }
       .season-numeral { font-size: 64vw; }
