@@ -51,6 +51,39 @@ async function loadProducts() {
 
 const products = await loadProducts();
 
+// La lista liviana que usa el catalogo bajo pedido (tarjetas y detalle) sale de
+// los mismos datos en vivo, asi una camiseta nueva aparece sin pasos a mano. Las
+// que todavia no tienen galeria limpia (sin card_url) conservan la de la lista
+// anterior.
+function writePreventaList(liveItems) {
+  const listPath = path.join(root, 'web', 'preventa-catalogo-list.json');
+  const previous = fs.existsSync(listPath) ? JSON.parse(fs.readFileSync(listPath, 'utf8')) : [];
+  const previousBySlug = new Map(previous.map((item) => [item.slug, item]));
+  const list = liveItems.map((item) => {
+    const images = Array.isArray(item.imagenes) ? item.imagenes : [];
+    const clean = images.length && images.every((image) => image && image.card_url);
+    const before = previousBySlug.get(item.slug);
+    const imagenes = clean || !before
+      ? images.map((image) => (typeof image === 'string' ? image : {
+        card_url: image.card_url || image.url || '',
+        master_url: image.master_url || image.url || '',
+        source_url: image.source_url || '',
+        gallery_role: image.gallery_role || ''
+      }))
+      : before.imagenes;
+    const count = clean ? images.length : (before ? before.photo_count : images.length);
+    return {
+      id: item.id, slug: item.slug, equipo: item.equipo, temporada: item.temporada, tipo: item.tipo,
+      categoria: item.categoria, pais_o_club: item.pais_o_club, decada: item.decada, descripcion: item.descripcion,
+      precio_aprox: item.precio_aprox, destacado: item.destacado, orden: item.orden, tags: item.tags || [],
+      photo_count: count, photo_count_gallery: count,
+      gallery_status: clean ? null : (before ? before.gallery_status : null),
+      imagenes
+    };
+  });
+  fs.writeFileSync(listPath, `${JSON.stringify(list)}\n`, 'utf8');
+}
+
 async function loadPreventaItems() {
   if (useLocalCatalogs) {
     console.warn('Using local preventa catalog');
@@ -76,6 +109,7 @@ async function loadPreventaItems() {
     }
 
     fs.writeFileSync(preventaCatalogPath, `${JSON.stringify(liveItems, null, 4)}\n`, 'utf8');
+    writePreventaList(liveItems);
     return liveItems;
   } catch (error) {
     console.warn(`No fue posible sincronizar preventa desde Supabase: ${error.message}`);

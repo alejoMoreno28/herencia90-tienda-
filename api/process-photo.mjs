@@ -141,7 +141,7 @@ async function removeBackground(rawBuffer) {
  * Hace falta porque la comparacion visual no distingue una cara de la otra: aun
  * usando la foto del excel, que es de frente, CLIP ponia primero la espalda.
  */
-async function coloresEnElPecho(buffer) {
+export async function coloresEnElPecho(buffer) {
   try {
     const meta = await sharp(buffer).metadata();
     const { data } = await sharp(buffer)
