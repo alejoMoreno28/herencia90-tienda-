@@ -44,9 +44,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet"></noscript>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Camiseta Retro Colombia Visitante 1990 Roja","image":["https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533506082_24.webp"],"description":"Versión femenina de la camiseta retro de Colombia visitante 1990 en color rojo, con detalles amarillos y corte para mujer. Una alternativa diferente para quienes buscan una prenda retro colombiana fuera del amarillo tradicional.","brand":{"@type":"Brand","name":"Herencia 90"},"sku":"HERENCIA90-32","category":"Retro","url":"https://www.herencia90.shop/camisetas/camiseta-retro-colombia-visitante-1990-roja","offers":{"@type":"Offer","url":"https://www.herencia90.shop/camisetas/camiseta-retro-colombia-visitante-1990-roja","priceCurrency":"COP","price":120000,"availability":"https://schema.org/InStock","itemCondition":"https://schema.org/NewCondition","seller":{"@type":"Organization","name":"Herencia 90"}}}</script>
   <style>
 
@@ -413,6 +413,57 @@
       .meta-list { grid-template-columns: 1fr; }
     }
 
+    /* Vitrina 2026: una familia, tinta azul noche y la temporada detras de la camiseta */
+    :root { --ink: #141a2b; --stage: #eef1f4; --numeral: #d7dde5; --ease-out: cubic-bezier(.23, 1, .32, 1); }
+    body { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; color: var(--ink); background: #ffffff; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, .price { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; text-transform: none; letter-spacing: -0.02em; font-weight: 760; font-stretch: 78%; }
+    .price { color: var(--ink); font-weight: 700; font-stretch: 90%; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .eyebrow { display: none; }
+    .topbar { background: rgba(255, 255, 255, 0.94); }
+    .topbar-nav a { font-weight: 600; font-size: 14px; color: var(--ink); }
+    .topbar-nav a:hover { background: var(--stage); color: var(--ink); }
+    .topbar-cart span { background: var(--ink); }
+    .product-gallery, .product-panel, .related-section { border: 0; }
+    .product-gallery { padding: 0; background: transparent; }
+    .main-image-wrap { background: var(--stage); border-radius: 22px; padding: 9%; }
+    .main-image { position: relative; z-index: 1; filter: drop-shadow(0 22px 28px rgba(20, 26, 43, 0.16)); animation: rise .9s var(--ease-out) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
+    .season-numeral {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none;
+      font-size: clamp(220px, 36vw, 560px); font-weight: 900; font-stretch: 62%; line-height: .8; letter-spacing: -0.04em; color: var(--numeral);
+    }
+    .gallery-arrow, .gallery-count { z-index: 2; }
+    .thumb { background: var(--stage); border-radius: 12px; }
+    .thumb.active, .thumb:hover { border-color: var(--ink); }
+    .product-panel { padding: 8px 4px 0; background: transparent; }
+    .size-head strong { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 650; }
+    .size-guide-link, .cart-added a { color: var(--ink); }
+    .size-option { border-radius: 10px; font-weight: 650; }
+    .size-option:hover:not(:disabled) { border-color: var(--ink); }
+    .size-option.is-selected { background: var(--ink); border-color: var(--ink); }
+    .btn { border-radius: 999px; text-transform: none; letter-spacing: 0; font-size: 16px; font-weight: 650; transition: transform .16s var(--ease-out), background-color .2s ease, color .2s ease; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--ink); border-color: var(--ink); }
+    .btn-primary:hover { background: #2a3247; }
+    .btn-secondary { border-color: #dde2e8; color: var(--ink); }
+    .btn-secondary:hover { background: #ffffff; color: var(--ink); border-color: var(--ink); }
+    .meta-list strong { font-weight: 650; }
+    .description-block h2 { font-size: 20px; }
+    .related-section { padding: 0; margin-top: 56px; background: transparent; }
+    .related-section h2 { font-size: clamp(26px, 3.4vw, 36px); }
+    .related-card { border: 0; padding: 0; background: transparent; }
+    .related-card img { background: var(--stage); border-radius: 16px; padding: 8%; }
+    .related-copy strong { font-weight: 600; font-size: 15px; }
+    .related-copy span { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .mobile-buy-copy span { color: var(--ink); }
+    :focus-visible { outline-color: var(--ink); }
+    @media (max-width: 900px) {
+      .main-image-wrap { border-radius: 18px; }
+      .season-numeral { font-size: 64vw; }
+      .product-panel { padding: 4px 2px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .main-image { animation: none; } }
+
   </style>
 </head>
 <body>
@@ -438,6 +489,7 @@
 
     <div class="product-gallery">
       <div class="main-image-wrap" id="productMainWrap">
+        <span class="season-numeral" aria-hidden="true">90</span>
         <img id="productMainImage" class="main-image" src="https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/1780533506082_24.webp" alt="Camiseta Retro Colombia Visitante 1990 Roja - Retro" loading="eager" fetchpriority="high" decoding="async" width="1200" height="1500">
         <button type="button" class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="Foto anterior" hidden>&#8249;</button>
         <button type="button" class="gallery-arrow gallery-next" id="galleryNext" aria-label="Foto siguiente" hidden>&#8250;</button>

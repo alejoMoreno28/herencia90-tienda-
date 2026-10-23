@@ -1463,6 +1463,27 @@ function getProductStatusChip(product, isBajoPedido) {
     return { text: 'En stock', cls: 'status-stock' };
 }
 
+// En la tarjeta "Camiseta" sobra: todo lo que vende la tienda son camisetas.
+function getCardName(product) {
+    const name = String(product.equipo || '').replace(/^camiseta\s+(de\s+la\s+)?/i, '').trim();
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : String(product.equipo || '');
+}
+
+// Temporada en dos cifras, como un dorsal: "26/27" -> 26, "1999/00" -> 99,
+// "Mundial 2026" -> 26, "2004" -> 04. Sin temporada no se muestra nada.
+function getSeasonNumeral(product) {
+    const text = String(product.equipo || '');
+    const corta = text.match(/\b(\d{2})\s*\/\s*\d{2}\b/);
+    if (corta) return corta[1];
+    const larga = text.match(/\b(19\d{2}|20\d{2})\b/);
+    return larga ? larga[1].slice(2) : '';
+}
+
+function getCardMeta(product, isBajoPedido) {
+    if (isBajoPedido) return 'Bajo pedido';
+    return getAvailableSizeEntries(product).map((item) => item.size).join(' · ');
+}
+
 // Tarjeta comun para el catalogo y las destacadas del inicio. Las tarjetas se
 // muestran de una vez (antes entraban con una animacion que parecia carga
 // lenta). En computador, al pasar el mouse se ve la segunda foto.
@@ -1479,6 +1500,7 @@ function buildProductCard(product, i, idx, eagerCount) {
     const stockNotice = buildStockNotice(product, isBajoPedido);
     const badge = getProductBadge(product);
     const status = getProductStatusChip(product, isBajoPedido);
+    const season = getSeasonNumeral(product);
 
     const card = document.createElement('div');
     card.className = 'product-card' + (allSoldOut ? ' soldout' : '') + (isBajoPedido ? ' bajopedido' : '');
@@ -1492,12 +1514,14 @@ function buildProductCard(product, i, idx, eagerCount) {
         <div class="product-image-wrapper img-loading">
             <img ${imageAttrs} data-full-src="${coverImg}" alt="${product.equipo}" class="lazy-img" width="640" height="640" decoding="async">
             ${altImage ? `<img data-alt-src="${toCardImage(altImage)}" data-full-src="${toWebp(altImage)}" alt="" aria-hidden="true" class="product-img-alt" width="640" height="640" decoding="async">` : ''}
+            ${season ? `<span class="product-season" aria-hidden="true">${season}</span>` : ''}
             <span class="product-status ${status.cls}">${status.text}</span>
             ${badge ? `<span class="product-badge ${badge.cls}">${badge.text}</span>` : ''}
         </div>
         <div class="product-info">
-            <h3 class="product-title">${product.equipo}</h3>
+            <h3 class="product-title">${escapeHtml(getCardName(product))}</h3>
             <div class="product-price">${formatPrice(product.precio)}</div>
+            <div class="product-meta">${escapeHtml(getCardMeta(product, isBajoPedido))}</div>
             <div class="product-sizes">${sizePills}</div>
             ${stockNotice}
             <div class="product-actions">

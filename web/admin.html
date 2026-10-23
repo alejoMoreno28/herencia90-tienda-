@@ -26,7 +26,7 @@
     <title>Herencia 90 | Panel Admin Avanzado</title>
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-finance-metrics.js?v=0809f73334a0"></script>
     <script src="js/admin-partner-finance.js?v=c58cc408650c"></script>
@@ -63,7 +63,7 @@
         }
         * { box-sizing: border-box; }
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
             background: var(--bg-color);
             color: var(--text-color);
             margin: 0; display: flex; height: 100vh; overflow: hidden;
@@ -77,13 +77,13 @@
         .sidebar-menu li { margin: 0; }
         .sidebar-menu button {
             width: 100%; background: none; border: none; color: #ccc;
-            padding: 13px 14px; text-align: left; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
+            padding: 13px 14px; text-align: left; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
             border-radius: var(--radius); margin-bottom: 4px;
         }
         .sidebar-menu button:hover { color: white; background: rgba(255,255,255,.08); }
         .sidebar-menu button.active { color: #111; background: var(--gold); box-shadow: inset 3px 0 0 #fff; }
         .sidebar-footer { padding: 18px; border-top: 1px solid rgba(217,195,145,.14); }
-        .btn-logout { width: 100%; background: #1f1f1d; color: #cfc7b5; border: 1px solid rgba(217,195,145,.25); padding: 11px; cursor: pointer; border-radius: var(--radius); font-family: 'Outfit', sans-serif; font-weight: 700; }
+        .btn-logout { width: 100%; background: #1f1f1d; color: #cfc7b5; border: 1px solid rgba(217,195,145,.25); padding: 11px; cursor: pointer; border-radius: var(--radius); font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-weight: 700; }
         .btn-logout:hover { background: #333; color: white; }
 
         /* --- MAIN CONTENT & TOPBAR --- */
@@ -101,12 +101,12 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* --- FORMS & BUTTONS --- */
-        .btn-save { background: var(--gold); color: #111; border: none; padding: 10px 18px; font-weight: 800; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-family: 'Outfit', sans-serif; box-shadow:0 2px 0 rgba(0,0,0,.05); }
+        .btn-save { background: var(--gold); color: #111; border: none; padding: 10px 18px; font-weight: 800; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; box-shadow:0 2px 0 rgba(0,0,0,.05); }
         .btn-save:hover { background:#cfb678; }
-        .btn-add { background: #14864a; color: white; border: none; padding: 9px 15px; border-radius: var(--radius); cursor: pointer; font-weight: 800; font-family: 'Outfit', sans-serif; }
+        .btn-add { background: #14864a; color: white; border: none; padding: 9px 15px; border-radius: var(--radius); cursor: pointer; font-weight: 800; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; }
         .btn-add:hover { background:#0f733e; }
-        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 800; }
-        input, select, textarea { font-family: 'Outfit', sans-serif; padding: 9px 10px; border: 1px solid #d4ccbd; border-radius: 7px; width: 100%; font-size: 13px; background:#fff; color:#201f1b; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 800; }
+        input, select, textarea { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; padding: 9px 10px; border: 1px solid #d4ccbd; border-radius: 7px; width: 100%; font-size: 13px; background:#fff; color:#201f1b; }
         input:focus, select:focus, textarea:focus { outline:none; border-color:var(--gold-dark); box-shadow:0 0 0 3px rgba(217,195,145,.24); }
         .toast { position: fixed; bottom: 20px; right: 20px; background: #111; color: #fff; padding: 14px 16px; border-radius: var(--radius); display: none; box-shadow: var(--shadow); font-weight: 800; z-index: 9999; border:1px solid rgba(217,195,145,.28); }
 
@@ -406,7 +406,7 @@
             border-radius: 999px;
             background: #fffdf8;
             font-size: 12px;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
             color: var(--ink);
         }
         .transaction-search input:focus {
@@ -450,7 +450,7 @@
             padding: 11px 15px;
             font-weight: 900;
             cursor: pointer;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
         }
         .finance-toolbar {
             border-radius: 14px;
@@ -881,7 +881,7 @@
             border: 1px solid #e2d8c3;
             background: #fffdf8;
             color: #111;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
             font-size: 14px;
             font-weight: 800;
             cursor: pointer;
@@ -943,6 +943,81 @@
             .money-box strong { font-size: 26px; }
             .hoy-action { flex: 1 1 calc(50% - 10px); }
             .hoy-item { flex-direction: column; align-items: stretch; }
+        }
+
+        /* --- VITRINA 2026 (admin): misma familia que la tienda, color solo para estados,
+               tres tipos de boton y cifras alineadas. Va al final para ganarle a lo anterior. --- */
+        :root {
+            --ink: #141a2b; --ink-soft: #2a3247; --stage: #eef1f4; --hair: #dde2e8; --quiet: #5a6273;
+            --ok: #1f7a4d; --alert: #b3261e;
+            --font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+        }
+        body { font-family: var(--font); color: var(--ink); background: #f6f7f9 !important; -webkit-font-smoothing: antialiased; }
+        body :where(button, input, select, textarea) { font-family: var(--font) !important; }
+        .view-section { animation: none !important; }
+        h2, h3, h4 { font-family: var(--font) !important; letter-spacing: -0.01em !important; text-transform: none !important; }
+        .topbar h2 { font-size: 26px !important; font-weight: 760 !important; font-stretch: 80%; letter-spacing: -0.02em !important; }
+        .form-container h3, .table-container h3, .chart-container h3, .hoy-panel-head h3 { font-size: 17px !important; font-weight: 700 !important; }
+        .stat-card h4, .inventory-metric span, .money-box span, .eyebrow { text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; font-weight: 600 !important; color: var(--quiet) !important; }
+
+        /* Menu lateral en tinta, la opcion activa marcada sin degradado dorado */
+        .sidebar { background: var(--ink) !important; border-right: 0 !important; box-shadow: none !important; }
+        .sidebar-brand { font-family: var(--font) !important; font-weight: 800; font-stretch: 75%; letter-spacing: -0.01em; }
+        .sidebar-menu button { font-family: var(--font) !important; font-size: 15px !important; font-weight: 550 !important; color: rgba(255,255,255,.72) !important; background: transparent !important; border-radius: 10px !important; box-shadow: none !important; }
+        .sidebar-menu button:hover { color: #ffffff !important; background: rgba(255,255,255,.06) !important; }
+        .sidebar-menu button.active { color: #ffffff !important; background: rgba(255,255,255,.12) !important; box-shadow: none !important; }
+        .sidebar-menu button.active::before { background: #d9c391 !important; }
+        .btn-logout { background: transparent !important; border-color: rgba(255,255,255,.18) !important; color: rgba(255,255,255,.72) !important; }
+
+        /* Superficies: tarjetas blancas con un solo borde fino, sin barras de color arriba */
+        .stat-card, .chart-container, .form-container, .table-container, .inventory-toolbar, .category-section,
+        .inventory-metric, .finance-toolbar, .money-box, .hoy-panel, .finance-more, .analytics-insight {
+            border: 1px solid var(--hair) !important; border-top-width: 1px !important; border-top-color: var(--hair) !important;
+            box-shadow: none !important; border-radius: 14px !important;
+        }
+        .stat-card { background: #ffffff !important; }
+        .stat-card::after { display: none !important; }
+        .stat-card.primary { background: var(--ink) !important; }
+        .stat-card.primary h4 { color: rgba(255,255,255,.7) !important; }
+        .stat-card .value, .money-box strong, .inventory-metric strong { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+        .fin-table, .inv-table { font-variant-numeric: tabular-nums; }
+        .fin-table th { text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; font-weight: 650 !important; color: var(--quiet) !important; }
+        .fin-table tbody tr:hover { background: #fafbfc !important; }
+
+        /* Tres botones: principal en tinta, secundario con borde, borrar en texto rojo */
+        .btn-add, .dashboard-action-btn, .hoy-action.main {
+            background: var(--ink) !important; color: #ffffff !important; border: 1px solid var(--ink) !important;
+            border-radius: 999px !important; font-weight: 650 !important; box-shadow: none !important;
+        }
+        .btn-save, .hoy-action, .movement-preset {
+            background: #ffffff !important; color: var(--ink) !important; border: 1px solid var(--hair) !important;
+            border-radius: 999px !important; font-weight: 600 !important; box-shadow: none !important;
+        }
+        .btn-save:hover, .hoy-action:hover, .movement-preset:hover { border-color: var(--ink) !important; }
+        button.btn-save[type="submit"], #globalSaveBtn { background: var(--ink) !important; color: #ffffff !important; border-color: var(--ink) !important; }
+        .btn-danger, .action-danger {
+            background: transparent !important; color: var(--alert) !important; border: 1px solid transparent !important;
+            border-radius: 999px !important; font-weight: 650 !important; box-shadow: none !important;
+        }
+        .btn-danger:hover, .action-danger:hover { border-color: rgba(179,38,30,.3) !important; }
+        .fin-table button[onclick^="openEditModal"], .action-edit {
+            background: transparent !important; color: var(--ink) !important; border: 1px solid var(--hair) !important;
+            border-radius: 999px !important; font-weight: 600 !important; padding: 4px 10px !important;
+        }
+        .btn-save, .btn-add, .btn-danger, .movement-preset, .hoy-action, .dashboard-action-btn { transition: transform .16s cubic-bezier(.23,1,.32,1), border-color .2s ease, background-color .2s ease !important; }
+        .btn-save:active, .btn-add:active, .btn-danger:active, .movement-preset:active, .hoy-action:active, .dashboard-action-btn:active { transform: scale(.97) !important; }
+        .btn-save:hover, .btn-add:hover, .btn-danger:hover, .movement-preset:hover { transform: none !important; }
+
+        /* Estados: verde entra plata, rojo se debe. Nada mas lleva color. */
+        .badge-in { background: #e5f3ea !important; color: var(--ok) !important; }
+        .badge-out { background: #fbe9e7 !important; color: var(--alert) !important; }
+        .admin-chip, .metric-chip { background: var(--stage) !important; color: var(--ink-soft) !important; font-weight: 600 !important; }
+        .transaction-search::before { content: "" !important; width: 14px; height: 14px; background: no-repeat center / 14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6273' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E"); }
+        input, select, textarea { border-color: var(--hair) !important; border-radius: 10px !important; }
+        input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--ink) !important; outline-offset: 2px; }
+        .money-box.free { background: var(--ink) !important; border-color: var(--ink) !important; }
+        @media (max-width: 980px) {
+            .sidebar-menu button { min-width: 0 !important; padding: 10px 14px !important; }
         }
     </style>
 </head>
@@ -1075,7 +1150,7 @@
                     <summary>Indicadores del negocio: ganancia, márgenes, retorno e inventario</summary>
                 <div class="finance-cards">
                     <div class="stat-card primary">
-                        <h4>🏆 Ganancia neta realizada</h4>
+                        <h4>Ganancia neta realizada</h4>
                         <div class="value" id="stat-real-profit">$0</div>
                         <div class="sub-value">Ventas - costo de camisetas vendidas - gastos de venta.</div>
                         <div class="metric-meta">
@@ -1084,42 +1159,42 @@
                         </div>
                     </div>
                     <div class="stat-card income">
-                        <h4>💰 Ventas cobradas</h4>
+                        <h4>Ventas cobradas</h4>
                         <div class="value" id="stat-sales">$0</div>
                         <div class="sub-value">Solo ventas de producto del periodo.</div>
                     </div>
                     <div class="stat-card expense technical">
-                        <h4>👕 Costo producto vendido</h4>
+                        <h4>Costo producto vendido</h4>
                         <div class="value" id="stat-cogs">$0</div>
                         <div class="sub-value">Usa el costo USD asociado a cada venta.</div>
                     </div>
                     <div class="stat-card profit technical">
-                        <h4>💎 Ganancia antes de gastos</h4>
+                        <h4>Ganancia antes de gastos</h4>
                         <div class="value" id="stat-profit">$0</div>
                         <div class="sub-value" id="stat-gross-margin">Ventas - costo producto vendido.</div>
                     </div>
                     <div class="stat-card expense technical">
-                        <h4>📉 Gastos de venta</h4>
+                        <h4>Gastos de venta</h4>
                         <div class="value" id="stat-expense">$0</div>
                         <div class="sub-value">Envíos, empaques, publicidad, comisiones y varios.</div>
                     </div>
                     <div class="stat-card asset">
-                        <h4>📈 Retorno de inversión</h4>
+                        <h4>Retorno de inversión</h4>
                         <div class="value" id="stat-roi">$0</div>
                         <div class="sub-value" id="stat-roi-detail">Ventas cobradas - gastos operativos - inversión.</div>
                     </div>
                     <div class="stat-card caja">
-                        <h4>💵 Caja Física (Líquido)</h4>
+                        <h4>Caja Física (Líquido)</h4>
                         <div class="value" id="stat-caja">$0</div>
                         <div class="sub-value" id="stat-cash-detail">Total Entradas - Total Salidas. Debe ser igual a tus cuentas y efectivo.</div>
                     </div>
                     <div class="stat-card" style="border-color: #dc3545; background: #fff5f5;">
-                        <h4>💳 Deuda Tarjeta (Socios)</h4>
+                        <h4>Deuda Tarjeta (Socios)</h4>
                         <div class="value" id="stat-deuda" style="color: #dc3545;">$0</div>
                         <div class="sub-value">Deuda pendiente por inventario pagado con tarjeta personal.</div>
                     </div>
                     <div class="stat-card stock-val">
-                        <h4>📦 Inventario disponible</h4>
+                        <h4>Inventario disponible</h4>
                         <div class="value" id="stat-inv-val">$0</div>
                         <div class="sub-value" title="Ganancia potencial si se vende todo">Costo: <b id="stat-inv-cost">$0</b> · Ganancia potencial: <b id="stat-inv-prof">$0</b></div>
                     </div>
@@ -1131,12 +1206,12 @@
                     <div>
                         <div class="chart-grid">
                             <div class="chart-container" style="height:320px;">
-                                <h3>📊 Ganancia explicada</h3>
+                                <h3>Ganancia explicada</h3>
                                 <p class="chart-caption">La cascada muestra de dónde sale la utilidad: ventas, costo de producto, gastos y resultado neto.</p>
                                 <div class="chart-canvas-wrap"><canvas id="profitChart"></canvas></div>
                             </div>
                             <div class="chart-container" style="height:320px;">
-                                <h3>💵 Caja mensual</h3>
+                                <h3>Caja mensual</h3>
                                 <p class="chart-caption">Entradas y salidas de caja por mes, separado de la utilidad contable.</p>
                                 <div class="chart-canvas-wrap"><canvas id="cashChart"></canvas></div>
                             </div>
@@ -1144,13 +1219,13 @@
 
                         <div class="table-container dashboard-history">
                             <div class="section-head">
-                                <h3>📝 Historial de Transacciones</h3>
+                                <h3>Historial de Transacciones</h3>
                                 <div class="section-actions">
                                     <label class="transaction-search" for="transaction-search-input">
                                         <input id="transaction-search-input" type="search" placeholder="Buscar cliente, referencia, monto..." oninput="renderFinance()">
                                     </label>
                                     <span class="admin-chip" id="transactions-count-chip">0 movimientos</span>
-                                    <button class="btn-add" style="background:#198754; font-size:11px; padding:4px 8px;" onclick="exportToExcel()">📥 Exportar Excel (.csv)</button>
+                                    <button class="btn-add" style="background:#198754; font-size:11px; padding:4px 8px;" onclick="exportToExcel()">Exportar Excel (.csv)</button>
                                 </div>
                             </div>
                             <div class="dashboard-history-scroll table-scroll">
@@ -1175,14 +1250,14 @@
                     <!-- Derecha: Ingreso de Datos -->
                     <div>
                         <div class="form-container movement-panel" id="movement-panel">
-                            <h3>➕ Nuevo Movimiento</h3>
+                            <h3>Nuevo Movimiento</h3>
                             <form id="transForm" onsubmit="addTransaction(event)">
                                 <div class="movement-presets" aria-label="Acciones rápidas">
                                     <button type="button" class="movement-preset" data-preset="venta" onclick="setMovementPreset('venta')">Venta cobrada</button>
                                     <button type="button" class="movement-preset" data-preset="regalo" onclick="setMovementPreset('regalo')">Regalo / promo</button>
                                     <button type="button" class="movement-preset" data-preset="defectuoso" onclick="setMovementPreset('defectuoso')">Defectuosa</button>
-                                    <button type="button" class="movement-preset" data-preset="compra_tarjeta" onclick="setMovementPreset('compra_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💳 Compra Tarjeta</button>
-                                    <button type="button" class="movement-preset" data-preset="pago_tarjeta" onclick="setMovementPreset('pago_tarjeta')" style="border-color: #dc3545; color: #dc3545;">💵 Pago a Tarjeta</button>
+                                    <button type="button" class="movement-preset" data-preset="compra_tarjeta" onclick="setMovementPreset('compra_tarjeta')" style="border-color: #dc3545; color: #dc3545;">Compra Tarjeta</button>
+                                    <button type="button" class="movement-preset" data-preset="pago_tarjeta" onclick="setMovementPreset('pago_tarjeta')" style="border-color: #dc3545; color: #dc3545;">Pago a Tarjeta</button>
                                 </div>
                                 <div class="movement-hint" id="movement-hint">Elige una acción para que el admin prepare los campos correctos.</div>
                                 <div class="form-group">
@@ -1222,17 +1297,17 @@
                                 </div>
                                 <!-- BLOQUE INVENTARIO: aparece para ventas y salidas sin caja -->
                                 <div id="t-venta-group" class="inventory-movement-box" style="display:none;">
-                                    <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">🛍️ ¿Qué salió del inventario?</div>
+                                    <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">¿Qué salió del inventario?</div>
                                     <div id="t-items-list"></div>
                                     <button type="button" onclick="addVentaItem()" style="width:100%; padding:7px; background:#f9f3e3; border:1px dashed var(--gold); border-radius:6px; color:var(--gold); font-weight:700; font-size:12px; cursor:pointer; margin-top:4px;">+ Agregar otra camiseta</button>
                                     <input type="hidden" id="t-costo-usd" value="0">
                                 </div>
                                 <!-- Costos rapidos dentro del formulario -->
                                 <div class="quick-costs">
-                                    <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:8px; text-transform:uppercase;">📦 Agregar Envío o Caja (costos que asumiste tú)</div>
+                                    <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:8px; text-transform:uppercase;">Agregar Envío o Caja (costos que asumiste tú)</div>
                                     <div style="display:flex; flex-direction:column; gap:8px;">
                                         <div class="quick-cost-card">
-                                            <div style="font-size:11px; font-weight:700; margin-bottom:5px;">🚚 Envío</div>
+                                            <div style="font-size:11px; font-weight:700; margin-bottom:5px;">Envío</div>
                                             <div class="quick-cost-row">
                                                 <input type="number" id="quick-envio-monto" placeholder="Valor ($)" min="0" style="flex:1; font-size:12px; width:auto;">
                                                 <input type="text" id="quick-envio-desc" placeholder="Detalle (ej: Juan García)" style="flex:2; font-size:12px; width:auto;">
@@ -1240,7 +1315,7 @@
                                             </div>
                                         </div>
                                         <div class="quick-cost-card">
-                                            <div style="font-size:11px; font-weight:700; margin-bottom:5px;">📦 Caja</div>
+                                            <div style="font-size:11px; font-weight:700; margin-bottom:5px;">Caja</div>
                                             <div class="quick-cost-row">
                                                 <input type="number" id="quick-caja-monto" placeholder="Valor ($)" min="0" style="flex:1; font-size:12px; width:auto;">
                                                 <input type="text" id="quick-caja-desc" placeholder="Detalle (ej: Juan García)" style="flex:2; font-size:12px; width:auto;">
@@ -1349,7 +1424,7 @@
                     <div class="inventory-toolbar">
                         <div class="inventory-field inventory-search">
                             <label for="invSearchInput">Buscar referencia</label>
-                            <span>🔍</span>
+                            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
                             <input id="invSearchInput" type="search" placeholder="Nombre, categoría, descripción o ID..." oninput="renderInventory()">
                         </div>
                         <div class="inventory-field">
@@ -1399,9 +1474,9 @@
 
                     <div class="inv-tabs" style="display:flex; gap:10px; margin:20px 0 15px; border-bottom:2px solid #eee; padding-bottom:10px; overflow-x:auto;">
                         <button class="inv-tab active" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-all" onclick="setStockFilter('all', this)">Todas</button>
-                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-stock" onclick="setStockFilter('available', this)">✅ Con Stock</button>
-                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-empty" onclick="setStockFilter('empty', this)">❌ Agotadas</button>
-                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-low" onclick="setStockFilter('low', this)">⚠️ Bajo Stock</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-stock" onclick="setStockFilter('available', this)">Con Stock</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-empty" onclick="setStockFilter('empty', this)">Agotadas</button>
+                        <button class="inv-tab" style="background:none; border:none; padding:8px 16px; font-weight:700; color:#888; cursor:pointer; font-size:14px; border-radius:8px; transition:0.2s;" id="tab-low" onclick="setStockFilter('low', this)">Bajo Stock</button>
                         <style>
                             .inv-tab:hover { background:#f5f5f5; color:#333; }
                             .inv-tab.active { background:#111 !important; color:#fff !important; }
@@ -1433,27 +1508,27 @@
                         </select>
                     </div>
                     <a href="https://analytics.google.com" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#e37400;color:#fff;font-weight:700;font-size:0.85rem;padding:10px 18px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">
-                        📊 Ver Google Analytics
+                        Ver Google Analytics
                     </a>
                 </div>
                 <div class="finance-cards" id="analytics-cards">
                     <div class="stat-card" style="border-color:#6f42c1">
-                        <h4>👁️ Productos vistos (modal)</h4>
+                        <h4>Productos vistos (modal)</h4>
                         <div class="value" id="an-views">-</div>
                         <div class="sub-value">Últimos 30 días</div>
                     </div>
                     <div class="stat-card" style="border-color:#28a745">
-                        <h4>💬 Clicks WhatsApp</h4>
+                        <h4>Clicks WhatsApp</h4>
                         <div class="value" id="an-wa">-</div>
                         <div class="sub-value">Últimos 30 días</div>
                     </div>
                     <div class="stat-card" style="border-color:#17a2b8">
-                        <h4>🛒 Agregados a carrito</h4>
+                        <h4>Agregados a carrito</h4>
                         <div class="value" id="an-cart">-</div>
                         <div class="sub-value">Últimos 30 días</div>
                     </div>
                     <div class="stat-card" style="border-color:#fd7e14">
-                        <h4>📱 Visitas página</h4>
+                        <h4>Visitas página</h4>
                         <div class="value" id="an-pv">-</div>
                         <div class="sub-value">Últimos 30 días</div>
                     </div>
@@ -1477,11 +1552,11 @@
                 <div class="finance-layout">
                     <div>
                         <div class="chart-container" style="height:280px;">
-                            <h3>📊 Eventos por día (últimos 30 días)</h3>
+                            <h3>Eventos por día (últimos 30 días)</h3>
                             <canvas id="analyticsChart"></canvas>
                         </div>
                         <div class="table-container">
-                            <h3>🏆 Top Productos — más vistos (modal)</h3>
+                            <h3>Top Productos — más vistos (modal)</h3>
                             <table class="fin-table">
                                 <thead><tr><th>#</th><th>Camiseta</th><th>Categoría</th><th style="text-align:right">Vistas</th><th style="text-align:right">WhatsApp</th><th style="text-align:right">Conversión</th></tr></thead>
                                 <tbody id="an-top-body"></tbody>
@@ -1490,14 +1565,14 @@
                     </div>
                     <div>
                         <div class="table-container">
-                            <h3>🔥 Top — más clickeados (WhatsApp)</h3>
+                            <h3>Top — más clickeados (WhatsApp)</h3>
                             <table class="fin-table">
                                 <thead><tr><th>#</th><th>Camiseta</th><th style="text-align:right">Clicks</th></tr></thead>
                                 <tbody id="an-wa-body"></tbody>
                             </table>
                         </div>
                         <div class="table-container">
-                            <h3>📅 Visitas recientes</h3>
+                            <h3>Visitas recientes</h3>
                             <table class="fin-table">
                                 <thead><tr><th>Fecha</th><th>Evento</th><th>Producto</th></tr></thead>
                                 <tbody id="an-recent-body"></tbody>
@@ -1515,7 +1590,7 @@
                     <!-- Panel izquierdo: Importar -->
                     <div>
                         <div class="form-container">
-                            <h3>📥 Importar álbum Yupoo</h3>
+                            <h3>Importar álbum Yupoo</h3>
                             <div class="form-group">
                                 <label>URL del álbum Yupoo</label>
                                 <input type="url" id="pva-url" placeholder="https://helen.x.yupoos.com/albums/12345678">
@@ -1532,13 +1607,13 @@
                             <div style="display:flex; gap:10px; align-items:center;">
                                 <input type="number" id="pva-max" value="8" min="1" max="20" style="width:70px;" title="Máx. fotos a descargar">
                                 <label style="font-size:11px;color:#666;margin:0;">fotos máx</label>
-                                <button class="btn-save" onclick="pvaImportar()" id="pva-import-btn" style="margin-left:auto;">📥 Importar fotos</button>
+                                <button class="btn-save" onclick="pvaImportar()" id="pva-import-btn" style="margin-left:auto;">Importar fotos</button>
                             </div>
                             <div id="pva-status" class="pv-import-status" style="color:#666;"></div>
                         </div>
 
                         <div class="form-container" id="pva-meta-panel" style="display:none;">
-                            <h3>✏️ Metadata de la referencia</h3>
+                            <h3>Metadata de la referencia</h3>
 
                             <div id="pva-thumbs" class="pv-thumb-grid"></div>
                             <p style="font-size:11px;color:#888;margin:6px 0 14px;">Clic en ✕ para excluir una foto. Se guardan solo las no excluidas (en el orden mostrado).</p>
@@ -1616,8 +1691,8 @@
                             </div>
 
                             <div style="display:flex;gap:10px;margin-top:14px;">
-                                <button class="btn-save" onclick="pvaGuardar(false)" id="pva-save-draft-btn">💾 Guardar borrador</button>
-                                <button class="btn-add" onclick="pvaGuardar(true)" id="pva-save-pub-btn">🚀 Guardar y publicar</button>
+                                <button class="btn-save" onclick="pvaGuardar(false)" id="pva-save-draft-btn">Guardar borrador</button>
+                                <button class="btn-add" onclick="pvaGuardar(true)" id="pva-save-pub-btn">Guardar y publicar</button>
                                 <button onclick="pvaCancelar()" style="margin-left:auto;background:none;border:1px solid #ccc;padding:8px 14px;border-radius:5px;cursor:pointer;font-size:12px;">Cancelar</button>
                             </div>
                         </div>
@@ -1627,7 +1702,7 @@
                     <div>
                         <div class="table-container">
                             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:12px;">
-                                <h3 style="margin:0;border:none;padding:0;">📋 Referencias en catálogo</h3>
+                                <h3 style="margin:0;border:none;padding:0;">Referencias en catálogo</h3>
                                 <button class="btn-save" onclick="pvaCargarLista()" style="padding:5px 10px;font-size:11px;">↻ Actualizar</button>
                             </div>
                             <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
@@ -1670,7 +1745,7 @@
             <div id="view-pedidos" class="view-section">
                 <!-- Sub-Navegación Visual -->
                 <div class="admin-subtabs">
-                    <button onclick="setPedidosSubTab('crm')" id="subtab-crm" class="btn-save" style="background:var(--gold); border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">🗃️ Cuentas y Entregas (CRM)</button>
+                    <button onclick="setPedidosSubTab('crm')" id="subtab-crm" class="btn-save" style="background:var(--gold); border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">Cuentas y Entregas (CRM)</button>
                     <button onclick="setPedidosSubTab('import')" id="subtab-import" style="background:#e0e0e0; color:#333; border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">Carga manual de lote (sin fotos)</button>
                 </div>
 
@@ -1679,17 +1754,17 @@
                     <!-- Tarjetas de Métricas -->
                     <div class="finance-cards" style="margin-bottom:25px;">
                         <div class="stat-card" style="border-top-color:var(--danger); background:#fff5f5;">
-                            <h4>💵 Cuentas por Cobrar (Clientes)</h4>
+                            <h4>Cuentas por Cobrar (Clientes)</h4>
                             <div class="value" id="stat-pedidos-por-cobrar" style="color:var(--danger);">$0</div>
                             <div class="sub-value">Total de dinero pendiente por cobrar a amigos de confianza.</div>
                         </div>
                         <div class="stat-card" style="border-top-color:var(--gold); background:#fffdf5;">
-                            <h4>📦 Pendientes de Entrega</h4>
+                            <h4>Pendientes de Entrega</h4>
                             <div class="value" id="stat-pedidos-pendientes-entrega" style="color:#8a6d3b;">0 uds</div>
                             <div class="sub-value">Camisetas separadas y listas para entregar físicamente.</div>
                         </div>
                         <div class="stat-card" style="border-top-color:var(--success); background:#f5fff6;">
-                            <h4>💰 Recaudado por Preventas</h4>
+                            <h4>Recaudado por Preventas</h4>
                             <div class="value" id="stat-pedidos-recaudado" style="color:var(--success);">$0</div>
                             <div class="sub-value">Dinero cobrado por preventas de lotes registrados.</div>
                         </div>
@@ -1697,13 +1772,13 @@
 
                     <!-- Buscador y Filtros Sencillos -->
                     <div class="quick-state-tabs" style="display:flex; gap:10px; margin-bottom:10px; padding:0 15px;">
-                        <button id="qtab-all" onclick="setQuickFilter('all')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#fff; color:#333; border:2px solid #198754; font-weight:700;">📑 Todos</button>
-                        <button id="qtab-deuda" onclick="setQuickFilter('Pendiente')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">🔴 Con Deuda</button>
-                        <button id="qtab-pagado" onclick="setQuickFilter('Pagado')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">🟢 Pagados</button>
+                        <button id="qtab-all" onclick="setQuickFilter('all')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#fff; color:#333; border:2px solid #198754; font-weight:700;">Todos</button>
+                        <button id="qtab-deuda" onclick="setQuickFilter('Pendiente')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">Con Deuda</button>
+                        <button id="qtab-pagado" onclick="setQuickFilter('Pagado')" class="btn-save" style="padding:6px 12px; font-size:12px; background:#f1f3f5; color:#666; border:1px solid #dee2e6;">Pagados</button>
                     </div>
                     <div class="table-container crm-filterbar" style="padding:15px; margin-bottom:20px;">
                         <div style="flex:2; min-width:200px; position:relative;">
-                            <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none;">🔍</span>
+                            <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
                             <input type="text" id="pedidos-search" placeholder="Busca por cliente o camiseta..." oninput="resetPedidosPageAndRender()" style="padding-left:32px; font-size:13px;">
                         </div>
                         <div style="flex:1; min-width:120px;">
@@ -1759,7 +1834,7 @@
 
                     <!-- Tabla de Clientes y Pedidos -->
                     <div class="table-container">
-                        <h3>📋 Control General de Entregas y Pagos</h3>
+                        <h3>Control General de Entregas y Pagos</h3>
                         <div class="table-scroll">
                             <table class="fin-table" style="width:100%;">
                                 <thead>
@@ -1803,7 +1878,7 @@
                         <button type="button" class="btn-add" onclick="abrirCargador()">Abrir el cargador</button>
                     </div>
                     <div class="form-container lote-step" style="margin-bottom:20px;">
-                        <h3>📥 Cargar Lote Completo (Stock y Preventa)</h3>
+                        <h3>Cargar Lote Completo (Stock y Preventa)</h3>
                         <p style="font-size:12px; color:#666; margin-top:-6px; margin-bottom:15px; line-height:1.4;">
                             Aquí puedes registrar el pedido que acabas de recibir de tu proveedor. Sigue las instrucciones paso a paso.
                         </p>
@@ -1825,7 +1900,7 @@
 
                         <div class="form-group lote-import-box">
                             <label style="font-weight:700; color:#111; display:flex; align-items:center; gap:6px;">
-                                📋 3. Importación Rápida desde Excel
+                                3. Importación Rápida desde Excel
                             </label>
                             <p style="font-size:11px; color:#666; margin:4px 0 10px; line-height:1.35;">
                                 Abre tu Excel de pedido, selecciona las columnas (desde **SIZE** hasta **DESTINO**) de tus camisetas y cópialas (Ctrl+C).
@@ -1833,7 +1908,7 @@
                             </p>
                             <textarea id="lote-excel-paste" rows="5" placeholder="Pega tus celdas de Excel aquí..." style="font-family:monospace; font-size:12px; padding:10px; width:100%; border:1px solid #ccc; border-radius:6px; background:#fff;" oninput="onExcelPasteInput()"></textarea>
                             <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                                <button type="button" class="btn-add" style="background:#198754; font-size:12px;" onclick="procesarPegadoExcel()">⚡ Procesar Celdas de Excel</button>
+                                <button type="button" class="btn-add" style="background:#198754; font-size:12px;" onclick="procesarPegadoExcel()">Procesar Celdas de Excel</button>
                                 <button type="button" class="btn-save" style="background:#6c757d; font-size:12px;" onclick="limpiarPegadoExcel()">Borrar</button>
                             </div>
                         </div>
@@ -1842,7 +1917,7 @@
                     <!-- Vista previa del Lote procesado -->
                     <div class="table-container lote-step" style="border-top:4px solid var(--gold);">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
-                            <h3 style="margin:0; border:none; padding:0;">🔍 4. Previsualización del Lote a Registrar</h3>
+                            <h3 style="margin:0; border:none; padding:0;">4. Previsualización del Lote a Registrar</h3>
                             <button type="button" class="btn-save" style="font-size:12px; background:#495057; color:#fff;" onclick="agregarFilaManualLote()">+ Agregar Camiseta Manual</button>
                         </div>
 
@@ -1890,7 +1965,7 @@
                         <!-- Botón de Guardado -->
                         <div class="lote-action-footer" style="border-top:1px solid #eee; margin-top:20px; display:flex; justify-content:flex-end;">
                             <button type="button" class="btn-add" id="btn-guardar-lote" style="padding:12px 30px; font-size:14px; background:#198754; box-shadow:0 4px 6px rgba(0,0,0,0.15);" onclick="guardarLoteCompleto()">
-                                🚀 Procesar y Guardar Lote Completo
+                                Procesar y Guardar Lote Completo
                             </button>
                         </div>
                     </div>
@@ -1904,7 +1979,7 @@
     <div id="editModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:white; border-radius:10px; padding:30px; width:460px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:16px;">✏️ Editar Transacción</h3>
+                <h3 style="margin:0; font-size:16px;">Editar Transacción</h3>
                 <button onclick="closeEditModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#666;">×</button>
             </div>
             <div class="form-group">
@@ -1931,7 +2006,7 @@
                 <textarea id="e-desc" rows="2"></textarea>
             </div>
             <div class="form-group" id="e-costo-group" style="display:none; background:#fffbf0; padding:10px; border-radius:6px; border:1px solid #f0d080;">
-                <label style="color:#b8860b;">💰 Costo del producto en USD</label>
+                <label style="color:#b8860b;">Costo del producto en USD</label>
                 <input type="number" id="e-costo-usd" min="0" step="0.01" placeholder="Ej: 10.44">
                 <small style="color:#888; margin-top:4px; display:block;">Actualiza esto para corregir el margen de ganancia</small>
             </div>
@@ -2251,7 +2326,7 @@
             div.innerHTML = `
                 ${idx > 0 ? `<button type="button" onclick="removeVentaItem(${idx})" style="position:absolute;top:6px;right:8px;background:none;border:none;color:#c0392b;font-size:16px;cursor:pointer;">✕</button>` : ''}
                 <div style="position:relative; margin-bottom:6px;">
-                    <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none;">🔍</span>
+                    <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
                     <input type="text" id="vi-search-${idx}" autocomplete="off" placeholder="Busca la camiseta..."
                         style="padding-left:30px;width:100%;box-sizing:border-box;font-size:13px;"
                         oninput="filterVI(${idx})" onfocus="filterVI(${idx})" onblur="hideVI(${idx})">
@@ -2582,7 +2657,7 @@
                     <td style="text-align:right; font-weight:700; color:${margenColor}">${margenStr}</td>
                     <td style="text-align:right; font-weight:900; color:${c}">${precioVentaStr !== '--' ? precioVentaStr : s+formatter.format(t.monto)}</td>
                     <td style="display:flex; gap:4px;">
-                        <button style="background:#6f42c1; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;" onclick="openEditModal('${t.id}')">✏️</button>
+                        <button style="background:#6f42c1; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;" onclick="openEditModal('${t.id}')">Editar</button>
                         <button class="btn-danger" onclick="delTrans('${t.id}')">x</button>
                     </td>
                 </tr>`;
@@ -3519,7 +3594,7 @@
                     <td style="text-transform:capitalize;">${r.tipo}</td>
                     <td>${pub}${dest}</td>
                     <td style="white-space:nowrap;">
-                        <button class="btn-save" onclick="pvaEditar('${r.id}')" style="padding:3px 8px;font-size:10px;margin-right:4px;">✏️</button>
+                        <button class="btn-save" onclick="pvaEditar('${r.id}')" style="padding:3px 8px;font-size:10px;margin-right:4px;">Editar</button>
                         <button onclick="pvaTogglePub('${r.id}', ${r.publicado})" style="background:${r.publicado?'#6c757d':'#28a745'};color:white;border:none;padding:3px 8px;font-size:10px;border-radius:4px;cursor:pointer;margin-right:4px;">${r.publicado?'Ocultar':'Publicar'}</button>
                         <button class="btn-danger" onclick="pvaEliminar('${r.id}')">🗑️</button>
                     </td>
@@ -3879,16 +3954,16 @@
                     <td>${p.fecha_pedido || ''}</td>
                     <td><small style="color:#666; font-weight:700;">${p.lote_codigo || 'Manual'}</small></td>
                     <td style="font-weight:700;">
-                        👤 ${p.cliente}
+                        ${p.cliente}
                         <span style="cursor:pointer; font-size:10px; margin-left:4px; opacity:0.6;" onclick="editarClientePedido(${p.id}, '${clienteSafe}')" title="Editar Nombre del Cliente">✏️</span>
                     </td>
                     <td><span class="badge" style="background:#555;">${p.canal}</span></td>
-                    <td style="min-width: 200px; max-width: 300px; white-space: normal; line-height: 1.3;" title="${p.equipo}">👕 ${p.equipo}</td>
+                    <td style="min-width: 200px; max-width: 300px; white-space: normal; line-height: 1.3;" title="${p.equipo}">${p.equipo}</td>
                     <td style="text-align:center;">
                         ${displayImg ? `<img src="${displayImg}" style="width:40px; height:50px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="window.open('${displayImg}', '_blank')">` : '<span style="font-size:10px; color:#aaa;">Sin foto</span>'}
                         <div style="margin-top:4px;">
                             <label style="cursor:pointer; font-size:10px; opacity:0.7; font-weight:700;" title="Subir foto desde tu dispositivo">
-                                ✏️ Foto
+                                Foto
                                 <input type="file" accept="image/*" style="display:none;" onchange="subirFotoPedidoManual(event, ${p.id})">
                             </label>
                         </div>
@@ -3909,8 +3984,8 @@
                     <td style="text-align:center;">
                         <div class="pedido-actions">                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="registrarPagoPedido(${p.id})" title="Sumar pago solo a esta camiseta">+ Pago</button>` : ''}
                             <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="editarAbonoPedido(${p.id})" title="Editar abono total registrado">Editar abono</button>                            ${payState.saldo > 0 ? `<button class="btn-save" style="padding:4px 8px; font-size:10px; background:#f1f3f5; color:#343a40; border:1px solid #dee2e6; font-weight:600;" onclick="registrarAbonoClienteDesdePedido(${p.id})" title="Repartir un abono del cliente en sus pedidos">Abono cliente</button>` : ''}
-                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#e3f2fd; color:#0d6efd; border:1px solid #b6d4fe; font-weight:600;" onclick="moverPedidoAStock(${p.id})" title="Mover físicamente esta unidad al inventario disponible">📦 Mover a Stock</button>
-                            <button class="btn-danger" style="padding:4px 8px; font-size:10px; background:#fff5f5; color:#c92a2a; border:1px solid #ffe3e3; font-weight:600;" onclick="eliminarPedido(${p.id})">🗑️ Borrar</button>
+                            <button class="btn-save" style="padding:4px 8px; font-size:10px; background:#e3f2fd; color:#0d6efd; border:1px solid #b6d4fe; font-weight:600;" onclick="moverPedidoAStock(${p.id})" title="Mover físicamente esta unidad al inventario disponible">Mover a Stock</button>
+                            <button class="btn-danger" style="padding:4px 8px; font-size:10px; background:#fff5f5; color:#c92a2a; border:1px solid #ffe3e3; font-weight:600;" onclick="eliminarPedido(${p.id})">Borrar</button>
                         </div>
                     </td>
                 `;
@@ -4967,8 +5042,8 @@
 
                 const optionsDestino = `
                     <select onchange="updateLoteItem(${idx}, 'destino', this.value)" style="font-size:12px; padding:4px;">
-                        <option value="STOCK" ${item.destino === 'STOCK' ? 'selected' : ''}>📦 STOCK</option>
-                        <option value="PREVENTA" ${item.destino === 'PREVENTA' ? 'selected' : ''}>👤 PREVENTA</option>
+                        <option value="STOCK" ${item.destino === 'STOCK' ? 'selected' : ''}>STOCK</option>
+                        <option value="PREVENTA" ${item.destino === 'PREVENTA' ? 'selected' : ''}>PREVENTA</option>
                     </select>
                 `;
 
@@ -5068,7 +5143,7 @@
                             ${item.prodId ? 'Fotos existentes' : unresolvedDuplicate ? 'Decide primero' : ((item.aiData && item.aiData.imagenes_aprobadas) ? 'Fotos aprobadas' : 'Fotos pendientes')}
                         </div>
                         <div style="text-align:center;">
-                            <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">✕ Eliminar Fila</button>
+                            <button type="button" class="btn-danger" style="background:#c0392b; padding:4px 6px; font-size:10px; font-weight:bold; vertical-align:middle;" onclick="removerFilaLote(${idx})">Eliminar Fila</button>
                         </div>
                     </td>
                 `;

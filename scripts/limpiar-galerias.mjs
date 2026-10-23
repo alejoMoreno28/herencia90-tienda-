@@ -19,11 +19,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
-import { medirMascara, esCamisetaEntera } from '../api/process-photo.mjs';
+import { medirMascara, esCamisetaEntera, pareceCamiseta } from '../api/process-photo.mjs';
 import { alphaStats, buildSquareAssetBuffer, MASTER_SIZE, CARD_SIZE, MASTER_FIT, CARD_FIT } from './preventa-square-assets.mjs';
 
 const PHOTO_SERVICE = process.env.PHOTO_SERVICE_URL || 'http://127.0.0.1:5055';
 const BUCKET = 'product-images';
+const RECORTE_CLIP_MINIMO = 0.5;
 const SITE = 'https://www.herencia90.shop';
 const [dir, flag] = process.argv.slice(2);
 if (!dir) throw new Error('uso: limpiar-galerias.mjs <dir> [--aplicar]');
@@ -69,6 +70,13 @@ async function ladosCubiertos(buffer) {
 async function estadoDe(buffer) {
   const stats = await alphaStats(buffer);
   if (stats.transparentRatio < 0.05) return 'fondo';
+  // Un proceso viejo guardaba la foto con su fondo original encuadrada dentro
+  // de un margen transparente: parece recortada, pero adentro es un rectangulo
+  // lleno. Se trata como foto con fondo.
+  const { solidez, costado, arribaYAbajo } = await medirMascara(buffer);
+  if (solidez >= 0.97) return 'fondo';
+  // Un acercamiento ya recortado guarda el corte recto del cuadro: misma regla del cargador.
+  if (!esCamisetaEntera({ recortada: true, bordeOpaco: 0, proporcion: 1, ancho: 1, costado, arribaYAbajo })) return 'cortada';
   const lados = await ladosCubiertos(buffer);
   // [arriba, abajo, izquierda, derecha]: la camiseta entera no se sale por los costados.
   const porLosCostados = lados[2] > 0.15 || lados[3] > 0.15;
@@ -118,6 +126,11 @@ if (!aplicar) {
       try {
         const original = await bajar(urlDe(imagen));
         const estado = await estadoDe(original);
+        if (estado === 'limpia' && !(await pareceCamiseta(original))) {
+          pasos.push({ imagen, accion: 'sacar' });
+          celdas.push({ buffer: original, texto: `#${i} se saca (detalle)`, color: '#a1281e' });
+          continue;
+        }
         if (estado === 'limpia') {
           pasos.push({ imagen, accion: 'queda' });
           celdas.push({ buffer: original, texto: `#${i} queda`, color: '#1f6b3a' });
@@ -129,8 +142,10 @@ if (!aplicar) {
           continue;
         }
         const r = await quitarFondo(original);
-        const { ancho } = r.recortada ? await medirMascara(r.buffer) : { ancho: 0 };
-        if (esCamisetaEntera({ ...r, ancho })) {
+        const medidas = r.recortada ? await medirMascara(r.buffer) : { ancho: 0 };
+        // Un recorte nuevo pide mas seguridad: un acercamiento de manga o cuello
+        // sin fondo se parece a una camiseta y en la galeria se ve como un pedazo.
+        if (esCamisetaEntera({ ...r, ...medidas }) && await pareceCamiseta(r.buffer, RECORTE_CLIP_MINIMO)) {
           const archivo = path.join(dir, `${p.id}-${i}.png`);
           fs.writeFileSync(archivo, r.buffer);
           pasos.push({ imagen, accion: 'recortar', archivo });
@@ -155,7 +170,7 @@ if (!aplicar) {
   console.log(`\nListo: ${cambian.length} productos cambian, ${plan.length - cambian.length} ya estaban limpios. Plan en ${planPath}`);
 } else {
   const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-  const respaldo = path.join('backups', `galerias-antes-${new Date().toISOString().slice(0, 10)}.json`);
+  const respaldo = path.join('backups', `galerias-antes-${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.json`);
   fs.writeFileSync(respaldo, JSON.stringify(productos.map((p) => ({ id: p.id, equipo: p.equipo, imagenes: p.imagenes })), null, 2));
   console.log(`Respaldo de galerias en ${respaldo}`);
   const ts = Date.now();
