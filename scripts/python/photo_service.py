@@ -147,6 +147,53 @@ def health():
     })
 
 
+# Un acercamiento al escudo, una vez sin fondo, queda flotando solo y llena el
+# cuadro: las medidas de la silueta (borde libre, ancho) no lo separan de una
+# camiseta entera. CLIP si: se le pregunta cual de estas descripciones encaja
+# mejor y se suman las de cada lado.
+_CAMISETA_TEXTOS = [
+    "a photo of a complete football shirt with both sleeves",
+    "a whole soccer jersey, front view",
+    "a whole soccer jersey, back view",
+    "a long sleeve football shirt",
+]
+_DETALLE_TEXTOS = [
+    "a close-up of an embroidered football club badge",
+    "a close-up of a sponsor logo",
+    "a close-up of a brand logo patch",
+    "a close-up of shirt fabric or a label",
+    "a close-up of a shirt sleeve",
+    "a close-up of a shirt collar",
+    "a cropped part of a football shirt",
+]
+_textos_feat = None
+
+
+def _textos():
+    global _textos_feat
+    if _textos_feat is None:
+        tokenizer = open_clip.get_tokenizer('ViT-B-32')
+        with torch.no_grad():
+            t = _clip_model.encode_text(tokenizer(_CAMISETA_TEXTOS + _DETALLE_TEXTOS).to(device))
+            _textos_feat = t / t.norm(dim=-1, keepdim=True)
+    return _textos_feat
+
+
+@app.route("/es-camiseta", methods=["POST"])
+def es_camiseta():
+    data = request.get_json(force=True) or {}
+    raw = base64.b64decode(data.get("image_b64", ""))
+    img = Image.open(io.BytesIO(raw)).convert("RGBA")
+    # Sobre blanco: el recorte trae fondo transparente y CLIP espera una foto.
+    fondo = Image.new("RGBA", img.size, (255, 255, 255, 255))
+    foto = Image.alpha_composite(fondo, img).convert("RGB")
+    with _lock:
+        feat = _embed(foto)
+        probs = (100.0 * feat @ _textos().T).softmax(dim=-1)[0].tolist()
+    camiseta = sum(probs[:len(_CAMISETA_TEXTOS)])
+    return jsonify({"camiseta": round(camiseta, 4), "esCamiseta": camiseta >= 0.5})
+
+
 @app.route("/compare", methods=["POST"])
 def compare():
     """

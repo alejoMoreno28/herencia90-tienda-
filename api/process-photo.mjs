@@ -169,6 +169,32 @@ async function coloresEnElPecho(buffer) {
  * empieza por los detalles de la tela y la etiqueta, la ficha podia terminar
  * sin una sola foto de la camiseta entera.
  */
+/**
+ * Segunda opinion de CLIP: un acercamiento al escudo o a un logo, una vez sin
+ * fondo, queda flotando solo y llena el cuadro, y las medidas de la silueta lo
+ * toman por camiseta entera (asi se colaron Bayern, Colombia, Manchester United
+ * y Spotify en la limpieza de galerias del 23 de octubre). CLIP los separa: los
+ * escudos dieron menos de 0.03 y las camisetas mas de 0.48.
+ *
+ * Si el servicio no tiene la consulta (version vieja) se deja pasar la foto,
+ * para no frenar el cargador.
+ */
+const CAMISETA_CLIP_MINIMO = 0.2;
+export async function pareceCamiseta(buffer, minimo = CAMISETA_CLIP_MINIMO) {
+  try {
+    const res = await fetch(`${PHOTO_SERVICE}/es-camiseta`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_b64: buffer.toString('base64') }),
+    });
+    if (!res.ok) return true;
+    const { camiseta } = await res.json();
+    return typeof camiseta !== 'number' || camiseta >= minimo;
+  } catch {
+    return true;
+  }
+}
+
 /** Es la camiseta entera, recortada limpia: la unica que se publica. */
 export function esCamisetaEntera({ recortada, bordeOpaco, proporcion, ancho }) {
   return !!recortada
@@ -197,7 +223,7 @@ async function ordenarParaLaFicha(fotos, { aMano = false } = {}) {
     // nada. Solo se pide que el recorte haya salido limpio, sin tocar el borde.
     const sirve = aMano
       ? foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX
-      : esCamisetaEntera({ ...foto, ancho });
+      : esCamisetaEntera({ ...foto, ancho }) && await pareceCamiseta(foto.buffer);
     if (sirve) completas.push({ ...foto, ancho, publicar: foto.buffer, sinFondo: true });
   }
 
