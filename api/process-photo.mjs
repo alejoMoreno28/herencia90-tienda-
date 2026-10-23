@@ -71,6 +71,9 @@ const OCUPACION_MINIMA = 0.28;
  *   solidez            que tanto de su caja llena (una camiseta, ~0.6-0.8)
  *   hombrosSobreRuedo  ancho a la altura de las mangas dividido por el ancho
  *                      en el ruedo: la camiseta es una T, asi que da > 1.
+ *   costado            cuanto del lado izquierdo o derecho de su caja cubre la
+ *                      prenda (el mayor de los dos)
+ *   arribaYAbajo       lo mismo arriba y abajo, el menor de los dos
  */
 export async function medirMascara(buffer) {
   const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -85,7 +88,7 @@ export async function medirMascara(buffer) {
       if (y < minY) minY = y; if (y > maxY) maxY = y;
     }
   }
-  if (maxX < 0) return { ancho: 0, alto: 0, solidez: 0, hombrosSobreRuedo: 0 };
+  if (maxX < 0) return { ancho: 0, alto: 0, solidez: 0, hombrosSobreRuedo: 0, costado: 0, arribaYAbajo: 0 };
   const bw = maxX - minX + 1; const bh = maxY - minY + 1;
   const anchoFila = (y) => {
     let a = -1; let b = -1;
@@ -94,7 +97,16 @@ export async function medirMascara(buffer) {
   };
   const hombros = Math.max(...[0.2, 0.25, 0.3].map((f) => anchoFila(Math.round(minY + bh * f))));
   const ruedo = Math.max(1, anchoFila(Math.round(minY + bh * 0.9)));
-  return { ancho: bw / w, alto: bh / h, solidez: fg / (bw * bh), hombrosSobreRuedo: hombros / ruedo };
+  // Franja de 1% de cada lado de la caja.
+  const franja = Math.max(2, Math.round(Math.min(bw, bh) * 0.01));
+  const cubre = (x0, x1, y0, y1) => {
+    let total = 0; let opacos = 0;
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { total++; if (opaco(x, y)) opacos++; }
+    return opacos / total;
+  };
+  const costado = Math.max(cubre(minX, minX + franja - 1, minY, maxY), cubre(maxX - franja + 1, maxX, minY, maxY));
+  const arribaYAbajo = Math.min(cubre(minX, maxX, minY, minY + franja - 1), cubre(minX, maxX, maxY - franja + 1, maxY));
+  return { ancho: bw / w, alto: bh / h, solidez: fg / (bw * bh), hombrosSobreRuedo: hombros / ruedo, costado, arribaYAbajo };
 }
 
 async function removeBackground(rawBuffer) {
@@ -195,12 +207,22 @@ export async function pareceCamiseta(buffer, minimo = CAMISETA_CLIP_MINIMO) {
   }
 }
 
+// Un acercamiento recortado conserva el corte recto del cuadro donde la tela
+// seguia: un costado entero de su caja queda cubierto, o la tela llena de arriba
+// abajo. En la camiseta entera la caja la tocan apenas las puntas de las mangas
+// y el ruedo. Medido en la limpieza del 23 de octubre: camisetas enteras hasta
+// 0.19 de costado, acercamientos de manga, cuello y pecho desde 0.43.
+const COSTADO_MAXIMO = 0.3;
+const ARRIBA_Y_ABAJO_MAXIMO = 0.5;
+
 /** Es la camiseta entera, recortada limpia: la unica que se publica. */
-export function esCamisetaEntera({ recortada, bordeOpaco, proporcion, ancho }) {
+export function esCamisetaEntera({ recortada, bordeOpaco, proporcion, ancho, costado, arribaYAbajo }) {
   return !!recortada
     && bordeOpaco != null && bordeOpaco <= BORDE_LIBRE_MAX
     && proporcion != null && proporcion >= OCUPACION_MINIMA
-    && ancho != null && ancho >= ANCHO_MINIMO;
+    && ancho != null && ancho >= ANCHO_MINIMO
+    && !(costado >= COSTADO_MAXIMO)
+    && !(arribaYAbajo > ARRIBA_Y_ABAJO_MAXIMO);
 }
 
 async function ordenarParaLaFicha(fotos, { aMano = false } = {}) {
@@ -217,13 +239,14 @@ async function ordenarParaLaFicha(fotos, { aMano = false } = {}) {
     if (vistas.has(huella)) continue;
     vistas.add(huella);
     if (!foto.recortada) continue;
-    const { ancho } = await medirMascara(foto.buffer);
+    const medidas = await medirMascara(foto.buffer);
+    const { ancho } = medidas;
     // Las que eligio la persona ya son camisetas enteras: no hay escudo suelto
     // que filtrar, y como pueden venir cuadradas y con margen, el ancho no dice
     // nada. Solo se pide que el recorte haya salido limpio, sin tocar el borde.
     const sirve = aMano
       ? foto.bordeOpaco != null && foto.bordeOpaco <= BORDE_LIBRE_MAX
-      : esCamisetaEntera({ ...foto, ancho }) && await pareceCamiseta(foto.buffer);
+      : esCamisetaEntera({ ...foto, ...medidas }) && await pareceCamiseta(foto.buffer);
     if (sirve) completas.push({ ...foto, ancho, publicar: foto.buffer, sinFondo: true });
   }
 

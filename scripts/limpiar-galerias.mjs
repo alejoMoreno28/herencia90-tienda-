@@ -73,8 +73,10 @@ async function estadoDe(buffer) {
   // Un proceso viejo guardaba la foto con su fondo original encuadrada dentro
   // de un margen transparente: parece recortada, pero adentro es un rectangulo
   // lleno. Se trata como foto con fondo.
-  const { solidez } = await medirMascara(buffer);
+  const { solidez, costado, arribaYAbajo } = await medirMascara(buffer);
   if (solidez >= 0.97) return 'fondo';
+  // Un acercamiento ya recortado guarda el corte recto del cuadro: misma regla del cargador.
+  if (!esCamisetaEntera({ recortada: true, bordeOpaco: 0, proporcion: 1, ancho: 1, costado, arribaYAbajo })) return 'cortada';
   const lados = await ladosCubiertos(buffer);
   // [arriba, abajo, izquierda, derecha]: la camiseta entera no se sale por los costados.
   const porLosCostados = lados[2] > 0.15 || lados[3] > 0.15;
@@ -140,10 +142,10 @@ if (!aplicar) {
           continue;
         }
         const r = await quitarFondo(original);
-        const { ancho } = r.recortada ? await medirMascara(r.buffer) : { ancho: 0 };
+        const medidas = r.recortada ? await medirMascara(r.buffer) : { ancho: 0 };
         // Un recorte nuevo pide mas seguridad: un acercamiento de manga o cuello
         // sin fondo se parece a una camiseta y en la galeria se ve como un pedazo.
-        if (esCamisetaEntera({ ...r, ancho }) && await pareceCamiseta(r.buffer, RECORTE_CLIP_MINIMO)) {
+        if (esCamisetaEntera({ ...r, ...medidas }) && await pareceCamiseta(r.buffer, RECORTE_CLIP_MINIMO)) {
           const archivo = path.join(dir, `${p.id}-${i}.png`);
           fs.writeFileSync(archivo, r.buffer);
           pasos.push({ imagen, accion: 'recortar', archivo });
@@ -168,7 +170,7 @@ if (!aplicar) {
   console.log(`\nListo: ${cambian.length} productos cambian, ${plan.length - cambian.length} ya estaban limpios. Plan en ${planPath}`);
 } else {
   const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-  const respaldo = path.join('backups', `galerias-antes-${new Date().toISOString().slice(0, 10)}.json`);
+  const respaldo = path.join('backups', `galerias-antes-${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.json`);
   fs.writeFileSync(respaldo, JSON.stringify(productos.map((p) => ({ id: p.id, equipo: p.equipo, imagenes: p.imagenes })), null, 2));
   console.log(`Respaldo de galerias en ${respaldo}`);
   const ts = Date.now();

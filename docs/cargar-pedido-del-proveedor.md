@@ -453,12 +453,15 @@ solo para **medir**: el recorte se usa o se descarta despues.
 | `borde_opaco` | cuanto del borde de la imagen quedo opaco. Si se ve la prenda entera hay fondo alrededor y el borde queda vacio; en un acercamiento la tela se sale por los lados |
 | `proporcion` | cuanto de la imagen quedo opaco en total |
 | `ancho` | cuanto del ancho de la foto abarca la silueta (`medirMascara`) |
+| `costado`, `arribaYAbajo` | cuanto cubre la prenda los lados de su propia caja. Un acercamiento recortado guarda el corte recto del cuadro |
 
 **Nunca se publica una foto con fondo.** Solo va a la tienda la camiseta entera
-recortada limpia: `borde_opaco <= 0.05`, `proporcion >= 0.28` y
-`ancho >= 0.72` (`esCamisetaEntera`). Acercamientos, fotos en maniqui que
-tocan el borde y recortes que se comieron la prenda se descartan. Las fotos
-repetidas dentro del album tambien.
+recortada limpia: `borde_opaco <= 0.05`, `proporcion >= 0.28`,
+`ancho >= 0.72`, `costado < 0.3` y `arribaYAbajo <= 0.5` (`esCamisetaEntera`).
+Ademas CLIP tiene que decir que es una camiseta (`pareceCamiseta`, ruta
+`/es-camiseta` del servicio de fotos): asi no pasan escudos sueltos. Acercamientos,
+fotos en maniqui que tocan el borde y recortes que se comieron la prenda se
+descartan. Las fotos repetidas dentro del album tambien.
 
 Por que esos numeros (medidos en 10 albumes con `scripts/medir-recortes.mjs`,
 pruebas en `scripts/process-photo-regla.test.mjs`):
