@@ -1019,6 +1019,88 @@
         @media (max-width: 980px) {
             .sidebar-menu button { min-width: 0 !important; padding: 10px 14px !important; }
         }
+
+        /* --- VENTA RÁPIDA: hoja que sube desde abajo, botones del tamaño del pulgar --- */
+        .qs-fab { display: none; }
+        @media (max-width: 980px) {
+            .qs-fab {
+                display: inline-flex; align-items: center; gap: 6px; position: fixed; z-index: 900;
+                right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+                padding: 15px 22px; border: 0; border-radius: 999px; background: var(--ink); color: #fff;
+                font: 700 16px var(--font); box-shadow: 0 10px 28px rgba(20,26,43,.28);
+                transition: transform .16s cubic-bezier(.23,1,.32,1);
+            }
+            .qs-fab:active { transform: scale(.96); }
+            body.qs-abierta .qs-fab, body.modal-open .qs-fab { display: none; }
+        }
+        .qs { position: fixed; inset: 0; z-index: 2000; }
+        .qs-backdrop { position: absolute; inset: 0; background: rgba(20,26,43,.45); opacity: 0; transition: opacity .25s ease; }
+        .qs.on .qs-backdrop { opacity: 1; }
+        .qs-sheet {
+            position: absolute; left: 0; right: 0; bottom: 0; max-height: 92dvh; display: flex; flex-direction: column;
+            background: #fff; border-radius: 22px 22px 0 0; transform: translateY(100%);
+            transition: transform .32s cubic-bezier(.32,.72,0,1); font-family: var(--font); color: var(--ink);
+        }
+        .qs.on .qs-sheet { transform: none; }
+        @media (min-width: 981px) {
+            .qs-sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: 460px; max-height: 86vh; border-radius: 20px; transform: translate(-50%, -46%); opacity: 0; transition: transform .25s cubic-bezier(.23,1,.32,1), opacity .2s ease; }
+            .qs.on .qs-sheet { transform: translate(-50%, -50%); opacity: 1; }
+            .qs-grip { display: none; }
+        }
+        .qs-grip { width: 40px; height: 5px; border-radius: 3px; background: var(--hair); margin: 10px auto 0; }
+        .qs-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px 6px; }
+        .qs-head h3 { margin: 0; font-size: 21px !important; font-weight: 760 !important; }
+        .qs-close, .qs-quitar { width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--stage); color: var(--ink); display: grid; place-items: center; cursor: pointer; flex: none; }
+        .qs-body { flex: 1; overflow-y: auto; padding: 4px 18px 16px; overscroll-behavior: contain; }
+        .qs-label { font-size: 13px; font-weight: 650; color: var(--quiet); margin: 14px 0 8px; }
+        .qs-buscar, .qs-input {
+            width: 100%; box-sizing: border-box; font: 500 16px var(--font); padding: 13px 14px; border: 1.5px solid var(--hair);
+            border-radius: 12px !important; background: #fff; color: var(--ink);
+        }
+        .qs-buscar { margin-top: 6px; background: var(--stage); border-color: transparent; }
+        .qs-resultados { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+        .qs-prod { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 6px; border: 0; border-radius: 12px; background: transparent; text-align: left; cursor: pointer; font-family: var(--font); color: var(--ink); }
+        .qs-prod:active { background: var(--stage); }
+        .qs-thumb { width: 54px; height: 54px; flex: none; border-radius: 10px; background: var(--stage); overflow: hidden; display: grid; place-items: center; }
+        .qs-thumb img { width: 88%; height: 88%; object-fit: contain; }
+        .qs-prod-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .qs-prod-txt b { font-size: 15px; font-weight: 650; line-height: 1.25; }
+        .qs-prod-txt small { font-size: 13px; color: var(--quiet); font-variant-numeric: tabular-nums; }
+        .qs-vacio { padding: 18px 4px; color: var(--quiet); font-size: 14px; }
+        .qs-items { display: flex; flex-direction: column; gap: 12px; }
+        .qs-linea { border: 1px solid var(--hair); border-radius: 16px; padding: 12px; }
+        .qs-linea-top { display: flex; align-items: center; gap: 12px; }
+        .qs-linea-nombre { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; line-height: 1.25; }
+        .qs-tallas, .qs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .qs-talla {
+            min-width: 58px; padding: 9px 10px; border: 1.5px solid var(--hair); border-radius: 12px; background: #fff; color: var(--ink);
+            font: 700 16px var(--font); display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer;
+        }
+        .qs-talla small { font-size: 11px; font-weight: 600; color: var(--quiet); }
+        .qs-talla.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+        .qs-talla.on small { color: rgba(255,255,255,.75); }
+        .qs-talla:disabled { opacity: .4; text-decoration: line-through; cursor: not-allowed; }
+        .qs-precio { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 13px; font-weight: 650; color: var(--quiet); }
+        .qs-precio-campo { display: flex; align-items: center; gap: 4px; border: 1.5px solid var(--hair); border-radius: 12px; padding: 0 12px; width: 60%; }
+        .qs-precio-campo span { font-size: 18px; font-weight: 700; color: var(--ink); }
+        .qs-precio-campo input { border: 0 !important; outline: 0; width: 100%; padding: 11px 0; font: 700 18px var(--font); color: var(--ink); font-variant-numeric: tabular-nums; background: transparent; }
+        .qs-mas { width: 100%; margin-top: 12px; padding: 13px; border: 1.5px dashed var(--hair); border-radius: 14px; background: transparent; color: var(--ink); font: 650 15px var(--font); cursor: pointer; }
+        .qs-chip { padding: 11px 16px; border: 1.5px solid var(--hair); border-radius: 999px; background: #fff; color: var(--ink); font: 600 15px var(--font); cursor: pointer; }
+        .qs-chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+        .qs-cierre .qs-input { margin-top: 14px; }
+        .qs-fecha { display: block; margin-top: 12px; font-size: 13px; font-weight: 650; color: var(--quiet); }
+        .qs-fecha .qs-input { margin-top: 6px; }
+        .qs-link { margin-top: 14px; padding: 6px 0; border: 0; background: none; color: var(--quiet); font: 600 14px var(--font); text-decoration: underline; cursor: pointer; }
+        .qs-foot { padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--hair); }
+        .qs-guardar {
+            width: 100%; padding: 17px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font: 700 17px var(--font);
+            font-variant-numeric: tabular-nums; cursor: pointer; transition: transform .16s cubic-bezier(.23,1,.32,1), opacity .2s ease;
+        }
+        .qs-guardar:active:not(:disabled) { transform: scale(.98); }
+        .qs-guardar:disabled { opacity: .45; cursor: default; }
+        .qs-talla, .qs-chip, .qs-prod, .qs-close, .qs-quitar, .qs-mas { transition: transform .16s cubic-bezier(.23,1,.32,1), background-color .15s ease; }
+        .qs-talla:active:not(:disabled), .qs-chip:active { transform: scale(.96); }
+        @media (prefers-reduced-motion: reduce) { .qs-sheet, .qs-backdrop { transition: none; } }
     </style>
 </head>
 <body>
@@ -2135,7 +2217,8 @@
         }
 
         function hoyIrA(destino) {
-            if (destino === 'venta' || destino === 'pago_tarjeta') {
+            if (destino === 'venta') { abrirVentaRapida(); return; }
+            if (destino === 'pago_tarjeta') {
                 switchTab('dashboard');
                 setMovementPreset(destino);
                 openMovementPanel();
@@ -2423,6 +2506,34 @@
             document.getElementById('t-monto-cop').innerText = formatter.format(cop);
         }
 
+        // Guarda el movimiento y, si sacó camisetas, las descuenta del inventario.
+        // Lo usan el formulario de Plata y la venta rápida.
+        async function guardarMovimiento(trans, stockMovement) {
+            // Generar ID numerico si la columna no tiene secuencia en Supabase
+            const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
+            trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
+
+            const { data: saved, error } = await db.from('transacciones').insert(trans).select().single();
+            if (error) return { error };
+            financeData.transacciones.push(saved);
+            financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+            // Descontar inventario por cada item
+            if (stockMovement) {
+                for (const item of stockMovement.items) {
+                    if (!item.prodId || !item.talla) continue;
+                    const prodIdx = productData.findIndex(p => p.id == item.prodId);
+                    if (prodIdx === -1) continue;
+                    const newStock = Math.max(0, (productData[prodIdx].tallas[item.talla]||0) - item.cantidad);
+                    productData[prodIdx].tallas[item.talla] = newStock;
+                    await db.from('productos').update({ tallas: productData[prodIdx].tallas }).eq('id', item.prodId);
+                }
+                renderInventory();
+                calculateInventoryValuation();
+            }
+            return { saved };
+        }
+
         async function addTransaction(e) {
             e.preventDefault();
             const val = parseFloat(document.getElementById('t-monto').value);
@@ -2473,28 +2584,8 @@
                 trans.descripcion = stockMovement.description;
             }
 
-            // Generar ID numerico si la columna no tiene secuencia en Supabase
-            const { data: maxRow } = await db.from('transacciones').select('id').order('id', { ascending: false }).limit(1);
-            trans.id = (maxRow && maxRow[0] && maxRow[0].id) ? maxRow[0].id + 1 : 1;
-
-            const { data: saved, error } = await db.from('transacciones').insert(trans).select().single();
+            const { error } = await guardarMovimiento(trans, isVenta ? stockMovement : null);
             if (error) { alert("Error guardando: " + error.message); return; }
-            financeData.transacciones.push(saved);
-            financeData.transacciones.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-
-            // Descontar inventario por cada item
-            if (isVenta) {
-                for (const item of stockMovement.items) {
-                    if (!item.prodId || !item.talla) continue;
-                    const prodIdx = productData.findIndex(p => p.id == item.prodId);
-                    if (prodIdx === -1) continue;
-                    const newStock = Math.max(0, (productData[prodIdx].tallas[item.talla]||0) - item.cantidad);
-                    productData[prodIdx].tallas[item.talla] = newStock;
-                    await db.from('productos').update({ tallas: productData[prodIdx].tallas }).eq('id', item.prodId);
-                }
-                renderInventory();
-                calculateInventoryValuation();
-            }
 
             showToast("Transacción guardada ✅");
             document.getElementById('transForm').reset();
@@ -5780,6 +5871,231 @@
             }
         }
 
+    </script>
+    <!-- VENTA RÁPIDA: pensada para el celular. Usa la misma lógica de Plata (guardarMovimiento). -->
+    <button type="button" id="qs-fab" class="qs-fab" onclick="abrirVentaRapida()" aria-label="Registrar venta">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Venta
+    </button>
+    <div id="qs" class="qs" hidden>
+        <div class="qs-backdrop" onclick="cerrarVentaRapida()"></div>
+        <div class="qs-sheet" role="dialog" aria-modal="true" aria-labelledby="qs-title">
+            <div class="qs-grip" aria-hidden="true"></div>
+            <div class="qs-head">
+                <h3 id="qs-title">Nueva venta</h3>
+                <button type="button" class="qs-close" onclick="cerrarVentaRapida()" aria-label="Cerrar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                </button>
+            </div>
+            <div class="qs-body">
+                <div id="qs-items" class="qs-items"></div>
+                <button type="button" id="qs-mas" class="qs-mas" onclick="qsMostrarBuscador()" hidden>+ Otra camiseta</button>
+                <div id="qs-picker" class="qs-picker">
+                    <input type="search" id="qs-buscar" class="qs-buscar" placeholder="Busca la camiseta" autocomplete="off" oninput="qsFiltrar()">
+                    <div id="qs-resultados" class="qs-resultados"></div>
+                </div>
+                <div id="qs-cierre" class="qs-cierre" hidden>
+                    <div class="qs-label">¿Cómo pagó?</div>
+                    <div class="qs-chips" id="qs-pagos">
+                        <button type="button" class="qs-chip" data-pago="Efectivo">Efectivo</button>
+                        <button type="button" class="qs-chip" data-pago="Nequi">Nequi</button>
+                        <button type="button" class="qs-chip" data-pago="Transferencia">Transferencia</button>
+                        <button type="button" class="qs-chip" data-pago="Contra entrega">Contra entrega</button>
+                    </div>
+                    <input type="text" id="qs-nota" class="qs-input" placeholder="Cliente o nota (opcional)">
+                    <label class="qs-fecha">Fecha <input type="date" id="qs-fecha" class="qs-input"></label>
+                    <button type="button" class="qs-link" onclick="qsFormularioCompleto()">Usar el formulario completo</button>
+                </div>
+            </div>
+            <div class="qs-foot">
+                <button type="button" id="qs-guardar" class="qs-guardar" onclick="qsGuardar()" disabled>Escoge una camiseta</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ── Venta rápida ─────────────────────────────────────────────
+        let _qsLineas = []; // [{ prodId, talla, precio }]
+        let _qsPago = '';
+        const QS_ORDEN_TALLAS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+        const qsEsc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const qsStock = (p) => Object.values(p.tallas || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+        const qsTallas = (p) => {
+            const t = p.tallas || {};
+            return QS_ORDEN_TALLAS.filter((k) => t[k] !== undefined).concat(Object.keys(t).filter((k) => !QS_ORDEN_TALLAS.includes(k)));
+        };
+        // Lo que ya está apartado en otras líneas de esta misma venta
+        const qsUsadas = (prodId, talla, salvo) => _qsLineas.filter((l, i) => i !== salvo && l.prodId == prodId && l.talla === talla).length;
+        function qsFoto(p) {
+            const raw = Array.isArray(p.imagenes) && p.imagenes[0] ? (typeof p.imagenes[0] === 'string' ? p.imagenes[0] : (p.imagenes[0].url || '')) : '';
+            if (!raw) return { card: '', orig: '' };
+            const orig = /^https?:/.test(raw) ? raw : '/' + raw.replace(/^(\.\.\/)+/, '').replace(/^\/+/, '');
+            return { card: orig.replace(/(-card)?\.webp$/, '-card.webp'), orig };
+        }
+        const qsNombre = (p) => {
+            const n = String(p.equipo || '').replace(/^Camiseta\s+(de\s+la\s+|del\s+|de\s+)?/i, '');
+            return n.charAt(0).toUpperCase() + n.slice(1);
+        };
+
+        function abrirVentaRapida() {
+            _qsLineas = []; _qsPago = '';
+            document.getElementById('qs-nota').value = '';
+            document.getElementById('qs-fecha').valueAsDate = new Date();
+            document.getElementById('qs-buscar').value = '';
+            document.querySelectorAll('#qs-pagos .qs-chip').forEach((b) => b.classList.remove('on'));
+            qsMostrarBuscador();
+            qsPintar();
+            const qs = document.getElementById('qs');
+            qs.hidden = false;
+            document.body.classList.add('qs-abierta');
+            requestAnimationFrame(() => qs.classList.add('on'));
+        }
+
+        function cerrarVentaRapida() {
+            const qs = document.getElementById('qs');
+            qs.classList.remove('on');
+            document.body.classList.remove('qs-abierta');
+            setTimeout(() => { qs.hidden = true; }, 260);
+        }
+
+        function qsMostrarBuscador() {
+            document.getElementById('qs-picker').hidden = false;
+            document.getElementById('qs-mas').hidden = true;
+            qsFiltrar();
+            // En el celular abrir el teclado tapa la lista: solo se enfoca en computador
+            if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) document.getElementById('qs-buscar').focus();
+        }
+
+        function qsFiltrar() {
+            const q = (document.getElementById('qs-buscar').value || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+            const palabras = q.split(/\s+/).filter(Boolean);
+            const lista = productData
+                .filter((p) => qsStock(p) > 0)
+                .filter((p) => {
+                    const texto = `${p.equipo || ''} ${p.descripcion || ''} ${p.categoria || ''}`.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+                    return palabras.every((w) => texto.includes(w));
+                })
+                .sort((a, b) => qsStock(b) - qsStock(a))
+                .slice(0, 40);
+            const cont = document.getElementById('qs-resultados');
+            if (!lista.length) { cont.innerHTML = `<div class="qs-vacio">${q ? 'No hay camisetas con stock para "' + qsEsc(q) + '"' : 'No hay camisetas con stock'}</div>`; return; }
+            cont.innerHTML = lista.map((p) => {
+                const f = qsFoto(p); const s = qsStock(p);
+                return `<button type="button" class="qs-prod" onclick="qsElegir(${Number(p.id)})">
+                    <span class="qs-thumb">${f.card ? `<img src="${qsEsc(f.card)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${qsEsc(f.orig)}'">` : ''}</span>
+                    <span class="qs-prod-txt"><b>${qsEsc(qsNombre(p))}</b><small>${s} en stock · ${formatter.format(Number(p.precio) || 0)}</small></span>
+                </button>`;
+            }).join('');
+        }
+
+        function qsElegir(prodId) {
+            const p = productData.find((x) => x.id == prodId);
+            if (!p) return;
+            const disponibles = qsTallas(p).filter((t) => (Number(p.tallas[t]) || 0) - qsUsadas(p.id, t, -1) > 0);
+            _qsLineas.push({ prodId: p.id, talla: disponibles.length === 1 ? disponibles[0] : null, precio: Number(p.precio) || 0 });
+            document.getElementById('qs-picker').hidden = true;
+            document.getElementById('qs-buscar').value = '';
+            qsPintar();
+        }
+
+        function qsTalla(i, talla) { _qsLineas[i].talla = talla; qsPintar(); }
+        function qsPrecio(i, el) { _qsLineas[i].precio = Number(String(el.value).replace(/\D/g, '')) || 0; qsActualizarBoton(); }
+        function qsQuitar(i) {
+            _qsLineas.splice(i, 1);
+            if (!_qsLineas.length) qsMostrarBuscador();
+            qsPintar();
+        }
+
+        function qsPintar() {
+            const cont = document.getElementById('qs-items');
+            cont.innerHTML = _qsLineas.map((l, i) => {
+                const p = productData.find((x) => x.id == l.prodId) || {};
+                const f = qsFoto(p);
+                const chips = qsTallas(p).map((t) => {
+                    const libres = (Number(p.tallas[t]) || 0) - qsUsadas(p.id, t, i);
+                    const on = l.talla === t;
+                    return `<button type="button" class="qs-talla${on ? ' on' : ''}" ${libres > 0 || on ? '' : 'disabled'} onclick="qsTalla(${i}, '${qsEsc(t)}')">${qsEsc(t)}<small>${libres > 0 ? libres : 'agotada'}</small></button>`;
+                }).join('');
+                return `<div class="qs-linea">
+                    <div class="qs-linea-top">
+                        <span class="qs-thumb">${f.card ? `<img src="${qsEsc(f.card)}" alt="" onerror="this.onerror=null;this.src='${qsEsc(f.orig)}'">` : ''}</span>
+                        <b class="qs-linea-nombre">${qsEsc(qsNombre(p))}</b>
+                        <button type="button" class="qs-quitar" onclick="qsQuitar(${i})" aria-label="Quitar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                        </button>
+                    </div>
+                    <div class="qs-label">Talla</div>
+                    <div class="qs-tallas">${chips}</div>
+                    <label class="qs-precio">Precio
+                        <span class="qs-precio-campo"><span>$</span><input type="text" inputmode="numeric" value="${l.precio ? l.precio.toLocaleString('es-CO') : ''}" oninput="qsPrecio(${i}, this)" onblur="this.value = _qsLineas[${i}].precio ? _qsLineas[${i}].precio.toLocaleString('es-CO') : ''"></span>
+                    </label>
+                </div>`;
+            }).join('');
+            document.getElementById('qs-mas').hidden = !_qsLineas.length || !document.getElementById('qs-picker').hidden;
+            document.getElementById('qs-cierre').hidden = !_qsLineas.length;
+            qsActualizarBoton();
+        }
+
+        function qsActualizarBoton() {
+            const btn = document.getElementById('qs-guardar');
+            const total = _qsLineas.reduce((s, l) => s + (l.precio || 0), 0);
+            const faltaTalla = _qsLineas.some((l) => !l.talla);
+            btn.disabled = !_qsLineas.length || faltaTalla || total <= 0;
+            btn.textContent = !_qsLineas.length ? 'Escoge una camiseta' : faltaTalla ? 'Escoge la talla' : total <= 0 ? 'Pon el precio' : `Guardar venta · ${formatter.format(total)}`;
+        }
+
+        document.getElementById('qs-pagos').addEventListener('click', (e) => {
+            const b = e.target.closest('.qs-chip');
+            if (!b) return;
+            const on = !b.classList.contains('on');
+            document.querySelectorAll('#qs-pagos .qs-chip').forEach((x) => x.classList.remove('on'));
+            b.classList.toggle('on', on);
+            _qsPago = on ? b.dataset.pago : '';
+        });
+
+        function qsFormularioCompleto() {
+            cerrarVentaRapida();
+            switchTab('dashboard');
+            setMovementPreset('venta');
+            openMovementPanel();
+        }
+
+        async function qsGuardar() {
+            const btn = document.getElementById('qs-guardar');
+            if (btn.disabled) return;
+            const total = _qsLineas.reduce((s, l) => s + (l.precio || 0), 0);
+            // La misma camiseta y talla dos veces va como una sola línea con cantidad 2
+            const items = [];
+            for (const l of _qsLineas) {
+                const igual = items.find((x) => x.prodId == l.prodId && x.talla === l.talla);
+                if (igual) igual.cantidad += 1; else items.push({ prodId: l.prodId, talla: l.talla, cantidad: 1 });
+            }
+            const nota = [_qsPago ? `Pago: ${_qsPago}` : '', document.getElementById('qs-nota').value.trim()].filter(Boolean).join(' · ');
+            const categoria = movementPresets.venta.categoria;
+            const stockMovement = window.AdminInventoryGuard.buildStockMovement({ category: categoria, amountCOP: total, note: nota, items, products: productData });
+            if (!stockMovement.ok) { alert('Revisa la venta antes de guardar:\n\n' + stockMovement.errors.join('\n')); return; }
+            const trans = {
+                tipo: movementPresets.venta.tipo,
+                categoria,
+                fecha: document.getElementById('qs-fecha').value || new Date().toISOString().split('T')[0],
+                monto: total,
+                usd_amount: total / GLOBAL_TRM,
+                trm: GLOBAL_TRM,
+                descripcion: stockMovement.description,
+                costo_usd_asociado: stockMovement.totalCostUsd
+            };
+            btn.disabled = true; btn.textContent = 'Guardando...';
+            const { error } = await guardarMovimiento(trans, stockMovement);
+            if (error) { alert('Error guardando: ' + error.message); qsActualizarBoton(); return; }
+            showToast(`Venta guardada · ${formatter.format(total)}`);
+            cerrarVentaRapida();
+            renderFinance();
+            if (typeof renderHoy === 'function') renderHoy();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('qs').hidden) cerrarVentaRapida();
+        });
     </script>
     <div id="toast" class="toast"></div>
 </body>
