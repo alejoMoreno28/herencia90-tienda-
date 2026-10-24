@@ -10,8 +10,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
 const DEFAULT_SAMPLE_SLUGS = [
-  'barcelona-2008-2009-local',
-  'ac-milan-2006-2007-local',
+  'barcelona-2009-2010-local',
+  'ac-milan-2006-07',
   'brasil-2002-local',
 ];
 

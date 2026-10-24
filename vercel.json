@@ -181,6 +181,76 @@
   ],
   "redirects": [
     {
+      "source": "/preventa/real-madrid-1998-2000-local",
+      "destination": "/preventa/real-madrid-1998-00",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/real-madrid-1998-2000-local.html",
+      "destination": "/preventa/real-madrid-1998-00",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/real-madrid-2002-2003-local",
+      "destination": "/preventa/real-madrid-2003-04",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/real-madrid-2002-2003-local.html",
+      "destination": "/preventa/real-madrid-2003-04",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/manchester-united-2007-2008-local-manga-larga",
+      "destination": "/preventa/manchester-united-2007-2008-visitante-negra-manga-larga",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/manchester-united-2007-2008-local-manga-larga.html",
+      "destination": "/preventa/manchester-united-2007-2008-visitante-negra-manga-larga",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/river-plate-1996-1997-local",
+      "destination": "/preventa/river-plate-1996-97",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/river-plate-1996-1997-local.html",
+      "destination": "/preventa/river-plate-1996-97",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/ac-milan-2006-2007-local",
+      "destination": "/preventa/milan-2006-local-manga-larga-negra-y-roja",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/ac-milan-2006-2007-local.html",
+      "destination": "/preventa/milan-2006-local-manga-larga-negra-y-roja",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/barcelona-2008-2009-local",
+      "destination": "/preventa/barcelona-2009-2010-local",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/barcelona-2008-2009-local.html",
+      "destination": "/preventa/barcelona-2009-2010-local",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/barcelona-2005-2006-local",
+      "destination": "/preventa/barcelona-2006-2007-local",
+      "permanent": true
+    },
+    {
+      "source": "/preventa/barcelona-2005-2006-local.html",
+      "destination": "/preventa/barcelona-2006-2007-local",
+      "permanent": true
+    },
+    {
       "source": "/camisetas/colombia-100-anos-blanca",
       "destination": "/camisetas/camiseta-colombia-100-anos-blanca",
       "permanent": true

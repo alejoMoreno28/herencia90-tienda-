@@ -20,8 +20,8 @@ test('local preventa curation is a dry run and writes only review artifacts', ()
 test('default curation sample references still exist in the preorder catalog', () => {
   const slugs = new Set(catalog.map((item) => item.slug));
   for (const slug of [
-    'barcelona-2008-2009-local',
-    'ac-milan-2006-2007-local',
+    'barcelona-2009-2010-local',
+    'ac-milan-2006-07',
     'brasil-2002-local',
   ]) {
     assert.ok(slugs.has(slug), `missing sample slug ${slug}`);

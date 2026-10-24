@@ -32,6 +32,7 @@ const BUCKET = 'preventa-images';
 const PREFIJO = 'preventa-curated/limpieza-20261023';
 const RECORTE_CLIP_MINIMO = 0.5;
 const MAXIMO_FOTOS = 4;
+const ANCHO_MINIMO_PREVENTA = 0.4;
 const [dir, flag] = process.argv.slice(2);
 if (!dir) throw new Error('uso: limpiar-preventa.mjs <dir> [--aplicar]');
 const aplicar = flag === '--aplicar';
@@ -63,6 +64,15 @@ async function quitarFondo(buffer) {
     bordeOpaco: typeof r.borde_opaco === 'number' ? r.borde_opaco : null,
   };
 }
+
+// Huella visual (dHash 8x8): el proveedor sube la misma foto con otro archivo.
+async function huellaVisual(buffer) {
+  const { data } = await sharp(buffer).flatten({ background: '#ffffff' }).grayscale().resize(9, 8, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
+  let bits = '';
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) bits += data[y * 9 + x] > data[y * 9 + x + 1] ? '1' : '0';
+  return bits;
+}
+const distancia = (a, b) => [...a].reduce((n, c, i) => n + (c !== b[i] ? 1 : 0), 0);
 
 const urlDe = (img) => (typeof img === 'string' ? img : img?.url || img?.master_url || '');
 
@@ -100,8 +110,18 @@ if (!aplicar) {
         vistas.add(huella);
         const r = await quitarFondo(original);
         const medidas = r.recortada ? await medirMascara(r.buffer) : { ancho: 0 };
-        if (esCamisetaEntera({ ...r, ...medidas }) && await pareceCamiseta(r.buffer, RECORTE_CLIP_MINIMO)) {
-          enteras.push({ i, fuente: url, buffer: r.buffer, colores: await coloresEnElPecho(r.buffer) });
+        // Las fotos del proveedor suelen tener la camiseta chica dentro del cuadro,
+        // asi que el ancho y la ocupacion del cargador (pensados para frenar escudos
+        // sueltos) las descartaban. Aqui los escudos los frena CLIP y los
+        // acercamientos la regla de bordes; del tamano solo se pide un minimo.
+        const tamanoMinimo = (medidas.ancho || 0) >= ANCHO_MINIMO_PREVENTA;
+        if (tamanoMinimo && esCamisetaEntera({ ...r, ...medidas, proporcion: 1, ancho: 1 }) && await pareceCamiseta(r.buffer, RECORTE_CLIP_MINIMO)) {
+          const huellaFoto = await huellaVisual(r.buffer);
+          if (enteras.some((e) => distancia(e.huella, huellaFoto) <= 6)) {
+            celdas.push({ buffer: original, texto: `#${i} repetida`, color: '#85692f' });
+            continue;
+          }
+          enteras.push({ i, fuente: url, buffer: r.buffer, huella: huellaFoto, colores: await coloresEnElPecho(r.buffer) });
         } else {
           celdas.push({ buffer: original, texto: `#${i} se saca`, color: '#a1281e' });
         }
