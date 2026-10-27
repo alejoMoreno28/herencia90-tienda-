@@ -2165,29 +2165,14 @@
             const pedidos = hoyPedidosCache;
             const items = [];
 
-            const sinCliente = pedidos.filter((p) => /pendiente por asignar/i.test(String(p.cliente || '')) || !String(p.cliente || '').trim());
-            if (sinCliente.length) {
-                items.push({ tone: 'warn', title: `${sinCliente.length} reserva(s) sin nombre de cliente`, detail: sinCliente.slice(0, 4).map((p) => `${p.equipo} ${p.talla || ''}`.trim()).join(' · '), action: 'pedidos-asignar', label: 'Asignar clientes' });
-            }
-
-            let porCobrar = 0;
-            const deudores = new Map();
-            pedidos.forEach((p) => {
-                const saldo = getPedidoPaymentState(p).saldo || 0;
-                if (saldo <= 0) return;
-                porCobrar += saldo;
-                const nombre = String(p.cliente || 'Pendiente por Asignar').trim();
-                deudores.set(nombre, (deudores.get(nombre) || 0) + saldo);
-            });
-            if (porCobrar > 0) {
-                const top = [...deudores.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, v]) => `${n} ${formatter.format(v)}`).join(' · ');
-                items.push({ tone: 'warn', title: `${formatter.format(porCobrar)} por cobrar a ${deudores.size} cliente(s)`, detail: top, action: 'abono', label: 'Registrar abono' });
-            }
+            // El nombre del cliente y lo que falta por cobrar se organizan en Pedidos y clientes;
+            // aqui no se muestran porque los nombres de las reservas no siempre son el cliente real.
 
             const porEntregar = pedidos.filter((p) => p.estado_entrega === 'Pendiente');
             if (porEntregar.length) {
                 const unidades = porEntregar.reduce((sum, p) => sum + (parseInt(p.cantidad) || 0), 0);
-                items.push({ tone: 'info', title: `${unidades} camiseta(s) por entregar`, detail: [...new Set(porEntregar.map((p) => String(p.cliente || '').trim()).filter(Boolean))].slice(0, 5).join(' · '), action: 'pedidos', label: 'Ver entregas' });
+                const camisetas = [...new Set(porEntregar.map((p) => `${p.equipo || ''} ${p.talla || ''}`.trim()).filter(Boolean))];
+                items.push({ tone: 'info', title: `${unidades} camiseta(s) por entregar`, detail: camisetas.slice(0, 4).join(' · ') + (camisetas.length > 4 ? ' y más' : ''), action: 'pedidos', label: 'Ver entregas' });
             }
 
             const ultimas = (productData || []).filter((p) => Object.entries(p.tallas || {}).some(([size, qty]) => !size.startsWith('R_') && parseInt(qty) === 1));
