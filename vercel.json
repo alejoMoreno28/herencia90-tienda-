@@ -181,6 +181,11 @@
   ],
   "redirects": [
     {
+      "source": "/camisetas/camiseta-atletico-nacional-2026-visitante-version-player(.html)?",
+      "destination": "/camisetas/camiseta-atletico-nacional-26-27-visitante-version-player.html",
+      "permanent": true
+    },
+    {
       "source": "/camisetas/camiseta-real-madrid-edicion-especial-blanca-retro(.html)?",
       "destination": "/camisetas/camiseta-real-madrid-originals-2026-blanca.html",
       "permanent": true

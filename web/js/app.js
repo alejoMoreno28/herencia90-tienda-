@@ -285,7 +285,7 @@ function mergeLiveProducts(liveProducts, localProducts) {
 async function loadLocalProducts() {
     let localProducts = [];
     try {
-        const response = await fetch('/productos.json?v=0d9b590e3408');
+        const response = await fetch('/productos.json?v=e7b65d7c9fc0');
         if (response.ok) localProducts = await response.json();
     } catch (e) {
         console.warn('No se pudo cargar productos.json local', e);

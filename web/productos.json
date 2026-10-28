@@ -1617,7 +1617,8 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-argentina-2022-local/1793159263421-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-argentina-2022-local/1793159263421-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-argentina-tienda/1793161979945-2.webp"
         ]
     },
     {
@@ -1634,7 +1635,8 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-rm-especial/1793159277911-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-rm-originals/1793161974559-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-rm-originals/1793161974559-2.webp"
         ]
     },
     {
@@ -1651,14 +1653,15 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-boca/1793160506955-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-boca-tienda/1793161809413-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-boca-tienda/1793161809413-2.webp"
         ]
     },
     {
         "id": 100,
         "categoria": "Equipos Sudamericanos",
-        "equipo": "Camiseta Atlético Nacional 2026 Visitante Versión Player",
-        "descripcion": "Camiseta visitante de Atlético Nacional 2026, blanca con detalles verdes en el cuello, las mangas y los costados, y el escudo al pecho. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
+        "equipo": "Camiseta Atlético Nacional 26/27 Visitante Versión Player",
+        "descripcion": "Camiseta visitante de Atlético Nacional 2026/27, blanca con detalles verdes en el cuello, las mangas y los costados, y el escudo al pecho. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
         "precio": 110000,
         "costo_usd": 14,
         "tallas": {
@@ -1668,7 +1671,8 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-visitante/1793159279915-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-visitante-tienda/1793161795438-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-visitante-tienda/1793161795438-2.webp"
         ]
     },
     {
@@ -1685,7 +1689,8 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-fiorentina/1793159281858-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-fiorentina-tienda/1793161805279-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-fiorentina-tienda/1793161805279-2.webp"
         ]
     },
     {
@@ -1774,7 +1779,8 @@
             "XL": 0
         },
         "imagenes": [
-            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-local/1793160581649-1.webp"
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-local-tienda/1793161800803-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-local-tienda/1793161800803-2.webp"
         ]
     }
 ]
