@@ -1602,5 +1602,179 @@
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-atletico-nacional-2026-local/1792676935077-1.webp",
             "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-atletico-nacional-2026-local/1792676935077-2.webp"
         ]
+    },
+    {
+        "id": 97,
+        "categoria": "Selecciones Nacionales",
+        "equipo": "Camiseta Argentina Mundial 2022 Local",
+        "descripcion": "Camiseta local de Argentina del Mundial de Qatar 2022, el torneo de la tercera estrella: franjas celestes y blancas y el escudo de la AFA al pecho. Versión Fan, de corte cómodo y tela transpirable. Manga corta.",
+        "precio": 99000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-argentina-2022-local/1793159263421-1.webp"
+        ]
+    },
+    {
+        "id": 98,
+        "categoria": "Retro",
+        "equipo": "Camiseta Real Madrid Edición Especial Blanca Retro",
+        "descripcion": "Camiseta del Real Madrid en blanco, con cuello azul marino, franjas doradas en los hombros, el trébol de Adidas y el escudo al pecho. Corte retro. Manga corta.",
+        "precio": 120000,
+        "costo_usd": 15,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-rm-especial/1793159277911-1.webp"
+        ]
+    },
+    {
+        "id": 99,
+        "categoria": "Equipos Sudamericanos",
+        "equipo": "Camiseta Boca Juniors 25/26 Local Versión Player",
+        "descripcion": "Camiseta local de Boca Juniors 2025/26, azul con la franja amarilla al pecho y detalles dorados. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-boca/1793160506955-1.webp"
+        ]
+    },
+    {
+        "id": 100,
+        "categoria": "Equipos Sudamericanos",
+        "equipo": "Camiseta Atlético Nacional 2026 Visitante Versión Player",
+        "descripcion": "Camiseta visitante de Atlético Nacional 2026, blanca con detalles verdes en el cuello, las mangas y los costados, y el escudo al pecho. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-visitante/1793159279915-1.webp"
+        ]
+    },
+    {
+        "id": 101,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Fiorentina 26/27 Local Versión Player",
+        "descripcion": "Camiseta local de la Fiorentina 2026/27 en su morado de siempre, con cuello blanco en V y el lirio de Florencia en el escudo. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-fiorentina/1793159281858-1.webp"
+        ]
+    },
+    {
+        "id": 102,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Arsenal 26/27 Visitante Manga Larga Versión Player",
+        "descripcion": "Camiseta visitante del Arsenal 2026/27 en azul marino con textura, escudo y trébol en amarillo y puños con franjas roja y amarilla. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga larga.",
+        "precio": 120000,
+        "costo_usd": 14,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-arsenal-visitante-26-27-manga-larga-version-player/1793159977574-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-arsenal-visitante-26-27-manga-larga-version-player/1793159977574-2.webp"
+        ]
+    },
+    {
+        "id": 103,
+        "categoria": "Equipos Europeos",
+        "equipo": "Camiseta Napoli 25/26 Pre Partido Manga Larga",
+        "descripcion": "Camiseta de calentamiento del Napoli 2025/26, blanca con estampado azul y dorado en las mangas y los costados. Versión Fan, de corte cómodo y tela transpirable. Manga larga.",
+        "precio": 110000,
+        "costo_usd": 11,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-napoli-manga-larga-25-26-pre-partido/1793160102155-2.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-napoli-manga-larga-25-26-pre-partido/1793160102155-1.webp"
+        ]
+    },
+    {
+        "id": 104,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Francia 1996 Local",
+        "descripcion": "Camiseta retro local de Francia de la Eurocopa de 1996, azul con el cuello blanco de cordones. La que vistió Zidane en Inglaterra. Manga corta.",
+        "precio": 120000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-96-zidane-retro/1793160153486-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-francia-96-zidane-retro/1793160153486-2.webp"
+        ]
+    },
+    {
+        "id": 105,
+        "categoria": "Retro",
+        "equipo": "Camiseta Retro Brasil 1998 Visitante Azul",
+        "descripcion": "Camiseta retro visitante de Brasil del Mundial de Francia 1998, azul con ribetes blancos, la de Ronaldo Nazário. Manga corta.",
+        "precio": 120000,
+        "costo_usd": 18,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-98-visitante-ronaldo-manga-corta-retro/1793160215891-1.webp",
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/camiseta-brasil-98-visitante-ronaldo-manga-corta-retro/1793160215891-2.webp"
+        ]
+    },
+    {
+        "id": 106,
+        "categoria": "Equipos Sudamericanos",
+        "equipo": "Camiseta Atlético Nacional 26/27 Local Versión Player",
+        "descripcion": "Camiseta local de Atlético Nacional 2026/27, con las franjas verticales verdes y blancas y el escudo al pecho. Versión Player, de corte ajustado y tela ligera, la misma que usan los jugadores. Manga corta.",
+        "precio": 110000,
+        "costo_usd": 17,
+        "tallas": {
+            "L": 0,
+            "M": 0,
+            "S": 0,
+            "XL": 0
+        },
+        "imagenes": [
+            "https://nlnrdtcgbdkzfzwnsffp.supabase.co/storage/v1/object/public/product-images/pedido8-nacional-local/1793160581649-1.webp"
+        ]
     }
 ]

@@ -252,7 +252,7 @@ async function redactarFichaDeReferencia(ref, imagenes) {
   let fotoBase64 = null;
   if (imagenes.length) {
     try {
-      const res = await fetch(imagenes[0]);
+      const res = await fetch(imagenes[0], { signal: AbortSignal.timeout(30000) });
       if (res.ok) fotoBase64 = Buffer.from(await res.arrayBuffer()).toString('base64');
     } catch { /* sin foto se redacta igual, solo con los datos */ }
   }
@@ -288,7 +288,8 @@ async function redactarFichaDeReferencia(ref, imagenes) {
 export function equipoConDorsal(equipo, extras) {
   const texto = String(extras || '');
   if (!/dorsal|personaliza|name\s*:|patch|parche/i.test(texto)) return equipo;
-  const nombre = (texto.match(/name\s*:\s*([^,;)]+)/i) || [])[1];
+  // El PEDIDO 8 escribe el nombre como "DORSAL:DI MARIA" en vez de "NAME:".
+  const nombre = (texto.match(/(?:name|dorsal)\s*:\s*([^,;)]+)/i) || [])[1];
   const numero = (texto.match(/number\s*[:;]\s*(\d+)/i) || [])[1];
   const partes = [];
   if (nombre || numero) partes.push([nombre && nombre.trim(), numero].filter(Boolean).join(' '));
@@ -306,7 +307,9 @@ function pedidosDePreventa(referencia, prodId, equipo, basics) {
         cliente: String(referencia.cliente || '').trim() || 'Pendiente por Asignar',
         canal: referencia.canal || 'Amigos/Confianza',
         producto_id: prodId,
-        equipo: equipoConDorsal(equipo, fila.extras),
+        // El json de pedido-con-fotos.mjs no trae extras por fila, solo en la
+        // referencia: sin este respaldo el PEDIDO 8 quedo sin dorsales.
+        equipo: equipoConDorsal(equipo, fila.extras ?? referencia.extras),
         talla: fila.talla,
         cantidad: 1,
         precio_venta: fila.precio || referencia.precio || 99000,

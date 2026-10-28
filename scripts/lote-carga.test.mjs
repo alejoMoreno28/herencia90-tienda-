@@ -189,6 +189,7 @@ test('el pedido del cliente dice que dorsal lleva', () => {
   );
   assert.equal(equipoConDorsal('Camiseta Boca', 'Dorsal / Personalization, NAME:PAREDES, NUMBER:5 manga corta'), 'Camiseta Boca (PAREDES 5)');
   assert.equal(equipoConDorsal('Camiseta Ghana', 'manga corta'), 'Camiseta Ghana');
+  assert.equal(equipoConDorsal('Camiseta Argentina', 'DORSAL:DI MARIA, NUMBER:11'), 'Camiseta Argentina (DI MARIA 11)');
 });
 
 // Los pedidos a Snake se pagan con tarjeta. Con la categoria de caja, el pedido

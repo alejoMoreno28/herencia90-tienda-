@@ -1,0 +1,69 @@
+{
+ "aplicadas": {
+  "real madrid 99 visitante retro": {
+   "accion": "sumada",
+   "prodId": 42,
+   "cuando": "2026-10-28T03:37:00.154Z"
+  },
+  "camiseta manchester united 2007-2008 local manga larga cristiano ronaldo": {
+   "accion": "sumada",
+   "prodId": 70,
+   "cuando": "2026-10-28T03:37:00.531Z"
+  },
+  "camiseta retro barcelona 2005-2006 local final champions league": {
+   "accion": "sumada",
+   "prodId": 72,
+   "cuando": "2026-10-28T03:37:00.894Z"
+  },
+  "argentina 2022 local": {
+   "accion": "creada",
+   "prodId": 97,
+   "cuando": "2026-10-28T03:49:55.455Z"
+  },
+  "real madrid special edition hombre manga cortya": {
+   "accion": "creada",
+   "prodId": 98,
+   "cuando": "2026-10-28T03:53:12.703Z"
+  },
+  "boca juniors 25 26 local": {
+   "accion": "creada",
+   "prodId": 99,
+   "cuando": "2026-10-28T03:56:46.702Z"
+  },
+  "atletico nacional 26 visitante": {
+   "accion": "creada",
+   "prodId": 100,
+   "cuando": "2026-10-28T03:58:39.378Z"
+  },
+  "fiorentina local 26 27": {
+   "accion": "creada",
+   "prodId": 101,
+   "cuando": "2026-10-28T03:59:20.051Z"
+  },
+  "arsenal visitante 26 27 manga larga": {
+   "accion": "creada",
+   "prodId": 102,
+   "cuando": "2026-10-28T04:01:41.834Z"
+  },
+  "napoli manga larga 25 26 pre partido": {
+   "accion": "creada",
+   "prodId": 103,
+   "cuando": "2026-10-28T04:02:33.348Z"
+  },
+  "francia 96 zidane": {
+   "accion": "creada",
+   "prodId": 104,
+   "cuando": "2026-10-28T04:03:34.145Z"
+  },
+  "brasil 98 visitante ronaldo manga corta": {
+   "accion": "creada",
+   "prodId": 105,
+   "cuando": "2026-10-28T04:05:33.993Z"
+  },
+  "atletico nacional 26 27 local": {
+   "accion": "creada",
+   "prodId": 106,
+   "cuando": "2026-10-28T04:06:30.688Z"
+  }
+ }
+}

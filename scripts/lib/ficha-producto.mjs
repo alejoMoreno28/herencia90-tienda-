@@ -163,7 +163,9 @@ async function pedirleAlModelo(datos, apiKey, { intentos = 4 } = {}) {
     try {
       res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${apiKey}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo },
+        // Sin tope de tiempo, una conexion colgada dejaba la carga del PEDIDO 8
+        // detenida diez minutos sin error.
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo, signal: AbortSignal.timeout(60000) },
       );
     } catch (err) {
       ultimoError = new Error(`sin conexion (${err.message})`);
