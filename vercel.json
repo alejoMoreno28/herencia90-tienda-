@@ -181,6 +181,11 @@
   ],
   "redirects": [
     {
+      "source": "/camisetas/camiseta-real-madrid-edicion-especial-blanca-retro(.html)?",
+      "destination": "/camisetas/camiseta-real-madrid-originals-2026-blanca.html",
+      "permanent": true
+    },
+    {
       "source": "/preventa/real-madrid-1998-2000-local",
       "destination": "/preventa/real-madrid-1998-00",
       "permanent": true
